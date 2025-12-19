@@ -3,35 +3,95 @@
 import React, { useState, useEffect } from "react";
 import { Eye, EyeOff } from "lucide-react";
 import Image from "next/image";
+import { useRouter } from "next/navigation";
 
 /**
  * Login Page Component
  *
- * A responsive login page with nom_utilisateur/password authentication
+ * A responsive login page with username/password authentication
  * Features an image carousel on the right side
  *
  * @author Thomas Djotio Ndié
  * @date 2025-12-16
  */
 export default function LoginPage() {
-  const [nom_utilisateur, setNom_utilisateur] = useState("");
+  const [username, setUsername] = useState("");
   const [password, setPassword] = useState("");
   const [show_password, setShowPassword] = useState(false);
   const [remember_me, setRememberMe] = useState(false);
   const [current_slide, setCurrentSlide] = useState(0);
+  const [is_loading, setIsLoading] = useState(false);
+  const [error_message, setErrorMessage] = useState("");
+  const router = useRouter();
 
   const CAROUSEL_IMAGES = [
-    "/images/rectangle.png",
-    "/images/rectangle.png",
-    "/images/rectangle.png",
+    "/images/cameroun2___.jpg",
+    "/images/cameroun3___.jpg",
+    "/images/cameroun1___.jpg",
   ];
   const BUTTON_COLOR = "#6149CD";
   const TOTAL_SLIDES = CAROUSEL_IMAGES.length;
+  const API_BASE_URL = "http://localhost:8081/api";
 
-  const handleSubmit = () => {
-    console.log("Login attempt:", { nom_utilisateur, remember_me });
+  const handleSubmit = async () => {
+    setErrorMessage("");
+
+    if (!username || !password) {
+      setErrorMessage("Veuillez remplir tous les champs");
+      return;
+    }
+
+    setIsLoading(true);
+
+    try {
+      const response = await fetch(`${API_BASE_URL}/utilisateur/connexion`, {
+        method: "POST",
+        headers: {
+          "Content-Type": "application/json",
+        },
+        body: JSON.stringify({
+          username: username,
+          password: password,
+        }),
+      });
+
+      if (response.status === 500) {
+        setErrorMessage("Compte inexistant ou mot de passe incorrect");
+        return;
+      }
+
+      if (!response.ok) {
+        throw new Error("Identifiants incorrects");
+      }
+
+      const data = await response.json();
+
+      if (remember_me) {
+        localStorage.setItem("auth_token", data.token);
+        localStorage.setItem("user_data", JSON.stringify(data));
+      } else {
+        sessionStorage.setItem("auth_token", data.token);
+        sessionStorage.setItem("user_data", JSON.stringify(data));
+      }
+
+      const user_role = data.role[0];
+
+      if (user_role === "USAGER") {
+        router.push("/user/client/home");
+      } else if (user_role === "AGENCE_VOYAGE") {
+        router.push("/user/agence/dashboard");
+      } else if (user_role === "ORGANISATION") {
+        router.push("/user/organisation/dashboard");
+      } else {
+        router.push("/");
+      }
+    } catch (error: any) {
+      setErrorMessage("Une erreur est survenue lors de la connexion");
+      console.error("Login error:", error);
+    } finally {
+      setIsLoading(false);
+    }
   };
-
   const togglePasswordVisibility = () => {
     setShowPassword(!show_password);
   };
@@ -74,13 +134,22 @@ export default function LoginPage() {
 
           {/* Login Form */}
           <div className="space-y-5">
-            {/* nom_utilisateur Field */}
+            {/* Error Message */}
+            {error_message && (
+              <div className="mb-4 p-4 bg-red-50 border border-red-200 rounded-lg">
+                <p className="text-sm text-red-600">{error_message}</p>
+              </div>
+            )}
+
+            {/* username Field */}
             <fieldset className="h-15 border border-gray-500 rounded-lg px-4 pt-1 pb-3 hover:border-[#6149CD] focus-within:border-[#6149CD] transition-colors">
-              <legend className="text-sm text-gray-700 px-2">Nom d'utilisateur</legend>
+              <legend className="text-sm text-gray-700 px-2">
+                Nom d'utilisateur *
+              </legend>
               <input
-                type="nom_utilisateur"
-                value={nom_utilisateur}
-                onChange={(e) => setNom_utilisateur(e.target.value)}
+                type="username"
+                value={username}
+                onChange={(e) => setUsername(e.target.value)}
                 className="w-full outline-none text-base text-black"
               />
             </fieldset>
@@ -88,7 +157,7 @@ export default function LoginPage() {
             {/* Password Field */}
             <fieldset className="h-15 border border-gray-500 rounded-lg px-4 pt-1 pb-3 relative hover:border-[#6149CD] focus-within:border-[#6149CD] transition-colors">
               <legend className="text-sm text-gray-700 px-2">
-                Mot de passe
+                Mot de passe *
               </legend>
               <div className="flex items-center">
                 <input
@@ -118,7 +187,7 @@ export default function LoginPage() {
                 type="checkbox"
                 checked={remember_me}
                 onChange={(e) => setRememberMe(e.target.checked)}
-                className="w-4 h-4 border-2 border-gray-400 rounded focus:ring-[#6149CD] cursor-pointer checked:border-[#6149CD] checked:bg-[#6149CD]"
+                className="appearance-none w-4 h-4 border border-gray-400 rounded focus:ring-[#6149CD] cursor-pointer checked:border-gray-400 checked:bg-[#6149CD]"
               />
               <label
                 htmlFor="remember_me"
@@ -131,10 +200,12 @@ export default function LoginPage() {
             {/* Submit Button */}
             <button
               onClick={handleSubmit}
+              disabled={is_loading}
               style={{ backgroundColor: BUTTON_COLOR }}
-              className="h-12 w-full text-black rounded-md font-bold hover:opacity-95 transition-opacity focus:outline-none focus:ring-2 focus:ring-purple-500 focus:ring-offset-2 mt-3"
+              onKeyDown={(e) => e.key === "Enter" && handleSubmit()}
+              className="h-12 w-full text-black rounded-md font-bold hover:opacity-95 transition-opacity focus:outline-none focus:ring-2 focus:ring-purple-500 focus:ring-offset-2 mt-3 disabled:opacity-50 disabled:cursor-not-allowed"
             >
-              Se connecter
+              {is_loading ? "Connexion en cours..." : "Se connecter"}
             </button>
 
             {/* Sign Up Link */}
@@ -154,7 +225,7 @@ export default function LoginPage() {
       {/* Right Section - Image Carousel */}
       <div className="hidden lg:block lg:w-1/2 bg-white">
         <div className="h-screen flex items-center justify-center p-8">
-          <div className="relative w-full h-[700px] max-w-5xl overflow-hidden rounded-xl">
+          <div className="relative w-full h-175 max-w-5xl overflow-hidden rounded-xl">
             {/* Carousel Images Container */}
             <div
               className="flex h-full transition-transform duration-700 ease-in-out"
