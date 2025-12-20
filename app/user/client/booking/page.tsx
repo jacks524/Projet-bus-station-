@@ -18,7 +18,6 @@ import {
   Users,
   Luggage,
   CreditCard,
-  ArrowRight,
   Check,
   Plus,
   Minus,
@@ -101,7 +100,7 @@ export default function VoyageReservationPage() {
   const [mobile_phone, setMobilePhone] = useState("");
   const [mobile_phone_name, setMobilePhoneName] = useState("");
 
-  const [capacite_totale, setCapaciteTotale] = useState(0);
+  const [total_capacity, setTotalCapacity] = useState(0);
 
   const router = useRouter();
   const searchParams = useSearchParams();
@@ -169,7 +168,7 @@ export default function VoyageReservationPage() {
     if (voyage_id) {
       fetchVoyageDetails(voyage_id);
     } else {
-      router.push("/user/client/reserver");
+      router.push("/user/client/book");
     }
   }, [voyage_id]);
 
@@ -195,12 +194,9 @@ export default function VoyageReservationPage() {
       }
 
       const data = await response.json();
+      console.log("Fetched Voyage Data:", data);
 
-      if (capacite_totale === 0) {
-        const total_calcule =
-          data.nbrPlaceRestante + (data.placeReservees?.length || 0);
-        setCapaciteTotale(total_calcule);
-      }
+      setTotalCapacity(data.vehicule.nbrPlaces);
 
       setVoyage(data);
       setPlacesReservees(data.placeReservees || []);
@@ -343,6 +339,10 @@ export default function VoyageReservationPage() {
     setIsLoadingPaiement(true);
 
     try {
+      const auth_token =
+        localStorage.getItem("auth_token") ||
+        sessionStorage.getItem("auth_token");
+
       const payment_data = {
         mobilePhone: mobile_phone.trim(),
         mobilePhoneName: mobile_phone_name.trim(),
@@ -352,9 +352,10 @@ export default function VoyageReservationPage() {
       };
 
       const response = await fetch(`${API_BASE_URL}/reservation/payer`, {
-        method: "POST",
+        method: "PUT",
         headers: {
           "Content-Type": "application/json",
+          Authorization: `Bearer ${auth_token}`,
         },
         body: JSON.stringify(payment_data),
       });
@@ -385,7 +386,7 @@ export default function VoyageReservationPage() {
 
     const seats = [];
 
-    for (let i = 1; i < capacite_totale; i++) {
+    for (let i = 1; i <= total_capacity; i++) {
       const is_reserved = places_reservees.includes(i);
       const is_selected = places_selectionnees.includes(i);
 
@@ -442,7 +443,10 @@ export default function VoyageReservationPage() {
   };
 
   const isPaymentFormValid = () => {
-    return mobile_phone.trim() !== "" && mobile_phone_name.trim() !== "";
+    if (mobile_phone_name.trim() === "") return false;
+    const cleaned_phone = mobile_phone.replace(/\s|-|\+/g, "");
+    const phone_regex = /^\d{9}$/;
+    return phone_regex.test(cleaned_phone);
   };
 
   if (is_loading) {
@@ -460,15 +464,14 @@ export default function VoyageReservationPage() {
     return (
       <div className="min-h-screen bg-gray-50 flex items-center justify-center">
         <div className="bg-white rounded-lg shadow-lg p-8 max-w-md text-center">
-          <X className="w-16 h-16 text-red-500 mx-auto mb-4" />
+          <X className="w-16 h-16 text-white-500 mx-auto mb-4 bg-[#6149CD] rounded-full" />
           <h2 className="text-2xl font-bold text-gray-900 mb-2">Erreur</h2>
           <p className="text-gray-600 mb-6">
             {error_message || "Voyage introuvable"}
           </p>
           <button
-            onClick={() => router.push("/user/client/reserver")}
-            style={{ backgroundColor: BUTTON_COLOR }}
-            className="px-6 py-3 text-white rounded-lg hover:opacity-90 transition-opacity"
+            onClick={() => router.push("/user/client/book")}
+            className="px-6 py-3 bg-[#6149CD] text-white rounded-lg hover:opacity-90 transition-opacity"
           >
             Retour à la recherche
           </button>
@@ -609,7 +612,7 @@ export default function VoyageReservationPage() {
                     className="w-8.5 h-8.5 rounded-full object-cover"
                   />
                   <span className="font-medium text-gray-900 hidden md:block">
-                    {user_data?.username || "Utilisateur"}
+                    {user_data?.username}
                   </span>
                   <ChevronDown className="w-4 h-4 text-gray-600" />
                 </button>
@@ -836,7 +839,7 @@ export default function VoyageReservationPage() {
                     </button>
 
                     <button
-                      onClick={() => router.push("/user/client/reserver")}
+                      onClick={() => router.push("/user/client/book")}
                       className="w-full py-3 border-2 border-gray-300 text-gray-700 rounded-xl font-semibold hover:bg-gray-50 active:bg-gray-100 transition-all flex items-center justify-center space-x-2"
                     >
                       <span>Retour à la recherche</span>

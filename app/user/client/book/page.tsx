@@ -153,7 +153,6 @@ export default function ClientReservePage() {
     setErrorMessage("");
 
     try {
-      // Récupérer TOUS les voyages sans filtre
       const response = await fetch(
         `${API_BASE_URL}/voyage/all?page=0&size=1000`,
         {
@@ -235,6 +234,9 @@ export default function ClientReservePage() {
     e.preventDefault();
     setCurrentPage(0);
     searchVoyages();
+    setTimeout(() => {
+      window.scrollTo(0, document.body.scrollHeight);
+    }, 0);
   };
 
   const handleLogout = () => {
@@ -404,7 +406,7 @@ export default function ClientReservePage() {
                     className="w-8.5 h-8.5 rounded-full object-cover"
                   />
                   <span className="font-medium text-gray-900 hidden md:block">
-                    {user_data?.username || "Utilisateur"}
+                    {user_data?.username}
                   </span>
                   <ChevronDown className="w-4 h-4 text-gray-600" />
                 </button>
@@ -618,7 +620,11 @@ export default function ClientReservePage() {
 
           {/* Error Message */}
           {error_message && (
-            <div className="bg-red-50 border border-red-200 rounded-lg p-4 mb-6">
+            <div
+              onClick={() => window.location.reload()}
+              className="bg-red-50 border border-red-200 rounded-lg p-4 mb-6"
+            >
+              <X className="w-12 h-12 text-red-500 mx-auto mb-4" />
               <p className="text-red-600">{error_message}</p>
             </div>
           )}
@@ -627,7 +633,7 @@ export default function ClientReservePage() {
           {is_loading && (
             <div className="flex items-center justify-center py-20">
               <div className="text-center">
-                <Search className="w-12 h-12 text-[#6149CD] animate-pulse mx-auto mb-4" />
+                <Search className="w-12 h-12 text-[#6149CD] animate-spin mx-auto mb-4" />
                 <p className="text-gray-600">Recherche en cours...</p>
               </div>
             </div>
@@ -651,7 +657,8 @@ export default function ClientReservePage() {
                 {voyages.map((voyage) => (
                   <div
                     key={voyage.idVoyage}
-                    className="bg-white rounded-xl shadow-sm border border-gray-200 p-4 hover:shadow-md transition-shadow"
+                    onClick={() => handleReserver(voyage.idVoyage)}
+                    className="bg-white rounded-xl shadow-sm border border-gray-200 p-4 hover:shadow-md hover:scale-101 transition-shadow"
                   >
                     {/* En-tête avec agence et ID */}
                     <div className="flex items-start justify-between mb-4">
@@ -663,9 +670,7 @@ export default function ClientReservePage() {
                           {getAgencyInitials(voyage.nomAgence)}
                         </div>
                         <div className="flex-1">
-                          <span className="text-gray-600">
-                            Nom de l'agence
-                          </span>
+                          <span className="text-gray-600">Nom de l'agence</span>
                           <h3 className="font-bold text-gray-900 mb-1">
                             {voyage.nomAgence}
                           </h3>
@@ -690,7 +695,8 @@ export default function ClientReservePage() {
                       <div className="flex items-center text-xs text-gray-600">
                         <Compass className="w-3.5 h-3.5 text-gray-400 mr-2 shrink-0" />
                         <span>
-                          Itinéraire : De {voyage.pointDeDepart} vers {voyage.pointArrivee}
+                          Itinéraire : De {voyage.pointDeDepart} vers{" "}
+                          {voyage.pointArrivee}
                         </span>
                       </div>
                     </div>

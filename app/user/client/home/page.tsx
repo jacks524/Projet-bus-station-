@@ -374,7 +374,7 @@ export default function ClientHomePage() {
                     className="w-8.5 h-8.5 rounded-full object-cover"
                   />
                   <span className="font-medium text-gray-900 hidden md:block">
-                    {user_data?.username || "Utilisateur"}
+                    {user_data?.username}
                   </span>
                   <ChevronDown className="w-4 h-4 text-gray-600" />
                 </button>
@@ -469,7 +469,10 @@ export default function ClientHomePage() {
               {!is_loading && !error_message && voyages.length === 0 && (
                 <div className="bg-white border border-gray-200 rounded-lg p-12 text-center">
                   <Calendar className="w-16 h-16 text-gray-400 mx-auto mb-4" />
-                  <h3 className="text-xl font-semibold text-gray-900 mb-2">
+                  <h3
+                    onClick={() => window.location.reload()}
+                    className="text-xl font-semibold text-gray-900 mb-2 hover:scale-105 active:scale-95 transition-transform cursor-pointer"
+                  >
                     Aucun voyage disponible
                   </h3>
                   <p className="text-gray-600 mb-6">

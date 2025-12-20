@@ -190,7 +190,11 @@ export default function ClientSettingsPage() {
               {MENU_ITEMS.map((item, index) => (
                 <button
                   key={index}
-                  onClick={() => item.active ? window.location.reload() : router.push(item.path)}
+                  onClick={() =>
+                    item.active
+                      ? window.location.reload()
+                      : router.push(item.path)
+                  }
                   className={`w-full flex items-center space-x-3 px-4 py-3 rounded-lg transition-colors ${
                     item.active
                       ? "bg-[#6149CD] text-white"
@@ -291,7 +295,7 @@ export default function ClientSettingsPage() {
                     className="w-8.5 h-8.5 rounded-full object-cover"
                   />
                   <span className="font-medium text-gray-900 hidden md:block">
-                    {user_profile?.username || "Utilisateur"}
+                    {user_profile?.username}
                   </span>
                   <ChevronDown className="w-4 h-4 text-gray-600" />
                 </button>
