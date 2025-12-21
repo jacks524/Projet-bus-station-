@@ -202,7 +202,6 @@ export default function VoyageReservationPage() {
       }
 
       const data = await response.json();
-      console.log("Fetched Voyage Data:", data);
 
       setTotalCapacity(data.vehicule.nbrPlaces);
 

@@ -88,9 +88,9 @@ export default function LoginPage() {
       if (user_role === "USAGER") {
         router.push("/user/client/home");
       } else if (user_role === "AGENCE_VOYAGE") {
-        router.push("/user/agence/dashboard");
+        router.push("/user/agency/dashboard");
       } else if (user_role === "ORGANISATION") {
-        router.push("/user/organisation/dashboard");
+        router.push("/user/organization/dashboard");
       } else {
         router.push("/");
       }

@@ -73,10 +73,10 @@ export default function LoginBSMPage() {
         throw new Error("Accès réservé aux administrateurs BSM uniquement");
       }
 
-      sessionStorage.setItem("auth_token", data.token);
-      sessionStorage.setItem("user_data", JSON.stringify(data));
+      sessionStorage.setItem("bsm_token", data.token);
+      sessionStorage.setItem("bsm_data", JSON.stringify(data));
 
-      router.push("/bsm/dashboard");
+      router.push("/user/bsm/dashboard");
     } catch (error: any) {
       setErrorMessage("Une erreur est survenue lors de la connexion");
       console.error("Login error:", error);

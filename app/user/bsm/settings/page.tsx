@@ -3,11 +3,7 @@
 import React, { useState, useEffect } from "react";
 import {
   Home,
-  Calendar,
-  FileText,
-  Ticket,
-  Gift,
-  History,
+  Eye,
   Settings,
   ChevronDown,
   User,
@@ -63,52 +59,31 @@ export default function ClientSettingsPage() {
   const BUTTON_COLOR = "#6149CD";
 
   const MENU_ITEMS = [
-    { icon: Home, label: "Accueil", path: "/user/client/home", active: false },
     {
-      icon: Calendar,
-      label: "Réserver",
-      path: "/user/client/book",
+      icon: Home,
+      label: "Dashboard",
+      path: "/user/bsm/dashboard",
       active: false,
     },
     {
-      icon: FileText,
-      label: "Réservations",
-      path: "/user/client/reservations",
-      active: false,
-    },
-    {
-      icon: Ticket,
-      label: "Billets",
-      path: "/user/client/tickets",
-      active: false,
-    },
-    {
-      icon: Gift,
-      label: "Coupons",
-      path: "/user/client/vouchers",
-      active: false,
-    },
-    {
-      icon: History,
-      label: "Historique",
-      path: "/user/client/history",
+      icon: Eye,
+      label: "Surveillance",
+      path: "/user/bsm/monitoring",
       active: false,
     },
     {
       icon: Settings,
       label: "Mes paramètres",
-      path: "/user/client/settings",
+      path: "/user/bsm/settings",
       active: true,
     },
   ];
 
   useEffect(() => {
-    const auth_token =
-      localStorage.getItem("auth_token") ||
-      sessionStorage.getItem("auth_token");
+    const bsm_token = sessionStorage.getItem("bsm_token");
 
-    if (!auth_token) {
-      router.push("/login");
+    if (!bsm_token) {
+      router.push("/bsm/login");
       return;
     }
 
@@ -120,15 +95,13 @@ export default function ClientSettingsPage() {
     setErrorMessage("");
 
     try {
-      const auth_token =
-        localStorage.getItem("auth_token") ||
-        sessionStorage.getItem("auth_token");
+      const bsm_token = sessionStorage.getItem("bsm_token");
 
       const response = await fetch(`${API_BASE_URL}/utilisateur/profil`, {
         method: "GET",
         headers: {
           "Content-Type": "application/json",
-          Authorization: `Bearer ${auth_token}`,
+          Authorization: `Bearer ${bsm_token}`,
         },
       });
 
@@ -138,12 +111,10 @@ export default function ClientSettingsPage() {
 
       const data = await response.json();
 
-      const stored_user_data =
-        localStorage.getItem("user_data") ||
-        sessionStorage.getItem("user_data");
+      const stored_bsm_data = sessionStorage.getItem("bsm_data");
       let email = "";
-      if (stored_user_data) {
-        const parsed_data = JSON.parse(stored_user_data);
+      if (stored_bsm_data) {
+        const parsed_data = JSON.parse(stored_bsm_data);
         email = parsed_data.email || "";
       }
 
@@ -157,11 +128,9 @@ export default function ClientSettingsPage() {
   };
 
   const handleLogout = () => {
-    localStorage.removeItem("auth_token");
-    localStorage.removeItem("user_data");
-    sessionStorage.removeItem("auth_token");
-    sessionStorage.removeItem("user_data");
-    router.push("/login");
+    sessionStorage.removeItem("bsm_token");
+    sessionStorage.removeItem("bsm_data");
+    router.push("/bsm/login");
   };
 
   const getRoleLabel = (role: string) => {
@@ -506,7 +475,7 @@ export default function ClientSettingsPage() {
               {/* Action Buttons */}
               <div className="flex justify-between items-center">
                 <button
-                  onClick={() => router.push("/user/client/home")}
+                  onClick={() => router.push("/user/bsm/dashboard")}
                   className="px-6 py-2 border border-gray-300 text-gray-700 rounded-lg hover:bg-gray-300 active:bg-gray-200 transition-colors"
                 >
                   Retour à l'accueil
