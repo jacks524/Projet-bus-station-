@@ -22,6 +22,7 @@ import {
   ChevronRight,
 } from "lucide-react";
 import { useRouter } from "next/navigation";
+import { Agdasima } from "next/font/google";
 
 interface Voyage {
   idVoyage: string;
@@ -65,6 +66,13 @@ interface UserData {
   email: string;
   userId: string;
 }
+
+const font = Agdasima({
+  subsets: ["latin"],
+  weight: ["400", "700"],
+  display: "swap",
+  style: "normal",
+});
 
 /**
  * Client Reservations Page Component
@@ -289,7 +297,7 @@ export default function ClientReservationsPage() {
   };
 
   return (
-    <div className="min-h-screen bg-gray-50 flex">
+    <div className={`min-h-screen bg-gray-50 flex ${font.className}`}>
       {/* Sidebar */}
       <>
         <aside className="hidden lg:flex lg:flex-col w-64 bg-white border-r border-gray-200 fixed h-full">

@@ -4,6 +4,7 @@ import React, { useState, useEffect } from "react";
 import { Eye, EyeOff, Check, X } from "lucide-react";
 import Image from "next/image";
 import { useRouter } from "next/navigation";
+import { Agdasima } from "next/font/google";
 
 /**
  * Signup Page Component
@@ -14,6 +15,14 @@ import { useRouter } from "next/navigation";
  * @author Thomas Djotio Ndié
  * @date 2025-12-16
  */
+
+const font = Agdasima({
+  subsets: ["latin"],
+  weight: ["400", "700"],
+  display: "swap",
+  style: "normal",
+});
+
 export default function SignupPage() {
   const [firstName, setFirstName] = useState("");
   const [lastName, setLastName] = useState("");
@@ -98,7 +107,9 @@ export default function SignupPage() {
 
       const data = await response.json();
 
-      setSuccessMessage("Compte créé avec succès ! Redirection dans quelques instants...");
+      setSuccessMessage(
+        "Compte créé avec succès ! Redirection dans quelques instants..."
+      );
 
       setTimeout(() => {
         router.push("/login");
@@ -134,7 +145,7 @@ export default function SignupPage() {
   }, [TOTAL_SLIDES]);
 
   return (
-    <div className="min-h-screen flex">
+    <div className={`min-h-screen flex ${font.className}`}>
       {/* Left Section - Image Carousel */}
       <div className="hidden lg:block lg:w-1/2 bg-white">
         <div className="h-screen flex items-center justify-center p-8">

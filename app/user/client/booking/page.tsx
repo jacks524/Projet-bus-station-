@@ -25,6 +25,7 @@ import {
   Compass,
 } from "lucide-react";
 import { useRouter, useSearchParams } from "next/navigation";
+import { Agdasima } from "next/font/google";
 
 interface Voyage {
   idVoyage: string;
@@ -64,6 +65,13 @@ interface Reservation {
   voyage: Voyage;
   placesReservees: number[];
 }
+
+const font = Agdasima({
+  subsets: ["latin"],
+  weight: ["400", "700"],
+  display: "swap",
+  style: "normal",
+});
 
 /**
  * Client Voyage Reservation Page Component
@@ -451,7 +459,7 @@ export default function VoyageReservationPage() {
 
   if (is_loading) {
     return (
-      <div className="min-h-screen bg-gray-50 flex items-center justify-center">
+      <div className={`min-h-screen bg-gray-50 flex items-center justify-center ${font.className}`}>
         <div className="text-center">
           <Calendar className="w-16 h-16 text-[#6149CD] animate-spin mx-auto mb-4" />
           <p className="text-gray-600">Chargement du voyage...</p>
@@ -462,7 +470,7 @@ export default function VoyageReservationPage() {
 
   if (error_message || !voyage) {
     return (
-      <div className="min-h-screen bg-gray-50 flex items-center justify-center">
+      <div className={`min-h-screen bg-gray-50 flex items-center justify-center ${font.className}`}>
         <div className="bg-white rounded-lg shadow-lg p-8 max-w-md text-center">
           <X className="w-16 h-16 text-white-500 mx-auto mb-4 bg-[#6149CD] rounded-full" />
           <h2 className="text-2xl font-bold text-gray-900 mb-2">Erreur</h2>
@@ -481,7 +489,7 @@ export default function VoyageReservationPage() {
   }
 
   return (
-    <div className="min-h-screen bg-gray-50 flex">
+    <div className={`min-h-screen bg-gray-50 flex ${font.className}`}>
       {/* Sidebar */}
       <>
         <aside className="hidden lg:flex lg:flex-col w-64 bg-white border-r border-gray-200 fixed h-full">

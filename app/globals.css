@@ -3,6 +3,8 @@
 :root {
   --background: #ffffff;
   --foreground: #171717;
+  font-size: 18px;
+
 }
 
 @theme inline {

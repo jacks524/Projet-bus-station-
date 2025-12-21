@@ -23,6 +23,7 @@ import {
 } from "lucide-react";
 import Image from "next/image";
 import { useRouter } from "next/navigation";
+import { Agdasima } from "next/font/google";
 
 interface Voyage {
   idVoyage: string;
@@ -58,6 +59,13 @@ interface AgenceValidee {
   statut_validation: string;
   date_validation: string;
 }
+
+const font = Agdasima({
+  subsets: ["latin"],
+  weight: ["400", "700"],
+  display: "swap",
+  style: "normal",
+});
 
 /**
  * Client Home Page Component
@@ -241,7 +249,7 @@ export default function ClientHomePage() {
   };
 
   return (
-    <div className="min-h-screen bg-gray-50 flex">
+    <div className={`min-h-screen bg-gray-50 flex ${font.className}`}>
       {/* Sidebar */}
       <>
         <aside className="hidden lg:flex lg:flex-col w-64 bg-white border-r border-gray-200 fixed h-full">
