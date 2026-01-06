@@ -22,7 +22,8 @@ cd Projet-bus-station-
 # Installer les dépendances
 npm install
 
-# Compiler (Demande node >= 20.9.0)
+# Démarrer le serveur (Demande node >= 20.9.0)
 # nvm install 20.9.0
+# nvm use 20.9.0
 npm run dev
 ```

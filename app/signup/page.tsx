@@ -1,7 +1,19 @@
 "use client";
 
 import React, { useState, useEffect } from "react";
-import { Eye, EyeOff, Check, X, Upload, User, Building2, MapPin } from "lucide-react";
+import {
+  Eye,
+  EyeOff,
+  Check,
+  X,
+  Upload,
+  User,
+  Building2,
+  MapPin,
+} from "lucide-react";
+import Image from "next/image";
+import { useRouter } from "next/navigation";
+import { Agdasima } from "next/font/google";
 
 /**
  * Signup Page Component with Multi-Role Support
@@ -14,6 +26,14 @@ import { Eye, EyeOff, Check, X, Upload, User, Building2, MapPin } from "lucide-r
  * @author Thomas Djotio Ndié
  * @date 2024-12-24
  */
+
+const font = Agdasima({
+  subsets: ["latin"],
+  weight: ["400", "700"],
+  display: "swap",
+  style: "normal",
+});
+
 export default function SignupPage() {
   // Account Type
   const [accountType, setAccountType] = useState<"client" | "bsm" | "company">(
@@ -26,6 +46,7 @@ export default function SignupPage() {
   const [email, setEmail] = useState("");
   const [phone, setPhone] = useState("");
   const [username, setUsername] = useState("");
+  const [gender, setGender] = useState("MALE");
   const [password, setPassword] = useState("");
   const [confirmPassword, setConfirmPassword] = useState("");
   const [showPassword, setShowPassword] = useState(false);
@@ -48,47 +69,94 @@ export default function SignupPage() {
 
   // Carousel
   const [currentSlide, setCurrentSlide] = useState(0);
+  const [is_loading, setIsLoading] = useState(false);
+  const [error_message, setErrorMessage] = useState("");
+  const [success_message, setSuccessMessage] = useState("");
+  const router = useRouter();
 
   const CAROUSEL_IMAGES = [
-    "/images/rectangle.png",
-    "/images/rectangle.png",
-    "/images/rectangle.png",
+    "/images/cameroun2___.jpg",
+    "/images/cameroun3___.jpg",
+    "/images/cameroun1___.jpg",
   ];
   const BUTTON_COLOR = "#6149CD";
   const TOTAL_SLIDES = CAROUSEL_IMAGES.length;
+  const API_BASE_URL = "http://localhost:8081/api";
 
-  const handleSubmit = () => {
-    const baseData = {
-      accountType,
-      firstName,
-      lastName,
-      email,
-      phone,
-      username,
-      acceptTerms,
-    };
+  const handleSubmit = async () => {
+    setErrorMessage("");
+    setSuccessMessage("");
 
-    let specificData = {};
-
-    if (accountType === "bsm") {
-      specificData = {
-        cniNumber,
-        city,
-        busStationName,
-        position,
-        bsmDocument: bsmDocument?.name,
-      };
-    } else if (accountType === "company") {
-      specificData = {
-        companyName,
-        taxNumber,
-        companyRegistration,
-        managerIdentity,
-        companyDocument: companyDocument?.name,
-      };
+    if (!isFormValid()) {
+      setErrorMessage("Veuillez remplir tous les champs");
+      return;
     }
 
-    console.log("Signup attempt:", { ...baseData, ...specificData });
+    if (password !== confirmPassword) {
+      setErrorMessage("Les mots de passe ne correspondent pas");
+      return;
+    }
+
+    if (!acceptTerms) {
+      setErrorMessage("Veuillez accepter les conditions d'utilisation");
+      return;
+    }
+
+    setIsLoading(true);
+
+    const role_map = {
+      client: "USAGER",
+      bsm: "BSM",
+      company: "ORGANISATION",
+    } as const;
+
+    try {
+      const response = await fetch(`${API_BASE_URL}/utilisateur/inscription`, {
+        method: "POST",
+        headers: {
+          "Content-Type": "application/json",
+        },
+        body: JSON.stringify({
+          username: username,
+          password: password,
+          email: email,
+          last_name: lastName,
+          first_name: firstName,
+          phone_number: phone,
+          role: [role_map[accountType]],
+          gender: gender,
+        }),
+      });
+
+      if (!response.ok) {
+        let error_message =
+          "Une erreur est survenue lors de l'inscription";
+
+        try {
+          const error_data = await response.json();
+          error_message = error_data.message || error_message;
+        } catch {
+          // Ignore JSON parse errors for non-JSON responses.
+        }
+
+        throw new Error(error_message);
+      }
+
+      await response.json();
+
+      setSuccessMessage(
+        "Compte créé avec succès ! Redirection dans quelques instants..."
+      );
+
+      setTimeout(() => {
+        router.push("/login");
+      }, 2000);
+    } catch (error: any) {
+      setErrorMessage("Une erreur est survenue lors de l'inscription");
+      console.error("Signup error:", error);
+    } finally {
+      setIsLoading(false);
+    }
   };
 
   const handleFileUpload = (
@@ -130,6 +198,7 @@ export default function SignupPage() {
           username &&
           password &&
           confirmPassword &&
+          gender &&
           acceptTerms
       ) && password === confirmPassword;
     
@@ -153,18 +222,25 @@ export default function SignupPage() {
   };
 
   return (
-    <div className="min-h-screen flex">
+    <div className={`min-h-screen flex ${font.className}`}>
       {/* Left Section - Image Carousel */}
       <div className="hidden lg:block lg:w-1/2 bg-white">
         <div className="h-screen flex items-center justify-center p-8">
-          <div className="relative w-full h-[700px] max-w-5xl overflow-hidden rounded-xl">
+          <div className="relative w-full h-175 max-w-5xl overflow-hidden rounded-xl">
+            {/* Carousel Images Container */}
             <div
               className="flex h-full transition-transform duration-700 ease-in-out"
               style={{ transform: `translateX(-${currentSlide * 100}%)` }}
             >
               {CAROUSEL_IMAGES.map((image_path, index) => (
-                <div key={index} className="min-w-full h-full relative bg-gray-200 flex items-center justify-center">
-                  <span className="text-gray-500">Image {index + 1}</span>
+                <div key={index} className="min-w-full h-full relative">
+                  <Image
+                    src={image_path}
+                    alt={`Slide ${index + 1}`}
+                    fill
+                    style={{ objectFit: "cover" }}
+                    quality={75}
+                  />
                 </div>
               ))}
             </div>
@@ -253,24 +329,38 @@ export default function SignupPage() {
 
           {/* Signup Form */}
           <div className="space-y-5">
+            {/* Error Message */}
+            {error_message && (
+              <div className="mb-4 p-4 bg-red-50 border border-red-200 rounded-lg">
+                <p className="text-sm text-red-600">{error_message}</p>
+              </div>
+            )}
+
+            {/* Success Message */}
+            {success_message && (
+              <div className="mb-4 p-4 bg-green-50 border border-green-200 rounded-lg">
+                <p className="text-sm text-green-600">{success_message}</p>
+              </div>
+            )}
+
             {/* First Name and Last Name */}
             <div className="grid grid-cols-2 gap-4">
               <fieldset className="h-15 border border-gray-500 rounded-lg px-4 pt-1 pb-3 hover:border-[#6149CD] focus-within:border-[#6149CD] transition-colors">
-                <legend className="text-sm text-gray-700 px-2">Nom</legend>
+                <legend className="text-sm text-gray-700 px-2">Nom *</legend>
                 <input
                   type="text"
-                  value={lastName}
-                  onChange={(e) => setLastName(e.target.value)}
+                  value={firstName}
+                  onChange={(e) => setFirstName(e.target.value)}
                   className="w-full outline-none text-base text-black"
                 />
               </fieldset>
 
               <fieldset className="h-15 border border-gray-500 rounded-lg px-4 pt-1 pb-3 hover:border-[#6149CD] focus-within:border-[#6149CD] transition-colors">
-                <legend className="text-sm text-gray-700 px-2">Prénom</legend>
+                <legend className="text-sm text-gray-700 px-2">Prénom *</legend>
                 <input
                   type="text"
-                  value={firstName}
-                  onChange={(e) => setFirstName(e.target.value)}
+                  value={lastName}
+                  onChange={(e) => setLastName(e.target.value)}
                   className="w-full outline-none text-base text-black"
                 />
               </fieldset>
@@ -279,7 +369,7 @@ export default function SignupPage() {
             {/* Email and Phone */}
             <div className="grid grid-cols-2 gap-4">
               <fieldset className="h-15 border border-gray-500 rounded-lg px-4 pt-1 pb-3 hover:border-[#6149CD] focus-within:border-[#6149CD] transition-colors">
-                <legend className="text-sm text-gray-700 px-2">Email</legend>
+                <legend className="text-sm text-gray-700 px-2">Email *</legend>
                 <input
                   type="email"
                   value={email}
@@ -289,22 +379,27 @@ export default function SignupPage() {
               </fieldset>
 
               <fieldset className="h-15 border border-gray-500 rounded-lg px-4 pt-1 pb-3 hover:border-[#6149CD] focus-within:border-[#6149CD] transition-colors">
-                <legend className="text-sm text-gray-700 px-2">
-                  Numéro de téléphone
-                </legend>
-                <input
-                  type="tel"
-                  value={phone}
-                  onChange={(e) => setPhone(e.target.value)}
-                  className="w-full outline-none text-base text-black"
-                />
+                <legend className="text-sm text-gray-700 px-2">Numéro *</legend>
+                <div className="flex items-center gap-2">
+                  <span className="text-base text-gray-900 font-medium shrink-0">
+                    +237 🇨🇲
+                  </span>
+                  <input
+                    type="tel"
+                    value={phone}
+                    onChange={(e) => setPhone(e.target.value)}
+                    placeholder="6XX XX XX XX"
+                    maxLength={9}
+                    className="w-full outline-none text-base text-black"
+                  />
+                </div>
               </fieldset>
             </div>
 
             {/* Username */}
             <fieldset className="h-15 border border-gray-500 rounded-lg px-4 pt-1 pb-3 hover:border-[#6149CD] focus-within:border-[#6149CD] transition-colors">
               <legend className="text-sm text-gray-700 px-2">
-                Nom d&apos;utilisateur
+                Nom d&apos;utilisateur *
               </legend>
               <input
                 type="text"
@@ -313,6 +408,40 @@ export default function SignupPage() {
                 className="w-full outline-none text-base text-black"
               />
             </fieldset>
+
+            {/* Gender */}
+            <div className="space-y-2">
+              <label className="text-sm text-gray-700">Genre *</label>
+              <div className="flex gap-6">
+                <label className="flex items-center space-x-3 cursor-pointer group">
+                  <input
+                    type="radio"
+                    name="gender"
+                    value="MALE"
+                    checked={gender === "MALE"}
+                    onChange={(e) => setGender(e.target.value)}
+                    className="appearance-none w-5 h-5 border-2 border-gray-400 rounded-full cursor-pointer checked:bg-[#6149CD] checked:border-gray-400 outline-none"
+                  />
+                  <span className="text-base text-gray-900 group-hover:text-[#6149CD] transition-colors">
+                    Masculin
+                  </span>
+                </label>
+
+                <label className="flex items-center space-x-3 cursor-pointer group">
+                  <input
+                    type="radio"
+                    name="gender"
+                    value="FEMALE"
+                    checked={gender === "FEMALE"}
+                    onChange={(e) => setGender(e.target.value)}
+                    className="appearance-none w-5 h-5 border-2 border-gray-400 rounded-full cursor-pointer checked:bg-[#6149CD] checked:border-gray-400 outline-none"
+                  />
+                  <span className="text-base text-gray-900 group-hover:text-[#6149CD] transition-colors">
+                    Féminin
+                  </span>
+                </label>
+              </div>
+            </div>
 
             {/* Conditional Fields for Bus Station Manager */}
             {accountType === "bsm" && (
@@ -462,7 +591,7 @@ export default function SignupPage() {
             <div className="grid grid-cols-2 gap-4">
               <fieldset className="h-15 border border-gray-500 rounded-lg px-4 pt-1 pb-3 relative hover:border-[#6149CD] focus-within:border-[#6149CD] transition-colors">
                 <legend className="text-sm text-gray-700 px-2">
-                  Mot de passe
+                  Mot de passe *
                 </legend>
                 <div className="flex items-center">
                   <input
@@ -487,7 +616,7 @@ export default function SignupPage() {
 
               <fieldset className="h-15 border border-gray-500 rounded-lg px-4 pt-1 pb-3 relative hover:border-[#6149CD] focus-within:border-[#6149CD] transition-colors">
                 <legend className="text-sm text-gray-700 px-2">
-                  Confirmer votre mot de passe
+                  Confirmation
                 </legend>
                 <div className="flex items-center">
                   <input
@@ -539,7 +668,7 @@ export default function SignupPage() {
                 type="checkbox"
                 checked={acceptTerms}
                 onChange={(e) => setAcceptTerms(e.target.checked)}
-                className="w-4 h-4 border-2 border-gray-400 rounded focus:ring-[#6149CD] cursor-pointer checked:border-[#6149CD] checked:bg-[#6149CD] mt-1"
+                className="appearance-none w-4 h-4 border border-gray-400 rounded focus:ring-[#6149CD] cursor-pointer checked:border-gray-400 checked:bg-[#6149CD] mt-1"
               />
               <label
                 htmlFor="accept_terms"
@@ -559,14 +688,16 @@ export default function SignupPage() {
             {/* Submit Button */}
             <button
               onClick={handleSubmit}
+              disabled={!isFormValid() || is_loading}
               style={{
-                backgroundColor: isFormValid() ? BUTTON_COLOR : "#D1D5DB",
-                cursor: isFormValid() ? "pointer" : "not-allowed",
+                backgroundColor:
+                  isFormValid() && !is_loading ? BUTTON_COLOR : "#D1D5DB",
+                cursor:
+                  isFormValid() && !is_loading ? "pointer" : "not-allowed",
               }}
-              disabled={!isFormValid()}
               className="h-12 w-full text-white rounded-md font-bold hover:opacity-95 transition-opacity focus:outline-none focus:ring-2 focus:ring-purple-500 focus:ring-offset-2 disabled:opacity-70 disabled:cursor-not-allowed"
             >
-              Créer votre compte
+              {is_loading ? "Création du compte..." : "Créer votre compte"}
             </button>
 
             {/* Login Link */}
