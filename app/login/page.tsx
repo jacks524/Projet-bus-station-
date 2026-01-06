@@ -76,9 +76,11 @@ export default function LoginPage() {
           <div className="space-y-5">
             {/* nom_utilisateur Field */}
             <fieldset className="h-15 border border-gray-500 rounded-lg px-4 pt-1 pb-3 hover:border-[#6149CD] focus-within:border-[#6149CD] transition-colors">
-              <legend className="text-sm text-gray-700 px-2">Nom d'utilisateur</legend>
+              <legend className="text-sm text-gray-700 px-2">
+                Nom d&apos;utilisateur
+              </legend>
               <input
-                type="nom_utilisateur"
+                type="text"
                 value={nom_utilisateur}
                 onChange={(e) => setNom_utilisateur(e.target.value)}
                 className="w-full outline-none text-base text-black"
@@ -139,12 +141,12 @@ export default function LoginPage() {
 
             {/* Sign Up Link */}
             <div className="text-center text-sm text-gray-600 pt-2">
-              Vous n'avez pas de compte?{" "}
+              Vous n&apos;avez pas de compte?{" "}
               <a
                 href="/signup"
                 className="font-semibold text-gray-900 hover:underline"
               >
-                S'inscrire
+                S&apos;inscrire
               </a>
             </div>
           </div>

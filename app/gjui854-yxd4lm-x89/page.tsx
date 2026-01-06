@@ -17,7 +17,7 @@ export default function LoginBSMPage() {
   const [nom_utilisateur, setNom_utilisateur] = useState("");
   const [password, setPassword] = useState("");
   const [show_password, setShowPassword] = useState(false);
-  const [remember_me, setRememberMe] = useState(false);
+  const [remember_me] = useState(false);
   const [current_slide, setCurrentSlide] = useState(0);
 
   const CAROUSEL_IMAGES = [
@@ -76,7 +76,9 @@ export default function LoginBSMPage() {
           <div className="space-y-5">
             {/* nom_utilisateur Field */}
             <fieldset className="h-15 border border-gray-500 rounded-lg px-4 pt-1 pb-3 hover:border-[#6149CD] focus-within:border-[#6149CD] transition-colors">
-              <legend className="text-sm text-gray-700 px-2">Nom d'utilisateur</legend>
+              <legend className="text-sm text-gray-700 px-2">
+                Nom d&apos;utilisateur
+              </legend>
               <input
                 type="text"
                 value={nom_utilisateur}
