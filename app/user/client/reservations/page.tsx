@@ -108,7 +108,7 @@ export default function ClientReservationsPage() {
 
   const API_BASE_URL = "http://localhost:8081/api";
   const BUTTON_COLOR = "#6149CD";
-  const RESERVATIONS_PER_PAGE = 10;
+  const RESERVATIONS_PER_PAGE = 3;
 
   const MENU_ITEMS = [
     { icon: Home, label: "Accueil", path: "/user/client/home", active: false },
@@ -233,50 +233,49 @@ export default function ClientReservationsPage() {
     setShowPaiementModal(true);
   };
 
-  const effectuerPaiement = async () => {
-    if (!mobile_phone.trim() || !mobile_phone_name.trim()) {
-      return;
+const effectuerPaiement = async () => {
+  if (!mobile_phone.trim() || !mobile_phone_name.trim()) {
+    return;
+  }
+
+  setIsLoadingPaiement(true);
+
+  try {
+    const auth_token =
+      localStorage.getItem("auth_token") ||
+      sessionStorage.getItem("auth_token");
+
+    const payment_data = {
+      amount: selected_reservation?.reservation.prixTotal || 0,
+      reservation_id: selected_reservation?.reservation.idReservation || "",
+      simulate_success: true
+    };
+
+    const response = await fetch(`${API_BASE_URL}/reservation/simulate-payment`, {
+      method: "POST",
+      headers: {
+        "Content-Type": "application/json",
+        Authorization: `Bearer ${auth_token}`,
+      },
+      body: JSON.stringify(payment_data),
+    });
+
+    if (!response.ok) {
+      throw new Error("Erreur lors du paiement");
     }
 
-    setIsLoadingPaiement(true);
-
-    try {
-      const auth_token =
-        localStorage.getItem("auth_token") ||
-        sessionStorage.getItem("auth_token");
-
-      const payment_data = {
-        mobilePhone: mobile_phone.trim(),
-        mobilePhoneName: mobile_phone_name.trim(),
-        amount: selected_reservation?.reservation.prixTotal || 0,
-        userId: user_data?.userId,
-        reservationId: selected_reservation?.reservation.idReservation || "",
-      };
-
-      const response = await fetch(`${API_BASE_URL}/reservation/payer`, {
-        method: "PUT",
-        headers: {
-          "Content-Type": "application/json",
-          Authorization: `Bearer ${auth_token}`,
-        },
-        body: JSON.stringify(payment_data),
-      });
-
-      if (!response.ok) {
-        throw new Error("Erreur lors du paiement");
-      }
-
-      setShowPaiementModal(false);
-      if (user_data?.userId) {
-        fetchReservations(user_data.userId);
-      }
-      router.push("/user/client/tickets");
-    } catch (error: any) {
-      console.error("Payment Error:", error);
-    } finally {
-      setIsLoadingPaiement(false);
+    setShowPaiementModal(false);
+    if (user_data?.userId) {
+      fetchReservations(user_data.userId);
     }
-  };
+    router.push("/user/client/tickets");
+  } catch (error: any) {
+    alert("Une erreur est survenue lors du paiement. Veuillez réessayer.");
+    console.error("Payment Error:", error);
+  } finally {
+    setIsLoadingPaiement(false);
+  }
+};
 
   const formatDate = (date_string: string) => {
     const date = new Date(date_string);
@@ -309,7 +308,7 @@ export default function ClientReservationsPage() {
               >
                 <div className="absolute inset-0 bg-linear-to-r from-[#6149CD] to-[#8B7BE8] rounded-lg opacity-0 group-hover:opacity-10 blur-xl transition-opacity duration-300"></div>
                 <img
-                  src="/images/safaraplace.png"
+                  src="/images/busstation.png"
                   alt="SafaraPlace Logo"
                   className="h-12 w-auto relative z-10 drop-shadow-md group-hover:drop-shadow-xl transition-all duration-300"
                 />
@@ -357,7 +356,7 @@ export default function ClientReservationsPage() {
                     className="group relative transition-all duration-300 hover:scale-105 active:scale-95"
                   >
                     <img
-                      src="/images/safaraplace.png"
+                      src="/images/busstation.png"
                       alt="SafaraPlace Logo"
                       className="h-9.5 w-auto"
                     />
@@ -583,7 +582,7 @@ export default function ClientReservationsPage() {
                                 <h3 className="text-lg font-bold text-gray-900 mb-1">
                                   {data.agence.longName}
                                 </h3>
-                                <p className="text-xs text-gray-400 font-mono mb-2">
+                                <p className="text-sm text-gray-400 mb-2">
                                   ID: {data.reservation.idReservation}
                                 </p>
                                 <p className="text-sm text-gray-500">
@@ -620,7 +619,7 @@ export default function ClientReservationsPage() {
                                 <div className="flex items-center space-x-2 text-sm">
                                   <Clock className="w-4 h-4 text-gray-500" />
                                   <span className="text-gray-700">
-                                    {formatDate(data.voyage.dateDepartPrev)}
+                                    Départ : {formatDate(data.voyage.dateDepartPrev)}
                                   </span>
                                 </div>
                                 <div className="flex items-center space-x-2 text-sm">

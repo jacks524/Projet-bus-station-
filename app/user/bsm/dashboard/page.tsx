@@ -10,7 +10,6 @@ import {
   Menu,
   X,
   Building2,
-  Users,
   MapPin,
   Bus,
   Calendar,
@@ -22,6 +21,21 @@ import {
   Building,
   Briefcase,
 } from "lucide-react";
+import {
+  LineChart,
+  Line,
+  BarChart,
+  Bar,
+  PieChart,
+  Pie,
+  Cell,
+  XAxis,
+  YAxis,
+  CartesianGrid,
+  Tooltip,
+  Legend,
+  ResponsiveContainer,
+} from "recharts";
 import { useRouter } from "next/navigation";
 import { Agdasima } from "next/font/google";
 
@@ -38,6 +52,13 @@ interface StatisticsOverview {
   total_vehicles_in_city: number;
   total_drivers_in_city: number;
   average_occupancy_rate: number;
+  reservations_per_month: { [key: string]: number };
+  revenue_per_month: { [key: string]: number };
+  reservations_by_status: { [key: string]: number };
+  trips_by_status: { [key: string]: number };
+  top_agencies_by_revenue: { [key: string]: number };
+  top_agencies_by_reservations: { [key: string]: number };
+  agencies_per_organization: { [key: string]: number };
 }
 
 interface Agence {
@@ -124,6 +145,16 @@ export default function BSMDashboardPage() {
   const API_BASE_URL = "http://localhost:8081/api";
   const BUTTON_COLOR = "#6149CD";
   const ITEMS_PER_PAGE = 5;
+  const CHART_COLORS = {
+    primary: "#6149CD",
+    secondary: "#8B7BE8",
+    success: "#10B981",
+    warning: "#F59E0B",
+    danger: "#EF4444",
+    info: "#3B82F6",
+    purple: "#A855F7",
+    cyan: "#06B6D4",
+  };
 
   const MENU_ITEMS = [
     {
@@ -291,6 +322,60 @@ export default function BSMDashboardPage() {
       minute: "2-digit",
       year: "numeric",
     });
+  };
+
+  const prepareMonthlyData = (data: { [key: string]: number }) => {
+    return Object.entries(data)
+      .sort((a, b) => a[0].localeCompare(b[0]))
+      .map(([month, value]) => ({
+        month,
+        value,
+      }));
+  };
+
+  const prepareStatusData = (data: { [key: string]: number }) => {
+    return Object.entries(data).map(([status, value]) => ({
+      name: status,
+      value,
+    }));
+  };
+
+  const prepareTopAgenciesData = (data: { [key: string]: number }) => {
+    return Object.entries(data)
+      .sort((a, b) => b[1] - a[1])
+      .slice(0, 10)
+      .map(([agency, value]) => ({
+        agency: agency.length > 20 ? agency.substring(0, 20) + "..." : agency,
+        value,
+      }));
+  };
+
+  const prepareOrganizationData = (data: { [key: string]: number }) => {
+    return Object.entries(data).map(([org, value]) => ({
+      org: org.length > 15 ? org.substring(0, 15) + "..." : org,
+      value,
+    }));
+  };
+
+  const formatRevenue = (amount: number) => {
+    return new Intl.NumberFormat("fr-FR", {
+      style: "currency",
+      currency: "XAF",
+      minimumFractionDigits: 0,
+    }).format(amount);
+  };
+
+  const getStatusColor = (status: string) => {
+    const colors: { [key: string]: string } = {
+      VALIDEE: CHART_COLORS.success,
+      EN_ATTENTE: CHART_COLORS.warning,
+      REJETEE: CHART_COLORS.danger,
+      CONFIRMEE: CHART_COLORS.info,
+      ANNULEE: CHART_COLORS.danger,
+      EN_COURS: CHART_COLORS.warning,
+      TERMINEE: CHART_COLORS.success,
+    };
+    return colors[status] || CHART_COLORS.primary;
   };
 
   return (
@@ -545,7 +630,7 @@ export default function BSMDashboardPage() {
                     <div className="flex items-center justify-between">
                       <div>
                         <p className="text-sm text-green-800 font-semibold mb-1">
-                          Validées
+                          Agences validées
                         </p>
                         <p className="text-2xl font-bold text-green-900">
                           {statistics.validated_agencies_count}
@@ -561,7 +646,7 @@ export default function BSMDashboardPage() {
                     <div className="flex items-center justify-between">
                       <div>
                         <p className="text-sm text-orange-800 font-semibold mb-1">
-                          En attente
+                          Agences en attente
                         </p>
                         <p className="text-2xl font-bold text-orange-900">
                           {statistics.pending_validation_count}
@@ -577,7 +662,7 @@ export default function BSMDashboardPage() {
                     <div className="flex items-center justify-between">
                       <div>
                         <p className="text-sm text-red-800 font-semibold mb-1">
-                          Rejetées
+                          Agences rejetées
                         </p>
                         <p className="text-2xl font-bold text-red-900">
                           {statistics.rejected_agencies_count}
@@ -646,6 +731,248 @@ export default function BSMDashboardPage() {
                       </div>
                     </div>
                   </div>
+                </div>
+
+                {/* Charts Section */}
+                <div className="grid grid-cols-1 lg:grid-cols-2 gap-6 mb-6">
+                  {/* Reservations by month */}
+                  {statistics.reservations_per_month &&
+                    Object.keys(statistics.reservations_per_month).length >
+                      0 && (
+                      <div className="bg-white rounded-xl shadow-sm border border-gray-200 p-6">
+                        <h3 className="text-lg font-bold text-gray-900 mb-4">
+                          Réservations par mois
+                        </h3>
+                        <ResponsiveContainer width="100%" height={300}>
+                          <LineChart
+                            data={prepareMonthlyData(
+                              statistics.reservations_per_month
+                            )}
+                          >
+                            <CartesianGrid strokeDasharray="3 3" />
+                            <XAxis dataKey="month" />
+                            <YAxis />
+                            <Tooltip />
+                            <Legend />
+                            <Line
+                              type="monotone"
+                              dataKey="value"
+                              stroke={CHART_COLORS.primary}
+                              strokeWidth={2}
+                              name="Réservations"
+                            />
+                          </LineChart>
+                        </ResponsiveContainer>
+                      </div>
+                    )}
+
+                  {/* Revenue by month */}
+                  {statistics.revenue_per_month &&
+                    Object.keys(statistics.revenue_per_month).length > 0 && (
+                      <div className="bg-white rounded-xl shadow-sm border border-gray-200 p-6">
+                        <h3 className="text-lg font-bold text-gray-900 mb-4">
+                          Revenu par mois
+                        </h3>
+                        <ResponsiveContainer width="100%" height={300}>
+                          <BarChart
+                            data={prepareMonthlyData(
+                              statistics.revenue_per_month
+                            )}
+                          >
+                            <CartesianGrid strokeDasharray="3 3" />
+                            <XAxis dataKey="month" />
+                            <YAxis />
+                            <Tooltip
+                              formatter={(value) =>
+                                formatRevenue(value as number)
+                              }
+                            />
+                            <Legend />
+                            <Bar
+                              dataKey="value"
+                              fill={CHART_COLORS.success}
+                              name="Revenu"
+                            />
+                          </BarChart>
+                        </ResponsiveContainer>
+                      </div>
+                    )}
+
+                  {/* Réservations par statut
+                  {statistics.reservations_by_status &&
+                    Object.keys(statistics.reservations_by_status).length >
+                      0 && (
+                      <div className="bg-white rounded-xl shadow-sm border border-gray-200 p-6">
+                        <h3 className="text-lg font-bold text-gray-900 mb-4">
+                          Réservations par statut
+                        </h3>
+                        <ResponsiveContainer width="100%" height={300}>
+                          <PieChart>
+                            <Pie
+                              data={prepareStatusData(
+                                statistics.reservations_by_status
+                              )}
+                              cx="50%"
+                              cy="50%"
+                              labelLine={false}
+                              label={(entry) => `${entry.name}: ${entry.value}`}
+                              outerRadius={80}
+                              fill="#8884d8"
+                              dataKey="value"
+                            >
+                              {prepareStatusData(
+                                statistics.reservations_by_status
+                              ).map((entry, index) => (
+                                <Cell
+                                  key={`cell-${index}`}
+                                  fill={getStatusColor(entry.name)}
+                                />
+                              ))}
+                            </Pie>
+                            <Tooltip />
+                            <Legend />
+                          </PieChart>
+                        </ResponsiveContainer>
+                      </div>
+                    )} */}
+
+                  {/* Voyages par statut
+                  {statistics.trips_by_status &&
+                    Object.keys(statistics.trips_by_status).length > 0 && (
+                      <div className="bg-white rounded-xl shadow-sm border border-gray-200 p-6">
+                        <h3 className="text-lg font-bold text-gray-900 mb-4">
+                          Voyages par statut
+                        </h3>
+                        <ResponsiveContainer width="100%" height={300}>
+                          <PieChart>
+                            <Pie
+                              data={prepareStatusData(
+                                statistics.trips_by_status
+                              )}
+                              cx="50%"
+                              cy="50%"
+                              labelLine={false}
+                              label={(entry) => `${entry.name}: ${entry.value}`}
+                              outerRadius={80}
+                              fill="#8884d8"
+                              dataKey="value"
+                            >
+                              {prepareStatusData(
+                                statistics.trips_by_status
+                              ).map((entry, index) => (
+                                <Cell
+                                  key={`cell-${index}`}
+                                  fill={getStatusColor(entry.name)}
+                                />
+                              ))}
+                            </Pie>
+                            <Tooltip />
+                            <Legend />
+                          </PieChart>
+                        </ResponsiveContainer>
+                      </div>
+                    )} */}
+
+                  {/* Agencies by organization */}
+                  {statistics.agencies_per_organization &&
+                    Object.keys(statistics.agencies_per_organization).length >
+                      0 && (
+                      <div className="bg-white rounded-xl shadow-sm border border-gray-200 p-6 lg:col-span-2">
+                        <h3 className="text-lg font-bold text-gray-900 mb-4">
+                          Répartition des agences par organisation
+                        </h3>
+                        <ResponsiveContainer width="100%" height={300}>
+                          <BarChart
+                            data={prepareOrganizationData(
+                              statistics.agencies_per_organization
+                            )}
+                          >
+                            <CartesianGrid strokeDasharray="3 3" />
+                            <XAxis dataKey="org" />
+                            <YAxis />
+                            <Tooltip />
+                            <Legend />
+                            <Bar
+                              dataKey="value"
+                              fill={CHART_COLORS.purple}
+                              name="Nombre d'agences"
+                            />
+                          </BarChart>
+                        </ResponsiveContainer>
+                      </div>
+                    )}
+
+                  {/* Top agencies by revenues */}
+                  {statistics.top_agencies_by_revenue &&
+                    Object.keys(statistics.top_agencies_by_revenue).length >
+                      0 && (
+                      <div className="bg-white rounded-xl shadow-sm border border-gray-200 p-6">
+                        <h3 className="text-lg font-bold text-gray-900 mb-4">
+                          Top 10 agences par revenu
+                        </h3>
+                        <ResponsiveContainer width="100%" height={300}>
+                          <BarChart
+                            data={prepareTopAgenciesData(
+                              statistics.top_agencies_by_revenue
+                            )}
+                            layout="vertical"
+                          >
+                            <CartesianGrid strokeDasharray="3 3" />
+                            <XAxis type="number" />
+                            <YAxis
+                              dataKey="agency"
+                              type="category"
+                              width={150}
+                            />
+                            <Tooltip
+                              formatter={(value) =>
+                                formatRevenue(value as number)
+                              }
+                            />
+                            <Legend />
+                            <Bar
+                              dataKey="value"
+                              fill={CHART_COLORS.primary}
+                              name="Revenu"
+                            />
+                          </BarChart>
+                        </ResponsiveContainer>
+                      </div>
+                    )}
+
+                  {/* Top agencies by reservations */}
+                  {statistics.top_agencies_by_reservations &&
+                    Object.keys(statistics.top_agencies_by_reservations)
+                      .length > 0 && (
+                      <div className="bg-white rounded-xl shadow-sm border border-gray-200 p-6">
+                        <h3 className="text-lg font-bold text-gray-900 mb-4">
+                          Top 10 agences par réservations
+                        </h3>
+                        <ResponsiveContainer width="100%" height={300}>
+                          <BarChart
+                            data={prepareTopAgenciesData(
+                              statistics.top_agencies_by_reservations
+                            )}
+                            layout="vertical"
+                          >
+                            <CartesianGrid strokeDasharray="3 3" />
+                            <XAxis type="number" />
+                            <YAxis
+                              dataKey="agency"
+                              type="category"
+                              width={150}
+                            />
+                            <Tooltip />
+                            <Legend />
+                            <Bar
+                              dataKey="value"
+                              fill={CHART_COLORS.secondary}
+                              name="Réservations"
+                            />
+                          </BarChart>
+                        </ResponsiveContainer>
+                      </div>
+                    )}
                 </div>
               </>
             ) : null}
@@ -865,8 +1192,8 @@ export default function BSMDashboardPage() {
                                   {org.business_registration_number}
                                 </p>
                                 <p className="text-xs text-gray-500 mb-1">
-                                  Date de création :{" "}
-                                  Le {formatDate(org.created_at)}
+                                  Date de création : Le{" "}
+                                  {formatDate(org.created_at)}
                                 </p>
                               </div>
                             ))}

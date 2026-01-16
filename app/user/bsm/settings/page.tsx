@@ -113,12 +113,14 @@ export default function ClientSettingsPage() {
 
       const stored_bsm_data = sessionStorage.getItem("bsm_data");
       let email = "";
+      let address = "";
       if (stored_bsm_data) {
         const parsed_data = JSON.parse(stored_bsm_data);
         email = parsed_data.email || "";
+        address = parsed_data.address || "";
       }
 
-      setUserProfile({ ...data, email });
+      setUserProfile({ ...data, email, address });
     } catch (error: any) {
       setErrorMessage("Impossible de charger les informations du profil");
       console.error("Fetch Profile Error:", error);
@@ -304,7 +306,7 @@ export default function ClientSettingsPage() {
         </header>
 
         {/* Content */}
-        <main className="p-6 max-w-4xl mx-auto">
+        <main className="p-6 max-w-5xl mx-auto">
           {is_loading && (
             <div className="flex items-center justify-center py-20">
               <div className="text-center">

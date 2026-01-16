@@ -100,7 +100,7 @@ export default function ClientTicketsPage() {
 
   const API_BASE_URL = "http://localhost:8081/api";
   const BUTTON_COLOR = "#6149CD";
-  const TICKETS_PER_PAGE = 10;
+  const TICKETS_PER_PAGE = 5;
 
   const MENU_ITEMS = [
     { icon: Home, label: "Accueil", path: "/user/client/home", active: false },
@@ -230,155 +230,172 @@ export default function ClientTicketsPage() {
         <title>Billet - ${ticket.reservation.idReservation}</title>
         <style>
           body {
-            font-family: Arial, sans-serif;
-            padding: 40px;
-            max-width: 800px;
+            font-family: 'Segoe UI', Arial, sans-serif;
+            padding: 20px;
+            max-width: 700px;
             margin: 0 auto;
+            color: #333;
+          }
+          .ticket-container {
+            border: 2px solid #6149CD;
+            padding: 20px;
+            border-radius: 10px;
           }
           .ticket-header {
             text-align: center;
-            margin-bottom: 30px;
-            border-bottom: 3px solid #6149CD;
-            padding-bottom: 20px;
+            margin-bottom: 20px;
+          }
+          .ticket-logo {
+            width: 120px;
+            height: auto;
           }
           .ticket-title {
-            font-size: 32px;
+            font-size: 26px;
             font-weight: bold;
             color: #6149CD;
-            margin-bottom: 10px;
+            margin: 10px 0;
           }
-          .ticket-id {
+          
+          /* Style des Tableaux */
+          table {
+            width: 100%;
+            border-collapse: collapse;
+            margin-bottom: 20px;
+          }
+          th {
+            background-color: #6149CD;
+            color: white;
+            text-align: left;
+            padding: 10px;
+            border-radius: 5px 5px 0 0;
+            text-transform: uppercase;
             font-size: 14px;
-            color: #666;
           }
-          .ticket-section {
-            margin: 20px 0;
-            padding: 15px;
-            background: #f9f9f9;
-            border-radius: 8px;
+          td {
+            padding: 10px;
+            border-bottom: 1px solid #eee;
+            vertical-align: top;
           }
-          .section-title {
+          .label {
             font-weight: bold;
-            font-size: 16px;
-            color: #333;
-            margin-bottom: 10px;
+            color: #666;
+            width: 40%;
           }
-          .info-row {
-            display: flex;
-            justify-content: space-between;
-            margin: 8px 0;
-            padding: 5px 0;
+          .value {
+            text-align: right;
+            font-weight: 500;
           }
-          .info-label {
-            font-weight: 600;
-            color: #555;
-          }
-          .info-value {
-            color: #333;
-          }
-          .ticket-footer {
-            margin-top: 40px;
-            text-align: center;
-            font-size: 12px;
-            color: #999;
-            border-top: 2px solid #eee;
-            padding-top: 20px;
-          }
+
           .status-badge {
             display: inline-block;
-            padding: 8px 16px;
+            padding: 5px 15px;
             background: #10b981;
             color: white;
-            border-radius: 20px;
+            border-radius: 15px;
+            font-size: 12px;
+            margin-top: 5px;
+          }
+
+          .price-large {
+            font-size: 20px;
+            color: #6149CD;
             font-weight: bold;
-            margin: 10px 0;
+          }
+
+          .ticket-footer {
+            text-align: center;
+            font-size: 11px;
+            color: #888;
+            margin-top: 20px;
+            border-top: 1px dashed #ccc;
+            padding-top: 15px;
           }
         </style>
       </head>
       <body>
-        <div class="ticket-header">
-          <div class="ticket-title">🎫 BILLET DE VOYAGE</div>
-          <div class="ticket-id">N° ${ticket.reservation.idReservation}</div>
-          <div class="status-badge">CONFIRMÉ</div>
+
+        <div class="ticket-container">
+          <!-- En-tête -->
+          <div class="ticket-header">
+            <img src="/images/busstation.png" alt="BusStation Logo" class="ticket-logo">
+            <div class="ticket-title">BILLET DE VOYAGE</div>
+            <div><strong>N° ${ticket.reservation.idReservation}</strong></div>
+            <div class="status-badge">CONFIRMÉ</div>
+          </div>
+
+          <!-- Section Voyage -->
+          <table>
+            <thead>
+              <tr>
+                <th colspan="2">Informations du voyage</th>
+              </tr>
+            </thead>
+            <tbody>
+              <tr>
+                <td class="label">Agence</td>
+                <td class="value">${ticket.agence.longName}</td>
+              </tr>
+              <tr>
+                <td class="label">Itinéraire</td>
+                <td class="value">De ${ticket.voyage.lieuDepart} vers ${ticket.voyage.lieuArrive}</td>
+              </tr>
+              <tr>
+                <td class="label">Points de ramassage</td>
+                <td class="value">Départ: ${ticket.voyage.pointDeDepart}<br>Arrivée: ${ticket.voyage.pointArrivee}</td>
+              </tr>
+              <tr>
+                <td class="label">Date de départ</td>
+                <td class="value" style="color: #6149CD; font-weight: bold;">${formatDate(ticket.voyage.dateDepartPrev)}</td>
+              </tr>
+            </tbody>
+          </table>
+
+          <!-- Section Passager & Réservation -->
+          <table>
+            <thead>
+              <tr>
+                <th colspan="2">Passager & Réservation</th>
+              </tr>
+            </thead>
+            <tbody>
+              <tr>
+                <td class="label">Nombre de passagers</td>
+                <td class="value">${ticket.reservation.nbrPassager}</td>
+              </tr>
+              <tr>
+                <td class="label">Réservé le</td>
+                <td class="value">${formatDate(ticket.reservation.dateReservation)}</td>
+              </tr>
+              <tr>
+                <td class="label">Confirmé le</td>
+                <td class="value">${formatDate(ticket.reservation.dateConfirmation)}</td>
+              </tr>
+            </tbody>
+          </table>
+
+          <!-- Section Paiement -->
+          <table>
+            <thead>
+              <tr>
+                <th colspan="2">Détails du paiement</th>
+              </tr>
+            </thead>
+            <tbody>
+              <tr>
+                <td class="label">Montant payé</td>
+                <td class="value price-large">${ticket.reservation.prixTotal} FCFA</td>
+              </tr>
+            </tbody>
+          </table>
+
+          <!-- Pied de page -->
+          <div class="ticket-footer">
+            <p>Merci d'avoir choisi <strong>BusStation</strong> pour votre voyage.</p>
+            <p><em>Veuillez présenter ce billet (numérique ou papier) lors de l'embarquement.</em></p>
+            <p>Imprimé le ${new Date().toLocaleDateString("fr-FR")} à ${new Date().toLocaleTimeString("fr-FR")}</p>
+          </div>
         </div>
 
-        <div class="ticket-section">
-          <div class="section-title">📍 Informations du voyage</div>
-          <div class="info-row">
-            <span class="info-label">Agence :</span>
-            <span class="info-value">${ticket.agence.longName}</span>
-          </div>
-          <div class="info-row">
-            <span class="info-label">De :</span>
-            <span class="info-value">${ticket.voyage.lieuDepart}</span>
-          </div>
-          <div class="info-row">
-            <span class="info-label">Vers :</span>
-            <span class="info-value">${ticket.voyage.lieuArrive}</span>
-          </div>
-          <div class="info-row">
-            <span class="info-label">Point de départ :</span>
-            <span class="info-value">${ticket.voyage.pointDeDepart}</span>
-          </div>
-          <div class="info-row">
-            <span class="info-label">Point d'arrivée :</span>
-            <span class="info-value">${ticket.voyage.pointArrivee}</span>
-          </div>
-          <div class="info-row">
-            <span class="info-label">Date de départ :</span>
-            <span class="info-value">${formatDate(
-              ticket.voyage.dateDepartPrev
-            )}</span>
-          </div>
-        </div>
-
-        <div class="ticket-section">
-          <div class="section-title">👤 Informations du passager</div>
-          <div class="info-row">
-            <span class="info-label">Nombre de passagers :</span>
-            <span class="info-value">${ticket.reservation.nbrPassager}</span>
-          </div>
-          <div class="info-row">
-            <span class="info-label">Date de réservation :</span>
-            <span class="info-value">${formatDate(
-              ticket.reservation.dateReservation
-            )}</span>
-          </div>
-          <div class="info-row">
-            <span class="info-label">Date de confirmation :</span>
-            <span class="info-value">${formatDate(
-              ticket.reservation.dateConfirmation
-            )}</span>
-          </div>
-        </div>
-
-        <div class="ticket-section">
-          <div class="section-title">💰 Informations de paiement</div>
-          <div class="info-row">
-            <span class="info-label">Prix total :</span>
-            <span class="info-value" style="font-size: 24px; font-weight: bold; color: #6149CD;">${
-              ticket.reservation.prixTotal
-            } FCFA</span>
-          </div>
-          <div class="info-row">
-            <span class="info-label">Montant payé :</span>
-            <span class="info-value">${
-              ticket.reservation.montantPaye
-            } FCFA</span>
-          </div>
-          <div class="info-row">
-            <span class="info-label">Statut du paiement :</span>
-            <span class="info-value">${ticket.reservation.statutPayement}</span>
-          </div>
-        </div>
-
-        <div class="ticket-footer">
-          <p>Merci d'avoir choisi SafaraPlace pour votre voyage</p>
-          <p>Veuillez présenter ce billet lors de l'embarquement</p>
-          <p>Imprimé le ${new Date().toLocaleDateString(
-            "fr-FR"
-          )} à ${new Date().toLocaleTimeString("fr-FR")}</p>
-        </div>
       </body>
       </html>
     `;
@@ -416,7 +433,7 @@ export default function ClientTicketsPage() {
               >
                 <div className="absolute inset-0 bg-linear-to-r from-[#6149CD] to-[#8B7BE8] rounded-lg opacity-0 group-hover:opacity-10 blur-xl transition-opacity duration-300"></div>
                 <img
-                  src="/images/safaraplace.png"
+                  src="/images/busstation.png"
                   alt="SafaraPlace Logo"
                   className="h-12 w-auto relative z-10 drop-shadow-md group-hover:drop-shadow-xl transition-all duration-300"
                 />
@@ -464,7 +481,7 @@ export default function ClientTicketsPage() {
                     className="group relative transition-all duration-300 hover:scale-105 active:scale-95"
                   >
                     <img
-                      src="/images/safaraplace.png"
+                      src="/images/busstation.png"
                       alt="SafaraPlace Logo"
                       className="h-9.5 w-auto"
                     />
@@ -676,6 +693,7 @@ export default function ClientTicketsPage() {
                                 <div className="flex items-center space-x-2 text-sm">
                                   <Clock className="w-4 h-4 text-gray-500" />
                                   <span className="text-gray-700">
+                                    Départ :{" "}
                                     {formatDate(data.voyage.dateDepartPrev)}
                                   </span>
                                 </div>

@@ -227,7 +227,7 @@ export default function VoyageReservationPage() {
     }
   };
 
-  const initierReservation = () => {
+  const initiateReservation = () => {
     if (places_selectionnees.length === 0) {
       return;
     }
@@ -351,15 +351,13 @@ export default function VoyageReservationPage() {
         sessionStorage.getItem("auth_token");
 
       const payment_data = {
-        mobilePhone: mobile_phone.trim(),
-        mobilePhoneName: mobile_phone_name.trim(),
         amount: reservation_courante?.prixTotal || 0,
-        userId: user_data?.userId || "",
-        reservationId: reservation_courante?.idReservation || "",
+        reservation_id: reservation_courante?.idReservation || "",
+        simulate_success: true
       };
 
-      const response = await fetch(`${API_BASE_URL}/reservation/payer`, {
-        method: "PUT",
+      const response = await fetch(`${API_BASE_URL}/reservation/simulate-payment`, {
+        method: "POST",
         headers: {
           "Content-Type": "application/json",
           Authorization: `Bearer ${auth_token}`,
@@ -500,7 +498,7 @@ export default function VoyageReservationPage() {
               >
                 <div className="absolute inset-0 bg-linear-to-r from-[#6149CD] to-[#8B7BE8] rounded-lg opacity-0 group-hover:opacity-10 blur-xl transition-opacity duration-300"></div>
                 <img
-                  src="/images/safaraplace.png"
+                  src="/images/busstation.png"
                   alt="SafaraPlace Logo"
                   className="h-12 w-auto relative z-10 drop-shadow-md group-hover:drop-shadow-xl transition-all duration-300"
                 />
@@ -837,7 +835,7 @@ export default function VoyageReservationPage() {
 
                     {/* Bouton Réserver */}
                     <button
-                      onClick={initierReservation}
+                      onClick={initiateReservation}
                       disabled={places_selectionnees.length === 0}
                       style={{ backgroundColor: BUTTON_COLOR }}
                       className="w-full py-3 text-white rounded-xl font-semibold hover:opacity-90 active:opacity-80 transition-all flex items-center justify-center space-x-2 disabled:opacity-50 disabled:cursor-not-allowed shadow-lg mt-6"

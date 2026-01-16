@@ -261,7 +261,7 @@ export default function ClientHomePage() {
               >
                 <div className="absolute inset-0 bg-linear-to-r from-[#6149CD] to-[#8B7BE8] rounded-lg opacity-0 group-hover:opacity-10 blur-xl transition-opacity duration-300"></div>
                 <img
-                  src="/images/safaraplace.png"
+                  src="/images/busstation.png"
                   alt="SafaraPlace Logo"
                   className="h-12 w-auto relative z-10 drop-shadow-md group-hover:drop-shadow-xl transition-all duration-300"
                 />
@@ -309,7 +309,7 @@ export default function ClientHomePage() {
                     className="group relative transition-all duration-300 hover:scale-105 active:scale-95"
                   >
                     <img
-                      src="/images/safaraplace.png"
+                      src="/images/busstation.png"
                       alt="SafaraPlace Logo"
                       className="h-9.5 w-auto"
                     />
@@ -497,7 +497,7 @@ export default function ClientHomePage() {
               )}
 
               {!is_loading && !error_message && voyages.length > 0 && (
-                <div className="grid grid-cols-1 md:grid-cols-4 gap-6">
+                <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-4 md:gap-6">
                   {voyages.map((voyage) => (
                     <div
                       key={voyage.idVoyage}

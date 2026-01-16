@@ -291,7 +291,7 @@ export default function ClientReservePage() {
               >
                 <div className="absolute inset-0 bg-linear-to-r from-[#6149CD] to-[#8B7BE8] rounded-lg opacity-0 group-hover:opacity-10 blur-xl transition-opacity duration-300"></div>
                 <img
-                  src="/images/safaraplace.png"
+                  src="/images/busstation.png"
                   alt="SafaraPlace Logo"
                   className="h-12 w-auto relative z-10 drop-shadow-md group-hover:drop-shadow-xl transition-all duration-300"
                 />
@@ -446,7 +446,7 @@ export default function ClientReservePage() {
         </header>
 
         {/* Content */}
-        <main className="p-6 max-w-6xl mx-auto">
+        <main className="p-6 max-w-7xl mx-auto">
           {/* Carte fusionnée : Hero Banner + Search Form */}
           <div className="bg-white rounded-2xl shadow-lg border border-gray-200 overflow-hidden mb-6">
             {/* Hero Banner Image */}
