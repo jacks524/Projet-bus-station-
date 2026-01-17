@@ -412,7 +412,6 @@ export default function AgenceDashboardPage() {
     }
   };
 
-  // Préparer les données pour le graphique en camembert des voyages par statut
   const getVoyagesStatusData = () => {
     if (!general_stats?.voyagesParStatut) return [];
     return Object.entries(general_stats.voyagesParStatut).map(
@@ -863,7 +862,7 @@ export default function AgenceDashboardPage() {
                     <div className="bg-linear-to-br from-green-400 to-green-600 rounded-xl shadow-lg p-4 sm:p-6 text-white">
                       <div className="flex items-center justify-between mb-2 sm:mb-4">
                         <h3 className="text-sm sm:text-lg font-semibold">
-                          Revenus totaux
+                          Revenus totaux potentiels
                         </h3>
                         <TrendingUp className="w-5 h-5 sm:w-6 sm:h-6" />
                       </div>
@@ -1679,7 +1678,7 @@ export default function AgenceDashboardPage() {
                   {/* Quick Actions */}
                   <div className="grid grid-cols-2 sm:grid-cols-4 gap-3 sm:gap-4">
                     <button
-                      onClick={() => router.push("/user/agency/voyages")}
+                      onClick={() => router.push("/user/agency/travels")}
                       className="bg-white rounded-xl shadow-sm border border-gray-200 p-4 hover:shadow-md transition-shadow text-center"
                     >
                       <Bus className="w-6 h-6 sm:w-8 sm:h-8 text-[#6149CD] mx-auto mb-2" />

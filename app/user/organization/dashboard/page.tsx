@@ -138,7 +138,7 @@ const font = Agdasima({
 
 export default function DGDashboardPage() {
   const [general_stats, setGeneralStats] = useState<GeneralStatistics | null>(
-    null
+    null,
   );
   const [agencies_stats, setAgenciesStats] =
     useState<AgenciesStatistics | null>(null);
@@ -266,7 +266,7 @@ export default function DGDashboardPage() {
             "Content-Type": "application/json",
             Authorization: `Bearer ${auth_token}`,
           },
-        }
+        },
       );
 
       if (!response.ok) {
@@ -278,7 +278,7 @@ export default function DGDashboardPage() {
       console.log(data);
 
       const my_orgs = data.filter(
-        (org: Organization) => org.created_by === user_data?.userId
+        (org: Organization) => org.created_by === user_data?.userId,
       );
 
       setOrganizations(my_orgs);
@@ -314,7 +314,7 @@ export default function DGDashboardPage() {
             "Content-Type": "application/json",
             Authorization: `Bearer ${auth_token}`,
           },
-        }
+        },
       );
 
       if (!response.ok) {
@@ -342,7 +342,7 @@ export default function DGDashboardPage() {
             "Content-Type": "application/json",
             Authorization: `Bearer ${auth_token}`,
           },
-        }
+        },
       );
 
       if (!response.ok) {
@@ -375,7 +375,7 @@ export default function DGDashboardPage() {
           headers: {
             Authorization: `Bearer ${auth_token}`,
           },
-        }
+        },
       );
 
       if (!response.ok) throw new Error("Erreur lors de la suppression");
@@ -384,10 +384,10 @@ export default function DGDashboardPage() {
 
       if (delete_target_id === selected_organization?.id) {
         const remaining_orgs = organizations.filter(
-          (org) => org.id !== delete_target_id
+          (org) => org.id !== delete_target_id,
         );
         setSelectedOrganization(
-          remaining_orgs.length > 0 ? remaining_orgs[0] : null
+          remaining_orgs.length > 0 ? remaining_orgs[0] : null,
         );
       }
 
@@ -412,7 +412,7 @@ export default function DGDashboardPage() {
           headers: {
             Authorization: `Bearer ${auth_token}`,
           },
-        }
+        },
       );
 
       if (!response.ok) throw new Error("Erreur lors de la suppression");
@@ -479,27 +479,27 @@ export default function DGDashboardPage() {
         agency.agency_name
           .toLowerCase()
           .includes(agencies_search.toLowerCase()) ||
-        agency.short_name.toLowerCase().includes(agencies_search.toLowerCase())
+        agency.short_name.toLowerCase().includes(agencies_search.toLowerCase()),
     ) || [];
 
   const total_agencies_pages = Math.ceil(
-    filtered_agencies.length / agencies_per_page
+    filtered_agencies.length / agencies_per_page,
   );
   const paginated_agencies = filtered_agencies.slice(
     (agencies_page - 1) * agencies_per_page,
-    agencies_page * agencies_per_page
+    agencies_page * agencies_per_page,
   );
 
   const filtered_orgs = organizations.filter(
     (org) =>
       org.long_name.toLowerCase().includes(orgs_search.toLowerCase()) ||
-      org.short_name.toLowerCase().includes(orgs_search.toLowerCase())
+      org.short_name.toLowerCase().includes(orgs_search.toLowerCase()),
   );
 
   const total_orgs_pages = Math.ceil(filtered_orgs.length / orgs_per_page);
   const paginated_orgs = filtered_orgs.slice(
     (orgs_page - 1) * orgs_per_page,
-    orgs_page * orgs_per_page
+    orgs_page * orgs_per_page,
   );
 
   const prepareMonthlyData = (data: { [key: string]: number }) => {
@@ -905,7 +905,7 @@ export default function DGDashboardPage() {
                     <div className="bg-linear-to-br from-green-400 to-green-600 rounded-xl shadow-lg p-4 sm:p-6 text-white">
                       <div className="flex items-center justify-between mb-2 sm:mb-4">
                         <h3 className="text-sm sm:text-lg font-semibold">
-                          Revenu total
+                          Revenu total potentiel
                         </h3>
                         <TrendingUp className="w-5 h-5 sm:w-6 sm:h-6" />
                       </div>
@@ -996,7 +996,7 @@ export default function DGDashboardPage() {
                         <ResponsiveContainer width="100%" height={300}>
                           <LineChart
                             data={prepareMonthlyData(
-                              general_stats.reservations_per_month
+                              general_stats.reservations_per_month,
                             )}
                           >
                             <CartesianGrid strokeDasharray="3 3" />
@@ -1025,7 +1025,7 @@ export default function DGDashboardPage() {
                         <ResponsiveContainer width="100%" height={300}>
                           <BarChart
                             data={prepareMonthlyData(
-                              general_stats.revenue_per_month
+                              general_stats.revenue_per_month,
                             )}
                           >
                             <CartesianGrid strokeDasharray="3 3" />
@@ -1130,7 +1130,7 @@ export default function DGDashboardPage() {
                         <ResponsiveContainer width="100%" height={300}>
                           <BarChart
                             data={prepareAgencyData(
-                              general_stats.revenue_by_agency
+                              general_stats.revenue_by_agency,
                             )}
                             layout="vertical"
                           >
@@ -1168,7 +1168,7 @@ export default function DGDashboardPage() {
                         <ResponsiveContainer width="100%" height={300}>
                           <BarChart
                             data={prepareAgencyData(
-                              general_stats.reservations_by_agency
+                              general_stats.reservations_by_agency,
                             )}
                             layout="vertical"
                           >
@@ -1240,7 +1240,7 @@ export default function DGDashboardPage() {
                               <div className="flex items-center">
                                 <span
                                   className={`px-2 sm:px-3 py-1 rounded-full text-xs sm:text-sm font-semibold ${getStatusBadge(
-                                    agency.statut_validation
+                                    agency.statut_validation,
                                   )}`}
                                 >
                                   {agency.statut_validation}
@@ -1284,7 +1284,7 @@ export default function DGDashboardPage() {
                               <button
                                 onClick={() =>
                                   router.push(
-                                    `/user/organization/detail_agency?id=${agency.agency_id}`
+                                    `/user/organization/detail_agency?id=${agency.agency_id}`,
                                   )
                                 }
                                 style={{ backgroundColor: BUTTON_COLOR }}
@@ -1330,7 +1330,7 @@ export default function DGDashboardPage() {
                           <button
                             onClick={() =>
                               setAgenciesPage((p) =>
-                                Math.min(total_agencies_pages, p + 1)
+                                Math.min(total_agencies_pages, p + 1),
                               )
                             }
                             disabled={agencies_page === total_agencies_pages}
@@ -1432,7 +1432,7 @@ export default function DGDashboardPage() {
                                 <button
                                   onClick={() =>
                                     router.push(
-                                      `/user/organization/detail_organization?id=${org.id}`
+                                      `/user/organization/detail_organization?id=${org.id}`,
                                     )
                                   }
                                   style={{ backgroundColor: BUTTON_COLOR }}
@@ -1506,7 +1506,7 @@ export default function DGDashboardPage() {
                           <button
                             onClick={() =>
                               router.push(
-                                `/user/organization/detail_organization?id=${org.id}`
+                                `/user/organization/detail_organization?id=${org.id}`,
                               )
                             }
                             style={{ backgroundColor: BUTTON_COLOR }}
@@ -1601,41 +1601,31 @@ export default function DGDashboardPage() {
       {/* Delete Agency Modal */}
       {show_delete_agency_modal && (
         <div className="fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center z-50 p-4">
-          <div className="bg-white rounded-2xl shadow-2xl max-w-md w-full overflow-hidden">
-            <div className="bg-linear-to-br from-red-400 to-red-600 p-6 sm:p-8 text-center">
-              <div className="w-16 h-16 sm:w-20 sm:h-20 bg-white rounded-full flex items-center justify-center mx-auto mb-4">
-                <AlertCircle className="w-10 h-10 sm:w-12 sm:h-12 text-red-600" />
-              </div>
-              <h2 className="text-xl sm:text-2xl font-bold text-white mb-2">
-                Confirmer la suppression
-              </h2>
-              <p className="text-red-50 text-sm sm:text-base">
-                Cette action est irréversible
-              </p>
+          <div className="bg-white rounded-2xl shadow-2xl max-w-md w-full p-6 sm:p-8">
+            <div className="w-16 h-16 sm:w-20 sm:h-20 bg-red-100 rounded-full flex items-center justify-center mx-auto mb-4">
+              <AlertCircle className="w-10 h-10 sm:w-12 sm:h-12 text-red-600" />
             </div>
 
-            <div className="p-4 sm:p-6">
-              <p className="text-gray-700 mb-6 text-sm sm:text-base">
-                Êtes-vous sûr de vouloir supprimer l'agence{" "}
-                <span className="font-bold">{delete_target_name}</span> ?
-              </p>
+            <p className="text-gray-700 mb-6 text-sm sm:text-base text-center">
+              Êtes-vous sûr de vouloir supprimer l'agence{" "}
+              <span className="font-bold">{delete_target_name}</span> ?
+            </p>
 
-              <div className="flex flex-col sm:flex-row items-center gap-3">
-                <button
-                  onClick={() => setShowDeleteAgencyModal(false)}
-                  disabled={is_deleting}
-                  className="w-full sm:flex-1 py-2.5 sm:py-3 border-2 border-gray-300 text-gray-700 rounded-xl font-semibold hover:bg-gray-100 transition-colors disabled:opacity-50 text-sm sm:text-base"
-                >
-                  Annuler
-                </button>
-                <button
-                  onClick={handleDeleteAgency}
-                  disabled={is_deleting}
-                  className="w-full sm:flex-1 py-2.5 sm:py-3 bg-red-600 text-white rounded-xl font-semibold hover:bg-red-700 transition-colors disabled:opacity-50 text-sm sm:text-base"
-                >
-                  {is_deleting ? "Suppression..." : "Supprimer"}
-                </button>
-              </div>
+            <div className="flex flex-col sm:flex-row items-center gap-3">
+              <button
+                onClick={() => setShowDeleteAgencyModal(false)}
+                disabled={is_deleting}
+                className="w-full sm:flex-1 py-2.5 sm:py-3 border-2 border-gray-300 text-gray-700 rounded-xl font-semibold hover:bg-gray-100 transition-colors disabled:opacity-50 text-sm sm:text-base"
+              >
+                Annuler
+              </button>
+              <button
+                onClick={handleDeleteAgency}
+                disabled={is_deleting}
+                className="w-full sm:flex-1 py-2.5 sm:py-3 bg-red-600 text-white rounded-xl font-semibold hover:bg-red-700 transition-colors disabled:opacity-50 text-sm sm:text-base"
+              >
+                {is_deleting ? "Suppression..." : "Supprimer"}
+              </button>
             </div>
           </div>
         </div>

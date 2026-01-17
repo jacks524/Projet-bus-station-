@@ -20,6 +20,8 @@ import {
   ChevronLeft,
   ChevronRight,
   Compass,
+  Users,
+  Group,
 } from "lucide-react";
 import Image from "next/image";
 import { useRouter } from "next/navigation";
@@ -37,6 +39,10 @@ interface Voyage {
   smallImage: string;
   nomAgence: string;
   nbrPlaceRestante: number;
+  nbrPlaceReservable: number;
+  nbrPlaceConfirm: number;
+  nbrPlaceReserve: number;
+  nomClasseVoyage: string;
 }
 
 interface UserData {
@@ -166,7 +172,7 @@ export default function ClientHomePage() {
           headers: {
             "Content-Type": "application/json",
           },
-        }
+        },
       );
 
       if (!response.ok) {
@@ -208,7 +214,7 @@ export default function ClientHomePage() {
             "Content-Type": "application/json",
             Authorization: `Bearer ${auth_token}`,
           },
-        }
+        },
       );
 
       if (!response.ok) {
@@ -530,6 +536,20 @@ export default function ClientHomePage() {
                             {voyage.pointArrivee}
                           </span>
                         </div>
+                        <div className="flex items-center space-x-2 mb-2">
+                          <Users className="w-4 h-4 shrink-0 text-gray-600" />
+                          <span className="line-clamp-1 text-gray-600 text-sm">
+                            {voyage.nbrPlaceReservable} /{" "}
+                            {voyage.nbrPlaceRestante + voyage.nbrPlaceConfirm}{" "}
+                            Places restantes
+                          </span>
+                        </div>
+                        <div className="flex items-center space-x-2 mb-2">
+                          <Group className="w-4 h-4 shrink-0 text-gray-600" />
+                          <span className="line-clamp-1 text-gray-600 text-sm">
+                            Classe : {voyage.nomClasseVoyage}
+                          </span>
+                        </div>
                         <div
                           style={{ backgroundColor: BUTTON_COLOR }}
                           className="flex items-center justify-between px-3 py-2 rounded-lg text-white"
@@ -597,7 +617,7 @@ export default function ClientHomePage() {
                         .filter((agence) =>
                           agence.short_name
                             .toLowerCase()
-                            .includes(agences_search.toLowerCase())
+                            .includes(agences_search.toLowerCase()),
                         )
                         .map((agence) => (
                           <div
@@ -644,8 +664,8 @@ export default function ClientHomePage() {
                             setAgencesPage(
                               Math.min(
                                 agences_total_pages - 1,
-                                agences_page + 1
-                              )
+                                agences_page + 1,
+                              ),
                             )
                           }
                           disabled={agences_page === agences_total_pages - 1}

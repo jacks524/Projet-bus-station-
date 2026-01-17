@@ -33,6 +33,7 @@ interface Voyage {
   pointArrivee: string;
   nbrPlaceRestante: number;
   nbrPlaceReservable: number;
+  nbrPlaceConfirm: number;
   dateDepartPrev: string;
   nomClasseVoyage: string;
   prix: number;
@@ -719,7 +720,7 @@ export default function ClientReservePage() {
                       </div>
                       <div className="flex items-center space-x-1 text-sm text-gray-600">
                         <Users className="w-4 h-4" />
-                        <span>{voyage.nbrPlaceRestante} places</span>
+                        <span>{voyage.nbrPlaceReservable} / {voyage.nbrPlaceRestante + voyage.nbrPlaceConfirm} places restantes</span>
                       </div>
                     </div>
 

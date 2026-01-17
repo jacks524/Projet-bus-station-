@@ -466,7 +466,7 @@ export default function AgenceReservationsPage() {
       (r) => r.reservation.statutReservation === "RESERVER"
     ).length,
     confirmed: reservations.filter(
-      (r) => r.reservation.statutReservation === "VALIDER"
+      (r) => r.reservation.statutReservation === "CONFIRMER"
     ).length,
     cancelled: reservations.filter(
       (r) => r.reservation.statutReservation === "ANNULER"

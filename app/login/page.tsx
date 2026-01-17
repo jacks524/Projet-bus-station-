@@ -85,6 +85,10 @@ export default function LoginPage() {
 
       const user_role = data.role[0];
 
+      if (user_role == "BSM") {
+        throw new Error("Une erreur est survenue lors de la connexion");
+      }
+
       if (user_role === "USAGER") {
         router.push("/user/client/home");
       } else if (user_role === "AGENCE_VOYAGE") {
