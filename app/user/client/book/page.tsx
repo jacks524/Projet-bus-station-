@@ -340,7 +340,7 @@ export default function ClientReservePage() {
                     className="group relative transition-all duration-300 hover:scale-105 active:scale-95"
                   >
                     <img
-                      src="/images/safaraplace.png"
+                      src="/images/busstation.png"
                       alt="SafaraPlace Logo"
                       className="h-9.5 w-auto"
                     />

@@ -327,7 +327,7 @@ export default function DetailOrganizationPage() {
               className="group relative transition-all duration-300 hover:scale-105 active:scale-95"
             >
               <img
-                src="/images/safaraplace.png"
+                src="/images/busstation.png"
                 alt="SafaraPlace Logo"
                 className="h-12 w-auto"
               />

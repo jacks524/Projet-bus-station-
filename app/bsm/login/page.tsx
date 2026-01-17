@@ -111,7 +111,7 @@ export default function LoginBSMPage() {
           {/* Logo */}
           <div className="mb-16 lg:mb-20">
             <img
-              src="/images/safaraplace.png"
+              src="/images/busstation.png"
               alt="SafaraPlace Logo"
               className="h-15 w-auto"
             />
