@@ -24,7 +24,6 @@ import {
   Tag,
 } from "lucide-react";
 import { useRouter } from "next/navigation";
-import { Agdasima } from "next/font/google";
 
 interface OrganizationFormData {
   email: string;
@@ -53,13 +52,6 @@ interface UserData {
   organization_id: string;
   userId: string;
 }
-
-const font = Agdasima({
-  subsets: ["latin"],
-  weight: ["400", "700"],
-  display: "swap",
-  style: "normal",
-});
 
 /**
  * DG Organisation Page Component
@@ -173,7 +165,7 @@ export default function DGOrganisationPage() {
   const handleInputChange = (
     e: React.ChangeEvent<
       HTMLInputElement | HTMLTextAreaElement | HTMLSelectElement
-    >
+    >,
   ) => {
     const { name, value } = e.target;
     setFormData((prev) => ({
@@ -298,7 +290,7 @@ export default function DGOrganisationPage() {
       });
     } catch (error: any) {
       setErrorMessage(
-        "Une erreur est survenue lors de la création de l'organisation"
+        "Une erreur est survenue lors de la création de l'organisation",
       );
       setShowErrorModal(true);
       console.error("Create Organization Error:", error);
@@ -316,7 +308,7 @@ export default function DGOrganisationPage() {
   };
 
   return (
-    <div className={`min-h-screen bg-gray-50 flex ${font.className}`}>
+    <div className="min-h-screen bg-gray-50 flex">
       {/* Sidebar */}
       <>
         <aside className="hidden lg:flex lg:flex-col w-64 bg-white border-r border-gray-200 fixed h-full">
@@ -509,401 +501,403 @@ export default function DGOrganisationPage() {
                 </div>
               </div>
               <form onSubmit={handleSubmit} className="p-8">
-              {/* Section 1 : Informations générales */}
-              <div className="mb-8">
-                <h3 className="text-xl font-bold text-gray-900 mb-6 flex items-center space-x-2">
-                  <Building className="w-6 h-6 text-[#6149CD]" />
-                  <span>Informations générales</span>
-                </h3>
+                {/* Section 1 : Informations générales */}
+                <div className="mb-8">
+                  <h3 className="text-xl font-bold text-gray-900 mb-6 flex items-center space-x-2">
+                    <Building className="w-6 h-6 text-[#6149CD]" />
+                    <span>Informations générales</span>
+                  </h3>
 
-                <div className="space-y-4">
-                  <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
-                    <div>
-                      <label className="block text-sm font-semibold text-gray-700 mb-2">
-                        Nom complet *
-                      </label>
-                      <input
-                        type="text"
-                        name="long_name"
-                        value={form_data.long_name}
-                        onChange={handleInputChange}
-                        placeholder="Ex: SafaraPlace Travel & Tours"
-                        required
-                        className="w-full px-4 py-3 border-2 border-gray-200 text-gray-800 placeholder:text-gray-400 rounded-xl focus:outline-none focus:ring-2 focus:ring-[#6149CD] focus:border-transparent transition-all"
-                      />
-                    </div>
-
-                    <div>
-                      <label className="block text-sm font-semibold text-gray-700 mb-2">
-                        Abréviation *
-                      </label>
-                      <input
-                        type="text"
-                        name="short_name"
-                        value={form_data.short_name}
-                        onChange={handleInputChange}
-                        placeholder="Ex: SPT"
-                        required
-                        className="w-full px-4 py-3 border-2 border-gray-200 text-gray-800 placeholder:text-gray-400 rounded-xl focus:outline-none focus:ring-2 focus:ring-[#6149CD] focus:border-transparent transition-all"
-                      />
-                    </div>
-                  </div>
-
-                  <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
-                    <div>
-                      <label className="block text-sm font-semibold text-gray-700 mb-2">
-                        Email *
-                      </label>
-                      <div className="flex items-center space-x-2">
-                        <Mail className="w-5 h-5 text-gray-400" />
-                        <input
-                          type="email"
-                          name="email"
-                          value={form_data.email}
-                          onChange={handleInputChange}
-                          placeholder="contact@organisation.com"
-                          required
-                          className="flex-1 px-4 py-3 border-2 border-gray-200 text-gray-800 placeholder:text-gray-400 rounded-xl focus:outline-none focus:ring-2 focus:ring-[#6149CD] focus:border-transparent transition-all"
-                        />
-                      </div>
-                    </div>
-
-                    <div>
-                      <label className="block text-sm font-semibold text-gray-700 mb-2">
-                        Nom du dirigeant *
-                      </label>
-                      <div className="flex items-center space-x-2">
-                        <User className="w-5 h-5 text-gray-400" />
+                  <div className="space-y-4">
+                    <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+                      <div>
+                        <label className="block text-sm font-semibold text-gray-700 mb-2">
+                          Nom complet *
+                        </label>
                         <input
                           type="text"
-                          name="ceo_name"
-                          value={form_data.ceo_name}
+                          name="long_name"
+                          value={form_data.long_name}
                           onChange={handleInputChange}
-                          placeholder="Ex: Jean Dupont"
+                          placeholder="Ex: SafaraPlace Travel & Tours"
                           required
-                          className="flex-1 px-4 py-3 border-2 border-gray-200 text-gray-800 placeholder:text-gray-400 rounded-xl focus:outline-none focus:ring-2 focus:ring-[#6149CD] focus:border-transparent transition-all"
+                          className="w-full px-4 py-3 border-2 border-gray-200 text-gray-800 placeholder:text-gray-400 rounded-xl focus:outline-none focus:ring-2 focus:ring-[#6149CD] focus:border-transparent transition-all"
+                        />
+                      </div>
+
+                      <div>
+                        <label className="block text-sm font-semibold text-gray-700 mb-2">
+                          Abréviation *
+                        </label>
+                        <input
+                          type="text"
+                          name="short_name"
+                          value={form_data.short_name}
+                          onChange={handleInputChange}
+                          placeholder="Ex: SPT"
+                          required
+                          className="w-full px-4 py-3 border-2 border-gray-200 text-gray-800 placeholder:text-gray-400 rounded-xl focus:outline-none focus:ring-2 focus:ring-[#6149CD] focus:border-transparent transition-all"
+                        />
+                      </div>
+                    </div>
+
+                    <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+                      <div>
+                        <label className="block text-sm font-semibold text-gray-700 mb-2">
+                          Email *
+                        </label>
+                        <div className="flex items-center space-x-2">
+                          <Mail className="w-5 h-5 text-gray-400" />
+                          <input
+                            type="email"
+                            name="email"
+                            value={form_data.email}
+                            onChange={handleInputChange}
+                            placeholder="contact@organisation.com"
+                            required
+                            className="flex-1 px-4 py-3 border-2 border-gray-200 text-gray-800 placeholder:text-gray-400 rounded-xl focus:outline-none focus:ring-2 focus:ring-[#6149CD] focus:border-transparent transition-all"
+                          />
+                        </div>
+                      </div>
+
+                      <div>
+                        <label className="block text-sm font-semibold text-gray-700 mb-2">
+                          Nom du dirigeant *
+                        </label>
+                        <div className="flex items-center space-x-2">
+                          <User className="w-5 h-5 text-gray-400" />
+                          <input
+                            type="text"
+                            name="ceo_name"
+                            value={form_data.ceo_name}
+                            onChange={handleInputChange}
+                            placeholder="Ex: Jean Dupont"
+                            required
+                            className="flex-1 px-4 py-3 border-2 border-gray-200 text-gray-800 placeholder:text-gray-400 rounded-xl focus:outline-none focus:ring-2 focus:ring-[#6149CD] focus:border-transparent transition-all"
+                          />
+                        </div>
+                      </div>
+                    </div>
+
+                    <div>
+                      <label className="block text-sm font-semibold text-gray-700 mb-2">
+                        Description
+                      </label>
+                      <div className="flex items-start space-x-2">
+                        <FileText className="w-5 h-5 text-gray-400 mt-3" />
+                        <textarea
+                          name="description"
+                          value={form_data.description}
+                          onChange={handleInputChange}
+                          placeholder="Description de l'organisation..."
+                          rows={4}
+                          className="flex-1 px-4 py-3 border-2 border-gray-200 text-gray-800 placeholder:text-gray-400 rounded-xl focus:outline-none focus:ring-2 focus:ring-[#6149CD] focus:border-transparent transition-all resize-none"
                         />
                       </div>
                     </div>
                   </div>
+                </div>
+
+                {/* Section 2 : Informations légales */}
+                <div className="mb-8 pt-8 border-t border-gray-200">
+                  <h3 className="text-xl font-bold text-gray-900 mb-6 flex items-center space-x-2">
+                    <FileText className="w-6 h-6 text-[#6149CD]" />
+                    <span>Informations légales</span>
+                  </h3>
+
+                  <div className="space-y-4">
+                    <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+                      <div>
+                        <label className="block text-sm font-semibold text-gray-700 mb-2">
+                          Forme juridique
+                        </label>
+                        <select
+                          name="legal_form"
+                          value={form_data.legal_form}
+                          onChange={handleInputChange}
+                          className="w-full px-4 py-3 border-2 border-gray-200 text-gray-800 rounded-xl focus:outline-none focus:ring-2 focus:ring-[#6149CD] focus:border-transparent transition-all"
+                        >
+                          <option value="">Sélectionner une forme</option>
+                          {LEGAL_FORMS.map((form) => (
+                            <option key={form} value={form}>
+                              {form}
+                            </option>
+                          ))}
+                        </select>
+                      </div>
+
+                      <div>
+                        <label className="block text-sm font-semibold text-gray-700 mb-2">
+                          N° de registre de commerce
+                        </label>
+                        <input
+                          type="text"
+                          name="business_registration_number"
+                          value={form_data.business_registration_number}
+                          onChange={handleInputChange}
+                          placeholder="Ex: RC/YAO/2024/B/1234"
+                          className="w-full px-4 py-3 border-2 border-gray-200 text-gray-800 placeholder:text-gray-400 rounded-xl focus:outline-none focus:ring-2 focus:ring-[#6149CD] focus:border-transparent transition-all"
+                        />
+                      </div>
+                    </div>
+
+                    <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+                      <div>
+                        <label className="block text-sm font-semibold text-gray-700 mb-2">
+                          Numéro fiscal
+                        </label>
+                        <input
+                          type="text"
+                          name="tax_number"
+                          value={form_data.tax_number}
+                          onChange={handleInputChange}
+                          placeholder="Ex: M012345678901X"
+                          className="w-full px-4 py-3 border-2 border-gray-200 text-gray-800 placeholder:text-gray-400 rounded-xl focus:outline-none focus:ring-2 focus:ring-[#6149CD] focus:border-transparent transition-all"
+                        />
+                      </div>
+
+                      <div>
+                        <label className="block text-sm font-semibold text-gray-700 mb-2">
+                          Capital social
+                        </label>
+                        <div className="flex items-center space-x-2">
+                          <DollarSign className="w-5 h-5 text-gray-400" />
+                          <input
+                            type="text"
+                            name="capital_share"
+                            value={form_data.capital_share}
+                            onChange={handleInputChange}
+                            placeholder="Ex: 5000000 XAF"
+                            className="flex-1 px-4 py-3 border-2 border-gray-200 text-gray-800 placeholder:text-gray-400 rounded-xl focus:outline-none focus:ring-2 focus:ring-[#6149CD] focus:border-transparent transition-all"
+                          />
+                        </div>
+                      </div>
+                    </div>
+
+                    <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+                      <div>
+                        <label className="block text-sm font-semibold text-gray-700 mb-2">
+                          Date d'enregistrement
+                        </label>
+                        <div className="flex items-center space-x-2">
+                          <Calendar className="w-5 h-5 text-gray-400" />
+                          <input
+                            type="date"
+                            name="registration_date"
+                            value={form_data.registration_date}
+                            onChange={handleInputChange}
+                            className="flex-1 px-4 py-3 border-2 border-gray-200 text-gray-800 rounded-xl focus:outline-none focus:ring-2 focus:ring-[#6149CD] focus:border-transparent transition-all"
+                          />
+                        </div>
+                      </div>
+
+                      <div>
+                        <label className="block text-sm font-semibold text-gray-700 mb-2">
+                          Année de création
+                        </label>
+                        <input
+                          type="text"
+                          name="year_founded"
+                          value={form_data.year_founded}
+                          onChange={handleInputChange}
+                          placeholder="Ex: 2024"
+                          className="w-full px-4 py-3 border-2 border-gray-200 text-gray-800 placeholder:text-gray-400 rounded-xl focus:outline-none focus:ring-2 focus:ring-[#6149CD] focus:border-transparent transition-all"
+                        />
+                      </div>
+                    </div>
+                  </div>
+                </div>
+
+                {/* Section 3 : Informations opérationnelles */}
+                <div className="mb-8 pt-8 border-t border-gray-200">
+                  <h3 className="text-xl font-bold text-gray-900 mb-6 flex items-center space-x-2">
+                    <Users className="w-6 h-6 text-[#6149CD]" />
+                    <span>Informations opérationnelles</span>
+                  </h3>
+
+                  <div className="space-y-4">
+                    <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+                      <div>
+                        <label className="block text-sm font-semibold text-gray-700 mb-2">
+                          Nombre d'employés
+                        </label>
+                        <input
+                          type="number"
+                          name="number_of_employees"
+                          value={form_data.number_of_employees}
+                          onChange={handleInputChange}
+                          placeholder="Ex: 50"
+                          min="0"
+                          className="w-full px-4 py-3 border-2 border-gray-200 text-gray-800 placeholder:text-gray-400 rounded-xl focus:outline-none focus:ring-2 focus:ring-[#6149CD] focus:border-transparent transition-all"
+                        />
+                      </div>
+
+                      <div>
+                        <label className="block text-sm font-semibold text-gray-700 mb-2">
+                          URL du logo
+                        </label>
+                        <div className="flex items-center space-x-2">
+                          <Globe className="w-5 h-5 text-gray-400" />
+                          <input
+                            type="url"
+                            name="logo_url"
+                            value={form_data.logo_url}
+                            onChange={handleInputChange}
+                            placeholder="https://exemple.com/logo.png"
+                            className="flex-1 px-4 py-3 border-2 border-gray-200 text-gray-800 placeholder:text-gray-400 rounded-xl focus:outline-none focus:ring-2 focus:ring-[#6149CD] focus:border-transparent transition-all"
+                          />
+                        </div>
+                      </div>
+                    </div>
+                  </div>
+                </div>
+
+                {/* Section 4 : Domaines d'activité */}
+                <div className="mb-8 pt-8 border-t border-gray-200">
+                  <h3 className="text-xl font-bold text-gray-900 mb-6 flex items-center space-x-2">
+                    <Briefcase className="w-6 h-6 text-[#6149CD]" />
+                    <span>Domaines d'activité</span>
+                  </h3>
 
                   <div>
                     <label className="block text-sm font-semibold text-gray-700 mb-2">
-                      Description
+                      Ajouter un domaine
                     </label>
-                    <div className="flex items-start space-x-2">
-                      <FileText className="w-5 h-5 text-gray-400 mt-3" />
-                      <textarea
-                        name="description"
-                        value={form_data.description}
-                        onChange={handleInputChange}
-                        placeholder="Description de l'organisation..."
-                        rows={4}
-                        className="flex-1 px-4 py-3 border-2 border-gray-200 text-gray-800 placeholder:text-gray-400 rounded-xl focus:outline-none focus:ring-2 focus:ring-[#6149CD] focus:border-transparent transition-all resize-none"
+                    <div className="flex items-center space-x-2 mb-3">
+                      <input
+                        type="text"
+                        value={business_domains_input}
+                        onChange={(e) =>
+                          setBusinessDomainsInput(e.target.value)
+                        }
+                        onKeyPress={(e) => {
+                          if (e.key === "Enter") {
+                            e.preventDefault();
+                            handleAddBusinessDomain();
+                          }
+                        }}
+                        placeholder="Ex: Transport interurbain"
+                        className="flex-1 px-4 py-3 border-2 border-gray-200 text-gray-800 placeholder:text-gray-400 rounded-xl focus:outline-none focus:ring-2 focus:ring-[#6149CD] focus:border-transparent transition-all"
                       />
-                    </div>
-                  </div>
-                </div>
-              </div>
-
-              {/* Section 2 : Informations légales */}
-              <div className="mb-8 pt-8 border-t border-gray-200">
-                <h3 className="text-xl font-bold text-gray-900 mb-6 flex items-center space-x-2">
-                  <FileText className="w-6 h-6 text-[#6149CD]" />
-                  <span>Informations légales</span>
-                </h3>
-
-                <div className="space-y-4">
-                  <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
-                    <div>
-                      <label className="block text-sm font-semibold text-gray-700 mb-2">
-                        Forme juridique
-                      </label>
-                      <select
-                        name="legal_form"
-                        value={form_data.legal_form}
-                        onChange={handleInputChange}
-                        className="w-full px-4 py-3 border-2 border-gray-200 text-gray-800 rounded-xl focus:outline-none focus:ring-2 focus:ring-[#6149CD] focus:border-transparent transition-all"
+                      <button
+                        type="button"
+                        onClick={handleAddBusinessDomain}
+                        style={{ backgroundColor: BUTTON_COLOR }}
+                        className="px-6 py-3 text-white rounded-xl font-semibold hover:opacity-90 transition-opacity"
                       >
-                        <option value="">Sélectionner une forme</option>
-                        {LEGAL_FORMS.map((form) => (
-                          <option key={form} value={form}>
-                            {form}
-                          </option>
+                        Ajouter
+                      </button>
+                    </div>
+
+                    {form_data.business_domains.length > 0 && (
+                      <div className="flex flex-wrap gap-2">
+                        {form_data.business_domains.map((domain, index) => (
+                          <span
+                            key={index}
+                            className="inline-flex items-center space-x-2 px-3 py-2 bg-[#6149CD] bg-opacity-10 text-[#6149CD] rounded-lg"
+                          >
+                            <span>{domain}</span>
+                            <button
+                              type="button"
+                              onClick={() => handleRemoveBusinessDomain(domain)}
+                              className="hover:text-red-600 transition-colors"
+                            >
+                              <X className="w-4 h-4" />
+                            </button>
+                          </span>
                         ))}
-                      </select>
-                    </div>
-
-                    <div>
-                      <label className="block text-sm font-semibold text-gray-700 mb-2">
-                        N° de registre de commerce
-                      </label>
-                      <input
-                        type="text"
-                        name="business_registration_number"
-                        value={form_data.business_registration_number}
-                        onChange={handleInputChange}
-                        placeholder="Ex: RC/YAO/2024/B/1234"
-                        className="w-full px-4 py-3 border-2 border-gray-200 text-gray-800 placeholder:text-gray-400 rounded-xl focus:outline-none focus:ring-2 focus:ring-[#6149CD] focus:border-transparent transition-all"
-                      />
-                    </div>
-                  </div>
-
-                  <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
-                    <div>
-                      <label className="block text-sm font-semibold text-gray-700 mb-2">
-                        Numéro fiscal
-                      </label>
-                      <input
-                        type="text"
-                        name="tax_number"
-                        value={form_data.tax_number}
-                        onChange={handleInputChange}
-                        placeholder="Ex: M012345678901X"
-                        className="w-full px-4 py-3 border-2 border-gray-200 text-gray-800 placeholder:text-gray-400 rounded-xl focus:outline-none focus:ring-2 focus:ring-[#6149CD] focus:border-transparent transition-all"
-                      />
-                    </div>
-
-                    <div>
-                      <label className="block text-sm font-semibold text-gray-700 mb-2">
-                        Capital social
-                      </label>
-                      <div className="flex items-center space-x-2">
-                        <DollarSign className="w-5 h-5 text-gray-400" />
-                        <input
-                          type="text"
-                          name="capital_share"
-                          value={form_data.capital_share}
-                          onChange={handleInputChange}
-                          placeholder="Ex: 5000000 XAF"
-                          className="flex-1 px-4 py-3 border-2 border-gray-200 text-gray-800 placeholder:text-gray-400 rounded-xl focus:outline-none focus:ring-2 focus:ring-[#6149CD] focus:border-transparent transition-all"
-                        />
                       </div>
-                    </div>
-                  </div>
-
-                  <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
-                    <div>
-                      <label className="block text-sm font-semibold text-gray-700 mb-2">
-                        Date d'enregistrement
-                      </label>
-                      <div className="flex items-center space-x-2">
-                        <Calendar className="w-5 h-5 text-gray-400" />
-                        <input
-                          type="date"
-                          name="registration_date"
-                          value={form_data.registration_date}
-                          onChange={handleInputChange}
-                          className="flex-1 px-4 py-3 border-2 border-gray-200 text-gray-800 rounded-xl focus:outline-none focus:ring-2 focus:ring-[#6149CD] focus:border-transparent transition-all"
-                        />
-                      </div>
-                    </div>
-
-                    <div>
-                      <label className="block text-sm font-semibold text-gray-700 mb-2">
-                        Année de création
-                      </label>
-                      <input
-                        type="text"
-                        name="year_founded"
-                        value={form_data.year_founded}
-                        onChange={handleInputChange}
-                        placeholder="Ex: 2024"
-                        className="w-full px-4 py-3 border-2 border-gray-200 text-gray-800 placeholder:text-gray-400 rounded-xl focus:outline-none focus:ring-2 focus:ring-[#6149CD] focus:border-transparent transition-all"
-                      />
-                    </div>
+                    )}
                   </div>
                 </div>
-              </div>
 
-              {/* Section 3 : Informations opérationnelles */}
-              <div className="mb-8 pt-8 border-t border-gray-200">
-                <h3 className="text-xl font-bold text-gray-900 mb-6 flex items-center space-x-2">
-                  <Users className="w-6 h-6 text-[#6149CD]" />
-                  <span>Informations opérationnelles</span>
-                </h3>
+                {/* Section 5 : Mots-clés */}
+                <div className="pt-8 border-t border-gray-200">
+                  <h3 className="text-xl font-bold text-gray-900 mb-6 flex items-center space-x-2">
+                    <Tag className="w-6 h-6 text-[#6149CD]" />
+                    <span>Mots-clés</span>
+                  </h3>
 
-                <div className="space-y-4">
-                  <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
-                    <div>
-                      <label className="block text-sm font-semibold text-gray-700 mb-2">
-                        Nombre d'employés
-                      </label>
+                  <div>
+                    <label className="block text-sm font-semibold text-gray-700 mb-2">
+                      Ajouter un mot-clé
+                    </label>
+                    <div className="flex items-center space-x-2 mb-3">
                       <input
-                        type="number"
-                        name="number_of_employees"
-                        value={form_data.number_of_employees}
-                        onChange={handleInputChange}
-                        placeholder="Ex: 50"
-                        min="0"
-                        className="w-full px-4 py-3 border-2 border-gray-200 text-gray-800 placeholder:text-gray-400 rounded-xl focus:outline-none focus:ring-2 focus:ring-[#6149CD] focus:border-transparent transition-all"
+                        type="text"
+                        value={keywords_input}
+                        onChange={(e) => setKeywordsInput(e.target.value)}
+                        onKeyPress={(e) => {
+                          if (e.key === "Enter") {
+                            e.preventDefault();
+                            handleAddKeyword();
+                          }
+                        }}
+                        placeholder="Ex: voyage, transport, tourisme"
+                        className="flex-1 px-4 py-3 border-2 border-gray-200 text-gray-800 placeholder:text-gray-400 rounded-xl focus:outline-none focus:ring-2 focus:ring-[#6149CD] focus:border-transparent transition-all"
                       />
+                      <button
+                        type="button"
+                        onClick={handleAddKeyword}
+                        style={{ backgroundColor: BUTTON_COLOR }}
+                        className="px-6 py-3 text-white rounded-xl font-semibold hover:opacity-90 transition-opacity"
+                      >
+                        Ajouter
+                      </button>
                     </div>
 
-                    <div>
-                      <label className="block text-sm font-semibold text-gray-700 mb-2">
-                        URL du logo
-                      </label>
-                      <div className="flex items-center space-x-2">
-                        <Globe className="w-5 h-5 text-gray-400" />
-                        <input
-                          type="url"
-                          name="logo_url"
-                          value={form_data.logo_url}
-                          onChange={handleInputChange}
-                          placeholder="https://exemple.com/logo.png"
-                          className="flex-1 px-4 py-3 border-2 border-gray-200 text-gray-800 placeholder:text-gray-400 rounded-xl focus:outline-none focus:ring-2 focus:ring-[#6149CD] focus:border-transparent transition-all"
-                        />
-                      </div>
-                    </div>
-                  </div>
-                </div>
-              </div>
-
-              {/* Section 4 : Domaines d'activité */}
-              <div className="mb-8 pt-8 border-t border-gray-200">
-                <h3 className="text-xl font-bold text-gray-900 mb-6 flex items-center space-x-2">
-                  <Briefcase className="w-6 h-6 text-[#6149CD]" />
-                  <span>Domaines d'activité</span>
-                </h3>
-
-                <div>
-                  <label className="block text-sm font-semibold text-gray-700 mb-2">
-                    Ajouter un domaine
-                  </label>
-                  <div className="flex items-center space-x-2 mb-3">
-                    <input
-                      type="text"
-                      value={business_domains_input}
-                      onChange={(e) => setBusinessDomainsInput(e.target.value)}
-                      onKeyPress={(e) => {
-                        if (e.key === "Enter") {
-                          e.preventDefault();
-                          handleAddBusinessDomain();
-                        }
-                      }}
-                      placeholder="Ex: Transport interurbain"
-                      className="flex-1 px-4 py-3 border-2 border-gray-200 text-gray-800 placeholder:text-gray-400 rounded-xl focus:outline-none focus:ring-2 focus:ring-[#6149CD] focus:border-transparent transition-all"
-                    />
-                    <button
-                      type="button"
-                      onClick={handleAddBusinessDomain}
-                      style={{ backgroundColor: BUTTON_COLOR }}
-                      className="px-6 py-3 text-white rounded-xl font-semibold hover:opacity-90 transition-opacity"
-                    >
-                      Ajouter
-                    </button>
-                  </div>
-
-                  {form_data.business_domains.length > 0 && (
-                    <div className="flex flex-wrap gap-2">
-                      {form_data.business_domains.map((domain, index) => (
-                        <span
-                          key={index}
-                          className="inline-flex items-center space-x-2 px-3 py-2 bg-[#6149CD] bg-opacity-10 text-[#6149CD] rounded-lg"
-                        >
-                          <span>{domain}</span>
-                          <button
-                            type="button"
-                            onClick={() => handleRemoveBusinessDomain(domain)}
-                            className="hover:text-red-600 transition-colors"
+                    {form_data.keywords.length > 0 && (
+                      <div className="flex flex-wrap gap-2">
+                        {form_data.keywords.map((keyword, index) => (
+                          <span
+                            key={index}
+                            className="inline-flex items-center space-x-2 px-3 py-2 bg-gray-100 text-gray-700 rounded-lg"
                           >
-                            <X className="w-4 h-4" />
-                          </button>
-                        </span>
-                      ))}
-                    </div>
-                  )}
-                </div>
-              </div>
-
-              {/* Section 5 : Mots-clés */}
-              <div className="pt-8 border-t border-gray-200">
-                <h3 className="text-xl font-bold text-gray-900 mb-6 flex items-center space-x-2">
-                  <Tag className="w-6 h-6 text-[#6149CD]" />
-                  <span>Mots-clés</span>
-                </h3>
-
-                <div>
-                  <label className="block text-sm font-semibold text-gray-700 mb-2">
-                    Ajouter un mot-clé
-                  </label>
-                  <div className="flex items-center space-x-2 mb-3">
-                    <input
-                      type="text"
-                      value={keywords_input}
-                      onChange={(e) => setKeywordsInput(e.target.value)}
-                      onKeyPress={(e) => {
-                        if (e.key === "Enter") {
-                          e.preventDefault();
-                          handleAddKeyword();
-                        }
-                      }}
-                      placeholder="Ex: voyage, transport, tourisme"
-                      className="flex-1 px-4 py-3 border-2 border-gray-200 text-gray-800 placeholder:text-gray-400 rounded-xl focus:outline-none focus:ring-2 focus:ring-[#6149CD] focus:border-transparent transition-all"
-                    />
-                    <button
-                      type="button"
-                      onClick={handleAddKeyword}
-                      style={{ backgroundColor: BUTTON_COLOR }}
-                      className="px-6 py-3 text-white rounded-xl font-semibold hover:opacity-90 transition-opacity"
-                    >
-                      Ajouter
-                    </button>
+                            <Hash className="w-4 h-4" />
+                            <span>{keyword}</span>
+                            <button
+                              type="button"
+                              onClick={() => handleRemoveKeyword(keyword)}
+                              className="hover:text-red-600 transition-colors"
+                            >
+                              <X className="w-4 h-4" />
+                            </button>
+                          </span>
+                        ))}
+                      </div>
+                    )}
                   </div>
-
-                  {form_data.keywords.length > 0 && (
-                    <div className="flex flex-wrap gap-2">
-                      {form_data.keywords.map((keyword, index) => (
-                        <span
-                          key={index}
-                          className="inline-flex items-center space-x-2 px-3 py-2 bg-gray-100 text-gray-700 rounded-lg"
-                        >
-                          <Hash className="w-4 h-4" />
-                          <span>{keyword}</span>
-                          <button
-                            type="button"
-                            onClick={() => handleRemoveKeyword(keyword)}
-                            className="hover:text-red-600 transition-colors"
-                          >
-                            <X className="w-4 h-4" />
-                          </button>
-                        </span>
-                      ))}
-                    </div>
-                  )}
                 </div>
-              </div>
 
-              {/* Buttons */}
-              <div className="flex items-center justify-between mt-8 pt-8 border-t border-gray-200">
-                <button
-                  type="button"
-                  onClick={() => router.push("/user/organization/dashboard")}
-                  className="px-6 py-3 border-2 border-gray-300 text-gray-700 rounded-xl font-semibold hover:bg-gray-100 active:bg-gray-200 transition-colors"
-                >
-                  Annuler
-                </button>
+                {/* Buttons */}
+                <div className="flex items-center justify-between mt-8 pt-8 border-t border-gray-200">
+                  <button
+                    type="button"
+                    onClick={() => router.push("/user/organization/dashboard")}
+                    className="px-6 py-3 border-2 border-gray-300 text-gray-700 rounded-xl font-semibold hover:bg-gray-100 active:bg-gray-200 transition-colors"
+                  >
+                    Annuler
+                  </button>
 
-                <button
-                  type="submit"
-                  disabled={is_loading}
-                  style={{ backgroundColor: BUTTON_COLOR }}
-                  className="px-8 py-3 text-white rounded-xl font-semibold hover:opacity-90 active:opacity-80 transition-all flex items-center space-x-2 disabled:opacity-50 disabled:cursor-not-allowed shadow-lg"
-                >
-                  {is_loading ? (
-                    <>
-                      <div className="w-5 h-5 border-2 border-white border-t-transparent rounded-full animate-spin"></div>
-                      <span>Création en cours...</span>
-                    </>
-                  ) : (
-                    <>
-                      <Building className="w-5 h-5" />
-                      <span>Créer l'organisation</span>
-                    </>
-                  )}
-                </button>
-              </div>
+                  <button
+                    type="submit"
+                    disabled={is_loading}
+                    style={{ backgroundColor: BUTTON_COLOR }}
+                    className="px-8 py-3 text-white rounded-xl font-semibold hover:opacity-90 active:opacity-80 transition-all flex items-center space-x-2 disabled:opacity-50 disabled:cursor-not-allowed shadow-lg"
+                  >
+                    {is_loading ? (
+                      <>
+                        <div className="w-5 h-5 border-2 border-white border-t-transparent rounded-full animate-spin"></div>
+                        <span>Création en cours...</span>
+                      </>
+                    ) : (
+                      <>
+                        <Building className="w-5 h-5" />
+                        <span>Créer l'organisation</span>
+                      </>
+                    )}
+                  </button>
+                </div>
               </form>
             </div>
           </div>

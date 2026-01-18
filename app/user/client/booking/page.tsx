@@ -25,7 +25,6 @@ import {
   Compass,
 } from "lucide-react";
 import { useRouter, useSearchParams } from "next/navigation";
-import { Agdasima } from "next/font/google";
 
 interface Voyage {
   idVoyage: string;
@@ -65,13 +64,6 @@ interface Reservation {
   voyage: Voyage;
   placesReservees: number[];
 }
-
-const font = Agdasima({
-  subsets: ["latin"],
-  weight: ["400", "700"],
-  display: "swap",
-  style: "normal",
-});
 
 /**
  * Client Voyage Reservation Page Component
@@ -220,7 +212,7 @@ export default function VoyageReservationPage() {
 
     if (places_selectionnees.includes(seat_number)) {
       setPlacesSelectionnees(
-        places_selectionnees.filter((s) => s !== seat_number)
+        places_selectionnees.filter((s) => s !== seat_number),
       );
     } else {
       setPlacesSelectionnees([...places_selectionnees, seat_number]);
@@ -248,7 +240,7 @@ export default function VoyageReservationPage() {
   const updatePassager = (
     index: number,
     field: keyof Passager,
-    value: string | number
+    value: string | number,
   ) => {
     const nouveaux_passagers = [...passagers];
     nouveaux_passagers[index] = {
@@ -353,17 +345,20 @@ export default function VoyageReservationPage() {
       const payment_data = {
         amount: reservation_courante?.prixTotal || 0,
         reservation_id: reservation_courante?.idReservation || "",
-        simulate_success: true
+        simulate_success: true,
       };
 
-      const response = await fetch(`${API_BASE_URL}/reservation/simulate-payment`, {
-        method: "POST",
-        headers: {
-          "Content-Type": "application/json",
-          Authorization: `Bearer ${auth_token}`,
+      const response = await fetch(
+        `${API_BASE_URL}/reservation/simulate-payment`,
+        {
+          method: "POST",
+          headers: {
+            "Content-Type": "application/json",
+            Authorization: `Bearer ${auth_token}`,
+          },
+          body: JSON.stringify(payment_data),
         },
-        body: JSON.stringify(payment_data),
-      });
+      );
 
       if (!response.ok) {
         throw new Error("Erreur lors du paiement");
@@ -404,12 +399,12 @@ export default function VoyageReservationPage() {
             is_reserved
               ? "bg-red-500 border-red-500 text-white cursor-not-allowed"
               : is_selected
-              ? "bg-green-500 border-green-500 text-white scale-110"
-              : "bg-white border-gray-300 text-gray-700 hover:border-[#6149CD] hover:scale-105"
+                ? "bg-green-500 border-green-500 text-white scale-110"
+                : "bg-white border-gray-300 text-gray-700 hover:border-[#6149CD] hover:scale-105"
           }`}
         >
           {i}
-        </button>
+        </button>,
       );
     }
 
@@ -418,7 +413,7 @@ export default function VoyageReservationPage() {
       rows.push(
         <div key={i} className="flex justify-center gap-3 mb-3">
           {seats.slice(i, i + 4)}
-        </div>
+        </div>,
       );
     }
 
@@ -456,7 +451,7 @@ export default function VoyageReservationPage() {
 
   if (is_loading) {
     return (
-      <div className={`min-h-screen bg-gray-50 flex items-center justify-center ${font.className}`}>
+      <div className="min-h-screen bg-gray-50 flex items-center justify-center">
         <div className="text-center">
           <Calendar className="w-16 h-16 text-[#6149CD] animate-spin mx-auto mb-4" />
           <p className="text-gray-600">Chargement du voyage...</p>
@@ -467,7 +462,7 @@ export default function VoyageReservationPage() {
 
   if (error_message || !voyage) {
     return (
-      <div className={`min-h-screen bg-gray-50 flex items-center justify-center ${font.className}`}>
+      <div className="min-h-screen bg-gray-50 flex items-center justify-center">
         <div className="bg-white rounded-lg shadow-lg p-8 max-w-md text-center">
           <X className="w-16 h-16 text-white-500 mx-auto mb-4 bg-[#6149CD] rounded-full" />
           <h2 className="text-2xl font-bold text-gray-900 mb-2">Erreur</h2>
@@ -486,7 +481,7 @@ export default function VoyageReservationPage() {
   }
 
   return (
-    <div className={`min-h-screen bg-gray-50 flex ${font.className}`}>
+    <div className="min-h-screen bg-gray-50 flex">
       {/* Sidebar */}
       <>
         <aside className="hidden lg:flex lg:flex-col w-64 bg-white border-r border-gray-200 fixed h-full">
@@ -976,7 +971,7 @@ export default function VoyageReservationPage() {
                             updatePassager(
                               index,
                               "numeroPieceIdentific",
-                              e.target.value
+                              e.target.value,
                             )
                           }
                           placeholder="CNI, Récépissé"
@@ -1075,7 +1070,7 @@ export default function VoyageReservationPage() {
                             onClick={() => {
                               const new_value = Math.max(
                                 0,
-                                passager.nbrBaggage - 1
+                                passager.nbrBaggage - 1,
                               );
                               updatePassager(index, "nbrBaggage", new_value);
                             }}

@@ -22,7 +22,6 @@ import {
   ChevronRight,
 } from "lucide-react";
 import { useRouter } from "next/navigation";
-import { Agdasima } from "next/font/google";
 
 interface Voyage {
   idVoyage: string;
@@ -66,13 +65,6 @@ interface UserData {
   email: string;
   userId: string;
 }
-
-const font = Agdasima({
-  subsets: ["latin"],
-  weight: ["400", "700"],
-  display: "swap",
-  style: "normal",
-});
 
 /**
  * Client Reservations Page Component
@@ -192,7 +184,7 @@ export default function ClientReservationsPage() {
             "Content-Type": "application/json",
             Authorization: `Bearer ${auth_token}`,
           },
-        }
+        },
       );
 
       if (!response.ok) {
@@ -204,7 +196,7 @@ export default function ClientReservationsPage() {
       const all_reservations = data.content || [];
       const pending_reservations = all_reservations.filter(
         (item: ReservationData) =>
-          item.reservation.statutReservation === "RESERVER"
+          item.reservation.statutReservation === "RESERVER",
       );
 
       setReservations(pending_reservations);
@@ -233,49 +225,52 @@ export default function ClientReservationsPage() {
     setShowPaiementModal(true);
   };
 
-const effectuerPaiement = async () => {
-  if (!mobile_phone.trim() || !mobile_phone_name.trim()) {
-    return;
-  }
-
-  setIsLoadingPaiement(true);
-
-  try {
-    const auth_token =
-      localStorage.getItem("auth_token") ||
-      sessionStorage.getItem("auth_token");
-
-    const payment_data = {
-      amount: selected_reservation?.reservation.prixTotal || 0,
-      reservation_id: selected_reservation?.reservation.idReservation || "",
-      simulate_success: true
-    };
-
-    const response = await fetch(`${API_BASE_URL}/reservation/simulate-payment`, {
-      method: "POST",
-      headers: {
-        "Content-Type": "application/json",
-        Authorization: `Bearer ${auth_token}`,
-      },
-      body: JSON.stringify(payment_data),
-    });
-
-    if (!response.ok) {
-      throw new Error("Erreur lors du paiement");
+  const effectuerPaiement = async () => {
+    if (!mobile_phone.trim() || !mobile_phone_name.trim()) {
+      return;
     }
 
-    setShowPaiementModal(false);
-    if (user_data?.userId) {
-      fetchReservations(user_data.userId);
+    setIsLoadingPaiement(true);
+
+    try {
+      const auth_token =
+        localStorage.getItem("auth_token") ||
+        sessionStorage.getItem("auth_token");
+
+      const payment_data = {
+        amount: selected_reservation?.reservation.prixTotal || 0,
+        reservation_id: selected_reservation?.reservation.idReservation || "",
+        simulate_success: true,
+      };
+
+      const response = await fetch(
+        `${API_BASE_URL}/reservation/simulate-payment`,
+        {
+          method: "POST",
+          headers: {
+            "Content-Type": "application/json",
+            Authorization: `Bearer ${auth_token}`,
+          },
+          body: JSON.stringify(payment_data),
+        },
+      );
+
+      if (!response.ok) {
+        throw new Error("Erreur lors du paiement");
+      }
+
+      setShowPaiementModal(false);
+      if (user_data?.userId) {
+        fetchReservations(user_data.userId);
+      }
+      router.push("/user/client/tickets");
+    } catch (error: any) {
+      alert("Une erreur est survenue lors du paiement. Veuillez réessayer.");
+      console.error("Payment Error:", error);
+    } finally {
+      setIsLoadingPaiement(false);
     }
-    router.push("/user/client/tickets");
-  } catch (error: any) {
-    alert("Une erreur est survenue lors du paiement. Veuillez réessayer.");
-    console.error("Payment Error:", error);
-  } finally {
-    setIsLoadingPaiement(false);
-  }
-};
+  };
 
   const formatDate = (date_string: string) => {
     const date = new Date(date_string);
@@ -296,7 +291,7 @@ const effectuerPaiement = async () => {
   };
 
   return (
-    <div className={`min-h-screen bg-gray-50 flex ${font.className}`}>
+    <div className="min-h-screen bg-gray-50 flex">
       {/* Sidebar */}
       <>
         <aside className="hidden lg:flex lg:flex-col w-64 bg-white border-r border-gray-200 fixed h-full">
@@ -619,7 +614,8 @@ const effectuerPaiement = async () => {
                                 <div className="flex items-center space-x-2 text-sm">
                                   <Clock className="w-4 h-4 text-gray-500" />
                                   <span className="text-gray-700">
-                                    Départ : {formatDate(data.voyage.dateDepartPrev)}
+                                    Départ :{" "}
+                                    {formatDate(data.voyage.dateDepartPrev)}
                                   </span>
                                 </div>
                                 <div className="flex items-center space-x-2 text-sm">
@@ -676,7 +672,7 @@ const effectuerPaiement = async () => {
                           <button
                             onClick={() =>
                               setCurrentPage(
-                                Math.min(total_pages - 1, current_page + 1)
+                                Math.min(total_pages - 1, current_page + 1),
                               )
                             }
                             disabled={current_page === total_pages - 1}

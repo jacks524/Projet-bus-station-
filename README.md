@@ -23,7 +23,7 @@ cd Projet-bus-station-
 npm install
 
 # Démarrer le serveur (Demande node >= 20.9.0)
-# nvm install 20.9.0
+# nvm install 20.9.0 ou une version ultérieure
 # nvm use 20.9.0
 npm run dev
 ```

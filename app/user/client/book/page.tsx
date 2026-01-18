@@ -22,7 +22,6 @@ import {
   Compass,
 } from "lucide-react";
 import { useRouter } from "next/navigation";
-import { Agdasima } from "next/font/google";
 
 interface Voyage {
   idVoyage: string;
@@ -47,13 +46,6 @@ interface UserData {
   last_name: string;
   email: string;
 }
-
-const font = Agdasima({
-  subsets: ["latin"],
-  weight: ["400", "700"],
-  display: "swap",
-  style: "normal",
-});
 
 /**
  * Client Reserve/Book Page Component
@@ -153,7 +145,7 @@ export default function ClientReservePage() {
   const searchVoyages = async () => {
     if (!ville_depart || !ville_arrive) {
       setErrorMessage(
-        "Veuillez renseigner au moins la ville de départ et d'arrivée"
+        "Veuillez renseigner au moins la ville de départ et d'arrivée",
       );
       return;
     }
@@ -169,7 +161,7 @@ export default function ClientReservePage() {
           headers: {
             "Content-Type": "application/json; charset=UTF-8",
           },
-        }
+        },
       );
 
       if (!response.ok) {
@@ -222,7 +214,7 @@ export default function ClientReservePage() {
 
       const total_results = filtered_voyages.length;
       const total_pages_calculated = Math.ceil(
-        total_results / VOYAGES_PER_PAGE
+        total_results / VOYAGES_PER_PAGE,
       );
       const start_index = current_page * VOYAGES_PER_PAGE;
       const end_index = start_index + VOYAGES_PER_PAGE;
@@ -280,7 +272,7 @@ export default function ClientReservePage() {
   };
 
   return (
-    <div className={`min-h-screen bg-gray-50 flex ${font.className}`}>
+    <div className="min-h-screen bg-gray-50 flex">
       {/* Sidebar */}
       <>
         <aside className="hidden lg:flex lg:flex-col w-64 bg-white border-r border-gray-200 fixed h-full">
@@ -720,7 +712,11 @@ export default function ClientReservePage() {
                       </div>
                       <div className="flex items-center space-x-1 text-sm text-gray-600">
                         <Users className="w-4 h-4" />
-                        <span>{voyage.nbrPlaceReservable} / {voyage.nbrPlaceRestante + voyage.nbrPlaceConfirm} places restantes</span>
+                        <span>
+                          {voyage.nbrPlaceReservable} /{" "}
+                          {voyage.nbrPlaceRestante + voyage.nbrPlaceConfirm}{" "}
+                          places restantes
+                        </span>
                       </div>
                     </div>
 
@@ -772,7 +768,7 @@ export default function ClientReservePage() {
                   <button
                     onClick={() =>
                       setCurrentPage(
-                        Math.min(total_pages - 1, current_page + 1)
+                        Math.min(total_pages - 1, current_page + 1),
                       )
                     }
                     disabled={current_page === total_pages - 1}

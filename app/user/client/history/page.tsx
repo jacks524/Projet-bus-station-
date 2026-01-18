@@ -20,7 +20,6 @@ import {
   Coins,
 } from "lucide-react";
 import { useRouter } from "next/navigation";
-import { Agdasima } from "next/font/google";
 
 interface Historique {
   idHistorique: string;
@@ -42,13 +41,6 @@ interface UserData {
   email: string;
   userId: string;
 }
-
-const font = Agdasima({
-  subsets: ["latin"],
-  weight: ["400", "700"],
-  display: "swap",
-  style: "normal",
-});
 
 /**
  * Client History Page Component
@@ -144,7 +136,7 @@ export default function ClientHistoryPage() {
           headers: {
             "Content-Type": "application/json",
           },
-        }
+        },
       );
 
       if (!response.ok) {
@@ -227,7 +219,7 @@ export default function ClientHistoryPage() {
   };
 
   return (
-    <div className={`min-h-screen bg-gray-50 flex ${font.className}`}>
+    <div className="min-h-screen bg-gray-50 flex">
       {/* Sidebar */}
       <>
         <aside className="hidden lg:flex lg:flex-col w-64 bg-white border-r border-gray-200 fixed h-full">
@@ -465,7 +457,7 @@ export default function ClientHistoryPage() {
                         key={item.idHistorique}
                         className={`flex items-start space-x-4 p-4 rounded-lg border-l-4 transition-all hover:shadow-md ${getStatusColor(
                           item.statusHistorique,
-                          item.dateConfirmation
+                          item.dateConfirmation,
                         )}`}
                       >
                         {/* Icône de statut */}
@@ -488,7 +480,7 @@ export default function ClientHistoryPage() {
                               {formatDate(
                                 item.dateAnnulation ||
                                   item.dateConfirmation ||
-                                  item.dateReservation
+                                  item.dateReservation,
                               )}
                             </span>
                           </div>

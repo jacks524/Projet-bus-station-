@@ -4,7 +4,6 @@ import React, { useState, useEffect } from "react";
 import { Eye, EyeOff, Check, X } from "lucide-react";
 import Image from "next/image";
 import { useRouter } from "next/navigation";
-import { Agdasima } from "next/font/google";
 
 /**
  * Signup Page Component
@@ -15,13 +14,6 @@ import { Agdasima } from "next/font/google";
  * @author Thomas Djotio Ndié
  * @date 2025-12-16
  */
-
-const font = Agdasima({
-  subsets: ["latin"],
-  weight: ["400", "700"],
-  display: "swap",
-  style: "normal",
-});
 
 export default function SignupPage() {
   const [firstName, setFirstName] = useState("");
@@ -101,14 +93,14 @@ export default function SignupPage() {
       if (!response.ok) {
         const error_data = await response.json();
         throw new Error(
-          error_data.message || "Une erreur est survenue lors de l'inscription"
+          error_data.message || "Une erreur est survenue lors de l'inscription",
         );
       }
 
       const data = await response.json();
 
       setSuccessMessage(
-        "Compte créé avec succès ! Redirection dans quelques instants..."
+        "Compte créé avec succès ! Redirection dans quelques instants...",
       );
 
       setTimeout(() => {
@@ -137,7 +129,7 @@ export default function SignupPage() {
   useEffect(() => {
     const interval = setInterval(() => {
       setCurrentSlide((prevSlide) =>
-        prevSlide === TOTAL_SLIDES - 1 ? 0 : prevSlide + 1
+        prevSlide === TOTAL_SLIDES - 1 ? 0 : prevSlide + 1,
       );
     }, 5000);
 
@@ -145,7 +137,7 @@ export default function SignupPage() {
   }, [TOTAL_SLIDES]);
 
   return (
-    <div className={`min-h-screen flex ${font.className}`}>
+    <div className="min-h-screen flex">
       {/* Left Section - Image Carousel */}
       <div className="hidden lg:block lg:w-1/2 bg-white">
         <div className="h-screen flex items-center justify-center p-8">

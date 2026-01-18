@@ -37,7 +37,6 @@ import {
   ResponsiveContainer,
 } from "recharts";
 import { useRouter } from "next/navigation";
-import { Agdasima } from "next/font/google";
 
 interface StatisticsOverview {
   ville: string;
@@ -101,12 +100,6 @@ interface UserData {
   userId: string;
 }
 
-const font = Agdasima({
-  subsets: ["latin"],
-  weight: ["400", "700"],
-  display: "swap",
-  style: "normal",
-});
 
 /**
  * BSM Dashboard Page Component
@@ -379,7 +372,7 @@ export default function BSMDashboardPage() {
   };
 
   return (
-    <div className={`min-h-screen bg-gray-50 flex ${font.className}`}>
+    <div className="min-h-screen bg-gray-50 flex">
       {/* Sidebar */}
       <>
         <aside className="hidden lg:flex lg:flex-col w-64 bg-white border-r border-gray-200 fixed h-full">

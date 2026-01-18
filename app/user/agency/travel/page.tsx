@@ -31,7 +31,6 @@ import {
   Usb,
 } from "lucide-react";
 import { useRouter } from "next/navigation";
-import { Agdasima } from "next/font/google";
 
 interface AgenceValidee {
   agency_id: string;
@@ -97,13 +96,6 @@ interface VoyageFormData {
   agenceVoyageId: string;
   amenities: string[];
 }
-
-const font = Agdasima({
-  subsets: ["latin"],
-  weight: ["400", "700"],
-  display: "swap",
-  style: "normal",
-});
 
 export default function CreateVoyagePage() {
   const [agences, setAgences] = useState<AgenceValidee[]>([]);
@@ -474,7 +466,7 @@ export default function CreateVoyagePage() {
   };
 
   return (
-    <div className={`min-h-screen bg-gray-50 flex ${font.className}`}>
+    <div className="min-h-screen bg-gray-50 flex">
       {/* Sidebar */}
       <aside className="hidden lg:flex lg:flex-col w-64 bg-white border-r border-gray-200 fixed h-full">
         <div className="p-6">

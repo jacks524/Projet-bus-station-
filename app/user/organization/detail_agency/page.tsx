@@ -48,7 +48,6 @@ import {
   Legend,
 } from "recharts";
 import { useRouter, useSearchParams } from "next/navigation";
-import { Agdasima } from "next/font/google";
 
 interface AgencyData {
   agency_id: string;
@@ -107,13 +106,6 @@ interface UserData {
   userId: string;
 }
 
-const font = Agdasima({
-  subsets: ["latin"],
-  weight: ["400", "700"],
-  display: "swap",
-  style: "normal",
-});
-
 export default function DetailAgencyPage() {
   const router = useRouter();
   const searchParams = useSearchParams();
@@ -137,7 +129,7 @@ export default function DetailAgencyPage() {
   const [user_data, setDgData] = useState<UserData | null>(null);
 
   const [general_stats, setGeneralStats] = useState<GeneralStatistics | null>(
-    null
+    null,
   );
   const [evolution_stats, setEvolutionStats] =
     useState<EvolutionStatistics | null>(null);
@@ -249,7 +241,7 @@ export default function DetailAgencyPage() {
             "Content-Type": "application/json",
             Authorization: `Bearer ${auth_token}`,
           },
-        }
+        },
       );
 
       if (!response.ok)
@@ -277,7 +269,7 @@ export default function DetailAgencyPage() {
             "Content-Type": "application/json",
             Authorization: `Bearer ${auth_token}`,
           },
-        }
+        },
       );
 
       if (!response.ok)
@@ -291,7 +283,7 @@ export default function DetailAgencyPage() {
   };
 
   const handleInputChange = (
-    e: React.ChangeEvent<HTMLInputElement | HTMLTextAreaElement>
+    e: React.ChangeEvent<HTMLInputElement | HTMLTextAreaElement>,
   ) => {
     const { name, value } = e.target;
     setFormData((prev) => ({
@@ -532,7 +524,7 @@ export default function DetailAgencyPage() {
   };
 
   return (
-    <div className={`min-h-screen bg-gray-50 flex ${font.className}`}>
+    <div className="min-h-screen bg-gray-50 flex">
       {/* Sidebar */}
       <aside className="hidden lg:flex lg:flex-col w-64 bg-white border-r border-gray-200 fixed h-full">
         <div className="p-6">
@@ -709,7 +701,7 @@ export default function DetailAgencyPage() {
 
                 <span
                   className={`px-4 py-2 rounded-full text-sm font-semibold ${getStatusBadge(
-                    agency.statut_validation
+                    agency.statut_validation,
                   )}`}
                 >
                   {agency.statut_validation}
@@ -872,7 +864,7 @@ export default function DetailAgencyPage() {
                     </label>
                     <span
                       className={`inline-block px-4 py-2 rounded-full text-sm font-semibold ${getStatusBadge(
-                        agency.statut_validation
+                        agency.statut_validation,
                       )}`}
                     >
                       {agency.statut_validation}
@@ -1296,7 +1288,7 @@ export default function DetailAgencyPage() {
                           <ResponsiveContainer width="100%" height="100%">
                             <BarChart
                               data={prepareBarChartData(
-                                general_stats.revenue_by_class
+                                general_stats.revenue_by_class,
                               )}
                             >
                               <CartesianGrid
@@ -1343,7 +1335,7 @@ export default function DetailAgencyPage() {
                           <ResponsiveContainer width="100%" height="100%">
                             <BarChart
                               data={prepareBarChartData(
-                                general_stats.top_destinations
+                                general_stats.top_destinations,
                               )}
                               layout="vertical"
                             >
@@ -1394,7 +1386,7 @@ export default function DetailAgencyPage() {
                           <ResponsiveContainer width="100%" height="100%">
                             <BarChart
                               data={prepareBarChartData(
-                                general_stats.top_origins
+                                general_stats.top_origins,
                               )}
                               layout="vertical"
                             >
@@ -1446,7 +1438,7 @@ export default function DetailAgencyPage() {
                           <ResponsiveContainer width="100%" height="100%">
                             <BarChart
                               data={prepareDayOfWeekData(
-                                general_stats.reservations_by_day_of_week
+                                general_stats.reservations_by_day_of_week,
                               )}
                             >
                               <CartesianGrid
@@ -1490,7 +1482,7 @@ export default function DetailAgencyPage() {
                           <ResponsiveContainer width="100%" height="100%">
                             <BarChart
                               data={prepareBarChartData(
-                                general_stats.trips_by_driver
+                                general_stats.trips_by_driver,
                               )}
                               layout="vertical"
                             >
@@ -1548,7 +1540,7 @@ export default function DetailAgencyPage() {
                                   (item) => ({
                                     date: formatDate(item.date),
                                     valeur: item.valeur,
-                                  })
+                                  }),
                                 )}
                               >
                                 <CartesianGrid
@@ -1597,7 +1589,7 @@ export default function DetailAgencyPage() {
                                   (item) => ({
                                     date: formatDate(item.date),
                                     valeur: item.valeur,
-                                  })
+                                  }),
                                 )}
                               >
                                 <CartesianGrid
@@ -1644,7 +1636,7 @@ export default function DetailAgencyPage() {
                             <ResponsiveContainer width="100%" height="100%">
                               <BarChart
                                 data={prepareMonthlyData(
-                                  evolution_stats.revenue_per_month
+                                  evolution_stats.revenue_per_month,
                                 )}
                               >
                                 <CartesianGrid
@@ -1692,7 +1684,7 @@ export default function DetailAgencyPage() {
                             <ResponsiveContainer width="100%" height="100%">
                               <BarChart
                                 data={prepareMonthlyData(
-                                  evolution_stats.reservations_per_month
+                                  evolution_stats.reservations_per_month,
                                 )}
                               >
                                 <CartesianGrid

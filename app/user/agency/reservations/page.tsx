@@ -29,7 +29,6 @@ import {
   User,
 } from "lucide-react";
 import { useRouter } from "next/navigation";
-import { Agdasima } from "next/font/google";
 
 /**
  * Agency Reservations Page Component
@@ -111,18 +110,11 @@ interface UserData {
   token: string;
 }
 
-const font = Agdasima({
-  subsets: ["latin"],
-  weight: ["400", "700"],
-  display: "swap",
-  style: "normal",
-});
-
 export default function AgenceReservationsPage() {
   const [reservations, setReservations] = useState<ReservationData[]>([]);
   const [agences, setAgences] = useState<AgenceValidee[]>([]);
   const [selected_agence, setSelectedAgence] = useState<AgenceValidee | null>(
-    null
+    null,
   );
 
   const [is_loading, setIsLoading] = useState(true);
@@ -256,7 +248,7 @@ export default function AgenceReservationsPage() {
             "Content-Type": "application/json",
             Authorization: `Bearer ${auth_token}`,
           },
-        }
+        },
       );
 
       if (!response.ok) {
@@ -267,7 +259,7 @@ export default function AgenceReservationsPage() {
       const all_agences = data.content || data || [];
 
       const my_agences = all_agences.filter(
-        (agence: AgenceValidee) => agence.user_id === user_data?.userId
+        (agence: AgenceValidee) => agence.user_id === user_data?.userId,
       );
 
       setAgences(my_agences);
@@ -303,7 +295,7 @@ export default function AgenceReservationsPage() {
             "Content-Type": "application/json",
             Authorization: `Bearer ${auth_token}`,
           },
-        }
+        },
       );
 
       if (!response.ok) {
@@ -463,13 +455,13 @@ export default function AgenceReservationsPage() {
   const stats = {
     total: reservations.length,
     reserved: reservations.filter(
-      (r) => r.reservation.statutReservation === "RESERVER"
+      (r) => r.reservation.statutReservation === "RESERVER",
     ).length,
     confirmed: reservations.filter(
-      (r) => r.reservation.statutReservation === "CONFIRMER"
+      (r) => r.reservation.statutReservation === "CONFIRMER",
     ).length,
     cancelled: reservations.filter(
-      (r) => r.reservation.statutReservation === "ANNULER"
+      (r) => r.reservation.statutReservation === "ANNULER",
     ).length,
     totalRevenue: reservations
       .filter((r) => r.reservation.statutPayement === "PAID")
@@ -477,7 +469,7 @@ export default function AgenceReservationsPage() {
   };
 
   return (
-    <div className={`min-h-screen bg-gray-50 flex ${font.className}`}>
+    <div className="min-h-screen bg-gray-50 flex">
       {/* Sidebar */}
       <>
         <aside className="hidden lg:flex lg:flex-col w-64 bg-white border-r border-gray-200 fixed h-full">
@@ -939,7 +931,8 @@ export default function AgenceReservationsPage() {
                                   <div className="flex items-center space-x-1">
                                     <MapPin className="w-3 h-3 text-gray-400" />
                                     <span className="text-sm text-gray-900">
-                                      {data.voyage.lieuDepart} vers {data.voyage.lieuArrive}
+                                      {data.voyage.lieuDepart} vers{" "}
+                                      {data.voyage.lieuArrive}
                                     </span>
                                   </div>
                                 </td>
@@ -960,15 +953,15 @@ export default function AgenceReservationsPage() {
                                 <td className="py-3 px-4">
                                   <span
                                     className={`inline-flex items-center space-x-1 px-2 py-1 rounded-full text-xs font-semibold ${getStatusBadge(
-                                      data.reservation.statutReservation
+                                      data.reservation.statutReservation,
                                     )}`}
                                   >
                                     {getStatusIcon(
-                                      data.reservation.statutReservation
+                                      data.reservation.statutReservation,
                                     )}
                                     <span>
                                       {getStatusLabel(
-                                        data.reservation.statutReservation
+                                        data.reservation.statutReservation,
                                       )}
                                     </span>
                                   </span>
@@ -976,11 +969,11 @@ export default function AgenceReservationsPage() {
                                 <td className="py-3 px-4">
                                   <span
                                     className={`px-2 py-1 rounded-full text-xs font-semibold ${getPaymentBadge(
-                                      data.reservation.statutPayement
+                                      data.reservation.statutPayement,
                                     )}`}
                                   >
                                     {getPaymentLabel(
-                                      data.reservation.statutPayement
+                                      data.reservation.statutPayement,
                                     )}
                                   </span>
                                 </td>
@@ -1015,17 +1008,18 @@ export default function AgenceReservationsPage() {
                                 <div className="flex items-center space-x-1">
                                   <MapPin className="w-3 h-3 text-gray-400" />
                                   <span className="text-sm font-semibold text-gray-900">
-                                    {data.voyage.lieuDepart} vers {data.voyage.lieuArrive}
+                                    {data.voyage.lieuDepart} vers{" "}
+                                    {data.voyage.lieuArrive}
                                   </span>
                                 </div>
                               </div>
                               <span
                                 className={`px-2 py-1 rounded-full text-xs font-semibold ${getStatusBadge(
-                                  data.reservation.statutReservation
+                                  data.reservation.statutReservation,
                                 )}`}
                               >
                                 {getStatusLabel(
-                                  data.reservation.statutReservation
+                                  data.reservation.statutReservation,
                                 )}
                               </span>
                             </div>
@@ -1055,11 +1049,11 @@ export default function AgenceReservationsPage() {
                               <div className="flex items-center space-x-2">
                                 <span
                                   className={`px-2 py-1 rounded-full text-xs font-semibold ${getPaymentBadge(
-                                    data.reservation.statutPayement
+                                    data.reservation.statutPayement,
                                   )}`}
                                 >
                                   {getPaymentLabel(
-                                    data.reservation.statutPayement
+                                    data.reservation.statutPayement,
                                   )}
                                 </span>
                                 <button
@@ -1097,7 +1091,7 @@ export default function AgenceReservationsPage() {
                           <button
                             onClick={() =>
                               setCurrentPage(
-                                Math.min(total_pages - 1, current_page + 1)
+                                Math.min(total_pages - 1, current_page + 1),
                               )
                             }
                             disabled={current_page === total_pages - 1}
@@ -1151,7 +1145,7 @@ export default function AgenceReservationsPage() {
                     <p className="text-xs text-gray-500">Date de réservation</p>
                     <p className="text-sm text-gray-900">
                       {formatDate(
-                        selected_reservation.reservation.dateReservation
+                        selected_reservation.reservation.dateReservation,
                       )}
                     </p>
                   </div>
@@ -1159,15 +1153,15 @@ export default function AgenceReservationsPage() {
                     <p className="text-xs text-gray-500">Statut</p>
                     <span
                       className={`inline-flex items-center space-x-1 px-2 py-1 rounded-full text-xs font-semibold ${getStatusBadge(
-                        selected_reservation.reservation.statutReservation
+                        selected_reservation.reservation.statutReservation,
                       )}`}
                     >
                       {getStatusIcon(
-                        selected_reservation.reservation.statutReservation
+                        selected_reservation.reservation.statutReservation,
                       )}
                       <span>
                         {getStatusLabel(
-                          selected_reservation.reservation.statutReservation
+                          selected_reservation.reservation.statutReservation,
                         )}
                       </span>
                     </span>
@@ -1192,14 +1186,16 @@ export default function AgenceReservationsPage() {
                     <MapPin className="w-4 h-4 text-gray-500" />
                     <span className="text-sm text-gray-900">
                       <strong>Trajet :</strong>{" "}
-                      {selected_reservation.voyage.lieuDepart} vers {selected_reservation.voyage.lieuArrive}
+                      {selected_reservation.voyage.lieuDepart} vers{" "}
+                      {selected_reservation.voyage.lieuArrive}
                     </span>
                   </div>
                   <div className="flex items-center space-x-2">
                     <Compass className="w-4 h-4 text-gray-500" />
                     <span className="text-sm text-gray-900">
                       <strong>Itinéraire :</strong>{" "}
-                      {selected_reservation.voyage.pointDeDepart} vers {selected_reservation.voyage.pointArrivee}
+                      {selected_reservation.voyage.pointDeDepart} vers{" "}
+                      {selected_reservation.voyage.pointArrivee}
                     </span>
                   </div>
                   <div className="flex items-center space-x-2">
@@ -1231,7 +1227,7 @@ export default function AgenceReservationsPage() {
                     <p className="text-xs text-gray-500">Prix total</p>
                     <p className="text-lg font-bold text-[#6149CD]">
                       {formatCurrency(
-                        selected_reservation.reservation.prixTotal
+                        selected_reservation.reservation.prixTotal,
                       )}
                     </p>
                   </div>
@@ -1239,7 +1235,7 @@ export default function AgenceReservationsPage() {
                     <p className="text-xs text-gray-500">Montant payé</p>
                     <p className="text-lg font-bold text-green-600">
                       {formatCurrency(
-                        selected_reservation.reservation.montantPaye
+                        selected_reservation.reservation.montantPaye,
                       )}
                     </p>
                   </div>
@@ -1247,11 +1243,11 @@ export default function AgenceReservationsPage() {
                     <p className="text-xs text-gray-500">Statut du paiement</p>
                     <span
                       className={`inline-block mt-1 px-2 py-1 rounded-full text-xs font-semibold ${getPaymentBadge(
-                        selected_reservation.reservation.statutPayement
+                        selected_reservation.reservation.statutPayement,
                       )}`}
                     >
                       {getPaymentLabel(
-                        selected_reservation.reservation.statutPayement
+                        selected_reservation.reservation.statutPayement,
                       )}
                     </span>
                   </div>

@@ -22,7 +22,6 @@ import {
   Printer,
 } from "lucide-react";
 import { useRouter } from "next/navigation";
-import { Agdasima } from "next/font/google";
 
 interface Voyage {
   idVoyage: string;
@@ -67,13 +66,6 @@ interface UserData {
   email: string;
   userId: string;
 }
-
-const font = Agdasima({
-  subsets: ["latin"],
-  weight: ["400", "700"],
-  display: "swap",
-  style: "normal",
-});
 
 /**
  * Client Tickets Page Component
@@ -184,7 +176,7 @@ export default function ClientTicketsPage() {
             "Content-Type": "application/json",
             Authorization: `Bearer ${auth_token}`,
           },
-        }
+        },
       );
 
       if (!response.ok) {
@@ -197,7 +189,7 @@ export default function ClientTicketsPage() {
       // Filtrer uniquement les réservations confirmées
       const confirmed_tickets = all_reservations.filter(
         (item: ReservationData) =>
-          item.reservation.statutReservation === "CONFIRMER"
+          item.reservation.statutReservation === "CONFIRMER",
       );
 
       setTickets(confirmed_tickets);
@@ -421,7 +413,7 @@ export default function ClientTicketsPage() {
   };
 
   return (
-    <div className={`min-h-screen bg-gray-50 flex ${font.className}`}>
+    <div className="min-h-screen bg-gray-50 flex">
       {/* Sidebar */}
       <>
         <aside className="hidden lg:flex lg:flex-col w-64 bg-white border-r border-gray-200 fixed h-full">
@@ -660,7 +652,7 @@ export default function ClientTicketsPage() {
                                 <p className="text-sm text-gray-500">
                                   Confirmé le{" "}
                                   {formatDate(
-                                    data.reservation.dateConfirmation
+                                    data.reservation.dateConfirmation,
                                   )}
                                 </p>
                               </div>
@@ -751,7 +743,7 @@ export default function ClientTicketsPage() {
                           <button
                             onClick={() =>
                               setCurrentPage(
-                                Math.min(total_pages - 1, current_page + 1)
+                                Math.min(total_pages - 1, current_page + 1),
                               )
                             }
                             disabled={current_page === total_pages - 1}

@@ -22,7 +22,6 @@ import {
   PieChart,
 } from "lucide-react";
 import { useRouter } from "next/navigation";
-import { Agdasima } from "next/font/google";
 import {
   LineChart,
   Line,
@@ -108,22 +107,15 @@ interface UserData {
   token: string;
 }
 
-const font = Agdasima({
-  subsets: ["latin"],
-  weight: ["400", "700"],
-  display: "swap",
-  style: "normal",
-});
-
 export default function AgenceDashboardPage() {
   const [general_stats, setGeneralStats] = useState<GeneralStatistics | null>(
-    null
+    null,
   );
   const [evolution_stats, setEvolutionStats] =
     useState<EvolutionStatistics | null>(null);
   const [agences, setAgences] = useState<AgenceValidee[]>([]);
   const [selected_agence, setSelectedAgence] = useState<AgenceValidee | null>(
-    null
+    null,
   );
 
   const [is_loading_stats, setIsLoadingStats] = useState(true);
@@ -236,7 +228,7 @@ export default function AgenceDashboardPage() {
             "Content-Type": "application/json",
             Authorization: `Bearer ${auth_token}`,
           },
-        }
+        },
       );
 
       if (!response.ok) {
@@ -248,7 +240,7 @@ export default function AgenceDashboardPage() {
       console.log(data);
 
       const my_agences = all_agences.filter(
-        (agence: AgenceValidee) => agence.user_id === user_data?.userId
+        (agence: AgenceValidee) => agence.user_id === user_data?.userId,
       );
 
       setAgences(my_agences);
@@ -284,7 +276,7 @@ export default function AgenceDashboardPage() {
             "Content-Type": "application/json",
             Authorization: `Bearer ${auth_token}`,
           },
-        }
+        },
       );
 
       if (!response.ok) {
@@ -312,7 +304,7 @@ export default function AgenceDashboardPage() {
             "Content-Type": "application/json",
             Authorization: `Bearer ${auth_token}`,
           },
-        }
+        },
       );
 
       if (!response.ok) {
@@ -419,7 +411,7 @@ export default function AgenceDashboardPage() {
         name: name,
         value: value,
         color: PIE_COLORS[index % PIE_COLORS.length],
-      })
+      }),
     );
   };
 
@@ -446,7 +438,7 @@ export default function AgenceDashboardPage() {
         name: name,
         value: value,
         color: PIE_COLORS[index % PIE_COLORS.length],
-      })
+      }),
     );
   };
 
@@ -489,7 +481,7 @@ export default function AgenceDashboardPage() {
   };
 
   return (
-    <div className={`min-h-screen bg-gray-50 flex ${font.className}`}>
+    <div className="min-h-screen bg-gray-50 flex">
       {/* Sidebar */}
       <>
         <aside className="hidden lg:flex lg:flex-col w-64 bg-white border-r border-gray-200 fixed h-full">
@@ -1158,7 +1150,7 @@ export default function AgenceDashboardPage() {
                             <ResponsiveContainer width="100%" height="100%">
                               <BarChart
                                 data={prepareBarChartData(
-                                  general_stats.revenue_by_class
+                                  general_stats.revenue_by_class,
                                 )}
                               >
                                 <CartesianGrid
@@ -1206,7 +1198,7 @@ export default function AgenceDashboardPage() {
                             <ResponsiveContainer width="100%" height="100%">
                               <BarChart
                                 data={prepareBarChartData(
-                                  general_stats.top_destinations
+                                  general_stats.top_destinations,
                                 )}
                                 layout="vertical"
                               >
@@ -1257,7 +1249,7 @@ export default function AgenceDashboardPage() {
                             <ResponsiveContainer width="100%" height="100%">
                               <BarChart
                                 data={prepareBarChartData(
-                                  general_stats.top_origins
+                                  general_stats.top_origins,
                                 )}
                                 layout="vertical"
                               >
@@ -1309,7 +1301,7 @@ export default function AgenceDashboardPage() {
                             <ResponsiveContainer width="100%" height="100%">
                               <BarChart
                                 data={prepareDayOfWeekData(
-                                  general_stats.reservations_by_day_of_week
+                                  general_stats.reservations_by_day_of_week,
                                 )}
                               >
                                 <CartesianGrid
@@ -1353,7 +1345,7 @@ export default function AgenceDashboardPage() {
                             <ResponsiveContainer width="100%" height="100%">
                               <BarChart
                                 data={prepareBarChartData(
-                                  general_stats.trips_by_driver
+                                  general_stats.trips_by_driver,
                                 )}
                                 layout="vertical"
                               >
@@ -1412,7 +1404,7 @@ export default function AgenceDashboardPage() {
                                     (item) => ({
                                       date: formatDate(item.date),
                                       valeur: item.valeur,
-                                    })
+                                    }),
                                   )}
                                 >
                                   <CartesianGrid
@@ -1461,7 +1453,7 @@ export default function AgenceDashboardPage() {
                                     (item) => ({
                                       date: formatDate(item.date),
                                       valeur: item.valeur,
-                                    })
+                                    }),
                                   )}
                                 >
                                   <CartesianGrid
@@ -1508,7 +1500,7 @@ export default function AgenceDashboardPage() {
                               <ResponsiveContainer width="100%" height="100%">
                                 <BarChart
                                   data={prepareMonthlyData(
-                                    evolution_stats.revenue_per_month
+                                    evolution_stats.revenue_per_month,
                                   )}
                                 >
                                   <CartesianGrid
@@ -1556,7 +1548,7 @@ export default function AgenceDashboardPage() {
                               <ResponsiveContainer width="100%" height="100%">
                                 <BarChart
                                   data={prepareMonthlyData(
-                                    evolution_stats.reservations_per_month
+                                    evolution_stats.reservations_per_month,
                                   )}
                                 >
                                   <CartesianGrid

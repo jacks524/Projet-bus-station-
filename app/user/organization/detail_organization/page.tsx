@@ -27,7 +27,6 @@ import {
   User,
 } from "lucide-react";
 import { useRouter, useSearchParams } from "next/navigation";
-import { Agdasima } from "next/font/google";
 
 interface OrganizationData {
   id: string;
@@ -57,20 +56,13 @@ interface UserData {
   userId: string;
 }
 
-const font = Agdasima({
-  subsets: ["latin"],
-  weight: ["400", "700"],
-  display: "swap",
-  style: "normal",
-});
-
 export default function DetailOrganizationPage() {
   const router = useRouter();
   const searchParams = useSearchParams();
   const organization_id = searchParams.get("id");
 
   const [organization, setOrganization] = useState<OrganizationData | null>(
-    null
+    null,
   );
   const [edit_mode, setEditMode] = useState(false);
   const [form_data, setFormData] = useState<Partial<OrganizationData>>({});
@@ -166,7 +158,7 @@ export default function DetailOrganizationPage() {
             "Content-Type": "application/json",
             Authorization: `Bearer ${auth_token}`,
           },
-        }
+        },
       );
 
       if (!response.ok) throw new Error("Erreur lors du chargement");
@@ -186,7 +178,7 @@ export default function DetailOrganizationPage() {
   const handleInputChange = (
     e: React.ChangeEvent<
       HTMLInputElement | HTMLTextAreaElement | HTMLSelectElement
-    >
+    >,
   ) => {
     const { name, value } = e.target;
     setFormData((prev) => ({
@@ -225,7 +217,7 @@ export default function DetailOrganizationPage() {
             Authorization: `Bearer ${auth_token}`,
           },
           body: JSON.stringify(update_body),
-        }
+        },
       );
 
       if (!response.ok) throw new Error("Erreur lors de la mise à jour");
@@ -255,7 +247,7 @@ export default function DetailOrganizationPage() {
           headers: {
             Authorization: `Bearer ${auth_token}`,
           },
-        }
+        },
       );
 
       if (!response.ok) throw new Error("Erreur lors de la suppression");
@@ -317,7 +309,7 @@ export default function DetailOrganizationPage() {
   }
 
   return (
-    <div className={`min-h-screen bg-gray-50 flex ${font.className}`}>
+    <div className="min-h-screen bg-gray-50 flex">
       {/* Sidebar (identique au dashboard) */}
       <aside className="hidden lg:flex lg:flex-col w-64 bg-white border-r border-gray-200 fixed h-full">
         <div className="p-6">

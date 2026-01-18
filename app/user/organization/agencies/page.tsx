@@ -19,7 +19,6 @@ import {
   Briefcase,
 } from "lucide-react";
 import { useRouter } from "next/navigation";
-import { Agdasima } from "next/font/google";
 
 interface AgencyFormData {
   organisation_id: string;
@@ -41,13 +40,6 @@ interface UserData {
   organization_id: string;
   userId: string;
 }
-
-const font = Agdasima({
-  subsets: ["latin"],
-  weight: ["400", "700"],
-  display: "swap",
-  style: "normal",
-});
 
 /**
  * DG Agence Page Component
@@ -138,7 +130,7 @@ export default function DGAgencePage() {
   }, []);
 
   const handleInputChange = (
-    e: React.ChangeEvent<HTMLInputElement | HTMLTextAreaElement>
+    e: React.ChangeEvent<HTMLInputElement | HTMLTextAreaElement>,
   ) => {
     const { name, value } = e.target;
     setFormData((prev) => ({
@@ -218,7 +210,7 @@ export default function DGAgencePage() {
       });
     } catch (error: any) {
       setErrorMessage(
-        "Une erreur est survenue lors de la création de l'agence"
+        "Une erreur est survenue lors de la création de l'agence",
       );
       setShowErrorModal(true);
       console.error("Create Agency Error:", error);
@@ -236,7 +228,7 @@ export default function DGAgencePage() {
   };
 
   return (
-    <div className={`min-h-screen bg-gray-50 flex ${font.className}`}>
+    <div className="min-h-screen bg-gray-50 flex">
       {/* Sidebar */}
       <>
         <aside className="hidden lg:flex lg:flex-col w-64 bg-white border-r border-gray-200 fixed h-full">

@@ -21,7 +21,6 @@ import {
   AlertCircle,
 } from "lucide-react";
 import { useRouter } from "next/navigation";
-import { Agdasima } from "next/font/google";
 
 interface Agence {
   agency_id: string;
@@ -45,13 +44,6 @@ interface UserData {
   address: string;
   userId: string;
 }
-
-const font = Agdasima({
-  subsets: ["latin"],
-  weight: ["400", "700"],
-  display: "swap",
-  style: "normal",
-});
 
 /**
  * BSM Monitoring Page Component
@@ -162,7 +154,7 @@ export default function BSMMonitoringPage() {
             "Content-Type": "application/json",
             Authorization: `Bearer ${bsm_token}`,
           },
-        }
+        },
       );
 
       if (!response.ok) {
@@ -204,7 +196,7 @@ export default function BSMMonitoringPage() {
 
     if (action === "reject" && motif_rejet.trim().length < 10) {
       setValidationError(
-        "Le motif de rejet doit contenir au moins 10 caractères"
+        "Le motif de rejet doit contenir au moins 10 caractères",
       );
       return;
     }
@@ -238,7 +230,7 @@ export default function BSMMonitoringPage() {
         throw new Error(
           `Erreur lors de la ${
             action === "approve" ? "validation" : "rejection"
-          }`
+          }`,
         );
       }
 
@@ -246,13 +238,13 @@ export default function BSMMonitoringPage() {
       setMotifRejet("");
       fetchAgences();
       setSuccessMessage(
-        `Agence ${action === "approve" ? "validée" : "rejetée"} avec succès!`
+        `Agence ${action === "approve" ? "validée" : "rejetée"} avec succès!`,
       );
     } catch (error: any) {
       setValidationError(
         `Une erreur est survenue lors de la ${
           action === "approve" ? "validation" : "rejection"
-        }. Veuillez réessayer.`
+        }. Veuillez réessayer.`,
       );
       console.error("Validation Error:", error);
     } finally {
@@ -273,7 +265,7 @@ export default function BSMMonitoringPage() {
   };
 
   return (
-    <div className={`min-h-screen bg-gray-50 flex ${font.className}`}>
+    <div className="min-h-screen bg-gray-50 flex">
       {/* Sidebar */}
       <>
         <aside className="hidden lg:flex lg:flex-col w-64 bg-white border-r border-gray-200 fixed h-full">
@@ -598,13 +590,15 @@ export default function BSMMonitoringPage() {
                                 <div className="flex items-center space-x-2 text-xs text-gray-600">
                                   <Globe className="w-3.5 h-3.5 text-gray-400" />
                                   <span className="truncate">
-                                    {agence.social_network || "Réseau social non renseigné"}
+                                    {agence.social_network ||
+                                      "Réseau social non renseigné"}
                                   </span>
                                 </div>
                                 <div className="flex items-center space-x-2 text-xs text-gray-600">
                                   <MessageSquare className="w-3.5 h-3.5 text-gray-400" />
                                   <span className="line-clamp-1">
-                                    {agence.greeting_message || "Greeting non renseigné"}
+                                    {agence.greeting_message ||
+                                      "Greeting non renseigné"}
                                   </span>
                                 </div>
                               </div>
@@ -645,7 +639,7 @@ export default function BSMMonitoringPage() {
                           <button
                             onClick={() =>
                               setCurrentPage(
-                                Math.min(total_pages - 1, current_page + 1)
+                                Math.min(total_pages - 1, current_page + 1),
                               )
                             }
                             disabled={current_page === total_pages - 1}
