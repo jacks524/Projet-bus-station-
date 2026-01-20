@@ -106,7 +106,7 @@ export default function VoyageReservationPage() {
   const searchParams = useSearchParams();
   const voyage_id = searchParams.get("voyage_id");
 
-  const API_BASE_URL = "http://localhost:8081/api";
+  const API_BASE_URL = process.env.NEXT_PUBLIC_API_BASE_URL;
   const BUTTON_COLOR = "#6149CD";
 
   const MENU_ITEMS = [

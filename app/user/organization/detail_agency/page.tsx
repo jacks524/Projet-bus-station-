@@ -138,7 +138,7 @@ export default function DetailAgencyPage() {
     "reservations" | "voyages" | "revenus" | "utilisateurs"
   >("reservations");
 
-  const API_BASE_URL = "http://localhost:8081/api";
+  const API_BASE_URL = process.env.NEXT_PUBLIC_API_BASE_URL;
   const BUTTON_COLOR = "#6149CD";
   const CHART_COLORS = ["#6149CD", "#8B7BE8", "#A594F9", "#C4B5FD", "#E9E3FF"];
   const PIE_COLORS = ["#10B981", "#F59E0B", "#EF4444", "#6366F1", "#8B5CF6"];

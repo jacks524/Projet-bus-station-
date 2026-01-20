@@ -133,7 +133,7 @@ export default function AgenceDashboardPage() {
 
   const router = useRouter();
 
-  const API_BASE_URL = "http://localhost:8081/api";
+  const API_BASE_URL = process.env.NEXT_PUBLIC_API_BASE_URL;
   const BUTTON_COLOR = "#6149CD";
 
   const MENU_ITEMS = [

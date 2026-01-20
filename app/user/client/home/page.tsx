@@ -89,7 +89,7 @@ export default function ClientHomePage() {
   const [agences_search, setAgencesSearch] = useState("");
   const router = useRouter();
 
-  const API_BASE_URL = "http://localhost:8081/api";
+  const API_BASE_URL = process.env.NEXT_PUBLIC_API_BASE_URL;
   const BUTTON_COLOR = "#6149CD";
   const VOYAGES_PER_PAGE = 15;
   const AGENCES_PER_PAGE = 6;
@@ -504,7 +504,7 @@ export default function ClientHomePage() {
                     >
                       <div className="relative h-48 w-full">
                         <Image
-                          src={voyage.smallImage || "/images/rectangle.png"}
+                          src={voyage.smallImage || "https://images.unsplash.com/photo-1544620347-c4fd4a3d5957?w=800"}
                           alt={voyage.titre || "Voyage Image"}
                           fill
                           style={{ objectFit: "cover" }}
