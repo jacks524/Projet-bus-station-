@@ -1,6 +1,6 @@
 "use client";
 
-import React, { useState, useEffect } from "react";
+import React, { useState, useEffect, Suspense } from "react";
 import {
   Home,
   Building2,
@@ -56,7 +56,15 @@ interface UserData {
   userId: string;
 }
 
-export default function DetailOrganizationPage() {
+/**
+ * DG Organisation Page Component
+ *
+ * Form to see an organization
+ *
+ * @author Thomas Djotio Ndié
+ * @date 2025-01-14
+ */
+function DetailOrganizationContent() {
   const router = useRouter();
   const searchParams = useSearchParams();
   const organization_id = searchParams.get("id");
@@ -885,5 +893,22 @@ export default function DetailOrganizationPage() {
         </div>
       )}
     </div>
+  );
+}
+
+export default function DetailOrganizationPage() {
+  return (
+    <Suspense
+      fallback={
+        <div className="min-h-screen bg-gray-50 flex items-center justify-center">
+          <div className="text-center">
+            <div className="w-8 h-8 border-4 border-[#6149CD] border-t-transparent rounded-full animate-spin mx-auto mb-4"></div>
+            <p className="text-gray-600">Chargement...</p>
+          </div>
+        </div>
+      }
+    >
+      <DetailOrganizationContent />
+    </Suspense>
   );
 }

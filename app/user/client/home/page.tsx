@@ -499,7 +499,6 @@ export default function ClientHomePage() {
                   {voyages.map((voyage) => (
                     <div
                       key={voyage.idVoyage}
-                      onClick={() => handleReserver(voyage.idVoyage)}
                       className="bg-white rounded-xl overflow-hidden shadow-sm hover:shadow-md hover:scale-103 transition-shadow border border-gray-200"
                     >
                       <div className="relative h-48 w-full">
@@ -544,7 +543,7 @@ export default function ClientHomePage() {
                         </div>
                         <div
                           style={{ backgroundColor: BUTTON_COLOR }}
-                          className="flex items-center justify-between px-3 py-2 rounded-lg text-white"
+                          className="flex items-center justify-between px-2 py-2 rounded-lg text-white"
                         >
                           <span className="text-sm">
                             Le {formatDate(voyage.dateDepartPrev)}
