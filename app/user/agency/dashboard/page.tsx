@@ -158,7 +158,7 @@ export default function AgenceDashboardPage() {
     {
       icon: Users,
       label: "Chauffeurs",
-      path: "/user/agency/chauffeurs",
+      path: "/user/agency/drivers",
       active: false,
     },
     {
@@ -1688,7 +1688,7 @@ export default function AgenceDashboardPage() {
                       </p>
                     </button>
                     <button
-                      onClick={() => router.push("/user/agency/chauffeurs")}
+                      onClick={() => router.push("/user/agency/drivers")}
                       className="bg-white rounded-xl shadow-sm border border-gray-200 p-4 hover:shadow-md transition-shadow text-center"
                     >
                       <Users className="w-6 h-6 sm:w-8 sm:h-8 text-[#6149CD] mx-auto mb-2" />

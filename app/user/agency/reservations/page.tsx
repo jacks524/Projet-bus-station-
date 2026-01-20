@@ -166,7 +166,7 @@ export default function AgenceReservationsPage() {
     {
       icon: Users,
       label: "Chauffeurs",
-      path: "/user/agency/chauffeurs",
+      path: "/user/agency/drivers",
       active: false,
     },
     {

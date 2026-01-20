@@ -170,7 +170,7 @@ export default function AgencyTravelsPage() {
     {
       icon: Users,
       label: "Chauffeurs",
-      path: "/user/agency/chauffeurs",
+      path: "/user/agency/drivers",
       active: false,
     },
     {
