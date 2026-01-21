@@ -798,17 +798,11 @@ function DetailOrganizationContent() {
       {show_delete_modal && (
         <div className="fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center z-50 p-4">
           <div className="bg-white rounded-2xl shadow-2xl max-w-md w-full overflow-hidden">
-            <div className="bg-linear-to-br from-red-400 to-red-600 p-8 text-center">
-              <div className="w-20 h-20 bg-white rounded-full flex items-center justify-center mx-auto mb-4">
-                <AlertCircle className="w-12 h-12 text-red-600" />
-              </div>
-              <h2 className="text-2xl font-bold text-white mb-2">
-                Confirmer la suppression
-              </h2>
-              <p className="text-red-50">Cette action est irréversible</p>
-            </div>
-
             <div className="p-6">
+              <div className="w-16 h-16 sm:w-20 sm:h-20 bg-red-100 rounded-full flex items-center justify-center mx-auto mb-4">
+                <AlertCircle className="w-10 h-10 sm:w-12 sm:h-12 text-red-600" />
+              </div>
+
               <p className="text-gray-700 mb-6">
                 Êtes-vous sûr de vouloir supprimer l'organisation{" "}
                 <span className="font-bold">{organization.long_name}</span> ?
