@@ -251,7 +251,6 @@ export default function AgenceDashboardPage() {
 
       if (my_agences.length === 0) {
         setIsLoadingStats(false);
-        setErrorMessage("Vous n'avez pas encore d'agence validée");
       }
     } catch (error: any) {
       console.error("Fetch Agences Error:", error);
@@ -673,8 +672,23 @@ export default function AgenceDashboardPage() {
             </div>
           )}
 
+          {/* Error Message */}
+          {!is_loading_agences && error_message && (
+            <div className="bg-red-50 border border-red-200 rounded-xl shadow-sm p-6 sm:p-12 text-center">
+              <p className="text-sm sm:text-base text-red-600 mb-6">
+                {error_message}
+              </p>
+              <button
+                onClick={() => window.location.reload()}
+                className="px-4 sm:px-6 py-2.5 sm:py-3 bg-[#6149CD] text-white rounded-lg hover:opacity-75 transition-colors text-sm sm:text-base"
+              >
+                Réessayer
+              </button>
+            </div>
+          )}
+
           {/* No Agences State */}
-          {!is_loading_agences && agences.length === 0 && (
+          {!is_loading_agences && agences.length === 0 && !error_message && (
             <div className="bg-white rounded-xl shadow-sm border border-gray-200 p-6 sm:p-12 text-center">
               <Building2 className="w-12 h-12 sm:w-16 sm:h-16 text-gray-400 mx-auto mb-4" />
               <h3 className="text-lg sm:text-xl font-semibold text-gray-900 mb-2">
