@@ -53,6 +53,16 @@ export default function LandingPage() {
     return () => window.removeEventListener("scroll", handleScroll);
   }, []);
 
+  const [currentImageIndex, setCurrentImageIndex] = useState(0);
+
+  useEffect(() => {
+    const interval = setInterval(() => {
+      setCurrentImageIndex((prev) => (prev + 1) % 4);
+    }, 4000);
+
+    return () => clearInterval(interval);
+  }, []);
+
   const features = [
     {
       icon: Calendar,
@@ -102,8 +112,7 @@ export default function LandingPage() {
     {
       number: "03",
       title: "Réservez en toute sécurité",
-      description:
-        "Payez en ligne et imprimer votre billet.",
+      description: "Payez en ligne et imprimer votre billet.",
       icon: CreditCard,
     },
     {
@@ -385,21 +394,35 @@ export default function LandingPage() {
               </div>
             </div>
 
-            {/* Right Content - Hero Image */}
+            {/* Right Content - Hero Image Carousel */}
             <div className="relative animate-fade-in-right">
-              <div className="relative rounded-3xl overflow-hidden shadow-2xl transform hover:scale-105 transition-transform duration-500">
-                <Image
-                  src="/images/landing.jpg"
-                  alt="Voyager au Cameroun"
-                  width={600}
-                  height={700}
-                  className="w-full h-auto object-cover"
-                  priority
-                />
+              {/* Image Carousel Container */}
+              <div className="relative rounded-3xl overflow-hidden shadow-2xl transform hover:scale-105 transition-transform duration-500 h-150 sm:h-130">
+                {/* Images */}
+                {[
+                  "/images/landing.jpg",
+                  "/images/siege1.jpg",
+                  "/images/landing1.jpg",
+                  "/images/siege3.jpg",
+                ].map((src, index) => (
+                  <div
+                    key={index}
+                    className={`absolute inset-0 transition-opacity duration-1000 ${
+                      currentImageIndex === index ? "opacity-100" : "opacity-0"
+                    }`}
+                  >
+                    <img
+                      src={src}
+                      alt={`Voyage au Cameroun ${index + 1}`}
+                      className="w-full h-full object-cover"
+                    />
+                  </div>
+                ))}
+
                 <div className="absolute inset-0 bg-linear-to-t from-black/50 to-transparent"></div>
 
                 {/* Floating Stats Card */}
-                <div className="absolute bottom-8 left-8 right-8 bg-white/95 backdrop-blur-lg rounded-2xl p-6 shadow-xl">
+                <div className="absolute bottom-8 left-8 right-8 bg-white/95 backdrop-blur-lg rounded-2xl p-6 shadow-xl z-10">
                   <div className="grid grid-cols-3 gap-4">
                     <div className="text-center">
                       <p
@@ -435,6 +458,21 @@ export default function LandingPage() {
                       </p>
                     </div>
                   </div>
+                </div>
+
+                {/* Navigation Dots */}
+                <div className="absolute bottom-28 left-1/2 transform -translate-x-1/2 flex space-x-2 z-10">
+                  {[0, 1, 2, 3].map((index) => (
+                    <button
+                      key={index}
+                      onClick={() => setCurrentImageIndex(index)}
+                      className={`w-2 h-2 rounded-full transition-all duration-300 ${
+                        currentImageIndex === index
+                          ? "bg-white w-8"
+                          : "bg-white/50 hover:bg-white/75"
+                      }`}
+                    />
+                  ))}
                 </div>
               </div>
 

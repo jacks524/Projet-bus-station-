@@ -26,9 +26,9 @@ export default function LoginPage() {
   const router = useRouter();
 
   const CAROUSEL_IMAGES = [
-    "/images/cameroun2___.jpg",
+    "/images/siege3.jpg",
     "/images/cameroun3___.jpg",
-    "/images/cameroun1___.jpg",
+    "/images/siege8.jpg",
   ];
   const BUTTON_COLOR = "#6149CD";
   const TOTAL_SLIDES = CAROUSEL_IMAGES.length;

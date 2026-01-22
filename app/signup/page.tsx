@@ -34,9 +34,9 @@ export default function SignupPage() {
   const router = useRouter();
 
   const CAROUSEL_IMAGES = [
+    "/images/siege1.jpg",
     "/images/cameroun2___.jpg",
-    "/images/cameroun3___.jpg",
-    "/images/cameroun1___.jpg",
+    "/images/siege4.jpg",
   ];
   const BUTTON_COLOR = "#6149CD";
   const TOTAL_SLIDES = CAROUSEL_IMAGES.length;
