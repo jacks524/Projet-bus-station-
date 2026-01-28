@@ -147,6 +147,9 @@ export default function AgencyTravelsPage() {
   const [current_page, setCurrentPage] = useState(0);
   const [total_pages, setTotalPages] = useState(0);
 
+  const [show_success_modal, setShowSuccessModal] = useState(false);
+  const [show_error_modal, setShowErrorModal] = useState(false);
+
   const router = useRouter();
 
   const API_BASE_URL = process.env.NEXT_PUBLIC_API_BASE_URL;
@@ -348,12 +351,14 @@ export default function AgencyTravelsPage() {
 
       setShowDeleteModal(false);
       setSelectedVoyageToDelete(null);
+      setShowSuccessModal(true)
       if (selected_agence?.agency_id) {
         fetchVoyages(selected_agence.agency_id);
       }
     } catch (error: any) {
       console.error("Delete Voyage Error:", error);
-      alert("Erreur lors de la suppression du voyage");
+      setErrorMessage("Erreur lors de la suppression du voyage");
+      setShowErrorModal(true);
     } finally {
       setIsDeleting(false);
     }
@@ -1374,6 +1379,73 @@ export default function AgencyTravelsPage() {
                     {is_deleting ? "Suppression..." : "Supprimer"}
                   </button>
                 </div>
+              </div>
+            </div>
+          </div>
+        )}
+
+        {/* Success Modal */}
+        {show_success_modal && (
+          <div className="fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center z-50 p-4">
+            <div className="bg-white rounded-2xl shadow-2xl max-w-md w-full p-6 sm:p-8">
+              <div className="text-center">
+                <div className="w-16 h-16 sm:w-20 sm:h-20 bg-green-100 rounded-full flex items-center justify-center mx-auto mb-4">
+                  <svg
+                    className="w-10 h-10 sm:w-12 sm:h-12 text-green-600"
+                    fill="none"
+                    stroke="currentColor"
+                    viewBox="0 0 24 24"
+                  >
+                    <path
+                      strokeLinecap="round"
+                      strokeLinejoin="round"
+                      strokeWidth={2}
+                      d="M5 13l4 4L19 7"
+                    />
+                  </svg>
+                </div>
+                <h2 className="text-xl sm:text-2xl font-bold text-gray-900 mb-2">
+                  Succès !
+                </h2>
+                <p className="text-gray-600 mb-6 text-sm sm:text-base">
+                  Agence mis à jour avec succès
+                </p>
+                <button
+                  onClick={() => setShowSuccessModal(false)}
+                  className="w-full py-2.5 sm:py-3 bg-green-600 text-white rounded-xl font-semibold hover:bg-green-700 transition-colors text-sm sm:text-base"
+                >
+                  Fermer
+                </button>
+              </div>
+            </div>
+          </div>
+        )}
+
+        {/* Error Modal */}
+        {show_error_modal && (
+          <div className="fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center z-50 p-4">
+            <div className="bg-white rounded-2xl shadow-2xl max-w-md w-full p-6 sm:p-8">
+              <div className="text-center">
+                <div className="w-16 h-16 sm:w-20 sm:h-20 bg-red-100 rounded-full flex items-center justify-center mx-auto mb-4">
+                  <AlertCircle className="w-10 h-10 sm:w-12 sm:h-12 text-red-600" />
+                </div>
+                <h2 className="text-xl sm:text-2xl font-bold text-gray-900 mb-2">
+                  Erreur
+                </h2>
+                <div className="bg-red-50 rounded-xl p-4 mb-6">
+                  <p className="text-sm sm:text-base text-red-800">
+                    {error_message}
+                  </p>
+                </div>
+                <button
+                  onClick={() => {
+                    setShowErrorModal(false);
+                    setShowDeleteModal(false);
+                  }}
+                  className="w-full py-2.5 sm:py-3 bg-red-600 text-white rounded-xl font-semibold hover:bg-red-700 transition-colors text-sm sm:text-base"
+                >
+                  Fermer
+                </button>
               </div>
             </div>
           </div>

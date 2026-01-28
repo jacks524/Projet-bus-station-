@@ -380,8 +380,7 @@ function DetailAgencyContent() {
   const formatDate = (dateString: string) => {
     if (!dateString) return "Non renseigné";
     return new Date(dateString).toLocaleDateString("fr-FR", {
-      day: "numeric",
-      month: "long",
+      month: "numeric",
       year: "numeric",
     });
   };
@@ -434,8 +433,8 @@ function DetailAgencyContent() {
 
   const formatDateShort = (dateString: string) => {
     return new Date(dateString).toLocaleDateString("fr-FR", {
-      day: "numeric",
-      month: "short",
+      month: "numeric",
+      year: "numeric",
     });
   };
 
