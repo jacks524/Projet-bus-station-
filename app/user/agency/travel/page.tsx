@@ -428,7 +428,7 @@ export default function CreateVoyagePage() {
         ...form_data,
         nbrPlaceRestante: form_data.nbrPlaceReservable,
       };
-
+      console.log(updated_form_data);
       const response = await fetch(`${API_BASE_URL}/voyage/create`, {
         method: "POST",
         headers: {
@@ -752,7 +752,7 @@ export default function CreateVoyagePage() {
                         value={form_data.statusVoyage}
                         onChange={handleInputChange}
                         disabled
-                        className="w-full placeholder:text-gray-450 text-gray-950 px-4 py-3 border-2 border-gray-200 rounded-xl focus:outline-none focus:ring-2 focus:ring-[#6149CD] focus:border-transparent cursor-not-allowed"
+                        className="w-full placeholder:text-gray-450 text-gray-950 px-4 py-3 border-2 border-gray-200 rounded-xl focus:outline-none focus:ring-2 focus:ring-[#6149CD] focus:border-transparent bg-gray-100 cursor-not-allowed"
                       />
                     </div>
                   </div>

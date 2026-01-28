@@ -37,8 +37,16 @@ interface UserData {
   first_name: string;
   last_name: string;
   email: string;
-  organization_id: string;
   userId: string;
+}
+
+interface Organization {
+  id: string;
+  organization_id: string;
+  short_name: string;
+  long_name: string;
+  created_by: string;
+  status: string;
 }
 
 /**
@@ -72,6 +80,12 @@ export default function DGAgencePage() {
   const [show_profile_menu, setShowProfileMenu] = useState(false);
   const [show_mobile_menu, setShowMobileMenu] = useState(false);
   const [user_data, setDgData] = useState<UserData | null>(null);
+
+  const [organizations, setOrganizations] = useState<Organization[]>([]);
+  const [selected_organization, setSelectedOrganization] =
+    useState<Organization | null>(null);
+  const [show_org_selector, setShowOrgSelector] = useState(false);
+  const [is_loading_orgs, setIsLoadingOrgs] = useState(true);
 
   const router = useRouter();
 
@@ -123,11 +137,66 @@ export default function DGAgencePage() {
 
       setFormData((prev) => ({
         ...prev,
-        organisation_id: parsed_user.organization_id || "",
         user_id: parsed_user.userId || "",
       }));
     }
   }, []);
+
+  useEffect(() => {
+    if (user_data?.userId) {
+      fetchOrganizations();
+    }
+  }, [user_data?.userId]);
+
+  useEffect(() => {
+    if (selected_organization?.id) {
+      setFormData((prev) => ({
+        ...prev,
+        organisation_id: selected_organization.id,
+      }));
+    }
+  }, [selected_organization?.id]);
+
+  const fetchOrganizations = async () => {
+    setIsLoadingOrgs(true);
+    try {
+      const auth_token =
+        localStorage.getItem("auth_token") ||
+        sessionStorage.getItem("auth_token");
+      const response = await fetch(
+        `${API_BASE_URL}/organizations?page=0&size=1000`,
+        {
+          method: "GET",
+          headers: {
+            "Content-Type": "application/json",
+            Authorization: `Bearer ${auth_token}`,
+          },
+        },
+      );
+
+      if (!response.ok) {
+        throw new Error("Erreur lors du chargement des organisations");
+      }
+
+      const data = await response.json();
+
+      // Filtrer les organisations créées par l'utilisateur ET qui ne sont pas supprimées
+      const my_orgs = data.filter(
+        (org: Organization) =>
+          org.created_by === user_data?.userId && org.status !== "DELETED",
+      );
+
+      setOrganizations(my_orgs);
+
+      if (my_orgs.length > 0 && !selected_organization) {
+        setSelectedOrganization(my_orgs[0]);
+      }
+    } catch (error: any) {
+      console.error("Fetch Organizations Error:", error);
+    } finally {
+      setIsLoadingOrgs(false);
+    }
+  };
 
   const handleInputChange = (
     e: React.ChangeEvent<HTMLInputElement | HTMLTextAreaElement>,
@@ -217,6 +286,11 @@ export default function DGAgencePage() {
     } finally {
       setIsLoading(false);
     }
+  };
+
+  const handleSelectOrganization = (org: Organization) => {
+    setSelectedOrganization(org);
+    setShowOrgSelector(false);
   };
 
   const handleLogout = () => {
@@ -414,285 +488,341 @@ export default function DGAgencePage() {
               </div>
             </div>
 
-            {/* Formulaire (fusionné avec image en haut) */}
-            <div className="bg-white rounded-2xl shadow-lg border border-gray-200 overflow-hidden">
-              <div
-                className="relative h-64 bg-cover bg-center"
-                style={{ backgroundImage: "url('/images/agencyy.jpg')" }}
-              >
-                <div className="absolute inset-0 bg-linear-to-r from-black/70 via-black/50 to-transparent"></div>
-                <div className="absolute inset-0 flex flex-col justify-center px-8">
-                  <h2 className="text-4xl font-bold text-white mb-3 drop-shadow-lg">
-                    Nouvelle agence
-                  </h2>
-                  <p className="text-xl text-white/90 drop-shadow-md">
-                    Ajoutez une agence à votre organisation
-                  </p>
+            {/* Organization Selector */}
+            {is_loading_orgs ? (
+              <div className="flex items-center justify-center py-10 mb-6">
+                <div className="animate-spin rounded-full h-8 w-8 border-b-2 border-[#6149CD]"></div>
+              </div>
+            ) : organizations.length === 0 ? (
+              <div className="bg-white rounded-xl shadow-sm border border-gray-200 p-12 text-center mb-6">
+                <Briefcase className="w-16 h-16 text-gray-400 mx-auto mb-4" />
+                <h3 className="text-xl font-semibold text-gray-900 mb-2">
+                  Aucune organisation
+                </h3>
+                <p className="text-gray-600 mb-6">
+                  Vous devez créer une organisation avant de créer une agence
+                </p>
+                <button
+                  onClick={() => router.push("/user/organization/organization")}
+                  style={{ backgroundColor: BUTTON_COLOR }}
+                  className="px-6 py-3 text-white rounded-lg hover:opacity-90 transition-opacity"
+                >
+                  Créer une organisation
+                </button>
+              </div>
+            ) : (
+              <div className="bg-white rounded-xl shadow-sm border border-gray-200 p-4 mb-6">
+                <div className="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-3">
+                  <div className="flex items-center space-x-3">
+                    <div className="p-3 bg-linear-to-br from-[#6149CD] to-[#8B7BE8] rounded-xl">
+                      <Briefcase className="w-6 h-6 text-white" />
+                    </div>
+                    <div>
+                      <p className="text-sm text-gray-600">
+                        Organisation sélectionnée
+                      </p>
+                      <h2 className="text-xl font-bold text-gray-900">
+                        {selected_organization?.long_name || "Aucune"}
+                      </h2>
+                    </div>
+                  </div>
+
+                  {organizations.length > 1 && (
+                    <div className="relative">
+                      <button
+                        type="button"
+                        onClick={() => setShowOrgSelector(!show_org_selector)}
+                        className="flex items-center space-x-2 px-4 py-2 border border-gray-300 rounded-lg hover:bg-gray-50"
+                      >
+                        <span className="text-gray-700">Changer</span>
+                        <ChevronDown className="w-4 h-4 text-gray-600" />
+                      </button>
+
+                      {show_org_selector && (
+                        <>
+                          <div
+                            className="fixed inset-0 z-10"
+                            onClick={() => setShowOrgSelector(false)}
+                          ></div>
+                          <div className="absolute right-0 mt-2 w-72 bg-white rounded-lg shadow-lg border border-gray-200 py-2 z-20 max-h-60 overflow-y-auto">
+                            {organizations.map((org) => (
+                              <button
+                                key={org.id}
+                                type="button"
+                                onClick={() => handleSelectOrganization(org)}
+                                className={`w-full text-left px-4 py-3 hover:bg-gray-50 ${
+                                  selected_organization?.id === org.id
+                                    ? "bg-purple-50 border-l-4 border-[#6149CD]"
+                                    : ""
+                                }`}
+                              >
+                                <p className="font-medium text-gray-900">
+                                  {org.long_name}
+                                </p>
+                                <p className="text-sm text-gray-600">
+                                  {org.short_name}
+                                </p>
+                              </button>
+                            ))}
+                          </div>
+                        </>
+                      )}
+                    </div>
+                  )}
                 </div>
               </div>
-              <form onSubmit={handleSubmit} className="p-8">
-                {/* Section 1 : Informations principales */}
-                <div className="mb-8">
-                  <h3 className="text-xl font-bold text-gray-900 mb-6 flex items-center space-x-2">
-                    <Building className="w-6 h-6 text-[#6149CD]" />
-                    <span>Informations principales</span>
-                  </h3>
+            )}
 
-                  <div className="space-y-4">
-                    <div>
-                      <label className="block text-sm font-semibold text-gray-700 mb-2">
-                        Nom complet de l'agence *
-                      </label>
-                      <input
-                        type="text"
-                        name="long_name"
-                        value={form_data.long_name}
-                        onChange={handleInputChange}
-                        placeholder="Ex: Agence BusStation Yaoundé Centre"
-                        required
-                        className="w-full px-4 py-3 border-2 border-gray-200 text-gray-800 placeholder:text-gray-400 rounded-xl focus:outline-none focus:ring-2 focus:ring-[#6149CD] focus:border-transparent transition-all"
-                      />
-                    </div>
-
-                    <div>
-                      <label className="block text-sm font-semibold text-gray-700 mb-2">
-                        Abréviation *
-                      </label>
-                      <input
-                        type="text"
-                        name="short_name"
-                        value={form_data.short_name}
-                        onChange={handleInputChange}
-                        placeholder="Ex: SP-YDE-CTR"
-                        required
-                        className="w-full px-4 py-3 border-2 border-gray-200 text-gray-800 placeholder:text-gray-400 rounded-xl focus:outline-none focus:ring-2 focus:ring-[#6149CD] focus:border-transparent transition-all"
-                      />
-                    </div>
+            {/* Formulaire (fusionné avec image en haut) */}
+            {selected_organization && (
+              <div className="bg-white rounded-2xl shadow-lg border border-gray-200 overflow-hidden">
+                <div
+                  className="relative h-64 bg-cover bg-center"
+                  style={{ backgroundImage: "url('/images/agencyy.jpg')" }}
+                >
+                  <div className="absolute inset-0 bg-linear-to-r from-black/70 via-black/50 to-transparent"></div>
+                  <div className="absolute inset-0 flex flex-col justify-center px-8">
+                    <h2 className="text-4xl font-bold text-white mb-3 drop-shadow-lg">
+                      Nouvelle agence
+                    </h2>
+                    <p className="text-xl text-white/90 drop-shadow-md">
+                      Ajoutez une agence à votre organisation
+                    </p>
                   </div>
                 </div>
+                <form onSubmit={handleSubmit} className="p-8">
+                  {/* Section 1 : Informations principales */}
+                  <div className="mb-8">
+                    <h3 className="text-xl font-bold text-gray-900 mb-6 flex items-center space-x-2">
+                      <Building className="w-6 h-6 text-[#6149CD]" />
+                      <span>Informations principales</span>
+                    </h3>
 
-                {/* Section 2 : Localisation */}
-                <div className="mb-8 pt-8 border-t border-gray-200">
-                  <h3 className="text-xl font-bold text-gray-900 mb-6 flex items-center space-x-2">
-                    <MapPin className="w-6 h-6 text-[#6149CD]" />
-                    <span>Localisation</span>
-                  </h3>
+                    <div className="space-y-4">
+                      <div>
+                        <label className="block text-sm font-semibold text-gray-700 mb-2">
+                          Nom complet de l'agence *
+                        </label>
+                        <input
+                          type="text"
+                          name="long_name"
+                          value={form_data.long_name}
+                          onChange={handleInputChange}
+                          placeholder="Ex: Agence BusStation Yaoundé Centre"
+                          required
+                          className="w-full px-4 py-3 border-2 border-gray-200 text-gray-800 placeholder:text-gray-400 rounded-xl focus:outline-none focus:ring-2 focus:ring-[#6149CD] focus:border-transparent transition-all"
+                        />
+                      </div>
 
-                  <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
-                    <div>
-                      <label className="block text-sm font-semibold text-gray-700 mb-2">
-                        Ville *
-                      </label>
-                      <input
-                        type="text"
-                        name="ville"
-                        value={form_data.ville}
-                        onChange={handleInputChange}
-                        placeholder="Ex: Yaoundé"
-                        required
-                        className="w-full px-4 py-3 border-2 border-gray-200 text-gray-800 placeholder:text-gray-400 rounded-xl focus:outline-none focus:ring-2 focus:ring-[#6149CD] focus:border-transparent transition-all"
-                      />
-                    </div>
-
-                    <div>
-                      <label className="block text-sm font-semibold text-gray-700 mb-2">
-                        Zone/Quartier *
-                      </label>
-                      <input
-                        type="text"
-                        name="location"
-                        value={form_data.location}
-                        onChange={handleInputChange}
-                        placeholder="Ex: Mvan, Marché Central"
-                        required
-                        className="w-full px-4 py-3 border-2 border-gray-200 text-gray-800 placeholder:text-gray-400 rounded-xl focus:outline-none focus:ring-2 focus:ring-[#6149CD] focus:border-transparent transition-all"
-                      />
-                    </div>
-                  </div>
-                </div>
-
-                {/* Section 3 : Informations supplémentaires */}
-                <div className="pt-8 border-t border-gray-200">
-                  <h3 className="text-xl font-bold text-gray-900 mb-6 flex items-center space-x-2">
-                    <Globe className="w-6 h-6 text-[#6149CD]" />
-                    <span>Informations supplémentaires</span>
-                  </h3>
-
-                  <div className="space-y-4">
-                    <div>
-                      <label className="block text-sm font-semibold text-gray-700 mb-2">
-                        Réseau social
-                      </label>
-                      <input
-                        type="text"
-                        name="social_network"
-                        value={form_data.social_network}
-                        onChange={handleInputChange}
-                        placeholder="Ex: https://facebook.com/agence"
-                        className="w-full px-4 py-3 border-2 border-gray-200 text-gray-800 placeholder:text-gray-400 rounded-xl focus:outline-none focus:ring-2 focus:ring-[#6149CD] focus:border-transparent transition-all"
-                      />
-                    </div>
-
-                    <div>
-                      <label className="text-sm font-semibold text-gray-700 mb-2 flex items-center space-x-2">
-                        <MessageSquare className="w-4 h-4 text-[#6149CD]" />
-                        <span>Message d'accueil</span>
-                      </label>
-                      <textarea
-                        name="greeting_message"
-                        value={form_data.greeting_message}
-                        onChange={handleInputChange}
-                        placeholder="Message de bienvenue pour vos clients..."
-                        rows={3}
-                        className="w-full px-4 py-3 border-2 border-gray-200 text-gray-800 placeholder:text-gray-400 rounded-xl focus:outline-none focus:ring-2 focus:ring-[#6149CD] focus:border-transparent transition-all resize-none"
-                      />
-                    </div>
-
-                    <div>
-                      <label className="block text-sm font-semibold text-gray-700 mb-2">
-                        Description
-                      </label>
-                      <textarea
-                        name="description"
-                        value={form_data.description}
-                        onChange={handleInputChange}
-                        placeholder="Description détaillée de l'agence..."
-                        rows={4}
-                        className="w-full px-4 py-3 border-2 border-gray-200 text-gray-800 placeholder:text-gray-400 rounded-xl focus:outline-none focus:ring-2 focus:ring-[#6149CD] focus:border-transparent transition-all resize-none"
-                      />
+                      <div>
+                        <label className="block text-sm font-semibold text-gray-700 mb-2">
+                          Abréviation *
+                        </label>
+                        <input
+                          type="text"
+                          name="short_name"
+                          value={form_data.short_name}
+                          onChange={handleInputChange}
+                          placeholder="Ex: SP-YDE-CTR"
+                          required
+                          className="w-full px-4 py-3 border-2 border-gray-200 text-gray-800 placeholder:text-gray-400 rounded-xl focus:outline-none focus:ring-2 focus:ring-[#6149CD] focus:border-transparent transition-all"
+                        />
+                      </div>
                     </div>
                   </div>
-                </div>
 
-                {/* Buttons */}
-                <div className="flex items-center justify-between mt-8 pt-8 border-t border-gray-200">
-                  <button
-                    type="button"
-                    onClick={() => router.push("/user/organization/dashboard")}
-                    className="px-6 py-3 border-2 border-gray-300 text-gray-700 rounded-xl font-semibold hover:bg-gray-100 active:bg-gray-200 transition-colors"
-                  >
-                    Annuler
-                  </button>
+                  {/* Section 2 : Localisation */}
+                  <div className="mb-8 pt-8 border-t border-gray-200">
+                    <h3 className="text-xl font-bold text-gray-900 mb-6 flex items-center space-x-2">
+                      <MapPin className="w-6 h-6 text-[#6149CD]" />
+                      <span>Localisation</span>
+                    </h3>
 
-                  <button
-                    type="submit"
-                    disabled={is_loading}
-                    style={{ backgroundColor: BUTTON_COLOR }}
-                    className="px-8 py-3 text-white rounded-xl font-semibold hover:opacity-90 active:opacity-80 transition-all flex items-center space-x-2 disabled:opacity-50 disabled:cursor-not-allowed shadow-lg"
-                  >
-                    {is_loading ? (
-                      <>
-                        <div className="w-5 h-5 border-2 border-white border-t-transparent rounded-full animate-spin"></div>
-                        <span>Création en cours...</span>
-                      </>
-                    ) : (
-                      <>
-                        <Building2 className="w-5 h-5" />
-                        <span>Créer l'agence</span>
-                      </>
-                    )}
-                  </button>
-                </div>
-              </form>
-            </div>
+                    <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+                      <div>
+                        <label className="block text-sm font-semibold text-gray-700 mb-2">
+                          Ville *
+                        </label>
+                        <input
+                          type="text"
+                          name="ville"
+                          value={form_data.ville}
+                          onChange={handleInputChange}
+                          placeholder="Ex: Yaoundé"
+                          required
+                          className="w-full px-4 py-3 border-2 border-gray-200 text-gray-800 placeholder:text-gray-400 rounded-xl focus:outline-none focus:ring-2 focus:ring-[#6149CD] focus:border-transparent transition-all"
+                        />
+                      </div>
+
+                      <div>
+                        <label className="block text-sm font-semibold text-gray-700 mb-2">
+                          Zone/Quartier *
+                        </label>
+                        <input
+                          type="text"
+                          name="location"
+                          value={form_data.location}
+                          onChange={handleInputChange}
+                          placeholder="Ex: Mvan, Marché Central"
+                          required
+                          className="w-full px-4 py-3 border-2 border-gray-200 text-gray-800 placeholder:text-gray-400 rounded-xl focus:outline-none focus:ring-2 focus:ring-[#6149CD] focus:border-transparent transition-all"
+                        />
+                      </div>
+                    </div>
+                  </div>
+
+                  {/* Section 3 : Informations supplémentaires */}
+                  <div className="pt-8 border-t border-gray-200">
+                    <h3 className="text-xl font-bold text-gray-900 mb-6 flex items-center space-x-2">
+                      <Globe className="w-6 h-6 text-[#6149CD]" />
+                      <span>Informations supplémentaires</span>
+                    </h3>
+
+                    <div className="space-y-4">
+                      <div>
+                        <label className="block text-sm font-semibold text-gray-700 mb-2">
+                          Réseau social
+                        </label>
+                        <input
+                          type="text"
+                          name="social_network"
+                          value={form_data.social_network}
+                          onChange={handleInputChange}
+                          placeholder="Ex: facebook.com"
+                          className="w-full px-4 py-3 border-2 border-gray-200 text-gray-800 placeholder:text-gray-400 rounded-xl focus:outline-none focus:ring-2 focus:ring-[#6149CD] focus:border-transparent transition-all"
+                        />
+                      </div>
+
+                      <div>
+                        <label className="text-sm font-semibold text-gray-700 mb-2 flex items-center space-x-2">
+                          <MessageSquare className="w-4 h-4 text-[#6149CD]" />
+                          <span>Message d'accueil</span>
+                        </label>
+                        <textarea
+                          name="greeting_message"
+                          value={form_data.greeting_message}
+                          onChange={handleInputChange}
+                          placeholder="Message de bienvenue pour vos clients..."
+                          rows={3}
+                          className="w-full px-4 py-3 border-2 border-gray-200 text-gray-800 placeholder:text-gray-400 rounded-xl focus:outline-none focus:ring-2 focus:ring-[#6149CD] focus:border-transparent transition-all resize-none"
+                        />
+                      </div>
+
+                      <div>
+                        <label className="block text-sm font-semibold text-gray-700 mb-2">
+                          Description
+                        </label>
+                        <textarea
+                          name="description"
+                          value={form_data.description}
+                          onChange={handleInputChange}
+                          placeholder="Description détaillée de l'agence..."
+                          rows={4}
+                          className="w-full px-4 py-3 border-2 border-gray-200 text-gray-800 placeholder:text-gray-400 rounded-xl focus:outline-none focus:ring-2 focus:ring-[#6149CD] focus:border-transparent transition-all resize-none"
+                        />
+                      </div>
+                    </div>
+                  </div>
+
+                  {/* Buttons */}
+                  <div className="flex items-center justify-between mt-8 pt-8 border-t border-gray-200">
+                    <button
+                      type="button"
+                      onClick={() =>
+                        router.push("/user/organization/dashboard")
+                      }
+                      className="px-6 py-3 border-2 border-gray-300 text-gray-700 rounded-xl font-semibold hover:bg-gray-100 active:bg-gray-200 transition-colors"
+                    >
+                      Annuler
+                    </button>
+
+                    <button
+                      type="submit"
+                      disabled={is_loading}
+                      style={{ backgroundColor: BUTTON_COLOR }}
+                      className="px-8 py-3 text-white rounded-xl font-semibold hover:opacity-90 active:opacity-80 transition-all flex items-center space-x-2 disabled:opacity-50 disabled:cursor-not-allowed shadow-lg"
+                    >
+                      {is_loading ? (
+                        <>
+                          <div className="w-5 h-5 border-2 border-white border-t-transparent rounded-full animate-spin"></div>
+                          <span>Création en cours...</span>
+                        </>
+                      ) : (
+                        <>
+                          <Building2 className="w-5 h-5" />
+                          <span>Créer l'agence</span>
+                        </>
+                      )}
+                    </button>
+                  </div>
+                </form>
+              </div>
+            )}
           </div>
         </main>
       </div>
 
-      {/* Modal Success */}
+      {/* Success Modal */}
       {show_success_modal && (
         <div className="fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center z-50 p-4">
-          <div className="bg-white rounded-2xl shadow-2xl max-w-md w-full overflow-hidden">
-            <div className="bg-linear-to-br from-green-400 to-green-600 p-8 text-center">
-              <div className="w-20 h-20 bg-white rounded-full flex items-center justify-center mx-auto mb-4">
-                <CheckCircle className="w-12 h-12 text-green-600" />
+          <div className="bg-white rounded-2xl shadow-2xl max-w-md w-full p-6 sm:p-8">
+            <div className="text-center">
+              <div className="w-16 h-16 sm:w-20 sm:h-20 bg-green-100 rounded-full flex items-center justify-center mx-auto mb-4">
+                <svg
+                  className="w-10 h-10 sm:w-12 sm:h-12 text-green-600"
+                  fill="none"
+                  stroke="currentColor"
+                  viewBox="0 0 24 24"
+                >
+                  <path
+                    strokeLinecap="round"
+                    strokeLinejoin="round"
+                    strokeWidth={2}
+                    d="M5 13l4 4L19 7"
+                  />
+                </svg>
               </div>
-              <h2 className="text-2xl font-bold text-white mb-2">
-                Agence créée avec succès !
+              <h2 className="text-xl sm:text-2xl font-bold text-gray-900 mb-2">
+                Succès !
               </h2>
-              <p className="text-green-50">
-                Votre agence a été soumise pour validation
+              <p className="text-gray-600 mb-6 text-sm sm:text-base">
+                Demande de création réussie avec succès, veuillez attendre la validation par le BSM.
               </p>
-            </div>
-
-            <div className="p-6">
-              {agency_response && (
-                <div className="bg-gray-50 rounded-xl p-4 mb-6">
-                  <h3 className="font-bold text-gray-900 mb-2">
-                    Informations de l'agence
-                  </h3>
-                  <div className="space-y-2 text-sm">
-                    <div className="flex justify-between">
-                      <span className="text-gray-600">ID Agence :</span>
-                      <span className="font-semibold text-gray-900">
-                        {agency_response.agencyId}
-                      </span>
-                    </div>
-                    <div className="flex justify-between">
-                      <span className="text-gray-600">Statut :</span>
-                      <span className="px-2 py-1 bg-orange-100 text-orange-800 rounded text-xs font-semibold">
-                        {agency_response.statutValidation || "EN_ATTENTE"}
-                      </span>
-                    </div>
-                  </div>
-                </div>
-              )}
-
-              <div className="bg-blue-50 rounded-xl p-4 mb-6">
-                <p className="text-sm text-blue-800">
-                  <AlertCircle className="w-4 h-4 inline mr-2" />
-                  Votre agence est en attente de validation par le BSM. Vous
-                  serez notifié du résultat.
-                </p>
-              </div>
-
-              <div className="space-y-3">
-                <button
-                  onClick={() => {
-                    setShowSuccessModal(false);
-                    window.location.reload();
-                  }}
-                  style={{ backgroundColor: BUTTON_COLOR }}
-                  className="w-full py-3 text-white rounded-xl font-semibold hover:opacity-90 transition-opacity"
-                >
-                  Créer une autre agence
-                </button>
-
-                <button
-                  onClick={() => router.push("/user/organization/dashboard")}
-                  className="w-full py-3 border-2 border-gray-300 text-gray-700 rounded-xl font-semibold hover:bg-gray-100 transition-colors"
-                >
-                  Retour au dashboard
-                </button>
-              </div>
+              <button
+                onClick={() => {
+                  setShowSuccessModal(false);
+                  router.push("/user/organization/dashboard");
+                }}
+                className="w-full py-2.5 sm:py-3 bg-green-600 text-white rounded-xl font-semibold hover:bg-green-700 transition-colors text-sm sm:text-base"
+              >
+                Fermer
+              </button>
             </div>
           </div>
         </div>
       )}
 
-      {/* Modal Error */}
+      {/* Error Modal */}
       {show_error_modal && (
         <div className="fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center z-50 p-4">
-          <div className="bg-white rounded-2xl shadow-2xl max-w-md w-full overflow-hidden">
-            <div className="bg-linear-to-br from-red-400 to-red-600 p-8 text-center">
-              <div className="w-20 h-20 bg-white rounded-full flex items-center justify-center mx-auto mb-4">
-                <XCircle className="w-12 h-12 text-red-600" />
+          <div className="bg-white rounded-2xl shadow-2xl max-w-md w-full p-6 sm:p-8">
+            <div className="text-center">
+              <div className="w-16 h-16 sm:w-20 sm:h-20 bg-red-100 rounded-full flex items-center justify-center mx-auto mb-4">
+                <AlertCircle className="w-10 h-10 sm:w-12 sm:h-12 text-red-600" />
               </div>
-              <h2 className="text-2xl font-bold text-white mb-2">Erreur</h2>
-              <p className="text-red-50">Une erreur est survenue</p>
-            </div>
-
-            <div className="p-6">
+              <h2 className="text-xl sm:text-2xl font-bold text-gray-900 mb-2">
+                Erreur
+              </h2>
               <div className="bg-red-50 rounded-xl p-4 mb-6">
-                <p className="text-sm text-red-800">{error_message}</p>
+                <p className="text-sm sm:text-base text-red-800">
+                  {error_message}
+                </p>
               </div>
-
               <button
                 onClick={() => {
                   setShowErrorModal(false);
-                  setErrorMessage("");
                 }}
-                className="w-full py-3 bg-red-600 text-white rounded-xl font-semibold hover:bg-red-700 transition-colors"
+                className="w-full py-2.5 sm:py-3 bg-red-600 text-white rounded-xl font-semibold hover:bg-red-700 transition-colors text-sm sm:text-base"
               >
                 Fermer
               </button>

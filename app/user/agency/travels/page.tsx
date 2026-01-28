@@ -392,6 +392,7 @@ export default function AgencyTravelsPage() {
     return new Date(date_string).toLocaleDateString("fr-FR", {
       day: "numeric",
       month: "short",
+      year: "numeric",
     });
   };
 
