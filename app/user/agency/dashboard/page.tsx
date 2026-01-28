@@ -1251,7 +1251,7 @@ export default function AgenceDashboardPage() {
                         </div>
                       )}
 
-                    {/* Top origines */}
+                    {/* Top origines
                     {general_stats.top_origins &&
                       Object.keys(general_stats.top_origins).length > 0 && (
                         <div className="bg-white rounded-xl shadow-sm border border-gray-200 p-4 sm:p-6">
@@ -1300,7 +1300,7 @@ export default function AgenceDashboardPage() {
                             </ResponsiveContainer>
                           </div>
                         </div>
-                      )}
+                      )} */}
 
                     {/* Réservations par jour de la semaine */}
                     {general_stats.reservations_by_day_of_week &&
