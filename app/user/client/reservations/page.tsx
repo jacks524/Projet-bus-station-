@@ -100,7 +100,7 @@ export default function ClientReservationsPage() {
 
   const API_BASE_URL = process.env.NEXT_PUBLIC_API_BASE_URL;
   const BUTTON_COLOR = "#6149CD";
-  const RESERVATIONS_PER_PAGE = 1;
+  const RESERVATIONS_PER_PAGE = 3;
 
   const MENU_ITEMS = [
     { icon: Home, label: "Accueil", path: "/user/client/home", active: false },
@@ -194,9 +194,17 @@ export default function ClientReservationsPage() {
       const data = await response.json();
 
       const all_reservations = data.content || [];
+
+      const now = new Date();
+
       const pending_reservations = all_reservations.filter(
-        (item: ReservationData) =>
-          item.reservation.statutReservation === "RESERVER",
+        (item: ReservationData) => {
+          const is_pending = item.reservation.statutReservation === "RESERVER";
+          const departure_date = new Date(item.voyage.dateDepartPrev);
+          const is_future = departure_date > now;
+
+          return is_pending && is_future;
+        },
       );
 
       setReservations(pending_reservations);

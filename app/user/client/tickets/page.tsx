@@ -185,11 +185,18 @@ export default function ClientTicketsPage() {
 
       const data = await response.json();
 
+      const now = new Date();
+
       const all_reservations = data.content || [];
-      // Filtrer uniquement les réservations confirmées
+
       const confirmed_tickets = all_reservations.filter(
-        (item: ReservationData) =>
-          item.reservation.statutReservation === "CONFIRMER",
+        (item: ReservationData) => {
+          const voyage_date = new Date(item.voyage.dateDepartPrev);
+          return (
+            item.reservation.statutReservation === "CONFIRMER" &&
+            voyage_date >= now
+          );
+        },
       );
 
       setTickets(confirmed_tickets);

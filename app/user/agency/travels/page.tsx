@@ -392,6 +392,7 @@ export default function AgencyTravelsPage() {
     return new Date(date_string).toLocaleDateString("fr-FR", {
       day: "numeric",
       month: "short",
+      year: "numeric",
     });
   };
 
@@ -889,10 +890,7 @@ export default function AgencyTravelsPage() {
                                 <div className="flex items-center space-x-2 text-sm text-gray-600">
                                   <Users className="w-4 h-4" />
                                   <span>
-                                    {voyage.nbrPlaceReservable +
-                                      voyage.nbrPlaceConfirm -
-                                      voyage.nbrPlaceRestante}{" "}
-                                    passager(s)
+                                    {voyage.nbrPlaceConfirm} passager(s)
                                   </span>
                                 </div>
                               </div>

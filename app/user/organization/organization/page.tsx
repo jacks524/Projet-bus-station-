@@ -22,6 +22,7 @@ import {
   XCircle,
   User,
   Tag,
+  AlertCircle,
 } from "lucide-react";
 import { useRouter } from "next/navigation";
 
@@ -42,6 +43,7 @@ interface OrganizationFormData {
   ceo_name: string;
   year_founded: string;
   number_of_employees: string;
+  web_site_url: string;
 }
 
 interface UserData {
@@ -49,7 +51,6 @@ interface UserData {
   first_name: string;
   last_name: string;
   email: string;
-  organization_id: string;
   userId: string;
 }
 
@@ -80,6 +81,7 @@ export default function DGOrganisationPage() {
     ceo_name: "",
     year_founded: "",
     number_of_employees: "",
+    web_site_url: "",
   });
 
   const [keywords_input, setKeywordsInput] = useState("");
@@ -156,8 +158,8 @@ export default function DGOrganisationPage() {
 
       setFormData((prev) => ({
         ...prev,
-        email: parsed_user.email || "",
         user_id: parsed_user.userId || "",
+        ceo_name: parsed_user.last_name || "",
       }));
     }
   }, []);
@@ -247,7 +249,7 @@ export default function DGOrganisationPage() {
 
     setIsLoading(true);
     setErrorMessage("");
-
+    console.log(form_data);
     try {
       const auth_token =
         localStorage.getItem("auth_token") ||
@@ -287,6 +289,7 @@ export default function DGOrganisationPage() {
         ceo_name: "",
         year_founded: "",
         number_of_employees: "",
+        web_site_url: "",
       });
     } catch (error: any) {
       setErrorMessage(
@@ -573,7 +576,8 @@ export default function DGOrganisationPage() {
                             onChange={handleInputChange}
                             placeholder="Ex: Jean Dupont"
                             required
-                            className="flex-1 px-4 py-3 border-2 border-gray-200 text-gray-800 placeholder:text-gray-400 rounded-xl focus:outline-none focus:ring-2 focus:ring-[#6149CD] focus:border-transparent transition-all"
+                            disabled
+                            className="flex-1 px-4 py-3 border-2 border-gray-200 text-gray-800 placeholder:text-gray-400 rounded-xl focus:outline-none focus:ring-2 focus:ring-[#6149CD] focus:border-transparent transition-all bg-gray-100 cursor-not-allowed"
                           />
                         </div>
                       </div>
@@ -682,7 +686,7 @@ export default function DGOrganisationPage() {
                         <div className="flex items-center space-x-2">
                           <Calendar className="w-5 h-5 text-gray-400" />
                           <input
-                            type="date"
+                            type="datetime-local"
                             name="registration_date"
                             value={form_data.registration_date}
                             onChange={handleInputChange}
@@ -693,14 +697,13 @@ export default function DGOrganisationPage() {
 
                       <div>
                         <label className="block text-sm font-semibold text-gray-700 mb-2">
-                          Année de création
+                          Date de création
                         </label>
                         <input
-                          type="text"
+                          type="datetime-local"
                           name="year_founded"
                           value={form_data.year_founded}
                           onChange={handleInputChange}
-                          placeholder="Ex: 2024"
                           className="w-full px-4 py-3 border-2 border-gray-200 text-gray-800 placeholder:text-gray-400 rounded-xl focus:outline-none focus:ring-2 focus:ring-[#6149CD] focus:border-transparent transition-all"
                         />
                       </div>
@@ -732,6 +735,25 @@ export default function DGOrganisationPage() {
                         />
                       </div>
 
+                      <div>
+                        <label className="block text-sm font-semibold text-gray-700 mb-2">
+                          Site web
+                        </label>
+                        <div className="flex items-center space-x-2">
+                          <Globe className="w-5 h-5 text-gray-400" />
+                          <input
+                            type="text"
+                            name="web_site_url"
+                            value={form_data.web_site_url}
+                            onChange={handleInputChange}
+                            placeholder="exemple.com"
+                            className="flex-1 px-4 py-3 border-2 border-gray-200 text-gray-800 placeholder:text-gray-400 rounded-xl focus:outline-none focus:ring-2 focus:ring-[#6149CD] focus:border-transparent transition-all"
+                          />
+                        </div>
+                      </div>
+                    </div>
+
+                    <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
                       <div>
                         <label className="block text-sm font-semibold text-gray-700 mb-2">
                           URL du logo
@@ -794,7 +816,7 @@ export default function DGOrganisationPage() {
                         {form_data.business_domains.map((domain, index) => (
                           <span
                             key={index}
-                            className="inline-flex items-center space-x-2 px-3 py-2 bg-[#6149CD] bg-opacity-10 text-[#6149CD] rounded-lg"
+                            className="inline-flex items-center space-x-2 px-3 py-2 bg-[#6149CD] bg-opacity-10 text-white rounded-lg"
                           >
                             <span>{domain}</span>
                             <button
@@ -904,87 +926,67 @@ export default function DGOrganisationPage() {
         </main>
       </div>
 
-      {/* Modal Success */}
+      {/* Success Modal */}
       {show_success_modal && (
         <div className="fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center z-50 p-4">
-          <div className="bg-white rounded-2xl shadow-2xl max-w-md w-full overflow-hidden">
-            <div className="bg-linear-to-br from-green-400 to-green-600 p-8 text-center">
-              <div className="w-20 h-20 bg-white rounded-full flex items-center justify-center mx-auto mb-4">
-                <CheckCircle className="w-12 h-12 text-green-600" />
+          <div className="bg-white rounded-2xl shadow-2xl max-w-md w-full p-6 sm:p-8">
+            <div className="text-center">
+              <div className="w-16 h-16 sm:w-20 sm:h-20 bg-green-100 rounded-full flex items-center justify-center mx-auto mb-4">
+                <svg
+                  className="w-10 h-10 sm:w-12 sm:h-12 text-green-600"
+                  fill="none"
+                  stroke="currentColor"
+                  viewBox="0 0 24 24"
+                >
+                  <path
+                    strokeLinecap="round"
+                    strokeLinejoin="round"
+                    strokeWidth={2}
+                    d="M5 13l4 4L19 7"
+                  />
+                </svg>
               </div>
-              <h2 className="text-2xl font-bold text-white mb-2">
-                Organisation créée avec succès !
+              <h2 className="text-xl sm:text-2xl font-bold text-gray-900 mb-2">
+                Succès !
               </h2>
-              <p className="text-green-50">
-                Votre organisation est maintenant active
+              <p className="text-gray-600 mb-6 text-sm sm:text-base">
+                Organisation créée avec succès
               </p>
-            </div>
-
-            <div className="p-6">
-              {organization_response && (
-                <div className="bg-gray-50 rounded-xl p-4 mb-6">
-                  <h3 className="font-bold text-gray-900 mb-2">
-                    Informations de l'organisation
-                  </h3>
-                  <div className="space-y-2 text-sm">
-                    <div className="flex justify-between">
-                      <span className="text-gray-600">ID Organisation :</span>
-                      <span className="font-semibold text-gray-900">
-                        {organization_response.organization_id ||
-                          organization_response.id}
-                      </span>
-                    </div>
-                  </div>
-                </div>
-              )}
-
-              <div className="space-y-3">
-                <button
-                  onClick={() => {
-                    setShowSuccessModal(false);
-                    window.location.reload();
-                  }}
-                  style={{ backgroundColor: BUTTON_COLOR }}
-                  className="w-full py-3 text-white rounded-xl font-semibold hover:opacity-90 transition-opacity"
-                >
-                  Créer une autre organisation
-                </button>
-
-                <button
-                  onClick={() => router.push("/user/organization/dashboard")}
-                  className="w-full py-3 border-2 border-gray-300 text-gray-700 rounded-xl font-semibold hover:bg-gray-100 transition-colors"
-                >
-                  Retour au dashboard
-                </button>
-              </div>
+              <button
+                onClick={() => {
+                  setShowSuccessModal(false);
+                  router.push("/user/organization/dashboard");
+                }}
+                className="w-full py-2.5 sm:py-3 bg-green-600 text-white rounded-xl font-semibold hover:bg-green-700 transition-colors text-sm sm:text-base"
+              >
+                Fermer
+              </button>
             </div>
           </div>
         </div>
       )}
 
-      {/* Modal Error */}
+      {/* Error Modal */}
       {show_error_modal && (
         <div className="fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center z-50 p-4">
-          <div className="bg-white rounded-2xl shadow-2xl max-w-md w-full overflow-hidden">
-            <div className="bg-linear-to-br from-red-400 to-red-600 p-8 text-center">
-              <div className="w-20 h-20 bg-white rounded-full flex items-center justify-center mx-auto mb-4">
-                <XCircle className="w-12 h-12 text-red-600" />
+          <div className="bg-white rounded-2xl shadow-2xl max-w-md w-full p-6 sm:p-8">
+            <div className="text-center">
+              <div className="w-16 h-16 sm:w-20 sm:h-20 bg-red-100 rounded-full flex items-center justify-center mx-auto mb-4">
+                <AlertCircle className="w-10 h-10 sm:w-12 sm:h-12 text-red-600" />
               </div>
-              <h2 className="text-2xl font-bold text-white mb-2">Erreur</h2>
-              <p className="text-red-50">Une erreur est survenue</p>
-            </div>
-
-            <div className="p-6">
+              <h2 className="text-xl sm:text-2xl font-bold text-gray-900 mb-2">
+                Erreur
+              </h2>
               <div className="bg-red-50 rounded-xl p-4 mb-6">
-                <p className="text-sm text-red-800">{error_message}</p>
+                <p className="text-sm sm:text-base text-red-800">
+                  {error_message}
+                </p>
               </div>
-
               <button
                 onClick={() => {
                   setShowErrorModal(false);
-                  setErrorMessage("");
                 }}
-                className="w-full py-3 bg-red-600 text-white rounded-xl font-semibold hover:bg-red-700 transition-colors"
+                className="w-full py-2.5 sm:py-3 bg-red-600 text-white rounded-xl font-semibold hover:bg-red-700 transition-colors text-sm sm:text-base"
               >
                 Fermer
               </button>
