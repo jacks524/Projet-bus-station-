@@ -192,7 +192,6 @@ export default function ClientReservationsPage() {
       }
 
       const data = await response.json();
-      console.log(data);
 
       const all_reservations = data.content || [];
       const pending_reservations = all_reservations.filter(

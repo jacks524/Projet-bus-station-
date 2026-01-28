@@ -271,10 +271,9 @@ export default function DGDashboardPage() {
 
       const data = await response.json();
 
-      console.log(data);
-
       const my_orgs = data.filter(
-        (org: Organization) => org.created_by === user_data?.userId,
+        (org: Organization) =>
+          org.created_by === user_data?.userId && org.status !== "DELETED",
       );
 
       setOrganizations(my_orgs);
@@ -347,7 +346,6 @@ export default function DGDashboardPage() {
 
       const data = await response.json();
 
-      console.log(data);
       setAgenciesStats(data);
     } catch (error: any) {
       console.error("Fetch Agencies Stats Error:", error);
@@ -392,7 +390,9 @@ export default function DGDashboardPage() {
       setSuccessMessage("Organisation supprimée avec succès !");
       setShowSuccessModal(true);
     } catch (error: any) {
-      setErrorModalMessage("Erreur lors de la suppression de l'organisation, vérifiez qu'elle ne contient pas d'agences actives.");
+      setErrorModalMessage(
+        "Erreur lors de la suppression de l'organisation, vérifiez qu'elle ne contient pas d'agences actives.",
+      );
       setShowErrorModal(true);
       console.error("Delete Organization Error:", error);
     } finally {
@@ -1631,6 +1631,7 @@ export default function DGDashboardPage() {
           </div>
         </div>
       )}
+      
       {/* Success Modal */}
       {show_success_modal && (
         <div className="fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center z-50 p-4">
@@ -1685,7 +1686,11 @@ export default function DGDashboardPage() {
                 </p>
               </div>
               <button
-                onClick={() => {setShowErrorModal(false); setShowDeleteAgencyModal(false); setShowDeleteOrgModal(false);}}
+                onClick={() => {
+                  setShowErrorModal(false);
+                  setShowDeleteAgencyModal(false);
+                  setShowDeleteOrgModal(false);
+                }}
                 className="w-full py-2.5 sm:py-3 bg-red-600 text-white rounded-xl font-semibold hover:bg-red-700 transition-colors text-sm sm:text-base"
               >
                 Fermer

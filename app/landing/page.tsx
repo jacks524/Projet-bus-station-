@@ -810,13 +810,8 @@ export default function LandingPage() {
               <h4 className="font-bold mb-4">Support</h4>
               <ul className="space-y-2 text-gray-400 text-sm">
                 <li>
-                  <a href="#faq" className="hover:text-white transition-colors">
+                  <a href="/help" className="hover:text-white transition-colors">
                     FAQ
-                  </a>
-                </li>
-                <li>
-                  <a href="#" className="hover:text-white transition-colors">
-                    Centre d'aide
                   </a>
                 </li>
                 <li>

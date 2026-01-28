@@ -38,6 +38,7 @@ interface AgenceValidee {
   long_name: string;
   short_name: string;
   ville: string;
+  location: string;
 }
 
 interface ClassVoyage {
@@ -60,8 +61,8 @@ interface Chauffeur {
 interface Vehicule {
   idVehicule: string;
   nom: string;
-  plaque: string;
-  capacite: number;
+  plaqueMatricule: string;
+  nbrPlaces: number;
   marque: string;
   modele: string;
 }
@@ -225,12 +226,28 @@ export default function CreateVoyagePage() {
         ...prev,
         agenceVoyageId: selected_agence.agency_id,
         lieuDepart: selected_agence.ville,
+        pointDeDepart: selected_agence.location,
       }));
       fetchClassesVoyage();
       fetchChauffeurs(selected_agence.agency_id);
       fetchVehicules(selected_agence.agency_id);
     }
   }, [selected_agence?.agency_id]);
+
+  useEffect(() => {
+    if (form_data.vehiculeId && vehicules.length > 0) {
+      const selected_vehicule = vehicules.find(
+        (v) => v.idVehicule === form_data.vehiculeId,
+      );
+
+      if (selected_vehicule) {
+        setFormData((prev) => ({
+          ...prev,
+          nbrPlaceReservable: selected_vehicule.nbrPlaces,
+        }));
+      }
+    }
+  }, [form_data.vehiculeId, vehicules]);
 
   const fetchAgences = async () => {
     setIsLoadingAgences(true);
@@ -778,7 +795,6 @@ export default function CreateVoyagePage() {
                         value={form_data.lieuArrive}
                         onChange={handleInputChange}
                         required
-                        disabled
                         className="w-full placeholder:text-gray-450 text-gray-950 px-4 py-3 border-2 border-gray-200 rounded-xl focus:outline-none focus:ring-2 focus:ring-[#6149CD]"
                         placeholder="Ex: Douala"
                       />
@@ -794,9 +810,13 @@ export default function CreateVoyagePage() {
                         value={form_data.pointDeDepart}
                         onChange={handleInputChange}
                         required
-                        className="w-full placeholder:text-gray-450 text-gray-950 px-4 py-3 border-2 border-gray-200 rounded-xl focus:outline-none focus:ring-2 focus:ring-[#6149CD]"
+                        disabled
+                        className="w-full placeholder:text-gray-450 text-gray-950 px-4 py-3 border-2 border-gray-200 rounded-xl focus:outline-none focus:ring-2 focus:ring-[#6149CD] bg-gray-100 cursor-not-allowed"
                         placeholder="Ex: Mvan"
                       />
+                      <p className="text-xs text-gray-500 mt-1">
+                        Zone de votre agence
+                      </p>
                     </div>
 
                     <div>
@@ -907,7 +927,7 @@ export default function CreateVoyagePage() {
                   <div className="grid grid-cols-1 md:grid-cols-3 gap-6">
                     <div>
                       <label className="block text-sm font-semibold text-gray-700 mb-2">
-                        Nombre de places réservables *
+                        Nombre de places *
                       </label>
                       <input
                         type="number"
@@ -916,8 +936,12 @@ export default function CreateVoyagePage() {
                         onChange={handleInputChange}
                         required
                         min="1"
-                        className="w-full placeholder:text-gray-450 text-gray-950 px-4 py-3 border-2 border-gray-200 rounded-xl focus:outline-none focus:ring-2 focus:ring-[#6149CD]"
+                        disabled
+                        className="w-full placeholder:text-gray-450 text-gray-950 px-4 py-3 border-2 border-gray-200 rounded-xl focus:outline-none focus:ring-2 focus:ring-[#6149CD] bg-gray-100 cursor-not-allowed"
                       />
+                      <p className="text-xs text-gray-500 mt-1">
+                        Capacité du véhicule sélectionné
+                      </p>
                     </div>
 
                     <div>
@@ -931,7 +955,7 @@ export default function CreateVoyagePage() {
                         onChange={handleInputChange}
                         min="0"
                         disabled
-                        className="w-full placeholder:text-gray-450 text-gray-950 cursor-not-allowed px-4 py-3 border-2 border-gray-200 rounded-xl focus:outline-none focus:ring-2 focus:ring-[#6149CD]"
+                        className="w-full placeholder:text-gray-450 text-gray-950 cursor-not-allowed px-4 py-3 border-2 border-gray-200 rounded-xl focus:outline-none focus:ring-2 focus:ring-[#6149CD] bg-gray-100"
                       />
                     </div>
 
@@ -946,7 +970,7 @@ export default function CreateVoyagePage() {
                         onChange={handleInputChange}
                         min="0"
                         disabled
-                        className="w-full placeholder:text-gray-450 text-gray-950 cursor-not-allowed px-4 py-3 border-2 border-gray-200 rounded-xl focus:outline-none focus:ring-2 focus:ring-[#6149CD]"
+                        className="w-full bg-gray-100 placeholder:text-gray-450 text-gray-950 cursor-not-allowed px-4 py-3 border-2 border-gray-200 rounded-xl focus:outline-none focus:ring-2 focus:ring-[#6149CD]"
                       />
                     </div>
                   </div>
@@ -1002,7 +1026,7 @@ export default function CreateVoyagePage() {
                             key={vehicule.idVehicule}
                             value={vehicule.idVehicule}
                           >
-                            {vehicule.nom} - {vehicule.plaque}
+                            {vehicule.nom} - {vehicule.plaqueMatricule}
                           </option>
                         ))}
                       </select>

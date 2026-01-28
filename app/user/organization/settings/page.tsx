@@ -100,7 +100,6 @@ export default function DGSettingsPage() {
       const auth_token =
         localStorage.getItem("auth_token") ||
         sessionStorage.getItem("auth_token");
-      console.log(auth_token);
 
       const response = await fetch(`${API_BASE_URL}/utilisateur/profil`, {
         method: "GET",

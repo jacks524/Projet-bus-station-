@@ -237,7 +237,6 @@ export default function AgenceDashboardPage() {
 
       const data = await response.json();
       const all_agences = data.content || data || [];
-      console.log(data);
 
       const my_agences = all_agences.filter(
         (agence: AgenceValidee) => agence.user_id === user_data?.userId,

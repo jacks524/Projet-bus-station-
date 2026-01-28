@@ -266,7 +266,6 @@ export default function ClientHelpPage() {
                 <button
                   onClick={() => {
                     setShowMobileMenu(false);
-                    router.push("/");
                   }}
                 >
                   <img
@@ -322,11 +321,11 @@ export default function ClientHelpPage() {
               <Menu className="w-6 h-6 text-gray-900" />
             </button>
 
-            <button>
+            <button onClick={() => router.push("/landing")}>
               <img
                 src="/images/busstation.png"
                 alt="BusStation Logo"
-                className="h-10 w-auto"
+                className="h-10 w-auto transition-transform duration-300 hover:scale-105"
               />
             </button>
 
@@ -473,7 +472,7 @@ export default function ClientHelpPage() {
                 </div>
                 <h4 className="font-semibold text-gray-900 mb-2">Email</h4>
                 <p className="text-sm text-gray-600 mb-3">
-                  equipstaf@bustation.com
+                  bryanngoupeyou9@gmail.com
                 </p>
                 <p className="text-xs text-gray-500">Réponse sous 24h</p>
               </div>

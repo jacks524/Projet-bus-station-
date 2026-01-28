@@ -37,7 +37,7 @@ interface ContactFormData {
  * Contact Page Component
  *
  * Contact form to reach BusStation support team
- * Sends emails to ngoupeyoubryan9@gmail.com
+ * Sends emails to bryanngoupeyou9@gmail.com
  * Public page - no authentication required
  *
  * @author Thomas Djotio Ndié
@@ -68,7 +68,7 @@ export default function ContactPage() {
     {
       icon: Mail,
       label: "Email",
-      value: "ngoupeyoubryan9@gmail.com",
+      value: "bryanngoupeyou9@gmail.com",
       subtext: "Réponse sous 24h",
     },
     {
@@ -231,11 +231,11 @@ export default function ContactPage() {
               <Menu className="w-6 h-6 text-gray-900" />
             </button>
 
-            <button onClick={() => router.push("/")}>
+            <button onClick={() => router.push("/landing")}>
               <img
                 src="/images/busstation.png"
                 alt="BusStation Logo"
-                className="h-10 w-auto"
+                className="h-10 w-auto transition-transform duration-300 hover:scale-105"
               />
             </button>
 
