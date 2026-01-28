@@ -100,7 +100,7 @@ export default function ClientReservationsPage() {
 
   const API_BASE_URL = process.env.NEXT_PUBLIC_API_BASE_URL;
   const BUTTON_COLOR = "#6149CD";
-  const RESERVATIONS_PER_PAGE = 3;
+  const RESERVATIONS_PER_PAGE = 1;
 
   const MENU_ITEMS = [
     { icon: Home, label: "Accueil", path: "/user/client/home", active: false },
@@ -192,6 +192,7 @@ export default function ClientReservationsPage() {
       }
 
       const data = await response.json();
+      console.log(data);
 
       const all_reservations = data.content || [];
       const pending_reservations = all_reservations.filter(
@@ -304,7 +305,7 @@ export default function ClientReservationsPage() {
                 <div className="absolute inset-0 bg-linear-to-r from-[#6149CD] to-[#8B7BE8] rounded-lg opacity-0 group-hover:opacity-10 blur-xl transition-opacity duration-300"></div>
                 <img
                   src="/images/busstation.png"
-                  alt="SafaraPlace Logo"
+                  alt="BusStation Logo"
                   className="h-12 w-auto relative z-10 drop-shadow-md group-hover:drop-shadow-xl transition-all duration-300"
                 />
               </button>
@@ -352,7 +353,7 @@ export default function ClientReservationsPage() {
                   >
                     <img
                       src="/images/busstation.png"
-                      alt="SafaraPlace Logo"
+                      alt="BusStation Logo"
                       className="h-9.5 w-auto"
                     />
                   </button>

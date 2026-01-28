@@ -439,7 +439,7 @@ export default function AgencyTravelsPage() {
             >
               <img
                 src="/images/busstation.png"
-                alt="SafaraPlace Logo"
+                alt="BusStation Logo"
                 className="h-12 w-auto"
               />
             </button>

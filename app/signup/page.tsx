@@ -189,7 +189,7 @@ export default function SignupPage() {
           <div className="mb-10 lg:mb-12">
             <img
               src="/images/busstation.png"
-              alt="SafaraPlace Logo"
+              alt="BusStation Logo"
               className="h-15 w-auto"
             />
           </div>

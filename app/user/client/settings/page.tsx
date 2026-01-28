@@ -180,7 +180,7 @@ export default function ClientSettingsPage() {
                 <div className="absolute inset-0 bg-linear-to-r from-[#6149CD] to-[#8B7BE8] rounded-lg opacity-0 group-hover:opacity-10 blur-xl transition-opacity duration-300"></div>
                 <img
                   src="/images/busstation.png"
-                  alt="SafaraPlace Logo"
+                  alt="BusStation Logo"
                   className="h-12 w-auto relative z-10 drop-shadow-md group-hover:drop-shadow-xl transition-all duration-300"
                 />
               </button>
@@ -228,7 +228,7 @@ export default function ClientSettingsPage() {
                   >
                     <img
                       src="/images/busstation.png"
-                      alt="SafaraPlace Logo"
+                      alt="BusStation Logo"
                       className="h-9.5 w-auto"
                     />
                   </button>

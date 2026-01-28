@@ -241,7 +241,7 @@ export default function DGAgencePage() {
                 <div className="absolute inset-0 bg-linear-to-r from-[#6149CD] to-[#8B7BE8] rounded-lg opacity-0 group-hover:opacity-10 blur-xl transition-opacity duration-300"></div>
                 <img
                   src="/images/busstation.png"
-                  alt="SafaraPlace Logo"
+                  alt="BusStation Logo"
                   className="h-12 w-auto relative z-10 drop-shadow-md group-hover:drop-shadow-xl transition-all duration-300"
                 />
               </button>
@@ -289,7 +289,7 @@ export default function DGAgencePage() {
                   >
                     <img
                       src="/images/busstation.png"
-                      alt="SafaraPlace Logo"
+                      alt="BusStation Logo"
                       className="h-9.5 w-auto"
                     />
                   </button>
@@ -448,7 +448,7 @@ export default function DGAgencePage() {
                         name="long_name"
                         value={form_data.long_name}
                         onChange={handleInputChange}
-                        placeholder="Ex: Agence SafaraPlace Yaoundé Centre"
+                        placeholder="Ex: Agence BusStation Yaoundé Centre"
                         required
                         className="w-full px-4 py-3 border-2 border-gray-200 text-gray-800 placeholder:text-gray-400 rounded-xl focus:outline-none focus:ring-2 focus:ring-[#6149CD] focus:border-transparent transition-all"
                       />

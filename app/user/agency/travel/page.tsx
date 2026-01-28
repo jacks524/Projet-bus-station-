@@ -478,7 +478,7 @@ export default function CreateVoyagePage() {
             >
               <img
                 src="/images/busstation.png"
-                alt="SafaraPlace Logo"
+                alt="BusStation Logo"
                 className="h-12 w-auto"
               />
             </button>

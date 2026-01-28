@@ -211,14 +211,14 @@ export default function ClientHelpPage() {
       id: "21",
       question: "Comment contacter le support client ?",
       answer:
-        "Vous pouvez nous contacter par email à support@safaraplace.com, par téléphone au +237 6XX XX XX XX, ou via notre chat en direct disponible du lundi au vendredi de 8h à 18h. Nous nous engageons à répondre dans les 24 heures.",
+        "Vous pouvez nous contacter par email à bryanngoupeyou9@gmail.com, par téléphone au +237 655 12 10 10, ou via notre chat en direct disponible du lundi au vendredi de 8h à 18h. Nous nous engageons à répondre dans les 24 heures.",
       category: "support",
     },
     {
       id: "22",
       question: "J'ai un problème technique, qui contacter ?",
       answer:
-        "Pour tout problème technique (erreur de chargement, bug, paiement bloqué), contactez immédiatement notre support technique à tech@safaraplace.com ou appelez notre hotline. Décrivez précisément le problème rencontré pour une résolution rapide.",
+        "Pour tout problème technique (erreur de chargement, bug, paiement bloqué), contactez immédiatement notre support technique à bryanngoupeyou9@gmail.com.com ou appelez notre hotline. Décrivez précisément le problème rencontré pour une résolution rapide.",
       category: "support",
     },
     {
