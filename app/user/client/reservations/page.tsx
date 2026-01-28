@@ -22,7 +22,6 @@ import {
   ChevronRight,
 } from "lucide-react";
 import { useRouter } from "next/navigation";
-import { Agdasima } from "next/font/google";
 
 interface Voyage {
   idVoyage: string;
@@ -67,13 +66,6 @@ interface UserData {
   userId: string;
 }
 
-const font = Agdasima({
-  subsets: ["latin"],
-  weight: ["400", "700"],
-  display: "swap",
-  style: "normal",
-});
-
 /**
  * Client Reservations Page Component
  *
@@ -106,9 +98,9 @@ export default function ClientReservationsPage() {
 
   const router = useRouter();
 
-  const API_BASE_URL = "http://localhost:8081/api";
+  const API_BASE_URL = process.env.NEXT_PUBLIC_API_BASE_URL;
   const BUTTON_COLOR = "#6149CD";
-  const RESERVATIONS_PER_PAGE = 10;
+  const RESERVATIONS_PER_PAGE = 1;
 
   const MENU_ITEMS = [
     { icon: Home, label: "Accueil", path: "/user/client/home", active: false },
@@ -192,7 +184,7 @@ export default function ClientReservationsPage() {
             "Content-Type": "application/json",
             Authorization: `Bearer ${auth_token}`,
           },
-        }
+        },
       );
 
       if (!response.ok) {
@@ -204,7 +196,7 @@ export default function ClientReservationsPage() {
       const all_reservations = data.content || [];
       const pending_reservations = all_reservations.filter(
         (item: ReservationData) =>
-          item.reservation.statutReservation === "RESERVER"
+          item.reservation.statutReservation === "RESERVER",
       );
 
       setReservations(pending_reservations);
@@ -246,21 +238,22 @@ export default function ClientReservationsPage() {
         sessionStorage.getItem("auth_token");
 
       const payment_data = {
-        mobilePhone: mobile_phone.trim(),
-        mobilePhoneName: mobile_phone_name.trim(),
         amount: selected_reservation?.reservation.prixTotal || 0,
-        userId: user_data?.userId,
-        reservationId: selected_reservation?.reservation.idReservation || "",
+        reservation_id: selected_reservation?.reservation.idReservation || "",
+        simulate_success: true,
       };
 
-      const response = await fetch(`${API_BASE_URL}/reservation/payer`, {
-        method: "PUT",
-        headers: {
-          "Content-Type": "application/json",
-          Authorization: `Bearer ${auth_token}`,
+      const response = await fetch(
+        `${API_BASE_URL}/reservation/simulate-payment`,
+        {
+          method: "POST",
+          headers: {
+            "Content-Type": "application/json",
+            Authorization: `Bearer ${auth_token}`,
+          },
+          body: JSON.stringify(payment_data),
         },
-        body: JSON.stringify(payment_data),
-      });
+      );
 
       if (!response.ok) {
         throw new Error("Erreur lors du paiement");
@@ -272,6 +265,7 @@ export default function ClientReservationsPage() {
       }
       router.push("/user/client/tickets");
     } catch (error: any) {
+      alert("Une erreur est survenue lors du paiement. Veuillez réessayer.");
       console.error("Payment Error:", error);
     } finally {
       setIsLoadingPaiement(false);
@@ -297,7 +291,7 @@ export default function ClientReservationsPage() {
   };
 
   return (
-    <div className={`min-h-screen bg-gray-50 flex ${font.className}`}>
+    <div className="min-h-screen bg-gray-50 flex">
       {/* Sidebar */}
       <>
         <aside className="hidden lg:flex lg:flex-col w-64 bg-white border-r border-gray-200 fixed h-full">
@@ -309,8 +303,8 @@ export default function ClientReservationsPage() {
               >
                 <div className="absolute inset-0 bg-linear-to-r from-[#6149CD] to-[#8B7BE8] rounded-lg opacity-0 group-hover:opacity-10 blur-xl transition-opacity duration-300"></div>
                 <img
-                  src="/images/safaraplace.png"
-                  alt="SafaraPlace Logo"
+                  src="/images/busstation.png"
+                  alt="BusStation Logo"
                   className="h-12 w-auto relative z-10 drop-shadow-md group-hover:drop-shadow-xl transition-all duration-300"
                 />
               </button>
@@ -357,8 +351,8 @@ export default function ClientReservationsPage() {
                     className="group relative transition-all duration-300 hover:scale-105 active:scale-95"
                   >
                     <img
-                      src="/images/safaraplace.png"
-                      alt="SafaraPlace Logo"
+                      src="/images/busstation.png"
+                      alt="BusStation Logo"
                       className="h-9.5 w-auto"
                     />
                   </button>
@@ -583,7 +577,7 @@ export default function ClientReservationsPage() {
                                 <h3 className="text-lg font-bold text-gray-900 mb-1">
                                   {data.agence.longName}
                                 </h3>
-                                <p className="text-xs text-gray-400 font-mono mb-2">
+                                <p className="text-sm text-gray-400 mb-2">
                                   ID: {data.reservation.idReservation}
                                 </p>
                                 <p className="text-sm text-gray-500">
@@ -620,6 +614,7 @@ export default function ClientReservationsPage() {
                                 <div className="flex items-center space-x-2 text-sm">
                                   <Clock className="w-4 h-4 text-gray-500" />
                                   <span className="text-gray-700">
+                                    Départ :{" "}
                                     {formatDate(data.voyage.dateDepartPrev)}
                                   </span>
                                 </div>
@@ -677,7 +672,7 @@ export default function ClientReservationsPage() {
                           <button
                             onClick={() =>
                               setCurrentPage(
-                                Math.min(total_pages - 1, current_page + 1)
+                                Math.min(total_pages - 1, current_page + 1),
                               )
                             }
                             disabled={current_page === total_pages - 1}

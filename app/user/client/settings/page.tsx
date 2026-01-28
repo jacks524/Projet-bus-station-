@@ -21,7 +21,6 @@ import {
   UserCircle,
 } from "lucide-react";
 import { useRouter } from "next/navigation";
-import { Agdasima } from "next/font/google";
 
 interface UserProfile {
   userId: string;
@@ -34,13 +33,6 @@ interface UserProfile {
   idcoordonneeGPS: string;
   email: string;
 }
-
-const font = Agdasima({
-  subsets: ["latin"],
-  weight: ["400", "700"],
-  display: "swap",
-  style: "normal",
-});
 
 /**
  * Client Settings Page Component
@@ -59,7 +51,7 @@ export default function ClientSettingsPage() {
   const [show_mobile_menu, setShowMobileMenu] = useState(false);
   const router = useRouter();
 
-  const API_BASE_URL = "http://localhost:8081/api";
+  const API_BASE_URL = process.env.NEXT_PUBLIC_API_BASE_URL;
   const BUTTON_COLOR = "#6149CD";
 
   const MENU_ITEMS = [
@@ -175,7 +167,7 @@ export default function ClientSettingsPage() {
   };
 
   return (
-    <div className={`min-h-screen bg-gray-50 flex ${font.className}`}>
+    <div className="min-h-screen bg-gray-50 flex">
       {/* Sidebar */}
       <>
         <aside className="hidden lg:flex lg:flex-col w-64 bg-white border-r border-gray-200 fixed h-full">
@@ -187,8 +179,8 @@ export default function ClientSettingsPage() {
               >
                 <div className="absolute inset-0 bg-linear-to-r from-[#6149CD] to-[#8B7BE8] rounded-lg opacity-0 group-hover:opacity-10 blur-xl transition-opacity duration-300"></div>
                 <img
-                  src="/images/safaraplace.png"
-                  alt="SafaraPlace Logo"
+                  src="/images/busstation.png"
+                  alt="BusStation Logo"
                   className="h-12 w-auto relative z-10 drop-shadow-md group-hover:drop-shadow-xl transition-all duration-300"
                 />
               </button>
@@ -235,8 +227,8 @@ export default function ClientSettingsPage() {
                     className="group relative transition-all duration-300 hover:scale-105 active:scale-95"
                   >
                     <img
-                      src="/images/safaraplace.png"
-                      alt="SafaraPlace Logo"
+                      src="/images/busstation.png"
+                      alt="BusStation Logo"
                       className="h-9.5 w-auto"
                     />
                   </button>
@@ -335,7 +327,7 @@ export default function ClientSettingsPage() {
         </header>
 
         {/* Content */}
-        <main className="p-6 max-w-4xl mx-auto">
+        <main className="p-6 max-w-5xl mx-auto">
           {is_loading && (
             <div className="flex items-center justify-center py-20">
               <div className="text-center">

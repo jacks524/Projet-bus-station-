@@ -15,6 +15,8 @@ stationnement et ainsi que la gestion des reservations de voyage pour les client
 
 Pour compiler le projet suivez ces instructions
 
+Tout d'abord crée un .env `type > .env` et créer une variable pour l'url de l'api `NEXT_PUBLIC_API_BASE_URL=https://bus-station-backend-vt1m.onrender.com/api`
+
 ```bash
 git clone https://github.com/jacks524/Projet-bus-station-.git
 cd Projet-bus-station-
@@ -23,7 +25,7 @@ cd Projet-bus-station-
 npm install
 
 # Démarrer le serveur (Demande node >= 20.9.0)
-# nvm install 20.9.0
+# nvm install 20.9.0 ou une version ultérieure
 # nvm use 20.9.0
 npm run dev
 ```

@@ -20,10 +20,11 @@ import {
   ChevronLeft,
   ChevronRight,
   Compass,
+  Users,
+  Group,
 } from "lucide-react";
 import Image from "next/image";
 import { useRouter } from "next/navigation";
-import { Agdasima } from "next/font/google";
 
 interface Voyage {
   idVoyage: string;
@@ -37,6 +38,10 @@ interface Voyage {
   smallImage: string;
   nomAgence: string;
   nbrPlaceRestante: number;
+  nbrPlaceReservable: number;
+  nbrPlaceConfirm: number;
+  nbrPlaceReserve: number;
+  nomClasseVoyage: string;
 }
 
 interface UserData {
@@ -59,13 +64,6 @@ interface AgenceValidee {
   statut_validation: string;
   date_validation: string;
 }
-
-const font = Agdasima({
-  subsets: ["latin"],
-  weight: ["400", "700"],
-  display: "swap",
-  style: "normal",
-});
 
 /**
  * Client Home Page Component
@@ -91,7 +89,7 @@ export default function ClientHomePage() {
   const [agences_search, setAgencesSearch] = useState("");
   const router = useRouter();
 
-  const API_BASE_URL = "http://localhost:8081/api";
+  const API_BASE_URL = process.env.NEXT_PUBLIC_API_BASE_URL;
   const BUTTON_COLOR = "#6149CD";
   const VOYAGES_PER_PAGE = 15;
   const AGENCES_PER_PAGE = 6;
@@ -166,7 +164,7 @@ export default function ClientHomePage() {
           headers: {
             "Content-Type": "application/json",
           },
-        }
+        },
       );
 
       if (!response.ok) {
@@ -208,7 +206,7 @@ export default function ClientHomePage() {
             "Content-Type": "application/json",
             Authorization: `Bearer ${auth_token}`,
           },
-        }
+        },
       );
 
       if (!response.ok) {
@@ -249,7 +247,7 @@ export default function ClientHomePage() {
   };
 
   return (
-    <div className={`min-h-screen bg-gray-50 flex ${font.className}`}>
+    <div className="min-h-screen bg-gray-50 flex">
       {/* Sidebar */}
       <>
         <aside className="hidden lg:flex lg:flex-col w-64 bg-white border-r border-gray-200 fixed h-full">
@@ -261,8 +259,8 @@ export default function ClientHomePage() {
               >
                 <div className="absolute inset-0 bg-linear-to-r from-[#6149CD] to-[#8B7BE8] rounded-lg opacity-0 group-hover:opacity-10 blur-xl transition-opacity duration-300"></div>
                 <img
-                  src="/images/safaraplace.png"
-                  alt="SafaraPlace Logo"
+                  src="/images/busstation.png"
+                  alt="BusStation Logo"
                   className="h-12 w-auto relative z-10 drop-shadow-md group-hover:drop-shadow-xl transition-all duration-300"
                 />
               </button>
@@ -309,8 +307,8 @@ export default function ClientHomePage() {
                     className="group relative transition-all duration-300 hover:scale-105 active:scale-95"
                   >
                     <img
-                      src="/images/safaraplace.png"
-                      alt="SafaraPlace Logo"
+                      src="/images/busstation.png"
+                      alt="BusStation Logo"
                       className="h-9.5 w-auto"
                     />
                   </button>
@@ -411,13 +409,6 @@ export default function ClientHomePage() {
               </div>
             </div>
           </div>
-
-          {/* Tabs */}
-          <div className="px-6 flex space-x-8 border-b border-gray-200">
-            <button className="pb-3 border-b-2 border-[#6149CD] text-[#6149CD] font-medium">
-              Tous les voyages
-            </button>
-          </div>
         </header>
 
         {/* Content */}
@@ -497,16 +488,15 @@ export default function ClientHomePage() {
               )}
 
               {!is_loading && !error_message && voyages.length > 0 && (
-                <div className="grid grid-cols-1 md:grid-cols-4 gap-6">
+                <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-3 gap-4 md:gap-6">
                   {voyages.map((voyage) => (
                     <div
                       key={voyage.idVoyage}
-                      onClick={() => handleReserver(voyage.idVoyage)}
                       className="bg-white rounded-xl overflow-hidden shadow-sm hover:shadow-md hover:scale-103 transition-shadow border border-gray-200"
                     >
                       <div className="relative h-48 w-full">
                         <Image
-                          src={voyage.smallImage || "/images/rectangle.png"}
+                          src={voyage.smallImage || "https://images.unsplash.com/photo-1544620347-c4fd4a3d5957?w=800"}
                           alt={voyage.titre || "Voyage Image"}
                           fill
                           style={{ objectFit: "cover" }}
@@ -530,9 +520,23 @@ export default function ClientHomePage() {
                             {voyage.pointArrivee}
                           </span>
                         </div>
+                        <div className="flex items-center space-x-2 mb-2">
+                          <Users className="w-4 h-4 shrink-0 text-gray-600" />
+                          <span className="line-clamp-1 text-gray-600 text-sm">
+                            {voyage.nbrPlaceReservable} /{" "}
+                            {voyage.nbrPlaceRestante + voyage.nbrPlaceConfirm}{" "}
+                            Places restantes
+                          </span>
+                        </div>
+                        <div className="flex items-center space-x-2 mb-2">
+                          <Group className="w-4 h-4 shrink-0 text-gray-600" />
+                          <span className="line-clamp-1 text-gray-600 text-sm">
+                            Classe : {voyage.nomClasseVoyage}
+                          </span>
+                        </div>
                         <div
                           style={{ backgroundColor: BUTTON_COLOR }}
-                          className="flex items-center justify-between px-3 py-2 rounded-lg text-white"
+                          className="flex items-center justify-between px-2 py-2 rounded-lg text-white"
                         >
                           <span className="text-sm">
                             Le {formatDate(voyage.dateDepartPrev)}
@@ -597,7 +601,7 @@ export default function ClientHomePage() {
                         .filter((agence) =>
                           agence.short_name
                             .toLowerCase()
-                            .includes(agences_search.toLowerCase())
+                            .includes(agences_search.toLowerCase()),
                         )
                         .map((agence) => (
                           <div
@@ -644,8 +648,8 @@ export default function ClientHomePage() {
                             setAgencesPage(
                               Math.min(
                                 agences_total_pages - 1,
-                                agences_page + 1
-                              )
+                                agences_page + 1,
+                              ),
                             )
                           }
                           disabled={agences_page === agences_total_pages - 1}

@@ -20,7 +20,6 @@ import {
   Coins,
 } from "lucide-react";
 import { useRouter } from "next/navigation";
-import { Agdasima } from "next/font/google";
 
 interface Historique {
   idHistorique: string;
@@ -43,13 +42,6 @@ interface UserData {
   userId: string;
 }
 
-const font = Agdasima({
-  subsets: ["latin"],
-  weight: ["400", "700"],
-  display: "swap",
-  style: "normal",
-});
-
 /**
  * Client History Page Component
  *
@@ -70,7 +62,7 @@ export default function ClientHistoryPage() {
 
   const router = useRouter();
 
-  const API_BASE_URL = "http://localhost:8081/api";
+  const API_BASE_URL = process.env.NEXT_PUBLIC_API_BASE_URL;
   const BUTTON_COLOR = "#6149CD";
 
   const MENU_ITEMS = [
@@ -144,7 +136,7 @@ export default function ClientHistoryPage() {
           headers: {
             "Content-Type": "application/json",
           },
-        }
+        },
       );
 
       if (!response.ok) {
@@ -227,7 +219,7 @@ export default function ClientHistoryPage() {
   };
 
   return (
-    <div className={`min-h-screen bg-gray-50 flex ${font.className}`}>
+    <div className="min-h-screen bg-gray-50 flex">
       {/* Sidebar */}
       <>
         <aside className="hidden lg:flex lg:flex-col w-64 bg-white border-r border-gray-200 fixed h-full">
@@ -239,8 +231,8 @@ export default function ClientHistoryPage() {
               >
                 <div className="absolute inset-0 bg-linear-to-r from-[#6149CD] to-[#8B7BE8] rounded-lg opacity-0 group-hover:opacity-10 blur-xl transition-opacity duration-300"></div>
                 <img
-                  src="/images/safaraplace.png"
-                  alt="SafaraPlace Logo"
+                  src="/images/busstation.png"
+                  alt="BusStation Logo"
                   className="h-12 w-auto relative z-10 drop-shadow-md group-hover:drop-shadow-xl transition-all duration-300"
                 />
               </button>
@@ -287,8 +279,8 @@ export default function ClientHistoryPage() {
                     className="group relative transition-all duration-300 hover:scale-105 active:scale-95"
                   >
                     <img
-                      src="/images/safaraplace.png"
-                      alt="SafaraPlace Logo"
+                      src="/images/busstation.png"
+                      alt="BusStation Logo"
                       className="h-9.5 w-auto"
                     />
                   </button>
@@ -395,7 +387,7 @@ export default function ClientHistoryPage() {
 
         {/* Content */}
         <main className="p-6">
-          <div className="max-w-5xl mx-auto">
+          <div className="max-w-7xl mx-auto">
             <div className="bg-white rounded-2xl shadow-lg border border-gray-200 overflow-hidden">
               {/* Image en haut */}
               <div className="relative h-64">
@@ -465,7 +457,7 @@ export default function ClientHistoryPage() {
                         key={item.idHistorique}
                         className={`flex items-start space-x-4 p-4 rounded-lg border-l-4 transition-all hover:shadow-md ${getStatusColor(
                           item.statusHistorique,
-                          item.dateConfirmation
+                          item.dateConfirmation,
                         )}`}
                       >
                         {/* Icône de statut */}
@@ -488,7 +480,7 @@ export default function ClientHistoryPage() {
                               {formatDate(
                                 item.dateAnnulation ||
                                   item.dateConfirmation ||
-                                  item.dateReservation
+                                  item.dateReservation,
                               )}
                             </span>
                           </div>
@@ -507,9 +499,9 @@ export default function ClientHistoryPage() {
                               <CheckCircle className="w-3.5 h-3.5 text-gray-400" />
                               <span>
                                 {item.dateConfirmation
-                                  ? "Confirmé le" +
+                                  ? "Confirmé le " +
                                     formatDate(item.dateConfirmation)
-                                  : "Pencore confirmé"}
+                                  : "Pas encore confirmé"}
                               </span>
                             </div>
                             {item.causeAnnulation && (
@@ -562,7 +554,7 @@ export default function ClientHistoryPage() {
                       Votre parcours avec nous
                     </h3>
                     <p className="text-white/90 drop-shadow-md">
-                      Merci de voyager avec SafaraPlace
+                      Merci de voyager avec BusStation
                     </p>
                   </div>
                 </div>

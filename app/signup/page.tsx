@@ -13,7 +13,6 @@ import {
 } from "lucide-react";
 import Image from "next/image";
 import { useRouter } from "next/navigation";
-import { Agdasima } from "next/font/google";
 
 /**
  * Signup Page Component with Multi-Role Support
@@ -26,13 +25,6 @@ import { Agdasima } from "next/font/google";
  * @author Thomas Djotio Ndié
  * @date 2024-12-24
  */
-
-const font = Agdasima({
-  subsets: ["latin"],
-  weight: ["400", "700"],
-  display: "swap",
-  style: "normal",
-});
 
 export default function SignupPage() {
   // Account Type
@@ -75,13 +67,13 @@ export default function SignupPage() {
   const router = useRouter();
 
   const CAROUSEL_IMAGES = [
+    "/images/siege1.jpg",
     "/images/cameroun2___.jpg",
-    "/images/cameroun3___.jpg",
-    "/images/cameroun1___.jpg",
+    "/images/siege4.jpg",
   ];
   const BUTTON_COLOR = "#6149CD";
   const TOTAL_SLIDES = CAROUSEL_IMAGES.length;
-  const API_BASE_URL = "http://localhost:8081/api";
+  const API_BASE_URL = process.env.NEXT_PUBLIC_API_BASE_URL;
 
   const handleSubmit = async () => {
     setErrorMessage("");
@@ -129,23 +121,16 @@ export default function SignupPage() {
       });
 
       if (!response.ok) {
-        let error_message =
-          "Une erreur est survenue lors de l'inscription";
-
-        try {
-          const error_data = await response.json();
-          error_message = error_data.message || error_message;
-        } catch {
-          // Ignore JSON parse errors for non-JSON responses.
-        }
-
-        throw new Error(error_message);
+        const error_data = await response.json();
+        throw new Error(
+          error_data.message || "Une erreur est survenue lors de l'inscription",
+        );
       }
 
       await response.json();
 
       setSuccessMessage(
-        "Compte créé avec succès ! Redirection dans quelques instants..."
+        "Compte créé avec succès ! Redirection dans quelques instants...",
       );
 
       setTimeout(() => {
@@ -181,7 +166,7 @@ export default function SignupPage() {
   useEffect(() => {
     const interval = setInterval(() => {
       setCurrentSlide((prevSlide) =>
-        prevSlide === TOTAL_SLIDES - 1 ? 0 : prevSlide + 1
+        prevSlide === TOTAL_SLIDES - 1 ? 0 : prevSlide + 1,
       );
     }, 5000);
 
@@ -222,7 +207,7 @@ export default function SignupPage() {
   };
 
   return (
-    <div className={`min-h-screen flex ${font.className}`}>
+    <div className="min-h-screen flex">
       {/* Left Section - Image Carousel */}
       <div className="hidden lg:block lg:w-1/2 bg-white">
         <div className="h-screen flex items-center justify-center p-8">
@@ -267,12 +252,12 @@ export default function SignupPage() {
       <div className="w-full lg:w-1/2 flex items-center justify-center p-8 lg:p-16 bg-white overflow-y-auto">
         <div className="w-full max-w-lg">
           {/* Logo */}
-          <div className="mb-8 lg:mb-10">  
-              <img
-                src="/images/safaraplace.png"
-                alt="SafaraPlace Logo"
-                className="h-15 w-auto"
-              />
+          <div className="mb-10 lg:mb-12">
+            <img
+              src="/images/busstation.png"
+              alt="BusStation Logo"
+              className="h-15 w-auto"
+            />
           </div>
 
           {/* Title */}

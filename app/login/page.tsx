@@ -4,7 +4,6 @@ import React, { useState, useEffect } from "react";
 import { Eye, EyeOff } from "lucide-react";
 import Image from "next/image";
 import { useRouter } from "next/navigation";
-import { Agdasima } from "next/font/google";
 
 /**
  * Login Page Component
@@ -15,13 +14,6 @@ import { Agdasima } from "next/font/google";
  * @author Thomas Djotio Ndié
  * @date 2025-12-16
  */
-
-const font = Agdasima({
-  subsets: ["latin"],
-  weight: ["400", "700"],
-  display: "swap", 
-  style: "normal",
-});
 
 export default function LoginPage() {
   const [username, setUsername] = useState("");
@@ -34,13 +26,13 @@ export default function LoginPage() {
   const router = useRouter();
 
   const CAROUSEL_IMAGES = [
-    "/images/cameroun2___.jpg",
+    "/images/siege3.jpg",
     "/images/cameroun3___.jpg",
-    "/images/cameroun1___.jpg",
+    "/images/siege8.jpg",
   ];
   const BUTTON_COLOR = "#6149CD";
   const TOTAL_SLIDES = CAROUSEL_IMAGES.length;
-  const API_BASE_URL = "http://localhost:8081/api";
+  const API_BASE_URL = process.env.NEXT_PUBLIC_API_BASE_URL;
 
   const handleSubmit = async () => {
     setErrorMessage("");
@@ -85,6 +77,10 @@ export default function LoginPage() {
 
       const user_role = data.role[0];
 
+      if (user_role == "BSM") {
+        throw new Error("Une erreur est survenue lors de la connexion");
+      }
+
       if (user_role === "USAGER") {
         router.push("/user/client/home");
       } else if (user_role === "AGENCE_VOYAGE") {
@@ -112,7 +108,7 @@ export default function LoginPage() {
   useEffect(() => {
     const interval = setInterval(() => {
       setCurrentSlide((prevSlide) =>
-        prevSlide === TOTAL_SLIDES - 1 ? 0 : prevSlide + 1
+        prevSlide === TOTAL_SLIDES - 1 ? 0 : prevSlide + 1,
       );
     }, 5000);
 
@@ -120,15 +116,15 @@ export default function LoginPage() {
   }, [TOTAL_SLIDES]);
 
   return (
-    <div className={`min-h-screen flex ${font.className} `}>
+    <div className="min-h-screen flex">
       {/* Left Section - Login Form */}
       <div className="w-full lg:w-1/2 flex items-center justify-center p-8 lg:p-16 bg-white">
         <div className="w-full max-w-lg">
           {/* Logo */}
           <div className="mb-16 lg:mb-20">
             <img
-              src="/images/safaraplace.png"
-              alt="SafaraPlace Logo"
+              src="/images/busstation.png"
+              alt="BusStation Logo"
               className="h-15 w-auto"
             />
           </div>
