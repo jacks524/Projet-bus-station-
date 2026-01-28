@@ -384,18 +384,32 @@ function BookingContent() {
   const renderSeatMap = () => {
     if (!voyage) return null;
 
-    const seats = [];
+    const renderSeat = (
+      seatNumber: number,
+      isSpecial: boolean = false,
+      label: string | number | null = null,
+    ) => {
+      const is_reserved = places_reservees.includes(seatNumber);
+      const is_selected = places_selectionnees.includes(seatNumber);
+      const is_disabled = isSpecial || is_reserved;
 
-    for (let i = 1; i <= total_capacity; i++) {
-      const is_reserved = places_reservees.includes(i);
-      const is_selected = places_selectionnees.includes(i);
+      if (isSpecial) {
+        return (
+          <div
+            key={seatNumber}
+            className="lg:w-12 lg:h-12 w-10 h-10 border-2 border-gray-300 rounded-lg bg-gray-100 flex items-center justify-center text-xs font-bold text-gray-500"
+          >
+            {label || seatNumber}
+          </div>
+        );
+      }
 
-      seats.push(
+      return (
         <button
-          key={i}
-          onClick={() => handleSeatClick(i)}
-          disabled={is_reserved}
-          className={`w-12 h-12 rounded-lg border-2 font-semibold text-sm transition-all flex items-center justify-center ${
+          key={seatNumber}
+          onClick={() => handleSeatClick(seatNumber)}
+          disabled={is_disabled}
+          className={`lg:w-12 lg:h-12 w-10 h-10 rounded-lg border-2 font-semibold text-sm transition-all flex items-center justify-center ${
             is_reserved
               ? "bg-red-500 border-red-500 text-white cursor-not-allowed"
               : is_selected
@@ -403,9 +417,208 @@ function BookingContent() {
                 : "bg-white border-gray-300 text-gray-700 hover:border-[#6149CD] hover:scale-105"
           }`}
         >
-          {i}
-        </button>,
+          {seatNumber}
+        </button>
       );
+    };
+
+    // Disposition pour 56 places
+    if (total_capacity === 56) {
+      return (
+        <div className="grid grid-cols-2 w-fit gap-6 sm:gap-8 lg:gap-12">
+          {/* Première rangée */}
+          <div className="grid gap-2 w-fit grid-cols-2 p-2">
+            <div className="col-span-2 border-2 border-[#6149CD] flex justify-center items-center rounded-lg font-bold h-10 sm:h-12 mt-1 bg-[#6149CD] text-white text-xs sm:text-sm lg:text-base">
+              Driver
+            </div>
+            {Array.from({ length: 30 }, (_, i) => renderSeat(i + 1))}
+          </div>
+
+          {/* Deuxième rangée */}
+          <div className="grid grid-cols-2 w-fit gap-2 p-2">
+            <div className="col-span-2 border-2 border-[#6149CD] flex justify-center items-center rounded-lg font-bold h-10 sm:h-12 mt-1 bg-[#6149CD] text-white text-xs sm:text-sm lg:text-base">
+              Hôtesse
+            </div>
+            {/* Places 31-34 */}
+            {Array.from({ length: 4 }, (_, i) => renderSeat(i + 31))}
+            {/* Toilettes */}
+            {renderSeat(35, true, "Toilette")}
+            {renderSeat(36, true, "Toilette")}
+            {/* Portes */}
+            {renderSeat(37, true, "Porte")}
+            {renderSeat(38, true, "Porte")}
+            {/* Places 35-38 */}
+            {Array.from({ length: 4 }, (_, i) => renderSeat(i + 35))}
+
+            {/* Places 39-48 */}
+            {Array.from({ length: 10 }, (_, i) => renderSeat(i + 39))}
+            {/* Portes */}
+            {renderSeat(49, true, "Porte")}
+            {renderSeat(50, true, "Porte")}
+            {/* Places 49-56 */}
+            {Array.from({ length: 8 }, (_, i) => renderSeat(i + 49))}
+          </div>
+        </div>
+      );
+    }
+
+    // Disposition pour 70 places
+    if (total_capacity === 70) {
+      return (
+        <div>
+          <div className="grid grid-cols-2 w-fit gap-6 sm:gap-8 lg:gap-12">
+            {/* Première rangée */}
+            <div className="grid gap-2 w-fit grid-cols-3 p-2">
+              <div className="col-span-3 border-2 border-[#6149CD] flex justify-center items-center rounded-lg font-bold h-10 sm:h-12 mt-1 bg-[#6149CD] text-white text-xs sm:text-sm lg:text-base">
+                Driver
+              </div>
+              {Array.from({ length: 42 }, (_, i) => renderSeat(i + 1))}
+            </div>
+
+            {/* Deuxième rangée */}
+            <div className="grid grid-cols-2 w-fit gap-2 p-2">
+              {/* Places 43-46 */}
+              {Array.from({ length: 4 }, (_, i) => renderSeat(i + 43))}
+              {/* Portes */}
+              <div className="w-10 h-10 sm:w-12 sm:h-12 border-2 border-gray-300 rounded-lg bg-gray-100 flex items-center justify-center text-xs font-bold text-gray-500">
+                Porte
+              </div>
+              <div className="w-10 h-10 sm:w-12 sm:h-12 border-2 border-gray-300 rounded-lg bg-gray-100 flex items-center justify-center text-xs font-bold text-gray-500">
+                Porte
+              </div>
+              {/* Places 47-52 */}
+              {Array.from({ length: 6 }, (_, i) => renderSeat(i + 47))}
+
+              {/* Places 53-60 */}
+              {Array.from({ length: 8 }, (_, i) => renderSeat(i + 53))}
+              {/* Portes */}
+              <div className="w-10 h-10 sm:w-12 sm:h-12 border-2 border-gray-300 rounded-lg bg-gray-100 flex items-center justify-center text-xs font-bold text-gray-500">
+                Porte
+              </div>
+              <div className="w-10 h-10 sm:w-12 sm:h-12 border-2 border-gray-300 rounded-lg bg-gray-100 flex items-center justify-center text-xs font-bold text-gray-500">
+                Porte
+              </div>
+              {/* Places 61-64 */}
+              {Array.from({ length: 4 }, (_, i) => renderSeat(i + 61))}
+            </div>
+          </div>
+
+          {/* Dernier banc - Places 65-70 */}
+          <div className="grid grid-cols-1 w-fit gap-6 sm:gap-8 lg:gap-12 mt-0">
+            <div className="grid gap-2 grid-cols-6 p-2">
+              {Array.from({ length: 6 }, (_, i) => renderSeat(i + 65))}
+            </div>
+          </div>
+        </div>
+      );
+    }
+
+    // Disposition pour 75 places
+    if (total_capacity === 75) {
+      return (
+        <div>
+          <div className="grid grid-cols-2 w-fit gap-6 sm:gap-8 lg:gap-12">
+            {/* Première rangée */}
+            <div className="grid gap-2 w-fit grid-cols-3 p-2">
+              <div className="col-span-3 border-2 border-[#6149CD] flex justify-center items-center rounded-lg font-bold h-10 sm:h-12 mt-1 bg-[#6149CD] text-white text-xs sm:text-sm lg:text-base">
+                Driver
+              </div>
+              {Array.from({ length: 45 }, (_, i) => renderSeat(i + 1))}
+            </div>
+
+            {/* Deuxième rangée */}
+            <div className="grid grid-cols-2 w-fit gap-2 p-2">
+              {/* Places 46-49 */}
+              {Array.from({ length: 4 }, (_, i) => renderSeat(i + 46))}
+              {/* Portes */}
+              <div className="w-10 h-10 sm:w-12 sm:h-12 border-2 border-gray-300 rounded-lg bg-gray-100 flex items-center justify-center text-xs font-bold text-gray-500">
+                Porte
+              </div>
+              <div className="w-10 h-10 sm:w-12 sm:h-12 border-2 border-gray-300 rounded-lg bg-gray-100 flex items-center justify-center text-xs font-bold text-gray-500">
+                Porte
+              </div>
+              {/* Places 50-55 */}
+              {Array.from({ length: 6 }, (_, i) => renderSeat(i + 50))}
+
+              {/* Places 56-63 */}
+              {Array.from({ length: 8 }, (_, i) => renderSeat(i + 56))}
+              {/* Portes */}
+              <div className="w-10 h-10 sm:w-12 sm:h-12 border-2 border-gray-300 rounded-lg bg-gray-100 flex items-center justify-center text-xs font-bold text-gray-500">
+                Porte
+              </div>
+              <div className="w-10 h-10 sm:w-12 sm:h-12 border-2 border-gray-300 rounded-lg bg-gray-100 flex items-center justify-center text-xs font-bold text-gray-500">
+                Porte
+              </div>
+              {/* Places 64-69 */}
+              {Array.from({ length: 6 }, (_, i) => renderSeat(i + 64))}
+            </div>
+          </div>
+
+          {/* Dernier banc - Places 70-75 */}
+          <div className="grid grid-cols-1 w-fit gap-6 sm:gap-8 lg:gap-12 mt-0">
+            <div className="grid gap-2 grid-cols-6 p-2">
+              {Array.from({ length: 6 }, (_, i) => renderSeat(i + 70))}
+            </div>
+          </div>
+        </div>
+      );
+    }
+
+    // Disposition pour 80 places
+    if (total_capacity === 80) {
+      return (
+        <div>
+          <div className="grid grid-cols-2 w-fit gap-6 sm:gap-8 lg:gap-12">
+            {/* Première rangée */}
+            <div className="grid gap-2 w-fit grid-cols-3 p-2">
+              <div className="col-span-3 border-2 border-[#6149CD] flex justify-center items-center rounded-lg font-bold h-10 sm:h-12 mt-1 bg-[#6149CD] text-white text-xs sm:text-sm lg:text-base">
+                Driver
+              </div>
+              {Array.from({ length: 48 }, (_, i) => renderSeat(i + 1))}
+            </div>
+
+            {/* Deuxième rangée */}
+            <div className="grid grid-cols-2 w-fit gap-2 p-2">
+              {/* Places 49-52 */}
+              {Array.from({ length: 4 }, (_, i) => renderSeat(i + 49))}
+              {/* Portes */}
+              <div className="w-10 h-10 sm:w-12 sm:h-12 border-2 border-gray-300 rounded-lg bg-gray-100 flex items-center justify-center text-xs font-bold text-gray-500">
+                Porte
+              </div>
+              <div className="w-10 h-10 sm:w-12 sm:h-12 border-2 border-gray-300 rounded-lg bg-gray-100 flex items-center justify-center text-xs font-bold text-gray-500">
+                Porte
+              </div>
+              {/* Places 53-58 */}
+              {Array.from({ length: 6 }, (_, i) => renderSeat(i + 53))}
+
+              {/* Places 59-70 */}
+              {Array.from({ length: 12 }, (_, i) => renderSeat(i + 59))}
+              {/* Portes */}
+              <div className="w-10 h-10 sm:w-12 sm:h-12 border-2 border-gray-300 rounded-lg bg-gray-100 flex items-center justify-center text-xs font-bold text-gray-500">
+                Porte
+              </div>
+              <div className="w-10 h-10 sm:w-12 sm:h-12 border-2 border-gray-300 rounded-lg bg-gray-100 flex items-center justify-center text-xs font-bold text-gray-500">
+                Porte
+              </div>
+              {/* Places 71-74 */}
+              {Array.from({ length: 4 }, (_, i) => renderSeat(i + 71))}
+            </div>
+          </div>
+
+          {/* Dernier banc - Places 75-80 */}
+          <div className="grid grid-cols-1 w-fit gap-6 sm:gap-8 lg:gap-12 mt-0">
+            <div className="grid gap-2 grid-cols-6 p-2">
+              {Array.from({ length: 6 }, (_, i) => renderSeat(i + 75))}
+            </div>
+          </div>
+        </div>
+      );
+    }
+
+    // Disposition par défaut (grille simple de 4 colonnes)
+    const seats = [];
+    for (let i = 1; i <= total_capacity; i++) {
+      seats.push(renderSeat(i));
     }
 
     const rows = [];
@@ -881,12 +1094,7 @@ function BookingContent() {
                   </div>
 
                   {/* Plan des sièges */}
-                  <div className="bg-gray-50 rounded-xl p-6">
-                    <div className="flex justify-center mb-2">
-                      <div className="w-20 h-12 bg-[#6149CD] rounded-lg flex items-center justify-center text-white font-bold border-2 border-[#6149CD]">
-                        Driver
-                      </div>
-                    </div>
+                  <div className="bg-gray-50 rounded-xl p-6 flex justify-center">
                     {renderSeatMap()}
                   </div>
                 </div>
@@ -899,69 +1107,75 @@ function BookingContent() {
       {/* Modal Passagers */}
       {show_passagers_modal && (
         <div className="fixed inset-0 bg-black bg-opacity-60 backdrop-blur-sm flex items-center justify-center z-50 p-4 animate-fadeIn">
-          <div className="bg-white rounded-3xl shadow-2xl max-w-5xl w-full max-h-[95vh] overflow-hidden transform transition-all duration-300 scale-100 flex flex-col">
-            {/* Header avec gradient */}
-            <div className="bg-linear-to-r from-[#6149CD] to-[#8B7BE8] p-6 relative overflow-hidden shrink-0">
-              <div className="absolute top-0 right-0 w-64 h-64 bg-white opacity-10 rounded-full -mr-32 -mt-32"></div>
-              <div className="absolute bottom-0 left-0 w-48 h-48 bg-white opacity-10 rounded-full -ml-24 -mb-24"></div>
-              <div className="relative flex items-center justify-between">
-                <div className="flex items-center space-x-4">
-                  <div className="w-14 h-14 bg-white bg-opacity-20 backdrop-blur-lg rounded-2xl flex items-center justify-center">
-                    <UserIcon className="w-7 h-7 text-gray-700" />
+          <div className="bg-white rounded-2xl shadow-2xl max-w-5xl w-full max-h-[95vh] overflow-hidden flex flex-col">
+            {/* Header */}
+            <div className="bg-white border-b border-gray-200 p-6 shrink-0">
+              <div className="flex items-center justify-between">
+                <div className="flex items-center space-x-3">
+                  <div
+                    className="w-12 h-12 rounded-xl flex items-center justify-center"
+                    style={{ backgroundColor: BUTTON_COLOR }}
+                  >
+                    <UserIcon className="w-6 h-6 text-white" />
                   </div>
                   <div>
-                    <h2 className="text-2xl font-bold text-white mb-1">
+                    <h2 className="text-2xl font-bold text-gray-900">
                       Informations des passagers
                     </h2>
+                    <p className="text-sm text-gray-600 mt-1">
+                      Remplissez les informations pour chaque passager
+                    </p>
                   </div>
                 </div>
                 <button
                   onClick={() => setShowPassagersModal(false)}
-                  className="w-12 h-12 bg-white bg-opacity-20 backdrop-blur-lg rounded-xl flex items-center justify-center hover:bg-opacity-30 transition-all"
+                  className="p-2 hover:bg-gray-100 rounded-lg transition-colors"
                 >
-                  <X className="w-6 h-6 text-gray-700 hover:text-red-700 hover:scale-115 transition-transform" />
+                  <X className="w-6 h-6 text-gray-600" />
                 </button>
               </div>
             </div>
 
             {/* Corps du modal */}
-            <div className="flex-1 overflow-y-auto p-6 bg-linear-to-br from-gray-50 to-purple-50">
+            <div className="flex-1 overflow-y-auto p-6 bg-gray-50">
               <div className="grid grid-cols-1 lg:grid-cols-2 gap-6">
                 {passagers.map((passager, index) => (
                   <div
                     key={index}
-                    className="bg-white rounded-2xl shadow-lg border border-purple-100 overflow-hidden hover:shadow-xl transition-all duration-300 transform hover:-translate-y-1"
+                    className="bg-white rounded-xl shadow-lg border border-gray-200 overflow-hidden hover:shadow-xl transition-all"
                   >
                     {/* En-tête de la carte passager */}
-                    <div className="bg-linear-to-r from-[#6149CD] to-[#8B7BE8] p-4">
-                      <div className="flex items-center space-x-3">
-                        <div className="w-12 h-12 bg-white bg-opacity-20 backdrop-blur-lg rounded-xl flex items-center justify-center">
-                          <UserIcon className="w-6 h-6 text-gray-700" />
-                        </div>
-                        <div className="flex-1">
-                          <h3 className="text-lg font-bold text-white">
-                            Passager {index + 1}
-                          </h3>
-                          <div className="flex items-center space-x-2">
-                            <div className="w-6 h-6 bg-white bg-opacity-20 rounded-lg flex items-center justify-center">
-                              <Users className="w-4 h-4 text-gray-700" />
+                    <div
+                      className="p-4 border-b border-gray-200"
+                      style={{ backgroundColor: `${BUTTON_COLOR}15` }}
+                    >
+                      <div className="flex items-center justify-between">
+                        <div className="flex items-center space-x-3">
+                          <div
+                            className="w-10 h-10 rounded-lg flex items-center justify-center"
+                            style={{ backgroundColor: BUTTON_COLOR }}
+                          >
+                            <UserIcon className="w-5 h-5 text-white" />
+                          </div>
+                          <div>
+                            <h3 className="text-lg font-bold text-gray-900">
+                              Passager {index + 1}
+                            </h3>
+                            <div className="flex items-center space-x-1 text-sm text-gray-600">
+                              <Users className="w-3 h-3" />
+                              <span>Place {passager.placeChoisis}</span>
                             </div>
-                            <span className="text-white text-opacity-90 text-sm font-medium">
-                              Place {passager.placeChoisis}
-                            </span>
                           </div>
                         </div>
                       </div>
                     </div>
 
                     {/* Corps de la carte */}
-                    <div className="p-6 space-y-4">
+                    <div className="p-5 space-y-4">
                       {/* Numéro pièce */}
-                      <div className="group">
-                        <label className="flex items-center space-x-2 text-sm font-bold text-gray-700 mb-2">
-                          <div className="w-6 h-6 bg-purple-100 rounded-lg flex items-center justify-center group-focus-within:bg-[#6149CD] transition-colors">
-                            <CreditCard className="w-4 h-4 text-[#6149CD] group-focus-within:text-white" />
-                          </div>
+                      <div>
+                        <label className="flex items-center space-x-2 text-sm font-semibold text-gray-700 mb-2">
+                          <CreditCard className="w-4 h-4 text-gray-600" />
                           <span>Numéro pièce d'identité *</span>
                         </label>
                         <input
@@ -974,17 +1188,15 @@ function BookingContent() {
                               e.target.value,
                             )
                           }
-                          placeholder="CNI, Récépissé"
-                          className="w-full px-4 py-3 bg-gray-50 border-2 border-gray-200 rounded-xl focus:outline-none focus:ring-2 focus:ring-[#6149CD] focus:border-transparent focus:bg-white transition-all text-gray-800 placeholder:text-gray-400"
+                          placeholder="CNI, Récépissé, Passeport"
+                          className="w-full px-4 py-3 bg-white border-2 border-gray-200 rounded-lg focus:outline-none focus:ring-2 focus:ring-[#6149CD] focus:border-transparent transition-all text-gray-800 placeholder:text-gray-400"
                         />
                       </div>
 
                       {/* Nom */}
-                      <div className="group">
-                        <label className="flex items-center space-x-2 text-sm font-bold text-gray-700 mb-2">
-                          <div className="w-6 h-6 bg-purple-100 rounded-lg flex items-center justify-center group-focus-within:bg-[#6149CD] transition-colors">
-                            <UserIcon className="w-4 h-4 text-[#6149CD] group-focus-within:text-white" />
-                          </div>
+                      <div>
+                        <label className="flex items-center space-x-2 text-sm font-semibold text-gray-700 mb-2">
+                          <UserIcon className="w-4 h-4 text-gray-600" />
                           <span>Nom complet *</span>
                         </label>
                         <input
@@ -994,18 +1206,16 @@ function BookingContent() {
                             updatePassager(index, "nom", e.target.value)
                           }
                           placeholder="Nom et prénom(s)"
-                          className="w-full px-4 py-3 bg-gray-50 border-2 border-gray-200 rounded-xl focus:outline-none focus:ring-2 focus:ring-[#6149CD] focus:border-transparent focus:bg-white transition-all text-gray-800 placeholder:text-gray-400"
+                          className="w-full px-4 py-3 bg-white border-2 border-gray-200 rounded-lg focus:outline-none focus:ring-2 focus:ring-[#6149CD] focus:border-transparent transition-all text-gray-800 placeholder:text-gray-400"
                         />
                       </div>
 
-                      {/* Genre et Âge sur la même ligne */}
+                      {/* Genre et Âge */}
                       <div className="grid grid-cols-2 gap-4">
                         {/* Genre */}
                         <div>
-                          <label className="flex items-center space-x-2 text-sm font-bold text-gray-700 mb-2">
-                            <div className="w-6 h-6 bg-purple-100 rounded-lg flex items-center justify-center">
-                              <Users className="w-4 h-4 text-[#6149CD]" />
-                            </div>
+                          <label className="flex items-center space-x-2 text-sm font-semibold text-gray-700 mb-2">
+                            <Users className="w-4 h-4 text-gray-600" />
                             <span>Genre *</span>
                           </label>
                           <div className="flex gap-2">
@@ -1013,10 +1223,10 @@ function BookingContent() {
                               onClick={() =>
                                 updatePassager(index, "genre", "MALE")
                               }
-                              className={`flex-1 py-2.5 rounded-xl font-bold text-sm transition-all transform ${
+                              className={`flex-1 py-2.5 rounded-lg font-semibold text-sm transition-all ${
                                 passager.genre === "MALE"
-                                  ? "bg-linear-to-r from-[#6149CD] to-[#8B7BE8] text-white shadow-lg scale-105"
-                                  : "bg-gray-100 text-gray-600 hover:bg-gray-200 hover:scale-105"
+                                  ? "bg-[#6149CD] text-white shadow-md"
+                                  : "bg-gray-100 text-gray-600 hover:bg-gray-200"
                               }`}
                             >
                               Masculin
@@ -1025,10 +1235,10 @@ function BookingContent() {
                               onClick={() =>
                                 updatePassager(index, "genre", "FEMALE")
                               }
-                              className={`flex-1 py-2.5 rounded-xl font-bold text-sm transition-all transform ${
+                              className={`flex-1 py-2.5 rounded-lg font-semibold text-sm transition-all ${
                                 passager.genre === "FEMALE"
-                                  ? "bg-linear-to-r from-[#6149CD] to-[#8B7BE8] text-white shadow-lg scale-105"
-                                  : "bg-gray-100 text-gray-600 hover:bg-gray-200 hover:scale-105"
+                                  ? "bg-[#6149CD] text-white shadow-md"
+                                  : "bg-gray-100 text-gray-600 hover:bg-gray-200"
                               }`}
                             >
                               Féminin
@@ -1037,12 +1247,10 @@ function BookingContent() {
                         </div>
 
                         {/* Âge */}
-                        <div className="group">
-                          <label className="flex items-center space-x-2 text-sm font-bold text-gray-700 mb-2">
-                            <div className="w-6 h-6 bg-purple-100 rounded-lg flex items-center justify-center group-focus-within:bg-[#6149CD] transition-colors">
-                              <Calendar className="w-4 h-4 text-[#6149CD] group-focus-within:text-white" />
-                            </div>
-                            <span>Age *</span>
+                        <div>
+                          <label className="flex items-center space-x-2 text-sm font-semibold text-gray-700 mb-2">
+                            <Calendar className="w-4 h-4 text-gray-600" />
+                            <span>Âge *</span>
                           </label>
                           <input
                             type="number"
@@ -1052,20 +1260,18 @@ function BookingContent() {
                             }
                             placeholder="Âge"
                             min="1"
-                            className="w-full px-4 py-3 bg-gray-50 border-2 border-gray-200 rounded-xl focus:outline-none focus:ring-2 focus:ring-[#6149CD] focus:border-transparent focus:bg-white transition-all text-gray-800 placeholder:text-gray-400"
+                            className="w-full px-4 py-3 bg-white border-2 border-gray-200 rounded-lg focus:outline-none focus:ring-2 focus:ring-[#6149CD] focus:border-transparent transition-all text-gray-800 placeholder:text-gray-400"
                           />
                         </div>
                       </div>
 
                       {/* Bagages */}
                       <div>
-                        <label className="flex items-center space-x-2 text-sm font-bold text-gray-700 mb-2">
-                          <div className="w-6 h-6 bg-purple-100 rounded-lg flex items-center justify-center">
-                            <Luggage className="w-4 h-4 text-[#6149CD]" />
-                          </div>
+                        <label className="flex items-center space-x-2 text-sm font-semibold text-gray-700 mb-2">
+                          <Luggage className="w-4 h-4 text-gray-600" />
                           <span>Nombre de bagages</span>
                         </label>
-                        <div className="flex items-center justify-center space-x-4 bg-linear-to-r from-purple-50 to-blue-50 rounded-xl p-3">
+                        <div className="flex items-center justify-center space-x-4 bg-gray-50 rounded-lg p-3 border border-gray-200">
                           <button
                             onClick={() => {
                               const new_value = Math.max(
@@ -1074,11 +1280,12 @@ function BookingContent() {
                               );
                               updatePassager(index, "nbrBaggage", new_value);
                             }}
-                            className="w-10 h-10 bg-white rounded-xl shadow-md flex items-center justify-center hover:shadow-lg hover:scale-110 active:scale-95 transition-all border-2 border-purple-200"
+                            disabled={passager.nbrBaggage === 0}
+                            className="w-10 h-10 bg-white rounded-lg shadow-sm flex items-center justify-center hover:shadow-md hover:scale-105 active:scale-95 transition-all border border-gray-200 disabled:opacity-50 disabled:cursor-not-allowed"
                           >
-                            <Minus className="w-4 h-4 text-[#6149CD]" />
+                            <Minus className="w-4 h-4 text-gray-700" />
                           </button>
-                          <div className="flex flex-col items-center">
+                          <div className="flex flex-col items-center min-w-15">
                             <span className="text-2xl font-bold text-[#6149CD]">
                               {passager.nbrBaggage}
                             </span>
@@ -1091,9 +1298,9 @@ function BookingContent() {
                               const new_value = passager.nbrBaggage + 1;
                               updatePassager(index, "nbrBaggage", new_value);
                             }}
-                            className="w-10 h-10 bg-white rounded-xl shadow-md flex items-center justify-center hover:shadow-lg hover:scale-110 active:scale-95 transition-all border-2 border-purple-200"
+                            className="w-10 h-10 bg-white rounded-lg shadow-sm flex items-center justify-center hover:shadow-md hover:scale-105 active:scale-95 transition-all border border-gray-200"
                           >
-                            <Plus className="w-4 h-4 text-[#6149CD]" />
+                            <Plus className="w-4 h-4 text-gray-700" />
                           </button>
                         </div>
                       </div>
@@ -1103,11 +1310,14 @@ function BookingContent() {
               </div>
             </div>
 
-            {/* Footer avec résumé et bouton - HAUTEUR FIXE */}
-            <div className="bg-white border-t-2 border-purple-100 p-6 shrink-0">
-              <div className="flex items-center justify-between mb-4 bg-linear-to-r from-purple-50 to-blue-50 rounded-2xl p-4">
+            {/* Footer */}
+            <div className="bg-white border-t border-gray-200 p-6 shrink-0">
+              <div className="flex items-center justify-between mb-4 bg-gray-50 rounded-xl p-4 border border-gray-200">
                 <div className="flex items-center space-x-3">
-                  <div className="w-12 h-12 bg-linear-to-br from-[#6149CD] to-[#8B7BE8] rounded-xl flex items-center justify-center shadow-lg">
+                  <div
+                    className="w-12 h-12 rounded-lg flex items-center justify-center shadow-sm"
+                    style={{ backgroundColor: BUTTON_COLOR }}
+                  >
                     <CreditCard className="w-6 h-6 text-white" />
                   </div>
                   <div>
@@ -1125,14 +1335,14 @@ function BookingContent() {
                   </div>
                 </div>
                 <div className="text-right">
-                  <p className="text-xs text-gray-600 font-medium mb-1">
+                  <p className="text-xs text-gray-600 font-medium mb-2">
                     Places réservées
                   </p>
                   <div className="flex flex-wrap gap-2 justify-end">
                     {places_selectionnees.map((place) => (
                       <span
                         key={place}
-                        className="px-2.5 py-1 bg-linear-to-r from-green-400 to-green-500 text-white rounded-lg text-xs font-bold shadow-md"
+                        className="px-3 py-1 bg-green-100 text-green-800 rounded-lg text-sm font-bold border border-green-200"
                       >
                         {place}
                       </span>
@@ -1144,9 +1354,9 @@ function BookingContent() {
               <button
                 onClick={effectuerReservation}
                 disabled={is_loading_reservation || !isFormValid()}
-                className="w-full py-4 bg-linear-to-r from-[#6149CD] to-[#8B7BE8] text-white rounded-xl font-bold text-lg hover:shadow-2xl active:shadow-lg transition-all flex items-center justify-center space-x-3 disabled:opacity-50 disabled:cursor-not-allowed shadow-xl relative overflow-hidden group"
+                style={{ backgroundColor: BUTTON_COLOR }}
+                className="w-full py-4 text-white rounded-xl font-bold text-lg hover:opacity-90 active:opacity-80 transition-all flex items-center justify-center space-x-3 disabled:opacity-50 disabled:cursor-not-allowed shadow-lg"
               >
-                <div className="absolute inset-0 bg-white opacity-0 group-hover:opacity-10 transition-opacity"></div>
                 {is_loading_reservation ? (
                   <>
                     <div className="w-6 h-6 border-3 border-white border-t-transparent rounded-full animate-spin"></div>

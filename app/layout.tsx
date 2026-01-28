@@ -1,8 +1,8 @@
 import type { Metadata } from "next";
-import { Oswald } from "next/font/google"; 
+import { Inter } from "next/font/google"; 
 import "./globals.css";
 
-const oswald = Oswald({
+const inter = Inter({
   subsets: ["latin"],
   weight: ["400", "700"],
   display: "swap", 
@@ -21,7 +21,7 @@ export default function RootLayout({
 }>) {
   return (
     <html lang="en">
-      <body className={`${oswald.className} antialiased`}>
+      <body className={`${inter.className} antialiased`}>
         {children}
       </body>
     </html>

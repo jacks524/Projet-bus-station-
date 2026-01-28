@@ -685,6 +685,17 @@ export default function LandingPage() {
               </div>
             ))}
           </div>
+
+          {/* Bouton pour plus de FAQ */}
+          <div className="text-center mt-12">
+            <button
+              onClick={() => router.push("/help")}
+              className="inline-flex items-center space-x-2 px-8 py-4 bg-[#6149CD] text-white rounded-xl font-bold text-lg hover:opacity-90 active:opacity-80 transition-all shadow-lg hover:shadow-xl transform hover:scale-105"
+            >
+              <span>Voir plus de questions</span>
+              <ChevronDown className="w-5 h-5 transform -rotate-90" />
+            </button>
+          </div>
         </div>
       </section>
 
@@ -809,7 +820,7 @@ export default function LandingPage() {
                   </a>
                 </li>
                 <li>
-                  <a href="#" className="hover:text-white transition-colors">
+                  <a href="/contact" className="hover:text-white transition-colors">
                     Nous contacter
                   </a>
                 </li>

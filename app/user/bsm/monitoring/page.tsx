@@ -162,9 +162,17 @@ export default function BSMMonitoringPage() {
       }
 
       const data = await response.json();
-      setAgences(data.content || []);
+
+      let filtered_agences = data.content || [];
+      if (bsm_data?.address) {
+        filtered_agences = filtered_agences.filter(
+          (agence: Agence) => agence.ville === bsm_data.address,
+        );
+      }
+
+      setAgences(filtered_agences);
       setTotalPages(data.page?.totalPages || 0);
-      setTotalElements(data.page?.totalElements || 0);
+      setTotalElements(filtered_agences.length);
     } catch (error: any) {
       setErrorMessage("Impossible de charger les agences en attente");
       console.error("Fetch Agences Error:", error);
@@ -448,7 +456,7 @@ export default function BSMMonitoringPage() {
               </div>
             )}
 
-            {/* Carte fusionnée : Image à gauche + Agences à droite */}
+            {/* Carte fusionnée */}
             <div className="bg-white rounded-2xl shadow-lg border border-gray-200 overflow-hidden">
               <div className="grid grid-cols-1 lg:grid-cols-3">
                 {/* Partie gauche - Image avec overlay */}

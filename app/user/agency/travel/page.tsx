@@ -224,6 +224,7 @@ export default function CreateVoyagePage() {
       setFormData((prev) => ({
         ...prev,
         agenceVoyageId: selected_agence.agency_id,
+        lieuDepart: selected_agence.ville,
       }));
       fetchClassesVoyage();
       fetchChauffeurs(selected_agence.agency_id);
@@ -758,9 +759,13 @@ export default function CreateVoyagePage() {
                         value={form_data.lieuDepart}
                         onChange={handleInputChange}
                         required
-                        className="w-full placeholder:text-gray-450 text-gray-950  px-4 py-3 border-2 border-gray-200 rounded-xl focus:outline-none focus:ring-2 focus:ring-[#6149CD]"
+                        disabled
+                        className="w-full placeholder:text-gray-450 text-gray-950 px-4 py-3 border-2 border-gray-200 rounded-xl focus:outline-none focus:ring-2 focus:ring-[#6149CD] bg-gray-100 cursor-not-allowed"
                         placeholder="Ex: Yaoundé"
                       />
+                      <p className="text-xs text-gray-500 mt-1">
+                        Ville de votre agence
+                      </p>
                     </div>
 
                     <div>
@@ -773,7 +778,8 @@ export default function CreateVoyagePage() {
                         value={form_data.lieuArrive}
                         onChange={handleInputChange}
                         required
-                        className="w-full placeholder:text-gray-450 text-gray-950  px-4 py-3 border-2 border-gray-200 rounded-xl focus:outline-none focus:ring-2 focus:ring-[#6149CD]"
+                        disabled
+                        className="w-full placeholder:text-gray-450 text-gray-950 px-4 py-3 border-2 border-gray-200 rounded-xl focus:outline-none focus:ring-2 focus:ring-[#6149CD]"
                         placeholder="Ex: Douala"
                       />
                     </div>

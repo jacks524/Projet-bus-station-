@@ -409,13 +409,6 @@ export default function ClientHomePage() {
               </div>
             </div>
           </div>
-
-          {/* Tabs */}
-          <div className="px-6 flex space-x-8 border-b border-gray-200">
-            <button className="pb-3 border-b-2 border-[#6149CD] text-[#6149CD] font-medium">
-              Tous les voyages
-            </button>
-          </div>
         </header>
 
         {/* Content */}
@@ -495,7 +488,7 @@ export default function ClientHomePage() {
               )}
 
               {!is_loading && !error_message && voyages.length > 0 && (
-                <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-4 md:gap-6">
+                <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-3 gap-4 md:gap-6">
                   {voyages.map((voyage) => (
                     <div
                       key={voyage.idVoyage}
