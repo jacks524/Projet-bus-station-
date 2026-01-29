@@ -25,6 +25,7 @@ import {
   Compass,
 } from "lucide-react";
 import { useRouter, useSearchParams } from "next/navigation";
+import { useLanguage } from "../../../providers";
 
 interface Voyage {
   idVoyage: string;
@@ -105,45 +106,46 @@ function BookingContent() {
   const router = useRouter();
   const searchParams = useSearchParams();
   const voyage_id = searchParams.get("voyage_id");
+  const { t } = useLanguage();
 
   const API_BASE_URL = process.env.NEXT_PUBLIC_API_BASE_URL;
   const BUTTON_COLOR = "#6149CD";
 
   const MENU_ITEMS = [
-    { icon: Home, label: "Accueil", path: "/user/client/home", active: false },
+    { icon: Home, label: t("Accueil", "Home"), path: "/user/client/home", active: false },
     {
       icon: Calendar,
-      label: "Réserver",
+      label: t("Réserver", "Book"),
       path: "/user/client/book",
       active: true,
     },
     {
       icon: FileText,
-      label: "Réservations",
+      label: t("Réservations", "Bookings"),
       path: "/user/client/reservations",
       active: false,
     },
     {
       icon: Ticket,
-      label: "Billets",
+      label: t("Billets", "Tickets"),
       path: "/user/client/tickets",
       active: false,
     },
     {
       icon: Gift,
-      label: "Coupons",
+      label: t("Coupons", "Vouchers"),
       path: "/user/client/vouchers",
       active: false,
     },
     {
       icon: History,
-      label: "Historique",
+      label: t("Historique", "History"),
       path: "/user/client/history",
       active: false,
     },
     {
       icon: Settings,
-      label: "Mes paramètres",
+      label: t("Mes paramètres", "Settings"),
       path: "/user/client/settings",
       active: false,
     },
@@ -190,7 +192,7 @@ function BookingContent() {
       });
 
       if (!response.ok) {
-        throw new Error("Erreur lors du chargement du voyage");
+        throw new Error(t("Erreur lors du chargement du voyage", "Error loading trip"));
       }
 
       const data = await response.json();
@@ -200,7 +202,7 @@ function BookingContent() {
       setVoyage(data);
       setPlacesReservees(data.placeReservees || []);
     } catch (error: any) {
-      setErrorMessage("Impossible de charger les détails du voyage");
+      setErrorMessage(t("Impossible de charger les détails du voyage", "Unable to load trip details"));
       console.error("Fetch Voyage Error:", error);
     } finally {
       setIsLoading(false);
@@ -297,7 +299,7 @@ function BookingContent() {
       });
 
       if (!response.ok) {
-        throw new Error("Erreur lors de la réservation");
+        throw new Error(t("Erreur lors de la réservation", "Booking error"));
       }
 
       const reservation_result = await response.json();
@@ -361,7 +363,7 @@ function BookingContent() {
       );
 
       if (!response.ok) {
-        throw new Error("Erreur lors du paiement");
+        throw new Error(t("Erreur lors du paiement", "Payment error"));
       }
 
       setShowPaiementModal(false);
@@ -429,7 +431,7 @@ function BookingContent() {
           {/* Première rangée */}
           <div className="grid gap-2 w-fit grid-cols-2 p-2">
             <div className="col-span-2 border-2 border-[#6149CD] flex justify-center items-center rounded-lg font-bold h-10 sm:h-12 mt-1 bg-[#6149CD] text-white text-xs sm:text-sm lg:text-base">
-              Driver
+              {t("Chauffeur", "Driver")}
             </div>
             {Array.from({ length: 30 }, (_, i) => renderSeat(i + 1))}
           </div>
@@ -437,24 +439,24 @@ function BookingContent() {
           {/* Deuxième rangée */}
           <div className="grid grid-cols-2 w-fit gap-2 p-2">
             <div className="col-span-2 border-2 border-[#6149CD] flex justify-center items-center rounded-lg font-bold h-10 sm:h-12 mt-1 bg-[#6149CD] text-white text-xs sm:text-sm lg:text-base">
-              Hôtesse
+              {t("Hôtesse", "Hostess")}
             </div>
             {/* Places 31-34 */}
             {Array.from({ length: 4 }, (_, i) => renderSeat(i + 31))}
             {/* Toilettes */}
-            {renderSeat(35, true, "Toilette")}
-            {renderSeat(36, true, "Toilette")}
+            {renderSeat(35, true, t("Toilette", "Toilet"))}
+            {renderSeat(36, true, t("Toilette", "Toilet"))}
             {/* Portes */}
-            {renderSeat(37, true, "Porte")}
-            {renderSeat(38, true, "Porte")}
+            {renderSeat(37, true, t("Porte", "Door"))}
+            {renderSeat(38, true, t("Porte", "Door"))}
             {/* Places 35-38 */}
             {Array.from({ length: 4 }, (_, i) => renderSeat(i + 35))}
 
             {/* Places 39-48 */}
             {Array.from({ length: 10 }, (_, i) => renderSeat(i + 39))}
             {/* Portes */}
-            {renderSeat(49, true, "Porte")}
-            {renderSeat(50, true, "Porte")}
+            {renderSeat(49, true, t("Porte", "Door"))}
+            {renderSeat(50, true, t("Porte", "Door"))}
             {/* Places 49-56 */}
             {Array.from({ length: 8 }, (_, i) => renderSeat(i + 49))}
           </div>
@@ -470,7 +472,7 @@ function BookingContent() {
             {/* Première rangée */}
             <div className="grid gap-2 w-fit grid-cols-3 p-2">
               <div className="col-span-3 border-2 border-[#6149CD] flex justify-center items-center rounded-lg font-bold h-10 sm:h-12 mt-1 bg-[#6149CD] text-white text-xs sm:text-sm lg:text-base">
-                Driver
+                {t("Chauffeur", "Driver")}
               </div>
               {Array.from({ length: 42 }, (_, i) => renderSeat(i + 1))}
             </div>
@@ -481,10 +483,10 @@ function BookingContent() {
               {Array.from({ length: 4 }, (_, i) => renderSeat(i + 43))}
               {/* Portes */}
               <div className="w-10 h-10 sm:w-12 sm:h-12 border-2 border-gray-300 rounded-lg bg-gray-100 flex items-center justify-center text-xs font-bold text-gray-500">
-                Porte
+                {t("Porte", "Door")}
               </div>
               <div className="w-10 h-10 sm:w-12 sm:h-12 border-2 border-gray-300 rounded-lg bg-gray-100 flex items-center justify-center text-xs font-bold text-gray-500">
-                Porte
+                {t("Porte", "Door")}
               </div>
               {/* Places 47-52 */}
               {Array.from({ length: 6 }, (_, i) => renderSeat(i + 47))}
@@ -493,10 +495,10 @@ function BookingContent() {
               {Array.from({ length: 8 }, (_, i) => renderSeat(i + 53))}
               {/* Portes */}
               <div className="w-10 h-10 sm:w-12 sm:h-12 border-2 border-gray-300 rounded-lg bg-gray-100 flex items-center justify-center text-xs font-bold text-gray-500">
-                Porte
+                {t("Porte", "Door")}
               </div>
               <div className="w-10 h-10 sm:w-12 sm:h-12 border-2 border-gray-300 rounded-lg bg-gray-100 flex items-center justify-center text-xs font-bold text-gray-500">
-                Porte
+                {t("Porte", "Door")}
               </div>
               {/* Places 61-64 */}
               {Array.from({ length: 4 }, (_, i) => renderSeat(i + 61))}
@@ -521,7 +523,7 @@ function BookingContent() {
             {/* Première rangée */}
             <div className="grid gap-2 w-fit grid-cols-3 p-2">
               <div className="col-span-3 border-2 border-[#6149CD] flex justify-center items-center rounded-lg font-bold h-10 sm:h-12 mt-1 bg-[#6149CD] text-white text-xs sm:text-sm lg:text-base">
-                Driver
+                {t("Chauffeur", "Driver")}
               </div>
               {Array.from({ length: 45 }, (_, i) => renderSeat(i + 1))}
             </div>
@@ -532,10 +534,10 @@ function BookingContent() {
               {Array.from({ length: 4 }, (_, i) => renderSeat(i + 46))}
               {/* Portes */}
               <div className="w-10 h-10 sm:w-12 sm:h-12 border-2 border-gray-300 rounded-lg bg-gray-100 flex items-center justify-center text-xs font-bold text-gray-500">
-                Porte
+                {t("Porte", "Door")}
               </div>
               <div className="w-10 h-10 sm:w-12 sm:h-12 border-2 border-gray-300 rounded-lg bg-gray-100 flex items-center justify-center text-xs font-bold text-gray-500">
-                Porte
+                {t("Porte", "Door")}
               </div>
               {/* Places 50-55 */}
               {Array.from({ length: 6 }, (_, i) => renderSeat(i + 50))}
@@ -544,10 +546,10 @@ function BookingContent() {
               {Array.from({ length: 8 }, (_, i) => renderSeat(i + 56))}
               {/* Portes */}
               <div className="w-10 h-10 sm:w-12 sm:h-12 border-2 border-gray-300 rounded-lg bg-gray-100 flex items-center justify-center text-xs font-bold text-gray-500">
-                Porte
+                {t("Porte", "Door")}
               </div>
               <div className="w-10 h-10 sm:w-12 sm:h-12 border-2 border-gray-300 rounded-lg bg-gray-100 flex items-center justify-center text-xs font-bold text-gray-500">
-                Porte
+                {t("Porte", "Door")}
               </div>
               {/* Places 64-69 */}
               {Array.from({ length: 6 }, (_, i) => renderSeat(i + 64))}
@@ -572,7 +574,7 @@ function BookingContent() {
             {/* Première rangée */}
             <div className="grid gap-2 w-fit grid-cols-3 p-2">
               <div className="col-span-3 border-2 border-[#6149CD] flex justify-center items-center rounded-lg font-bold h-10 sm:h-12 mt-1 bg-[#6149CD] text-white text-xs sm:text-sm lg:text-base">
-                Driver
+                {t("Chauffeur", "Driver")}
               </div>
               {Array.from({ length: 48 }, (_, i) => renderSeat(i + 1))}
             </div>
@@ -583,10 +585,10 @@ function BookingContent() {
               {Array.from({ length: 4 }, (_, i) => renderSeat(i + 49))}
               {/* Portes */}
               <div className="w-10 h-10 sm:w-12 sm:h-12 border-2 border-gray-300 rounded-lg bg-gray-100 flex items-center justify-center text-xs font-bold text-gray-500">
-                Porte
+                {t("Porte", "Door")}
               </div>
               <div className="w-10 h-10 sm:w-12 sm:h-12 border-2 border-gray-300 rounded-lg bg-gray-100 flex items-center justify-center text-xs font-bold text-gray-500">
-                Porte
+                {t("Porte", "Door")}
               </div>
               {/* Places 53-58 */}
               {Array.from({ length: 6 }, (_, i) => renderSeat(i + 53))}
@@ -595,10 +597,10 @@ function BookingContent() {
               {Array.from({ length: 12 }, (_, i) => renderSeat(i + 59))}
               {/* Portes */}
               <div className="w-10 h-10 sm:w-12 sm:h-12 border-2 border-gray-300 rounded-lg bg-gray-100 flex items-center justify-center text-xs font-bold text-gray-500">
-                Porte
+                {t("Porte", "Door")}
               </div>
               <div className="w-10 h-10 sm:w-12 sm:h-12 border-2 border-gray-300 rounded-lg bg-gray-100 flex items-center justify-center text-xs font-bold text-gray-500">
-                Porte
+                {t("Porte", "Door")}
               </div>
               {/* Places 71-74 */}
               {Array.from({ length: 4 }, (_, i) => renderSeat(i + 71))}
@@ -667,7 +669,9 @@ function BookingContent() {
       <div className="min-h-screen bg-gray-50 flex items-center justify-center">
         <div className="text-center">
           <Calendar className="w-16 h-16 text-[#6149CD] animate-spin mx-auto mb-4" />
-          <p className="text-gray-600">Chargement du voyage...</p>
+          <p className="text-gray-600">
+            {t("Chargement du voyage...", "Loading trip...")}
+          </p>
         </div>
       </div>
     );
@@ -678,15 +682,17 @@ function BookingContent() {
       <div className="min-h-screen bg-gray-50 flex items-center justify-center">
         <div className="bg-white rounded-lg shadow-lg p-8 max-w-md text-center">
           <X className="w-16 h-16 text-white-500 mx-auto mb-4 bg-[#6149CD] rounded-full" />
-          <h2 className="text-2xl font-bold text-gray-900 mb-2">Erreur</h2>
+          <h2 className="text-2xl font-bold text-gray-900 mb-2">
+            {t("Erreur", "Error")}
+          </h2>
           <p className="text-gray-600 mb-6">
-            {error_message || "Voyage introuvable"}
+            {error_message || t("Voyage introuvable", "Trip not found")}
           </p>
           <button
             onClick={() => router.push("/user/client/book")}
             className="px-6 py-3 bg-[#6149CD] text-white rounded-lg hover:opacity-90 transition-opacity"
           >
-            Retour à la recherche
+            {t("Retour à la recherche", "Back to search")}
           </button>
         </div>
       </div>
@@ -801,7 +807,7 @@ function BookingContent() {
                 <Menu className="w-6 h-6 text-gray-900" />
               </button>
               <h1 className="text-2xl font-semibold text-gray-900">
-                Réservation de voyage
+                {t("Réservation de voyage", "Trip booking")}
               </h1>
             </div>
 
@@ -840,14 +846,16 @@ function BookingContent() {
                       className="w-full flex items-center space-x-3 px-4 py-2 hover:bg-gray-100 transition-colors"
                     >
                       <Settings className="w-4 h-4 text-gray-600" />
-                      <span className="text-gray-700">Paramètres</span>
+                      <span className="text-gray-700">
+                        {t("Paramètres", "Settings")}
+                      </span>
                     </button>
                     <button
                       onClick={handleLogout}
                       className="w-full flex items-center space-x-3 px-4 py-2 hover:bg-gray-100 transition-colors text-red-600"
                     >
                       <LogOut className="w-4 h-4" />
-                      <span>Se déconnecter</span>
+                      <span>{t("Se déconnecter", "Sign out")}</span>
                     </button>
                   </div>
                 )}
@@ -865,17 +873,19 @@ function BookingContent() {
                 onClick={() => router.push("/user/client/home")}
                 className="hover:text-[#6149CD]"
               >
-                Accueil
+                {t("Accueil", "Home")}
               </button>
               <span>/</span>
               <button
                 onClick={() => router.push("/user/client/book")}
                 className="hover:text-[#6149CD]"
               >
-                Rechercher
+                {t("Rechercher", "Search")}
               </button>
               <span>/</span>
-              <span className="text-gray-900 font-medium">Réservation</span>
+              <span className="text-gray-900 font-medium">
+                {t("Réservation", "Booking")}
+              </span>
             </div>
 
             <div className="grid grid-cols-1 lg:grid-cols-3 gap-6">
@@ -883,7 +893,7 @@ function BookingContent() {
               <div className="lg:col-span-1">
                 <div className="bg-white rounded-2xl shadow-lg border border-gray-200 p-6 sticky top-24">
                   <h2 className="text-xl font-bold text-gray-900 mb-6">
-                    Détails du voyage
+                    {t("Détails du voyage", "Trip details")}
                   </h2>
 
                   <div className="space-y-4">
@@ -897,7 +907,7 @@ function BookingContent() {
                       </div>
                       <div>
                         <p className="text-xs text-gray-500 mb-1">
-                          Nom de l'agence
+                          {t("Nom de l'agence", "Agency name")}
                         </p>
                         <p className="font-semibold text-gray-900">
                           {voyage.nomAgence}
@@ -915,11 +925,11 @@ function BookingContent() {
                       </div>
                       <div>
                         <p className="font-semibold text-gray-900">
-                          De {voyage.lieuDepart} vers {voyage.lieuArrive}
+                          {t("De", "From")} {voyage.lieuDepart} {t("vers", "to")} {voyage.lieuArrive}
                         </p>
                         <p className="text-xs text-gray-600 mt-1">
                           <Compass className="w-3 h-3 inline mr-1" />
-                          Itinéaire : De {voyage.pointDeDepart} vers{" "}
+                          {t("Itinéraire", "Route")} : {t("De", "From")} {voyage.pointDeDepart} {t("vers", "to")}{" "}
                           {voyage.pointArrivee}
                         </p>
                       </div>
@@ -934,7 +944,9 @@ function BookingContent() {
                         <Clock className="w-5 h-5 text-white" />
                       </div>
                       <div>
-                        <p className="text-xs text-gray-500 mb-1">Date</p>
+                        <p className="text-xs text-gray-500 mb-1">
+                          {t("Date", "Date")}
+                        </p>
                         <p className="font-semibold text-gray-900">
                           {formatDate(voyage.dateDepartPrev)}
                         </p>
@@ -951,7 +963,7 @@ function BookingContent() {
                       </div>
                       <div>
                         <p className="text-xs text-gray-500 mb-1">
-                          Prix unitaire (par place)
+                          {t("Prix unitaire (par place)", "Unit price (per seat)")}
                         </p>
                         <p className="font-bold text-gray-900">
                           {voyage.prix} FCFA
@@ -968,7 +980,9 @@ function BookingContent() {
                         <Users className="w-5 h-5 text-white" />
                       </div>
                       <div>
-                        <p className="text-xs text-gray-500 mb-1">Classe</p>
+                        <p className="text-xs text-gray-500 mb-1">
+                          {t("Classe", "Class")}
+                        </p>
                         <span className="inline-block px-3 py-1 rounded-full text-xs font-medium bg-green-100 text-green-800">
                           {voyage.nomClasseVoyage}
                         </span>
@@ -980,7 +994,7 @@ function BookingContent() {
                       <div className="flex items-center justify-between mb-2">
                         <label className="text-sm font-semibold text-gray-700 flex items-center space-x-2">
                           <Luggage className="w-4 h-4" />
-                          <span>Bagages par passager</span>
+                          <span>{t("Bagages par passager", "Baggage per passenger")}</span>
                         </label>
                       </div>
                       <div className="flex items-center space-x-4">
@@ -1009,7 +1023,7 @@ function BookingContent() {
                     <div className="border-t border-gray-200 pt-4">
                       <div className="flex items-center justify-between mb-2">
                         <label className="text-sm font-semibold text-gray-700">
-                          Places sélectionnées
+                          {t("Places sélectionnées", "Selected seats")}
                         </label>
                         <span className="text-lg font-bold text-[#6149CD]">
                           {places_selectionnees.length}
@@ -1022,7 +1036,7 @@ function BookingContent() {
                               key={place}
                               className="px-3 py-1 bg-green-100 text-green-800 rounded-full text-sm font-medium"
                             >
-                              Place {place}
+                              {t("Place", "Seat")} {place}
                             </span>
                           ))}
                         </div>
@@ -1033,7 +1047,7 @@ function BookingContent() {
                     <div className="border-t border-gray-200 pt-4 mt-4">
                       <div className="flex items-center justify-between">
                         <span className="text-lg font-bold text-gray-900">
-                          Prix Total
+                          {t("Prix Total", "Total price")}
                         </span>
                         <span className="text-2xl font-bold text-[#6149CD]">
                           {places_selectionnees.length * voyage.prix} FCFA
@@ -1048,14 +1062,14 @@ function BookingContent() {
                       style={{ backgroundColor: BUTTON_COLOR }}
                       className="w-full py-3 text-white rounded-xl font-semibold hover:opacity-90 active:opacity-80 transition-all flex items-center justify-center space-x-2 disabled:opacity-50 disabled:cursor-not-allowed shadow-lg mt-6"
                     >
-                      <span>Réserver maintenant</span>
+                      <span>{t("Réserver maintenant", "Book now")}</span>
                     </button>
 
                     <button
                       onClick={() => router.push("/user/client/book")}
                       className="w-full py-3 border-2 border-gray-300 text-gray-700 rounded-xl font-semibold hover:bg-gray-50 active:bg-gray-100 transition-all flex items-center justify-center space-x-2"
                     >
-                      <span>Retour à la recherche</span>
+                      <span>{t("Retour à la recherche", "Back to search")}</span>
                     </button>
                   </div>
                 </div>
@@ -1065,10 +1079,10 @@ function BookingContent() {
               <div className="lg:col-span-2">
                 <div className="bg-white rounded-2xl shadow-lg border border-gray-200 p-6">
                   <h2 className="text-xl font-bold text-gray-900 mb-4">
-                    Sélection des places
+                    {t("Sélection des places", "Seat selection")}
                   </h2>
                   <p className="text-sm text-gray-600 mb-6">
-                    Cliquez sur les places disponibles pour les sélectionner
+                    {t("Cliquez sur les places disponibles pour les sélectionner", "Click available seats to select them")}
                   </p>
 
                   {/* Légende */}
@@ -1076,19 +1090,19 @@ function BookingContent() {
                     <div className="flex items-center space-x-2">
                       <div className="w-8 h-8 rounded-lg bg-white border-2 border-gray-300"></div>
                       <span className="text-sm font-medium text-gray-700">
-                        Disponible
+                        {t("Disponible", "Available")}
                       </span>
                     </div>
                     <div className="flex items-center space-x-2">
                       <div className="w-8 h-8 rounded-lg bg-green-500 border-2 border-green-500"></div>
                       <span className="text-sm font-medium text-gray-700">
-                        Sélectionnée
+                        {t("Sélectionnée", "Selected")}
                       </span>
                     </div>
                     <div className="flex items-center space-x-2">
                       <div className="w-8 h-8 rounded-lg bg-red-500 border-2 border-red-500"></div>
                       <span className="text-sm font-medium text-gray-700">
-                        Réservée
+                        {t("Réservée", "Reserved")}
                       </span>
                     </div>
                   </div>
@@ -1120,10 +1134,10 @@ function BookingContent() {
                   </div>
                   <div>
                     <h2 className="text-2xl font-bold text-gray-900">
-                      Informations des passagers
+                      {t("Informations des passagers", "Passenger information")}
                     </h2>
                     <p className="text-sm text-gray-600 mt-1">
-                      Remplissez les informations pour chaque passager
+                      {t("Remplissez les informations pour chaque passager", "Fill in information for each passenger")}
                     </p>
                   </div>
                 </div>
@@ -1159,11 +1173,11 @@ function BookingContent() {
                           </div>
                           <div>
                             <h3 className="text-lg font-bold text-gray-900">
-                              Passager {index + 1}
+                              {t("Passager", "Passenger")} {index + 1}
                             </h3>
                             <div className="flex items-center space-x-1 text-sm text-gray-600">
                               <Users className="w-3 h-3" />
-                              <span>Place {passager.placeChoisis}</span>
+                              <span>{t("Place", "Seat")} {passager.placeChoisis}</span>
                             </div>
                           </div>
                         </div>
@@ -1176,7 +1190,7 @@ function BookingContent() {
                       <div>
                         <label className="flex items-center space-x-2 text-sm font-semibold text-gray-700 mb-2">
                           <CreditCard className="w-4 h-4 text-gray-600" />
-                          <span>Numéro pièce d'identité *</span>
+                          <span>{t("Numéro pièce d'identité *", "ID number *")}</span>
                         </label>
                         <input
                           type="text"
@@ -1188,7 +1202,7 @@ function BookingContent() {
                               e.target.value,
                             )
                           }
-                          placeholder="CNI, Récépissé, Passeport"
+                          placeholder={t("CNI, Récépissé, Passeport", "National ID, Receipt, Passport")}
                           className="w-full px-4 py-3 bg-white border-2 border-gray-200 rounded-lg focus:outline-none focus:ring-2 focus:ring-[#6149CD] focus:border-transparent transition-all text-gray-800 placeholder:text-gray-400"
                         />
                       </div>
@@ -1197,7 +1211,7 @@ function BookingContent() {
                       <div>
                         <label className="flex items-center space-x-2 text-sm font-semibold text-gray-700 mb-2">
                           <UserIcon className="w-4 h-4 text-gray-600" />
-                          <span>Nom complet *</span>
+                          <span>{t("Nom complet *", "Full name *")}</span>
                         </label>
                         <input
                           type="text"
@@ -1205,7 +1219,7 @@ function BookingContent() {
                           onChange={(e) =>
                             updatePassager(index, "nom", e.target.value)
                           }
-                          placeholder="Nom et prénom(s)"
+                          placeholder={t("Nom et prénom(s)", "Last name and first name(s)")}
                           className="w-full px-4 py-3 bg-white border-2 border-gray-200 rounded-lg focus:outline-none focus:ring-2 focus:ring-[#6149CD] focus:border-transparent transition-all text-gray-800 placeholder:text-gray-400"
                         />
                       </div>
@@ -1216,7 +1230,7 @@ function BookingContent() {
                         <div>
                           <label className="flex items-center space-x-2 text-sm font-semibold text-gray-700 mb-2">
                             <Users className="w-4 h-4 text-gray-600" />
-                            <span>Genre *</span>
+                            <span>{t("Genre *", "Gender *")}</span>
                           </label>
                           <div className="flex gap-2">
                             <button
@@ -1229,7 +1243,7 @@ function BookingContent() {
                                   : "bg-gray-100 text-gray-600 hover:bg-gray-200"
                               }`}
                             >
-                              Masculin
+                              {t("Masculin", "Male")}
                             </button>
                             <button
                               onClick={() =>
@@ -1241,7 +1255,7 @@ function BookingContent() {
                                   : "bg-gray-100 text-gray-600 hover:bg-gray-200"
                               }`}
                             >
-                              Féminin
+                              {t("Féminin", "Female")}
                             </button>
                           </div>
                         </div>
@@ -1250,7 +1264,7 @@ function BookingContent() {
                         <div>
                           <label className="flex items-center space-x-2 text-sm font-semibold text-gray-700 mb-2">
                             <Calendar className="w-4 h-4 text-gray-600" />
-                            <span>Âge *</span>
+                            <span>{t("Âge *", "Age *")}</span>
                           </label>
                           <input
                             type="number"
@@ -1258,7 +1272,7 @@ function BookingContent() {
                             onChange={(e) =>
                               updatePassager(index, "age", e.target.value)
                             }
-                            placeholder="Âge"
+                            placeholder={t("Âge", "Age")}
                             min="1"
                             className="w-full px-4 py-3 bg-white border-2 border-gray-200 rounded-lg focus:outline-none focus:ring-2 focus:ring-[#6149CD] focus:border-transparent transition-all text-gray-800 placeholder:text-gray-400"
                           />
@@ -1269,7 +1283,7 @@ function BookingContent() {
                       <div>
                         <label className="flex items-center space-x-2 text-sm font-semibold text-gray-700 mb-2">
                           <Luggage className="w-4 h-4 text-gray-600" />
-                          <span>Nombre de bagages</span>
+                          <span>{t("Nombre de bagages", "Number of bags")}</span>
                         </label>
                         <div className="flex items-center justify-center space-x-4 bg-gray-50 rounded-lg p-3 border border-gray-200">
                           <button
@@ -1290,7 +1304,10 @@ function BookingContent() {
                               {passager.nbrBaggage}
                             </span>
                             <span className="text-xs text-gray-600 font-medium">
-                              bagage{passager.nbrBaggage > 1 ? "s" : ""}
+                              {t(
+                                `bagage${passager.nbrBaggage > 1 ? "s" : ""}`,
+                                `bag${passager.nbrBaggage > 1 ? "s" : ""}`
+                              )}
                             </span>
                           </div>
                           <button
@@ -1322,21 +1339,23 @@ function BookingContent() {
                   </div>
                   <div>
                     <p className="text-xs text-gray-600 font-medium">
-                      Prix total à payer
+                      {t("Prix total à payer", "Total to pay")}
                     </p>
                     <p className="text-2xl font-bold text-[#6149CD]">
                       {places_selectionnees.length * voyage.prix} FCFA
                     </p>
                     <p className="text-xs text-gray-500">
-                      {places_selectionnees.length} passager
-                      {places_selectionnees.length > 1 ? "s" : ""} ×{" "}
-                      {voyage.prix} FCFA
+                      {t(
+                        `${places_selectionnees.length} passager${places_selectionnees.length > 1 ? "s" : ""}`,
+                        `${places_selectionnees.length} passenger${places_selectionnees.length > 1 ? "s" : ""}`
+                      )}{" "}
+                      × {voyage.prix} FCFA
                     </p>
                   </div>
                 </div>
                 <div className="text-right">
                   <p className="text-xs text-gray-600 font-medium mb-2">
-                    Places réservées
+                    {t("Places réservées", "Reserved seats")}
                   </p>
                   <div className="flex flex-wrap gap-2 justify-end">
                     {places_selectionnees.map((place) => (
@@ -1360,17 +1379,17 @@ function BookingContent() {
                 {is_loading_reservation ? (
                   <>
                     <div className="w-6 h-6 border-3 border-white border-t-transparent rounded-full animate-spin"></div>
-                    <span>Réservation en cours...</span>
+                    <span>{t("Réservation en cours...", "Booking in progress...")}</span>
                   </>
                 ) : (
                   <>
-                    <span>Confirmer la réservation</span>
+                    <span>{t("Confirmer la réservation", "Confirm booking")}</span>
                   </>
                 )}
               </button>
 
               <p className="text-center text-xs text-gray-500 mt-3">
-                En confirmant, vous acceptez nos conditions générales
+                {t("En confirmant, vous acceptez nos conditions générales", "By confirming, you accept our terms and conditions")}
               </p>
             </div>
           </div>
@@ -1386,37 +1405,40 @@ function BookingContent() {
                 <Check className="w-12 h-12 text-green-600" />
               </div>
               <h2 className="text-2xl font-bold text-white mb-2">
-                Réservation réussie !
+                {t("Réservation réussie !", "Booking successful!")}
               </h2>
               <p className="text-green-50">
-                Votre réservation a été enregistrée avec succès
+                {t("Votre réservation a été enregistrée avec succès", "Your booking has been successfully recorded")}
               </p>
             </div>
 
             <div className="p-6">
               <div className="bg-gray-50 rounded-xl p-4 mb-6">
                 <h3 className="font-bold text-gray-900 mb-2">
-                  Résumé de la réservation
+                  {t("Résumé de la réservation", "Booking summary")}
                 </h3>
                 <p className="text-sm text-gray-700 mb-2">
-                  Nom agence : {reservation_courante.voyage.nomAgence}
+                  {t("Nom agence", "Agency name")} : {reservation_courante.voyage.nomAgence}
                 </p>
                 <p className="text-sm text-gray-600 mb-2">
-                  De {reservation_courante.voyage.lieuDepart} vers{" "}
+                  {t("De", "From")} {reservation_courante.voyage.lieuDepart} {t("vers", "to")}{" "}
                   {reservation_courante.voyage.lieuArrive}
                 </p>
                 <p className="text-sm text-gray-600 mb-2">
-                  Itinéaire : {reservation_courante.voyage.pointDeDepart} vers{" "}
+                  {t("Itinéraire", "Route")} : {reservation_courante.voyage.pointDeDepart} {t("vers", "to")}{" "}
                   {reservation_courante.voyage.pointArrivee}
                 </p>
                 <p className="text-sm text-gray-600 mb-3">
-                  Heure : Le{" "}
+                  {t("Heure", "Time")} : {t("Le", "On")}{" "}
                   {formatDate(reservation_courante.voyage.dateDepartPrev)}
                 </p>
                 <div className="flex items-center justify-between pt-3 border-t border-gray-200">
                   <span className="text-sm font-semibold text-gray-700">
-                    {reservation_courante.placesReservees.length} passager(s) -
-                    Places: {reservation_courante.placesReservees.join(", ")}
+                    {t(
+                      `${reservation_courante.placesReservees.length} passager(s)`,
+                      `${reservation_courante.placesReservees.length} passenger(s)`
+                    )}{" "}
+                    - {t("Places", "Seats")}: {reservation_courante.placesReservees.join(", ")}
                   </span>
                   <span className="text-lg font-bold text-[#6149CD]">
                     {reservation_courante.prixTotal} FCFA
@@ -1425,7 +1447,7 @@ function BookingContent() {
               </div>
 
               <p className="text-center text-gray-700 font-medium mb-6">
-                Que souhaitez-vous faire maintenant ?
+                {t("Que souhaitez-vous faire maintenant ?", "What would you like to do now?")}
               </p>
 
               <div className="space-y-3">
@@ -1434,7 +1456,7 @@ function BookingContent() {
                   className="w-full py-4 bg-green-500 text-white rounded-xl font-bold hover:bg-green-600 active:bg-green-700 transition-colors flex items-center justify-center space-x-2"
                 >
                   <CreditCard className="w-5 h-5" />
-                  <span>Payer maintenant</span>
+                  <span>{t("Payer maintenant", "Pay now")}</span>
                 </button>
 
                 <button
@@ -1445,7 +1467,7 @@ function BookingContent() {
                   className="w-full py-4 border-2 border-[#6149CD] text-[#6149CD] rounded-xl font-bold hover:bg-purple-100 active:bg-purple-200 transition-colors flex items-center justify-center space-x-2"
                 >
                   <Clock className="w-5 h-5" />
-                  <span>Payer plus tard</span>
+                  <span>{t("Payer plus tard", "Pay later")}</span>
                 </button>
               </div>
             </div>
@@ -1458,7 +1480,9 @@ function BookingContent() {
         <div className="fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center z-50 p-4">
           <div className="bg-white rounded-2xl shadow-2xl max-w-md w-full overflow-hidden">
             <div className="flex items-center justify-between p-6 border-b border-gray-200">
-              <h2 className="text-2xl font-bold text-gray-900">Paiement</h2>
+              <h2 className="text-2xl font-bold text-gray-900">
+                {t("Paiement", "Payment")}
+              </h2>
               <button
                 onClick={() => setShowPaiementModal(false)}
                 className="p-2 hover:bg-gray-100 rounded-lg transition-colors"
@@ -1470,26 +1494,26 @@ function BookingContent() {
             <div className="p-6">
               <div className="bg-gray-50 rounded-xl p-4 mb-6">
                 <h3 className="font-bold text-gray-900 mb-2">
-                  Résumé du paiement
+                  {t("Résumé du paiement", "Payment summary")}
                 </h3>
                 <p className="text-sm text-gray-700 mb-2">
-                  Nom agence : {reservation_courante.voyage.nomAgence}
+                  {t("Nom agence", "Agency name")} : {reservation_courante.voyage.nomAgence}
                 </p>
                 <p className="text-sm text-gray-600 mb-2">
-                  De {reservation_courante.voyage.lieuDepart} vers{" "}
+                  {t("De", "From")} {reservation_courante.voyage.lieuDepart} {t("vers", "to")}{" "}
                   {reservation_courante.voyage.lieuArrive}
                 </p>
                 <p className="text-sm text-gray-600 mb-2">
-                  Itinéaire : {reservation_courante.voyage.pointDeDepart} vers{" "}
+                  {t("Itinéraire", "Route")} : {reservation_courante.voyage.pointDeDepart} {t("vers", "to")}{" "}
                   {reservation_courante.voyage.pointArrivee}
                 </p>
                 <p className="text-sm text-gray-600 mb-3">
-                  Heure : Le{" "}
+                  {t("Heure", "Time")} : {t("Le", "On")}{" "}
                   {formatDate(reservation_courante.voyage.dateDepartPrev)}
                 </p>
                 <div className="flex items-center justify-between pt-3 border-t border-gray-200">
                   <span className="text-sm font-semibold text-gray-700">
-                    Montant à payer
+                    {t("Montant à payer", "Amount to pay")}
                   </span>
                   <span className="text-xl font-bold text-[#6149CD]">
                     {reservation_courante.prixTotal} FCFA
@@ -1500,26 +1524,26 @@ function BookingContent() {
               <div className="space-y-4 mb-6">
                 <div>
                   <label className="block text-sm font-semibold text-gray-700 mb-2">
-                    Numéro de téléphone *
+                    {t("Numéro de téléphone *", "Phone number *")}
                   </label>
                   <input
                     type="tel"
                     value={mobile_phone}
                     onChange={(e) => setMobilePhone(e.target.value)}
-                    placeholder="+237 🇨🇲"
+                    placeholder={t("+237 🇨🇲", "+237 🇨🇲")}
                     className="w-full px-4 py-3 border-2 text-gray-700 placeholder:text-gray-400 border-gray-200 rounded-xl focus:outline-none focus:ring-2 focus:ring-[#6149CD] focus:border-transparent"
                   />
                 </div>
 
                 <div>
                   <label className="block text-sm font-semibold text-gray-700 mb-2">
-                    Nom du propriétaire *
+                    {t("Nom du propriétaire *", "Owner name *")}
                   </label>
                   <input
                     type="text"
                     value={mobile_phone_name}
                     onChange={(e) => setMobilePhoneName(e.target.value)}
-                    placeholder="Nom complet"
+                    placeholder={t("Nom complet", "Full name")}
                     className="w-full px-4 py-3 border-2 text-gray-700 placeholder:text-gray-400 border-gray-200 rounded-xl focus:outline-none focus:ring-2 focus:ring-[#6149CD] focus:border-transparent"
                   />
                 </div>
@@ -1527,8 +1551,10 @@ function BookingContent() {
 
               <div className="bg-blue-50 rounded-xl p-4 mb-6">
                 <p className="text-sm text-blue-800">
-                  Une demande de paiement sera envoyée sur ce numéro pour
-                  valider le paiement
+                  {t(
+                    "Une demande de paiement sera envoyée sur ce numéro pour valider le paiement",
+                    "A payment request will be sent to this number to validate the payment"
+                  )}
                 </p>
               </div>
 
@@ -1541,12 +1567,12 @@ function BookingContent() {
                 {is_loading_paiement ? (
                   <>
                     <div className="w-6 h-6 border-3 border-white border-t-transparent rounded-full animate-spin"></div>
-                    <span>Paiement en cours...</span>
+                    <span>{t("Paiement en cours...", "Payment in progress...")}</span>
                   </>
                 ) : (
                   <>
                     <CreditCard className="w-6 h-6" />
-                    <span>Confirmer le paiement</span>
+                    <span>{t("Confirmer le paiement", "Confirm payment")}</span>
                   </>
                 )}
               </button>
@@ -1559,13 +1585,14 @@ function BookingContent() {
 }
 
 export default function VoyageReservationPage() {
+  const { t } = useLanguage();
   return (
     <Suspense
       fallback={
         <div className="min-h-screen bg-gray-50 flex items-center justify-center">
           <div className="text-center">
             <div className="w-8 h-8 border-4 border-[#6149CD] border-t-transparent rounded-full animate-spin mx-auto mb-4"></div>
-            <p className="text-gray-600">Chargement...</p>
+            <p className="text-gray-600">{t("Chargement...", "Loading...")}</p>
           </div>
         </div>
       }

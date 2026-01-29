@@ -39,6 +39,7 @@ import {
   ResponsiveContainer,
 } from "recharts";
 import { useRouter } from "next/navigation";
+import { useLanguage } from "../../../providers";
 
 /**
  * Login Page Component
@@ -167,6 +168,7 @@ export default function DGDashboardPage() {
   const [success_message, setSuccessMessage] = useState("");
   const [error_modal_message, setErrorModalMessage] = useState("");
   const router = useRouter();
+  const { t } = useLanguage();
 
   const API_BASE_URL = process.env.NEXT_PUBLIC_API_BASE_URL;
   const BUTTON_COLOR = "#6149CD";
@@ -182,25 +184,25 @@ export default function DGDashboardPage() {
   const MENU_ITEMS = [
     {
       icon: Home,
-      label: "Dashboard",
+      label: t("Dashboard", "Dashboard"),
       path: "/user/organization/dashboard",
       active: true,
     },
     {
       icon: Briefcase,
-      label: "Organisation",
+      label: t("Organisation", "Organization"),
       path: "/user/organization/organization",
       active: false,
     },
     {
       icon: Building2,
-      label: "Agence",
+      label: t("Agence", "Agency"),
       path: "/user/organization/agencies",
       active: false,
     },
     {
       icon: Settings,
-      label: "Mes paramètres",
+      label: t("Mes paramètres", "Settings"),
       path: "/user/organization/settings",
       active: false,
     },
@@ -266,7 +268,9 @@ export default function DGDashboardPage() {
       );
 
       if (!response.ok) {
-        throw new Error("Erreur lors du chargement des organisations");
+        throw new Error(
+          t("Erreur lors du chargement des organisations", "Error loading organizations"),
+        );
       }
 
       const data = await response.json();
@@ -284,11 +288,21 @@ export default function DGDashboardPage() {
 
       if (my_orgs.length === 0) {
         setIsLoadingStats(false);
-        setErrorMessage("Vous n'avez pas encore créé d'organisation");
+        setErrorMessage(
+          t(
+            "Vous n'avez pas encore créé d'organisation",
+            "You haven't created any organization yet"
+          ),
+        );
       }
     } catch (error: any) {
       console.error("Fetch Organizations Error:", error);
-      setErrorMessage("Impossible de charger vos organisations");
+      setErrorMessage(
+        t(
+          "Impossible de charger vos organisations",
+          "Unable to load your organizations"
+        ),
+      );
       setIsLoadingStats(false);
     } finally {
       setIsLoadingOrgs(false);
@@ -313,14 +327,21 @@ export default function DGDashboardPage() {
       );
 
       if (!response.ok) {
-        throw new Error("Erreur lors du chargement des statistiques");
+        throw new Error(
+          t("Erreur lors du chargement des statistiques", "Error loading statistics"),
+        );
       }
 
       const data = await response.json();
       setGeneralStats(data);
     } catch (error: any) {
       console.error("Fetch General Stats Error:", error);
-      setErrorMessage("Impossible de charger les statistiques générales");
+      setErrorMessage(
+        t(
+          "Impossible de charger les statistiques générales",
+          "Unable to load general statistics"
+        ),
+      );
     } finally {
       setIsLoadingStats(false);
     }
@@ -341,7 +362,9 @@ export default function DGDashboardPage() {
       );
 
       if (!response.ok) {
-        throw new Error("Erreur lors du chargement des agences");
+        throw new Error(
+          t("Erreur lors du chargement des agences", "Error loading agencies"),
+        );
       }
 
       const data = await response.json();
@@ -372,7 +395,8 @@ export default function DGDashboardPage() {
         },
       );
 
-      if (!response.ok) throw new Error("Erreur lors de la suppression");
+      if (!response.ok)
+        throw new Error(t("Erreur lors de la suppression", "Error during deletion"));
 
       setShowDeleteOrgModal(false);
 
@@ -387,11 +411,16 @@ export default function DGDashboardPage() {
 
       fetchOrganizations();
 
-      setSuccessMessage("Organisation supprimée avec succès !");
+      setSuccessMessage(
+        t("Organisation supprimée avec succès !", "Organization deleted successfully!"),
+      );
       setShowSuccessModal(true);
     } catch (error: any) {
       setErrorModalMessage(
-        "Erreur lors de la suppression de l'organisation, vérifiez qu'elle ne contient pas d'agences actives.",
+        t(
+          "Erreur lors de la suppression de l'organisation, vérifiez qu'elle ne contient pas d'agences actives.",
+          "Error deleting the organization. Please check that it has no active agencies."
+        ),
       );
       setShowErrorModal(true);
       console.error("Delete Organization Error:", error);
@@ -414,7 +443,8 @@ export default function DGDashboardPage() {
         },
       );
 
-      if (!response.ok) throw new Error("Erreur lors de la suppression");
+      if (!response.ok)
+        throw new Error(t("Erreur lors de la suppression", "Error during deletion"));
 
       setShowDeleteAgencyModal(false);
 
@@ -422,10 +452,10 @@ export default function DGDashboardPage() {
         fetchAgenciesStatistics(selected_organization.id);
       }
 
-      setSuccessMessage("Agence supprimée avec succès !");
+      setSuccessMessage(t("Agence supprimée avec succès !", "Agency deleted successfully!"));
       setShowSuccessModal(true);
     } catch (error: any) {
-      setErrorModalMessage("Erreur lors de la suppression de l'agence");
+      setErrorModalMessage(t("Erreur lors de la suppression de l'agence", "Error deleting agency"));
       setShowErrorModal(true);
       console.error("Delete Agency Error:", error);
     } finally {
@@ -649,7 +679,7 @@ export default function DGDashboardPage() {
                 <Menu className="w-5 h-5 sm:w-6 sm:h-6 text-gray-900" />
               </button>
               <h1 className="text-lg sm:text-2xl font-semibold text-gray-900">
-                Dashboard
+                {t("Dashboard", "Dashboard")}
               </h1>
             </div>
 
@@ -657,7 +687,7 @@ export default function DGDashboardPage() {
               <button
                 onClick={handleRefresh}
                 className="p-1.5 sm:p-2 hover:bg-gray-100 rounded-lg transition-colors"
-                title="Actualiser"
+                title={t("Actualiser", "Refresh")}
               >
                 <RefreshCw className="w-5 h-5 sm:w-6 sm:h-6 text-gray-600" />
               </button>
@@ -701,14 +731,16 @@ export default function DGDashboardPage() {
                         className="w-full flex items-center space-x-3 px-4 py-2 hover:bg-gray-100 transition-colors"
                       >
                         <Settings className="w-4 h-4 text-gray-600" />
-                        <span className="text-gray-700">Paramètres</span>
+                        <span className="text-gray-700">
+                          {t("Paramètres", "Settings")}
+                        </span>
                       </button>
                       <button
                         onClick={handleLogout}
                         className="w-full flex items-center space-x-3 px-4 py-2 hover:bg-gray-100 transition-colors text-red-600"
                       >
                         <LogOut className="w-4 h-4" />
-                        <span>Se déconnecter</span>
+                        <span>{t("Se déconnecter", "Sign out")}</span>
                       </button>
                     </div>
                   </>
@@ -726,7 +758,9 @@ export default function DGDashboardPage() {
               <div className="flex items-center justify-center py-20">
                 <div className="text-center">
                   <RefreshCw className="w-8 h-8 text-[#6149CD] animate-spin mx-auto mb-4" />
-                  <p className="text-gray-600">Chargement en cours...</p>
+                  <p className="text-gray-600">
+                    {t("Chargement en cours...", "Loading...")}
+                  </p>
                 </div>
               </div>
             )}
@@ -736,17 +770,20 @@ export default function DGDashboardPage() {
             <div className="bg-white rounded-xl shadow-sm border border-gray-200 p-6 sm:p-12 text-center">
               <Briefcase className="w-12 h-12 sm:w-16 sm:h-16 text-gray-400 mx-auto mb-4" />
               <h3 className="text-lg sm:text-xl font-semibold text-gray-900 mb-2">
-                Aucune organisation
+                {t("Aucune organisation", "No organization")}
               </h3>
               <p className="text-sm sm:text-base text-gray-600 mb-6">
-                Vous n'avez pas encore créé d'organisation
+                {t(
+                  "Vous n'avez pas encore créé d'organisation",
+                  "You haven't created any organization yet"
+                )}
               </p>
               <button
                 onClick={() => router.push("/user/organization/organisation")}
                 style={{ backgroundColor: BUTTON_COLOR }}
                 className="px-4 sm:px-6 py-2.5 sm:py-3 text-white rounded-lg hover:opacity-90 transition-opacity text-sm sm:text-base"
               >
-                Créer une organisation
+                {t("Créer une organisation", "Create an organization")}
               </button>
             </div>
           )}
@@ -763,10 +800,10 @@ export default function DGDashboardPage() {
                     </div>
                     <div className="min-w-0 flex-1">
                       <p className="text-xs sm:text-sm text-gray-600">
-                        Organisation sélectionnée
+                        {t("Organisation sélectionnée", "Selected organization")}
                       </p>
                       <h2 className="text-base sm:text-xl font-bold text-gray-900 truncate">
-                        {selected_organization?.long_name || "Aucune"}
+                        {selected_organization?.long_name || t("Aucune", "None")}
                       </h2>
                     </div>
                   </div>
@@ -778,7 +815,7 @@ export default function DGDashboardPage() {
                         className="w-full sm:w-auto flex items-center justify-center space-x-2 px-4 py-2 border border-gray-300 rounded-lg hover:bg-gray-50 transition-colors"
                       >
                         <span className="text-gray-700 text-sm sm:text-base">
-                          Changer
+                          {t("Changer", "Switch")}
                         </span>
                         <ChevronDown className="w-4 h-4 text-gray-600" />
                       </button>
@@ -834,7 +871,7 @@ export default function DGDashboardPage() {
                     onClick={handleRefresh}
                     className="mt-4 px-4 py-2 bg-red-600 text-white rounded-lg hover:bg-red-700 transition-colors text-sm sm:text-base"
                   >
-                    Réessayer
+                    {t("Réessayer", "Try again")}
                   </button>
                 </div>
               )}
@@ -854,7 +891,7 @@ export default function DGDashboardPage() {
                         {general_stats.total_agencies}
                       </h3>
                       <p className="text-xs sm:text-sm md:text-base text-gray-600 mt-1">
-                        Total des agences
+                        {t("Total des agences", "Total agencies")}
                       </p>
                     </div>
 
@@ -868,7 +905,7 @@ export default function DGDashboardPage() {
                         {general_stats.total_employees}
                       </h3>
                       <p className="text-xs sm:text-sm md:text-base text-gray-600 mt-1">
-                        Total des employés
+                        {t("Total des employés", "Total employees")}
                       </p>
                     </div>
 
@@ -882,7 +919,7 @@ export default function DGDashboardPage() {
                         {general_stats.total_trips}
                       </h3>
                       <p className="text-xs sm:text-sm md:text-base text-gray-600 mt-1">
-                        Total des voyages
+                        {t("Total des voyages", "Total trips")}
                       </p>
                     </div>
 
@@ -896,7 +933,7 @@ export default function DGDashboardPage() {
                         {general_stats.total_vehicles}
                       </h3>
                       <p className="text-xs sm:text-sm md:text-base text-gray-600 mt-1">
-                        Total des véhicules
+                        {t("Total des véhicules", "Total vehicles")}
                       </p>
                     </div>
                   </div>
@@ -906,7 +943,7 @@ export default function DGDashboardPage() {
                     <div className="bg-linear-to-br from-green-400 to-green-600 rounded-xl shadow-lg p-4 sm:p-6 text-white">
                       <div className="flex items-center justify-between mb-2 sm:mb-4">
                         <h3 className="text-sm sm:text-lg font-semibold">
-                          Revenu total potentiel
+                          {t("Revenu total potentiel", "Potential total revenue")}
                         </h3>
                         <TrendingUp className="w-5 h-5 sm:w-6 sm:h-6" />
                       </div>
@@ -917,7 +954,7 @@ export default function DGDashboardPage() {
 
                     <div className="bg-white rounded-xl shadow-sm border border-gray-200 p-4 sm:p-6">
                       <h3 className="text-gray-600 mb-2 text-xs sm:text-base">
-                        Total réservations
+                        {t("Total réservations", "Total bookings")}
                       </h3>
                       <p className="text-xl sm:text-2xl md:text-3xl font-bold text-gray-900">
                         {general_stats.total_reservations}
@@ -926,7 +963,7 @@ export default function DGDashboardPage() {
 
                     <div className="bg-white rounded-xl shadow-sm border border-gray-200 p-4 sm:p-6 sm:col-span-2 md:col-span-1">
                       <h3 className="text-gray-600 mb-2 text-xs sm:text-base">
-                        Villes couvertes
+                        {t("Villes couvertes", "Cities covered")}
                       </h3>
                       <p className="text-xl sm:text-2xl md:text-3xl font-bold text-gray-900">
                         {general_stats.cities_covered}
@@ -937,12 +974,12 @@ export default function DGDashboardPage() {
                   {/* Overview Card */}
                   <div className="bg-white rounded-xl shadow-sm border border-gray-200 p-4 sm:p-6">
                     <h3 className="text-lg sm:text-xl font-bold text-gray-900 mb-4 sm:mb-6">
-                      Aperçu général
+                      {t("Aperçu général", "Overview")}
                     </h3>
                     <div className="grid grid-cols-1 sm:grid-cols-2 gap-4 sm:gap-6">
                       <div>
                         <p className="text-gray-600 mb-2 text-sm sm:text-base">
-                          Conducteurs actifs
+                          {t("Conducteurs actifs", "Active drivers")}
                         </p>
                         <p className="text-xl sm:text-2xl font-bold text-gray-900">
                           {general_stats.total_drivers}
@@ -950,7 +987,7 @@ export default function DGDashboardPage() {
                       </div>
                       <div>
                         <p className="text-gray-600 mb-2 text-sm sm:text-base">
-                          Taux d'occupation moyen
+                          {t("Taux d'occupation moyen", "Average occupancy rate")}
                         </p>
                         <div className="flex items-center space-x-3 sm:space-x-4">
                           <div className="flex-1">
@@ -977,7 +1014,7 @@ export default function DGDashboardPage() {
                       <div className="flex items-center space-x-2 sm:space-x-3 mb-2">
                         <Award className="w-5 h-5 sm:w-6 sm:h-6" />
                         <h3 className="text-sm sm:text-lg font-semibold">
-                          Meilleure agence performante
+                          {t("Meilleure agence performante", "Best performing agency")}
                         </h3>
                       </div>
                       <p className="text-lg sm:text-2xl font-bold">
@@ -992,7 +1029,7 @@ export default function DGDashboardPage() {
                     {general_stats.reservations_per_month && (
                       <div className="bg-white rounded-xl shadow-sm border border-gray-200 p-4 sm:p-6">
                         <h3 className="text-lg font-bold text-gray-900 mb-4">
-                          Réservations par mois
+                          {t("Réservations par mois", "Bookings per month")}
                         </h3>
                         <ResponsiveContainer width="100%" height={300}>
                           <LineChart
@@ -1010,7 +1047,7 @@ export default function DGDashboardPage() {
                               dataKey="value"
                               stroke={CHART_COLORS.primary}
                               strokeWidth={2}
-                              name="Réservations"
+                              name={t("Réservations", "Bookings")}
                             />
                           </LineChart>
                         </ResponsiveContainer>
@@ -1021,7 +1058,7 @@ export default function DGDashboardPage() {
                     {general_stats.revenue_per_month && (
                       <div className="bg-white rounded-xl shadow-sm border border-gray-200 p-4 sm:p-6">
                         <h3 className="text-lg font-bold text-gray-900 mb-4">
-                          Revenu par mois
+                          {t("Revenu par mois", "Revenue per month")}
                         </h3>
                         <ResponsiveContainer width="100%" height={300}>
                           <BarChart
@@ -1043,7 +1080,7 @@ export default function DGDashboardPage() {
                             <Bar
                               dataKey="value"
                               fill={CHART_COLORS.success}
-                              name="Revenu"
+                              name={t("Revenu", "Revenue")}
                             />
                           </BarChart>
                         </ResponsiveContainer>
@@ -1126,7 +1163,7 @@ export default function DGDashboardPage() {
                     {general_stats.revenue_by_agency && (
                       <div className="bg-white rounded-xl shadow-sm border border-gray-200 p-4 sm:p-6">
                         <h3 className="text-lg font-bold text-gray-900 mb-4">
-                          Revenu par agence
+                          {t("Revenu par agence", "Revenue by agency")}
                         </h3>
                         <ResponsiveContainer width="100%" height={300}>
                           <BarChart
@@ -1153,7 +1190,7 @@ export default function DGDashboardPage() {
                             <Bar
                               dataKey="value"
                               fill={CHART_COLORS.primary}
-                              name="Revenu"
+                              name={t("Revenu", "Revenue")}
                             />
                           </BarChart>
                         </ResponsiveContainer>
@@ -1164,7 +1201,7 @@ export default function DGDashboardPage() {
                     {general_stats.reservations_by_agency && (
                       <div className="bg-white rounded-xl shadow-sm border border-gray-200 p-4 sm:p-6">
                         <h3 className="text-lg font-bold text-gray-900 mb-4">
-                          Réservations par agence
+                          {t("Réservations par agence", "Bookings by agency")}
                         </h3>
                         <ResponsiveContainer width="100%" height={300}>
                           <BarChart
@@ -1185,7 +1222,7 @@ export default function DGDashboardPage() {
                             <Bar
                               dataKey="value"
                               fill={CHART_COLORS.secondary}
-                              name="Réservations"
+                              name={t("Réservations", "Bookings")}
                             />
                           </BarChart>
                         </ResponsiveContainer>
@@ -1198,13 +1235,13 @@ export default function DGDashboardPage() {
                     <div className="bg-white rounded-xl shadow-sm border border-gray-200 p-4 sm:p-6">
                       <div className="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-3 mb-4 sm:mb-6">
                         <h3 className="text-lg sm:text-xl font-bold text-gray-900">
-                          Nos agences
+                          {t("Nos agences", "Our agencies")}
                         </h3>
                         <div className="relative w-full sm:w-auto">
                           <Search className="absolute left-3 top-1/2 transform -translate-y-1/2 w-4 h-4 sm:w-5 sm:h-5 text-gray-400" />
                           <input
                             type="text"
-                            placeholder="Rechercher..."
+                            placeholder={t("Rechercher...", "Search...")}
                             value={agencies_search}
                             onChange={(e) => {
                               setAgenciesSearch(e.target.value);
@@ -1252,7 +1289,7 @@ export default function DGDashboardPage() {
                             <div className="grid grid-cols-2 sm:grid-cols-4 gap-2 sm:gap-4 mb-3">
                               <div>
                                 <p className="text-xs text-gray-600">
-                                  Employés
+                                  {t("Employés", "Employees")}
                                 </p>
                                 <p className="text-base sm:text-lg font-semibold text-gray-900">
                                   {agency.number_of_employees}
@@ -1260,20 +1297,24 @@ export default function DGDashboardPage() {
                               </div>
                               <div>
                                 <p className="text-xs text-gray-600">
-                                  Véhicules
+                                  {t("Véhicules", "Vehicles")}
                                 </p>
                                 <p className="text-base sm:text-lg font-semibold text-gray-900">
                                   {agency.number_of_vehicles}
                                 </p>
                               </div>
                               <div>
-                                <p className="text-xs text-gray-600">Voyages</p>
+                                <p className="text-xs text-gray-600">
+                                  {t("Voyages", "Trips")}
+                                </p>
                                 <p className="text-base sm:text-lg font-semibold text-gray-900">
                                   {agency.number_of_trips}
                                 </p>
                               </div>
                               <div>
-                                <p className="text-xs text-gray-600">Revenu</p>
+                                <p className="text-xs text-gray-600">
+                                  {t("Revenu", "Revenue")}
+                                </p>
                                 <p className="text-sm sm:text-lg font-semibold text-gray-900 break-all">
                                   {formatRevenue(agency.total_revenue)}
                                 </p>
@@ -1290,7 +1331,7 @@ export default function DGDashboardPage() {
                                 }
                                 style={{ backgroundColor: BUTTON_COLOR }}
                                 className="p-2 text-white rounded-lg hover:opacity-90 transition-opacity"
-                                title="Voir détails"
+                                title={t("Voir détails", "View details")}
                               >
                                 <Eye className="w-4 h-4" />
                               </button>
@@ -1301,7 +1342,7 @@ export default function DGDashboardPage() {
                                   setShowDeleteAgencyModal(true);
                                 }}
                                 className="p-2 bg-red-600 text-white rounded-lg hover:bg-red-700 transition-colors"
-                                title="Supprimer"
+                                title={t("Supprimer", "Delete")}
                               >
                                 <Trash2 className="w-4 h-4" />
                               </button>
@@ -1321,11 +1362,12 @@ export default function DGDashboardPage() {
                             className="w-full sm:w-auto flex items-center justify-center space-x-2 px-3 sm:px-4 py-2 border border-gray-300 rounded-lg hover:bg-gray-100 disabled:opacity-50 disabled:cursor-not-allowed transition-colors text-sm sm:text-base"
                           >
                             <ChevronLeft className="w-4 h-4 sm:w-5 sm:h-5" />
-                            <span>Précédent</span>
+                            <span>{t("Précédent", "Previous")}</span>
                           </button>
 
                           <span className="text-gray-600 text-sm sm:text-base order-first sm:order-0">
-                            Page {agencies_page} sur {total_agencies_pages}
+                            {t("Page", "Page")} {agencies_page} {t("sur", "of")}{" "}
+                            {total_agencies_pages}
                           </span>
 
                           <button
@@ -1337,7 +1379,7 @@ export default function DGDashboardPage() {
                             disabled={agencies_page === total_agencies_pages}
                             className="w-full sm:w-auto flex items-center justify-center space-x-2 px-3 sm:px-4 py-2 border border-gray-300 rounded-lg hover:bg-gray-100 disabled:opacity-50 disabled:cursor-not-allowed transition-colors text-sm sm:text-base"
                           >
-                            <span>Suivant</span>
+                            <span>{t("Suivant", "Next")}</span>
                             <ChevronRight className="w-4 h-4 sm:w-5 sm:h-5" />
                           </button>
                         </div>
@@ -1352,13 +1394,14 @@ export default function DGDashboardPage() {
                 <div className="bg-white rounded-xl shadow-sm border border-gray-200 p-4 sm:p-6">
                   <div className="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-3 mb-4 sm:mb-6">
                     <h3 className="text-lg sm:text-xl font-bold text-gray-900">
-                      Mes organisations ({organizations.length})
+                      {t("Mes organisations", "My organizations")} (
+                      {organizations.length})
                     </h3>
                     <div className="relative w-full sm:w-auto">
                       <Search className="absolute left-3 top-1/2 transform -translate-y-1/2 w-4 h-4 sm:w-5 sm:h-5 text-gray-400" />
                       <input
                         type="text"
-                        placeholder="Rechercher..."
+                        placeholder={t("Rechercher...", "Search...")}
                         value={orgs_search}
                         onChange={(e) => {
                           setOrgsSearch(e.target.value);
@@ -1374,23 +1417,23 @@ export default function DGDashboardPage() {
                     <table className="w-full">
                       <thead>
                         <tr className="border-b border-gray-200">
-                          <th className="text-left py-3 px-4 text-gray-600 font-semibold text-sm">
-                            Nom complet
+                            <th className="text-left py-3 px-4 text-gray-600 font-semibold text-sm">
+                            {t("Nom complet", "Full name")}
                           </th>
                           <th className="text-left py-3 px-4 text-gray-600 font-semibold text-sm">
-                            Abréviation
+                            {t("Abréviation", "Abbreviation")}
                           </th>
                           <th className="text-left py-3 px-4 text-gray-600 font-semibold text-sm">
-                            Email
+                            {t("Email", "Email")}
                           </th>
                           <th className="text-left py-3 px-4 text-gray-600 font-semibold text-sm">
-                            Dirigeant
+                            {t("Dirigeant", "Leader")}
                           </th>
                           <th className="text-left py-3 px-4 text-gray-600 font-semibold text-sm">
-                            Date création
+                            {t("Date création", "Created date")}
                           </th>
                           <th className="text-left py-3 px-4 text-gray-600 font-semibold text-sm">
-                            Actions
+                            {t("Actions", "Actions")}
                           </th>
                         </tr>
                       </thead>
@@ -1410,7 +1453,7 @@ export default function DGDashboardPage() {
                               </span>
                               {selected_organization?.id === org.id && (
                                 <span className="ml-2 px-2 py-1 bg-[#6149CD] text-white text-xs rounded-full">
-                                  Sélectionnée
+                                  {t("Sélectionnée", "Selected")}
                                 </span>
                               )}
                             </td>
@@ -1438,7 +1481,7 @@ export default function DGDashboardPage() {
                                   }
                                   style={{ backgroundColor: BUTTON_COLOR }}
                                   className="p-2 text-white rounded-lg hover:opacity-90 transition-opacity"
-                                  title="Voir détails"
+                                  title={t("Voir détails", "View details")}
                                 >
                                   <Eye className="w-4 h-4" />
                                 </button>
@@ -1449,7 +1492,7 @@ export default function DGDashboardPage() {
                                     setShowDeleteOrgModal(true);
                                   }}
                                   className="p-2 bg-red-600 text-white rounded-lg hover:bg-red-700 transition-colors"
-                                  title="Supprimer"
+                                  title={t("Supprimer", "Delete")}
                                 >
                                   <Trash2 className="w-4 h-4" />
                                 </button>
@@ -1483,22 +1526,28 @@ export default function DGDashboardPage() {
                           </div>
                           {selected_organization?.id === org.id && (
                             <span className="px-2 py-1 bg-[#6149CD] text-white text-xs rounded-full shrink-0 ml-2">
-                              Sélectionnée
+                              {t("Sélectionnée", "Selected")}
                             </span>
                           )}
                         </div>
 
                         <div className="space-y-1 mb-3 text-xs">
                           <p className="text-gray-600 truncate">
-                            <span className="font-medium">Email:</span>{" "}
+                            <span className="font-medium">
+                              {t("Email:", "Email:")}
+                            </span>{" "}
                             {org.email}
                           </p>
                           <p className="text-gray-600">
-                            <span className="font-medium">Dirigeant:</span>{" "}
+                            <span className="font-medium">
+                              {t("Dirigeant:", "Leader:")}
+                            </span>{" "}
                             {org.ceo_name}
                           </p>
                           <p className="text-gray-600">
-                            <span className="font-medium">Créée le:</span>{" "}
+                            <span className="font-medium">
+                              {t("Créée le:", "Created on:")}
+                            </span>{" "}
                             {formatDate(org.created_at)}
                           </p>
                         </div>
@@ -1514,7 +1563,7 @@ export default function DGDashboardPage() {
                             className="flex-1 flex items-center justify-center space-x-1 p-2 text-white rounded-lg hover:opacity-90 transition-opacity text-xs"
                           >
                             <Eye className="w-3 h-3" />
-                            <span>Détails</span>
+                            <span>{t("Détails", "Details")}</span>
                           </button>
                           <button
                             onClick={() => {
@@ -1540,11 +1589,12 @@ export default function DGDashboardPage() {
                         className="w-full sm:w-auto flex items-center justify-center space-x-2 px-3 sm:px-4 py-2 border border-gray-300 rounded-lg hover:bg-gray-100 disabled:opacity-50 disabled:cursor-not-allowed transition-colors text-sm sm:text-base"
                       >
                         <ChevronLeft className="w-4 h-4 sm:w-5 sm:h-5" />
-                        <span>Précédent</span>
+                        <span>{t("Précédent", "Previous")}</span>
                       </button>
 
                       <span className="text-gray-600 text-sm sm:text-base order-first sm:order-0">
-                        Page {orgs_page} sur {total_orgs_pages}
+                        {t("Page", "Page")} {orgs_page} {t("sur", "of")}{" "}
+                        {total_orgs_pages}
                       </span>
 
                       <button
@@ -1554,7 +1604,7 @@ export default function DGDashboardPage() {
                         disabled={orgs_page === total_orgs_pages}
                         className="w-full sm:w-auto flex items-center justify-center space-x-2 px-3 sm:px-4 py-2 border border-gray-300 rounded-lg hover:bg-gray-100 disabled:opacity-50 disabled:cursor-not-allowed transition-colors text-sm sm:text-base"
                       >
-                        <span>Suivant</span>
+                        <span>{t("Suivant", "Next")}</span>
                         <ChevronRight className="w-4 h-4 sm:w-5 sm:h-5" />
                       </button>
                     </div>
@@ -1575,7 +1625,7 @@ export default function DGDashboardPage() {
             </div>
 
             <p className="text-gray-700 mb-6 text-sm sm:text-base text-center">
-              Êtes-vous sûr de vouloir supprimer l'organisation{" "}
+              {t("Êtes-vous sûr de vouloir supprimer l'organisation", "Are you sure you want to delete the organization")}{" "}
               <span className="font-bold">{delete_target_name}</span> ?
             </p>
 
@@ -1585,14 +1635,14 @@ export default function DGDashboardPage() {
                 disabled={is_deleting}
                 className="w-full sm:flex-1 py-2.5 sm:py-3 border-2 border-gray-300 text-gray-700 rounded-xl font-semibold hover:bg-gray-100 transition-colors disabled:opacity-50 text-sm sm:text-base"
               >
-                Annuler
+                {t("Annuler", "Cancel")}
               </button>
               <button
                 onClick={handleDeleteOrganization}
                 disabled={is_deleting}
                 className="w-full sm:flex-1 py-2.5 sm:py-3 bg-red-600 text-white rounded-xl font-semibold hover:bg-red-700 transition-colors disabled:opacity-50 text-sm sm:text-base"
               >
-                {is_deleting ? "Suppression..." : "Supprimer"}
+                {is_deleting ? t("Suppression...", "Deleting...") : t("Supprimer", "Delete")}
               </button>
             </div>
           </div>
@@ -1608,7 +1658,7 @@ export default function DGDashboardPage() {
             </div>
 
             <p className="text-gray-700 mb-6 text-sm sm:text-base text-center">
-              Êtes-vous sûr de vouloir supprimer l'agence{" "}
+              {t("Êtes-vous sûr de vouloir supprimer l'agence", "Are you sure you want to delete the agency")}{" "}
               <span className="font-bold">{delete_target_name}</span> ?
             </p>
 
@@ -1618,14 +1668,14 @@ export default function DGDashboardPage() {
                 disabled={is_deleting}
                 className="w-full sm:flex-1 py-2.5 sm:py-3 border-2 border-gray-300 text-gray-700 rounded-xl font-semibold hover:bg-gray-100 transition-colors disabled:opacity-50 text-sm sm:text-base"
               >
-                Annuler
+                {t("Annuler", "Cancel")}
               </button>
               <button
                 onClick={handleDeleteAgency}
                 disabled={is_deleting}
                 className="w-full sm:flex-1 py-2.5 sm:py-3 bg-red-600 text-white rounded-xl font-semibold hover:bg-red-700 transition-colors disabled:opacity-50 text-sm sm:text-base"
               >
-                {is_deleting ? "Suppression..." : "Supprimer"}
+                {is_deleting ? t("Suppression...", "Deleting...") : t("Supprimer", "Delete")}
               </button>
             </div>
           </div>
@@ -1653,7 +1703,7 @@ export default function DGDashboardPage() {
                 </svg>
               </div>
               <h2 className="text-xl sm:text-2xl font-bold text-gray-900 mb-2">
-                Succès !
+                {t("Succès !", "Success!")}
               </h2>
               <p className="text-gray-600 mb-6 text-sm sm:text-base">
                 {success_message}
@@ -1662,7 +1712,7 @@ export default function DGDashboardPage() {
                 onClick={() => setShowSuccessModal(false)}
                 className="w-full py-2.5 sm:py-3 bg-green-600 text-white rounded-xl font-semibold hover:bg-green-700 transition-colors text-sm sm:text-base"
               >
-                Fermer
+                {t("Fermer", "Close")}
               </button>
             </div>
           </div>
@@ -1678,7 +1728,7 @@ export default function DGDashboardPage() {
                 <AlertCircle className="w-10 h-10 sm:w-12 sm:h-12 text-red-600" />
               </div>
               <h2 className="text-xl sm:text-2xl font-bold text-gray-900 mb-2">
-                Erreur
+                {t("Erreur", "Error")}
               </h2>
               <div className="bg-red-50 rounded-xl p-4 mb-6">
                 <p className="text-sm sm:text-base text-red-800">
@@ -1693,7 +1743,7 @@ export default function DGDashboardPage() {
                 }}
                 className="w-full py-2.5 sm:py-3 bg-red-600 text-white rounded-xl font-semibold hover:bg-red-700 transition-colors text-sm sm:text-base"
               >
-                Fermer
+                {t("Fermer", "Close")}
               </button>
             </div>
           </div>

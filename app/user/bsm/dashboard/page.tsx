@@ -37,6 +37,7 @@ import {
   ResponsiveContainer,
 } from "recharts";
 import { useRouter } from "next/navigation";
+import { useLanguage } from "../../../providers";
 
 interface StatisticsOverview {
   ville: string;
@@ -134,6 +135,7 @@ export default function BSMDashboardPage() {
   const [orgs_search, setOrgsSearch] = useState("");
 
   const router = useRouter();
+  const { t } = useLanguage();
 
   const API_BASE_URL = process.env.NEXT_PUBLIC_API_BASE_URL;
   const BUTTON_COLOR = "#6149CD";
@@ -152,19 +154,19 @@ export default function BSMDashboardPage() {
   const MENU_ITEMS = [
     {
       icon: Home,
-      label: "Dashboard",
+      label: t("Dashboard", "Dashboard"),
       path: "/user/bsm/dashboard",
       active: true,
     },
     {
       icon: Eye,
-      label: "Surveillance",
+      label: t("Surveillance", "Monitoring"),
       path: "/user/bsm/monitoring",
       active: false,
     },
     {
       icon: Settings,
-      label: "Mes paramètres",
+      label: t("Mes paramètres", "Settings"),
       path: "/user/bsm/settings",
       active: false,
     },
@@ -219,13 +221,17 @@ export default function BSMDashboardPage() {
       );
 
       if (!response.ok) {
-        throw new Error("Erreur lors du chargement des statistiques");
+        throw new Error(
+          t("Erreur lors du chargement des statistiques", "Error loading statistics"),
+        );
       }
 
       const data = await response.json();
       setStatistics(data);
     } catch (error: any) {
-      setErrorMessage("Impossible de charger les statistiques");
+      setErrorMessage(
+        t("Impossible de charger les statistiques", "Unable to load statistics"),
+      );
       console.error("Fetch Statistics Error:", error);
     } finally {
       setIsLoadingStats(false);
@@ -250,7 +256,9 @@ export default function BSMDashboardPage() {
       );
 
       if (!response.ok) {
-        throw new Error("Erreur lors du chargement des agences");
+        throw new Error(
+          t("Erreur lors du chargement des agences", "Error loading agencies"),
+        );
       }
 
       const data = await response.json();
@@ -287,7 +295,12 @@ export default function BSMDashboardPage() {
       );
 
       if (!response.ok) {
-        throw new Error("Erreur lors du chargement des organisations");
+        throw new Error(
+          t(
+            "Erreur lors du chargement des organisations",
+            "Error loading organizations"
+          ),
+        );
       }
 
       const data = await response.json();
@@ -483,7 +496,7 @@ export default function BSMDashboardPage() {
                 <Menu className="w-6 h-6 text-gray-900" />
               </button>
               <h1 className="text-2xl font-semibold text-gray-900">
-                Dashboard BSM
+                {t("Dashboard BSM", "BSM Dashboard")}
               </h1>
             </div>
 
@@ -522,14 +535,16 @@ export default function BSMDashboardPage() {
                       className="w-full flex items-center space-x-3 px-4 py-2 hover:bg-gray-100 transition-colors"
                     >
                       <Settings className="w-4 h-4 text-gray-600" />
-                      <span className="text-gray-700">Paramètres</span>
+                      <span className="text-gray-700">
+                        {t("Paramètres", "Settings")}
+                      </span>
                     </button>
                     <button
                       onClick={handleLogout}
                       className="w-full flex items-center space-x-3 px-4 py-2 hover:bg-gray-100 transition-colors text-red-600"
                     >
                       <LogOut className="w-4 h-4" />
-                      <span>Se déconnecter</span>
+                      <span>{t("Se déconnecter", "Sign out")}</span>
                     </button>
                   </div>
                 )}
@@ -541,12 +556,12 @@ export default function BSMDashboardPage() {
         {/* Content */}
         <main className="p-6">
           <div className="max-w-7xl mx-auto">
-            {/* Ville Badge */}
+            {/* City Badge */}
             {bsm_data?.address && (
               <div className="flex items-center space-x-2 mb-6 bg-white border border-gray-200 rounded-lg p-4 w-fit">
                 <MapPin className="w-5 h-5 text-[#6149CD]" />
                 <span className="font-semibold text-gray-900">
-                  Ville : {bsm_data.address}
+                  {t("Ville :", "City:")} {bsm_data.address}
                 </span>
               </div>
             )}
@@ -568,52 +583,60 @@ export default function BSMDashboardPage() {
                     <div className="flex items-center justify-between mb-2">
                       <Building2 className="w-8 h-8 text-blue-600" />
                       <span className="text-xs font-semibold text-blue-600 bg-blue-100 px-2 py-1 rounded">
-                        Total
+                        {t("Total", "Total")}
                       </span>
                     </div>
                     <p className="text-3xl font-bold text-gray-900">
                       {statistics.total_agencies}
                     </p>
-                    <p className="text-sm text-gray-600 mt-1">Agences</p>
+                    <p className="text-sm text-gray-600 mt-1">
+                      {t("Agences", "Agencies")}
+                    </p>
                   </div>
 
                   <div className="bg-white rounded-xl shadow-sm border border-gray-200 p-6">
                     <div className="flex items-center justify-between mb-2">
                       <Briefcase className="w-8 h-8 text-purple-600" />
                       <span className="text-xs font-semibold text-purple-600 bg-purple-100 px-2 py-1 rounded">
-                        Total
+                        {t("Total", "Total")}
                       </span>
                     </div>
                     <p className="text-3xl font-bold text-gray-900">
                       {statistics.total_organizations}
                     </p>
-                    <p className="text-sm text-gray-600 mt-1">Organisations</p>
+                    <p className="text-sm text-gray-600 mt-1">
+                      {t("Organisations", "Organizations")}
+                    </p>
                   </div>
 
                   <div className="bg-white rounded-xl shadow-sm border border-gray-200 p-6">
                     <div className="flex items-center justify-between mb-2">
                       <Calendar className="w-8 h-8 text-green-600" />
                       <span className="text-xs font-semibold text-green-600 bg-green-100 px-2 py-1 rounded">
-                        Actifs
+                        {t("Actifs", "Active")}
                       </span>
                     </div>
                     <p className="text-3xl font-bold text-gray-900">
                       {statistics.total_trips_in_city}
                     </p>
-                    <p className="text-sm text-gray-600 mt-1">Voyages</p>
+                    <p className="text-sm text-gray-600 mt-1">
+                      {t("Voyages", "Trips")}
+                    </p>
                   </div>
 
                   <div className="bg-white rounded-xl shadow-sm border border-gray-200 p-6">
                     <div className="flex items-center justify-between mb-2">
                       <Bus className="w-8 h-8 text-orange-600" />
                       <span className="text-xs font-semibold text-orange-600 bg-orange-100 px-2 py-1 rounded">
-                        Total
+                        {t("Total", "Total")}
                       </span>
                     </div>
                     <p className="text-3xl font-bold text-gray-900">
                       {statistics.total_vehicles_in_city}
                     </p>
-                    <p className="text-sm text-gray-600 mt-1">Véhicules</p>
+                    <p className="text-sm text-gray-600 mt-1">
+                      {t("Véhicules", "Vehicles")}
+                    </p>
                   </div>
                 </div>
 
@@ -623,7 +646,7 @@ export default function BSMDashboardPage() {
                     <div className="flex items-center justify-between">
                       <div>
                         <p className="text-sm text-green-800 font-semibold mb-1">
-                          Agences validées
+                          {t("Agences validées", "Validated agencies")}
                         </p>
                         <p className="text-2xl font-bold text-green-900">
                           {statistics.validated_agencies_count}
@@ -639,7 +662,7 @@ export default function BSMDashboardPage() {
                     <div className="flex items-center justify-between">
                       <div>
                         <p className="text-sm text-orange-800 font-semibold mb-1">
-                          Agences en attente
+                          {t("Agences en attente", "Pending agencies")}
                         </p>
                         <p className="text-2xl font-bold text-orange-900">
                           {statistics.pending_validation_count}
@@ -655,7 +678,7 @@ export default function BSMDashboardPage() {
                     <div className="flex items-center justify-between">
                       <div>
                         <p className="text-sm text-red-800 font-semibold mb-1">
-                          Agences rejetées
+                          {t("Agences rejetées", "Rejected agencies")}
                         </p>
                         <p className="text-2xl font-bold text-red-900">
                           {statistics.rejected_agencies_count}
@@ -672,7 +695,7 @@ export default function BSMDashboardPage() {
                 <div className="bg-white rounded-xl shadow-sm border border-gray-200 p-6 mb-6">
                   <div className="flex items-center justify-between mb-6">
                     <h3 className="text-lg font-bold text-gray-900">
-                      Vue d'ensemble
+                      {t("Vue d'ensemble", "Overview")}
                     </h3>
                     <TrendingUp className="w-5 h-5 text-[#6149CD]" />
                   </div>
@@ -680,7 +703,7 @@ export default function BSMDashboardPage() {
                     <div className="space-y-4">
                       <div className="flex items-center justify-between p-4 bg-gray-50 rounded-lg">
                         <span className="text-sm font-medium text-gray-700">
-                          Réservations totales
+                          {t("Réservations totales", "Total reservations")}
                         </span>
                         <span className="text-lg font-bold text-[#6149CD]">
                           {statistics.total_reservations_in_city}
@@ -688,7 +711,7 @@ export default function BSMDashboardPage() {
                       </div>
                       <div className="flex items-center justify-between p-4 bg-gray-50 rounded-lg">
                         <span className="text-sm font-medium text-gray-700">
-                          Conducteurs actifs
+                          {t("Conducteurs actifs", "Active drivers")}
                         </span>
                         <span className="text-lg font-bold text-[#6149CD]">
                           {statistics.total_drivers_in_city}
@@ -696,7 +719,7 @@ export default function BSMDashboardPage() {
                       </div>
                       <div className="flex items-center justify-between p-4 bg-gray-50 rounded-lg">
                         <span className="text-sm font-medium text-gray-700">
-                          Taux d'occupation moyen
+                          {t("Taux d'occupation moyen", "Average occupancy rate")}
                         </span>
                         <span className="text-lg font-bold text-[#6149CD]">
                           {(statistics.average_occupancy_rate * 100).toFixed(1)}
@@ -716,7 +739,7 @@ export default function BSMDashboardPage() {
                                 %
                               </p>
                               <p className="text-xs text-gray-600 mt-1">
-                                Occupation
+                                {t("Occupation", "Occupancy")}
                               </p>
                             </div>
                           </div>
@@ -734,7 +757,7 @@ export default function BSMDashboardPage() {
                       0 && (
                       <div className="bg-white rounded-xl shadow-sm border border-gray-200 p-6">
                         <h3 className="text-lg font-bold text-gray-900 mb-4">
-                          Réservations par mois
+                          {t("Réservations par mois", "Reservations per month")}
                         </h3>
                         <ResponsiveContainer width="100%" height={300}>
                           <LineChart
@@ -752,7 +775,7 @@ export default function BSMDashboardPage() {
                               dataKey="value"
                               stroke={CHART_COLORS.primary}
                               strokeWidth={2}
-                              name="Réservations"
+                              name={t("Réservations", "Reservations")}
                             />
                           </LineChart>
                         </ResponsiveContainer>
@@ -764,7 +787,7 @@ export default function BSMDashboardPage() {
                     Object.keys(statistics.revenue_per_month).length > 0 && (
                       <div className="bg-white rounded-xl shadow-sm border border-gray-200 p-6">
                         <h3 className="text-lg font-bold text-gray-900 mb-4">
-                          Revenu par mois
+                          {t("Revenu par mois", "Revenue per month")}
                         </h3>
                         <ResponsiveContainer width="100%" height={300}>
                           <BarChart
@@ -784,7 +807,7 @@ export default function BSMDashboardPage() {
                             <Bar
                               dataKey="value"
                               fill={CHART_COLORS.success}
-                              name="Revenu"
+                              name={t("Revenu", "Revenue")}
                             />
                           </BarChart>
                         </ResponsiveContainer>
@@ -872,7 +895,10 @@ export default function BSMDashboardPage() {
                       0 && (
                       <div className="bg-white rounded-xl shadow-sm border border-gray-200 p-6 lg:col-span-2">
                         <h3 className="text-lg font-bold text-gray-900 mb-4">
-                          Répartition des agences par organisation
+                          {t(
+                            "Répartition des agences par organisation",
+                            "Agency distribution by organization"
+                          )}
                         </h3>
                         <ResponsiveContainer width="100%" height={300}>
                           <BarChart
@@ -888,7 +914,7 @@ export default function BSMDashboardPage() {
                             <Bar
                               dataKey="value"
                               fill={CHART_COLORS.purple}
-                              name="Nombre d'agences"
+                              name={t("Nombre d'agences", "Number of agencies")}
                             />
                           </BarChart>
                         </ResponsiveContainer>
@@ -901,7 +927,7 @@ export default function BSMDashboardPage() {
                       0 && (
                       <div className="bg-white rounded-xl shadow-sm border border-gray-200 p-6">
                         <h3 className="text-lg font-bold text-gray-900 mb-4">
-                          Top 10 agences par revenu
+                          {t("Top 10 agences par revenu", "Top 10 agencies by revenue")}
                         </h3>
                         <ResponsiveContainer width="100%" height={300}>
                           <BarChart
@@ -926,7 +952,7 @@ export default function BSMDashboardPage() {
                             <Bar
                               dataKey="value"
                               fill={CHART_COLORS.primary}
-                              name="Revenu"
+                              name={t("Revenu", "Revenue")}
                             />
                           </BarChart>
                         </ResponsiveContainer>
@@ -939,7 +965,10 @@ export default function BSMDashboardPage() {
                       .length > 0 && (
                       <div className="bg-white rounded-xl shadow-sm border border-gray-200 p-6">
                         <h3 className="text-lg font-bold text-gray-900 mb-4">
-                          Top 10 agences par réservations
+                          {t(
+                            "Top 10 agences par réservations",
+                            "Top 10 agencies by reservations"
+                          )}
                         </h3>
                         <ResponsiveContainer width="100%" height={300}>
                           <BarChart
@@ -960,7 +989,7 @@ export default function BSMDashboardPage() {
                             <Bar
                               dataKey="value"
                               fill={CHART_COLORS.secondary}
-                              name="Réservations"
+                              name={t("Réservations", "Reservations")}
                             />
                           </BarChart>
                         </ResponsiveContainer>
@@ -970,7 +999,7 @@ export default function BSMDashboardPage() {
               </>
             ) : null}
 
-            {/* Bottom Cards - Agences and Organizations */}
+            {/* Bottom Cards - Agencies and Organizations */}
             <div className="grid grid-cols-1 lg:grid-cols-2 gap-6">
               {/* Agences Card */}
               <div className="bg-white rounded-xl shadow-sm border border-gray-200 p-6">
@@ -978,7 +1007,7 @@ export default function BSMDashboardPage() {
                   <div className="flex items-center space-x-2">
                     <Building className="w-5 h-5 text-[#6149CD]" />
                     <h3 className="text-lg font-bold text-gray-900">
-                      Agences validées
+                      {t("Agences validées", "Validated agencies")}
                     </h3>
                   </div>
                   <button
@@ -1001,7 +1030,7 @@ export default function BSMDashboardPage() {
                     <Search className="absolute left-3 top-1/2 transform -translate-y-1/2 w-4 h-4 text-gray-400" />
                     <input
                       type="text"
-                      placeholder="Rechercher"
+                      placeholder={t("Rechercher", "Search")}
                       value={agences_search}
                       onChange={(e) => setAgencesSearch(e.target.value)}
                       className="w-full pl-10 pr-4 py-2 placeholder:text-gray-600 text-black border border-gray-300 rounded-lg text-sm focus:outline-none focus:ring-2 focus:ring-[#6149CD] focus:border-transparent"
@@ -1016,10 +1045,12 @@ export default function BSMDashboardPage() {
                 ) : (
                   <>
                     {agences.length === 0 ? (
-                      <div className="text-center py-8">
-                        <Building className="w-10 h-10 text-gray-400 mx-auto mb-4" />
-                        <p className="text-gray-500">Aucune agence trouvée</p>
-                      </div>
+                        <div className="text-center py-8">
+                          <Building className="w-10 h-10 text-gray-400 mx-auto mb-4" />
+                          <p className="text-gray-500">
+                            {t("Aucune agence trouvée", "No agency found")}
+                          </p>
+                        </div>
                     ) : (
                       <>
                         <div className="space-y-3 mb-4">
@@ -1039,19 +1070,23 @@ export default function BSMDashboardPage() {
                                 className="border border-gray-200 rounded-lg p-4 hover:shadow-md transition-shadow"
                               >
                                 <h4 className="font-semibold text-sm text-gray-900 mb-1">
-                                  Nom de l'agence : {agence.long_name}
+                                  {t("Nom de l'agence :", "Agency name:")}{" "}
+                                  {agence.long_name}
                                 </h4>
                                 <p className="text-xs text-gray-600 mb-1">
-                                  Abriévation : {agence.short_name}
+                                  {t("Abriévation :", "Abbreviation:")}{" "}
+                                  {agence.short_name}
                                 </p>
                                 <p className="text-xs text-gray-500 mb-1">
-                                  Ville : {agence.ville}
+                                  {t("Ville :", "City:")} {agence.ville}
                                 </p>
                                 <p className="text-xs text-gray-500 mb-1">
-                                  Zone dans la ville : {agence.location}
+                                  {t("Zone dans la ville :", "Area in city:")}{" "}
+                                  {agence.location}
                                 </p>
                                 <p className="text-xs text-gray-500">
-                                  Réseau social : {agence.social_network}
+                                  {t("Réseau social :", "Social network:")}{" "}
+                                  {agence.social_network}
                                 </p>
                               </div>
                             ))}
@@ -1099,7 +1134,7 @@ export default function BSMDashboardPage() {
                   <div className="flex items-center space-x-2">
                     <Briefcase className="w-5 h-5 text-[#6149CD]" />
                     <h3 className="text-lg font-bold text-gray-900">
-                      Organisations
+                      {t("Organisations", "Organizations")}
                     </h3>
                   </div>
                   <button
@@ -1120,7 +1155,7 @@ export default function BSMDashboardPage() {
                     <Search className="absolute left-3 top-1/2 transform -translate-y-1/2 w-4 h-4 text-gray-400" />
                     <input
                       type="text"
-                      placeholder="Rechercher"
+                      placeholder={t("Rechercher", "Search")}
                       value={orgs_search}
                       onChange={(e) => setOrgsSearch(e.target.value)}
                       className="w-full pl-10 pr-4 placeholder:text-gray-600 text-black py-2 border border-gray-300 rounded-lg text-sm focus:outline-none focus:ring-2 focus:ring-[#6149CD] focus:border-transparent"
@@ -1135,12 +1170,15 @@ export default function BSMDashboardPage() {
                 ) : (
                   <>
                     {organizations.length === 0 ? (
-                      <div className="text-center py-8">
-                        <Briefcase className="w-10 h-10 text-gray-400 mx-auto mb-4" />
-                        <p className="text-gray-500">
-                          Aucune organisation trouvée
-                        </p>
-                      </div>
+                        <div className="text-center py-8">
+                          <Briefcase className="w-10 h-10 text-gray-400 mx-auto mb-4" />
+                          <p className="text-gray-500">
+                            {t(
+                              "Aucune organisation trouvée",
+                              "No organization found"
+                            )}
+                          </p>
+                        </div>
                     ) : (
                       <>
                         <div className="space-y-3 mb-4">
@@ -1164,28 +1202,38 @@ export default function BSMDashboardPage() {
                                 className="border border-gray-200 rounded-lg p-4 hover:shadow-md transition-shadow"
                               >
                                 <h4 className="font-semibold text-sm text-gray-900 mb-1">
-                                  Nom de l'organisation : {org.long_name}
+                                  {t(
+                                    "Nom de l'organisation :",
+                                    "Organization name:"
+                                  )}{" "}
+                                  {org.long_name}
                                 </h4>
                                 <p className="text-xs text-gray-600 mb-1">
-                                  Abreviation : {org.short_name}
+                                  {t("Abreviation :", "Abbreviation:")}{" "}
+                                  {org.short_name}
                                 </p>
                                 <p className="text-xs text-gray-500 mb-1">
-                                  Contact : {org.email}
+                                  {t("Contact :", "Contact:")} {org.email}
                                 </p>
                                 <p className="text-xs text-gray-500 mb-1">
-                                  Nom du fondateur :{" "}
-                                  {org.ceo_name || "Non renseigné"}
+                                  {t("Nom du fondateur :", "Founder name:")}{" "}
+                                  {org.ceo_name ||
+                                    t("Non renseigné", "Not provided")}
                                 </p>
                                 <p className="text-xs text-gray-500 mb-1">
-                                  Réseau social :{" "}
-                                  {org.social_network || "Non renseigné"}
+                                  {t("Réseau social :", "Social network:")}{" "}
+                                  {org.social_network ||
+                                    t("Non renseigné", "Not provided")}
                                 </p>
                                 <p className="text-xs text-gray-500 mb-1">
-                                  Numéro d'enregistrement de l'entreprises :{" "}
+                                  {t(
+                                    "Numéro d'enregistrement de l'entreprises :",
+                                    "Business registration number:"
+                                  )}{" "}
                                   {org.business_registration_number}
                                 </p>
                                 <p className="text-xs text-gray-500 mb-1">
-                                  Date de création : Le{" "}
+                                  {t("Date de création : Le", "Created on")}{" "}
                                   {formatDate(org.created_at)}
                                 </p>
                               </div>

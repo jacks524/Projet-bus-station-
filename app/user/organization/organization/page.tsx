@@ -25,6 +25,7 @@ import {
   AlertCircle,
 } from "lucide-react";
 import { useRouter } from "next/navigation";
+import { useLanguage } from "../../../providers";
 
 interface OrganizationFormData {
   email: string;
@@ -98,6 +99,7 @@ export default function DGOrganisationPage() {
   const [user_data, setDgData] = useState<UserData | null>(null);
 
   const router = useRouter();
+  const { t } = useLanguage();
 
   const API_BASE_URL = process.env.NEXT_PUBLIC_API_BASE_URL;
   const BUTTON_COLOR = "#6149CD";
@@ -105,39 +107,42 @@ export default function DGOrganisationPage() {
   const MENU_ITEMS = [
     {
       icon: Home,
-      label: "Dashboard",
+      label: t("Dashboard", "Dashboard"),
       path: "/user/organization/dashboard",
       active: false,
     },
     {
       icon: Briefcase,
-      label: "Organisation",
+      label: t("Organisation", "Organization"),
       path: "/user/organization/organization",
       active: true,
     },
     {
       icon: Building2,
-      label: "Agence",
+      label: t("Agence", "Agency"),
       path: "/user/organization/agencies",
       active: false,
     },
     {
       icon: Settings,
-      label: "Mes paramètres",
+      label: t("Mes paramètres", "Settings"),
       path: "/user/organization/settings",
       active: false,
     },
   ];
 
   const LEGAL_FORMS = [
-    "SARL",
-    "SA",
-    "SAS",
-    "Entreprise individuelle",
-    "Association",
-    "Coopérative",
-    "GIE",
-    "Autre",
+    { value: "SARL", label: t("SARL", "SARL") },
+    { value: "SA", label: t("SA", "SA") },
+    { value: "SAS", label: t("SAS", "SAS") },
+    {
+      value: "Entreprise individuelle",
+      label: t("Entreprise individuelle", "Sole proprietorship"),
+    },
+    { value: "Association", label: t("Association", "Association") },
+    { value: "Coopérative", label: t("Coopérative", "Cooperative") },
+    { value: "GIE", label: t("GIE", "GIE") },
+    { value: "Autre", label: t("Autre", "Other") },
   ];
 
   useEffect(() => {
@@ -221,19 +226,26 @@ export default function DGOrganisationPage() {
 
   const validateForm = () => {
     if (!form_data.long_name.trim()) {
-      setErrorMessage("Le nom complet de l'organisation est requis");
+      setErrorMessage(
+        t(
+          "Le nom complet de l'organisation est requis",
+          "The organization's full name is required"
+        ),
+      );
       return false;
     }
     if (!form_data.short_name.trim()) {
-      setErrorMessage("L'abréviation est requise");
+      setErrorMessage(t("L'abréviation est requise", "The abbreviation is required"));
       return false;
     }
     if (!form_data.ceo_name.trim()) {
-      setErrorMessage("Le nom du dirigeant est requis");
+      setErrorMessage(
+        t("Le nom du dirigeant est requis", "The leader's name is required"),
+      );
       return false;
     }
     if (!form_data.email.trim()) {
-      setErrorMessage("L'email est requis");
+      setErrorMessage(t("L'email est requis", "Email is required"));
       return false;
     }
     return true;
@@ -265,7 +277,9 @@ export default function DGOrganisationPage() {
       });
 
       if (!response.ok) {
-        throw new Error("Erreur lors de la création de l'organisation");
+        throw new Error(
+          t("Erreur lors de la création de l'organisation", "Error creating organization"),
+        );
       }
 
       const data = await response.json();
@@ -293,7 +307,10 @@ export default function DGOrganisationPage() {
       });
     } catch (error: any) {
       setErrorMessage(
-        "Une erreur est survenue lors de la création de l'organisation",
+        t(
+          "Une erreur est survenue lors de la création de l'organisation",
+          "An error occurred while creating the organization"
+        ),
       );
       setShowErrorModal(true);
       console.error("Create Organization Error:", error);
@@ -422,7 +439,7 @@ export default function DGOrganisationPage() {
                 <Menu className="w-6 h-6 text-gray-900" />
               </button>
               <h1 className="text-2xl font-semibold text-gray-900">
-                Créer une organisation
+                {t("Créer une organisation", "Create an organization")}
               </h1>
             </div>
 
@@ -461,14 +478,16 @@ export default function DGOrganisationPage() {
                       className="w-full flex items-center space-x-3 px-4 py-2 hover:bg-gray-100 transition-colors"
                     >
                       <Settings className="w-4 h-4 text-gray-600" />
-                      <span className="text-gray-700">Paramètres</span>
+                      <span className="text-gray-700">
+                        {t("Paramètres", "Settings")}
+                      </span>
                     </button>
                     <button
                       onClick={handleLogout}
                       className="w-full flex items-center space-x-3 px-4 py-2 hover:bg-gray-100 transition-colors text-red-600"
                     >
                       <LogOut className="w-4 h-4" />
-                      <span>Se déconnecter</span>
+                      <span>{t("Se déconnecter", "Sign out")}</span>
                     </button>
                   </div>
                 )}
@@ -486,7 +505,7 @@ export default function DGOrganisationPage() {
               <div className="relative h-64">
                 <img
                   src="/images/orga.jpg"
-                  alt="Organisation"
+                  alt={t("Organisation", "Organization")}
                   className="w-full h-full object-cover"
                   onError={(e) => {
                     e.currentTarget.src =
@@ -496,10 +515,13 @@ export default function DGOrganisationPage() {
                 <div className="absolute inset-0 bg-linear-to-r from-black/70 via-black/50 to-transparent"></div>
                 <div className="absolute inset-0 flex flex-col justify-center px-8">
                   <h2 className="text-4xl font-bold text-white mb-3 drop-shadow-lg">
-                    Nouvelle organisation
+                    {t("Nouvelle organisation", "New organization")}
                   </h2>
                   <p className="text-xl text-white/90 drop-shadow-md">
-                    Créez votre organisation de voyage
+                    {t(
+                      "Créez votre organisation de voyage",
+                      "Create your travel organization"
+                    )}
                   </p>
                 </div>
               </div>
@@ -508,21 +530,24 @@ export default function DGOrganisationPage() {
                 <div className="mb-8">
                   <h3 className="text-xl font-bold text-gray-900 mb-6 flex items-center space-x-2">
                     <Building className="w-6 h-6 text-[#6149CD]" />
-                    <span>Informations générales</span>
+                    <span>{t("Informations générales", "General information")}</span>
                   </h3>
 
                   <div className="space-y-4">
                     <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
                       <div>
                         <label className="block text-sm font-semibold text-gray-700 mb-2">
-                          Nom complet *
+                          {t("Nom complet *", "Full name *")}
                         </label>
                         <input
                           type="text"
                           name="long_name"
                           value={form_data.long_name}
                           onChange={handleInputChange}
-                          placeholder="Ex: BusStation Travel & Tours"
+                          placeholder={t(
+                            "Ex: BusStation Travel & Tours",
+                            "e.g., BusStation Travel & Tours"
+                          )}
                           required
                           className="w-full px-4 py-3 border-2 border-gray-200 text-gray-800 placeholder:text-gray-400 rounded-xl focus:outline-none focus:ring-2 focus:ring-[#6149CD] focus:border-transparent transition-all"
                         />
@@ -530,14 +555,14 @@ export default function DGOrganisationPage() {
 
                       <div>
                         <label className="block text-sm font-semibold text-gray-700 mb-2">
-                          Abréviation *
+                          {t("Abréviation *", "Abbreviation *")}
                         </label>
                         <input
                           type="text"
                           name="short_name"
                           value={form_data.short_name}
                           onChange={handleInputChange}
-                          placeholder="Ex: SPT"
+                          placeholder={t("Ex: SPT", "e.g., SPT")}
                           required
                           className="w-full px-4 py-3 border-2 border-gray-200 text-gray-800 placeholder:text-gray-400 rounded-xl focus:outline-none focus:ring-2 focus:ring-[#6149CD] focus:border-transparent transition-all"
                         />
@@ -547,7 +572,7 @@ export default function DGOrganisationPage() {
                     <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
                       <div>
                         <label className="block text-sm font-semibold text-gray-700 mb-2">
-                          Email *
+                          {t("Email *", "Email *")}
                         </label>
                         <div className="flex items-center space-x-2">
                           <Mail className="w-5 h-5 text-gray-400" />
@@ -556,7 +581,10 @@ export default function DGOrganisationPage() {
                             name="email"
                             value={form_data.email}
                             onChange={handleInputChange}
-                            placeholder="contact@organisation.com"
+                            placeholder={t(
+                              "contact@organisation.com",
+                              "contact@organization.com"
+                            )}
                             required
                             className="flex-1 px-4 py-3 border-2 border-gray-200 text-gray-800 placeholder:text-gray-400 rounded-xl focus:outline-none focus:ring-2 focus:ring-[#6149CD] focus:border-transparent transition-all"
                           />
@@ -565,7 +593,7 @@ export default function DGOrganisationPage() {
 
                       <div>
                         <label className="block text-sm font-semibold text-gray-700 mb-2">
-                          Nom du dirigeant *
+                          {t("Nom du dirigeant *", "Leader name *")}
                         </label>
                         <div className="flex items-center space-x-2">
                           <User className="w-5 h-5 text-gray-400" />
@@ -574,7 +602,7 @@ export default function DGOrganisationPage() {
                             name="ceo_name"
                             value={form_data.ceo_name}
                             onChange={handleInputChange}
-                            placeholder="Ex: Jean Dupont"
+                            placeholder={t("Ex: Jean Dupont", "e.g., Jean Dupont")}
                             required
                             disabled
                             className="flex-1 px-4 py-3 border-2 border-gray-200 text-gray-800 placeholder:text-gray-400 rounded-xl focus:outline-none focus:ring-2 focus:ring-[#6149CD] focus:border-transparent transition-all bg-gray-100 cursor-not-allowed"
@@ -585,7 +613,7 @@ export default function DGOrganisationPage() {
 
                     <div>
                       <label className="block text-sm font-semibold text-gray-700 mb-2">
-                        Description
+                        {t("Description", "Description")}
                       </label>
                       <div className="flex items-start space-x-2">
                         <FileText className="w-5 h-5 text-gray-400 mt-3" />
@@ -593,7 +621,10 @@ export default function DGOrganisationPage() {
                           name="description"
                           value={form_data.description}
                           onChange={handleInputChange}
-                          placeholder="Description de l'organisation..."
+                          placeholder={t(
+                            "Description de l'organisation...",
+                            "Organization description..."
+                          )}
                           rows={4}
                           className="flex-1 px-4 py-3 border-2 border-gray-200 text-gray-800 placeholder:text-gray-400 rounded-xl focus:outline-none focus:ring-2 focus:ring-[#6149CD] focus:border-transparent transition-all resize-none"
                         />
@@ -606,14 +637,14 @@ export default function DGOrganisationPage() {
                 <div className="mb-8 pt-8 border-t border-gray-200">
                   <h3 className="text-xl font-bold text-gray-900 mb-6 flex items-center space-x-2">
                     <FileText className="w-6 h-6 text-[#6149CD]" />
-                    <span>Informations légales</span>
+                    <span>{t("Informations légales", "Legal information")}</span>
                   </h3>
 
                   <div className="space-y-4">
                     <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
                       <div>
                         <label className="block text-sm font-semibold text-gray-700 mb-2">
-                          Forme juridique
+                          {t("Forme juridique", "Legal form")}
                         </label>
                         <select
                           name="legal_form"
@@ -621,10 +652,12 @@ export default function DGOrganisationPage() {
                           onChange={handleInputChange}
                           className="w-full px-4 py-3 border-2 border-gray-200 text-gray-800 rounded-xl focus:outline-none focus:ring-2 focus:ring-[#6149CD] focus:border-transparent transition-all"
                         >
-                          <option value="">Sélectionner une forme</option>
+                          <option value="">
+                            {t("Sélectionner une forme", "Select a form")}
+                          </option>
                           {LEGAL_FORMS.map((form) => (
-                            <option key={form} value={form}>
-                              {form}
+                            <option key={form.value} value={form.value}>
+                              {form.label}
                             </option>
                           ))}
                         </select>
@@ -632,14 +665,20 @@ export default function DGOrganisationPage() {
 
                       <div>
                         <label className="block text-sm font-semibold text-gray-700 mb-2">
-                          N° de registre de commerce
+                          {t(
+                            "N° de registre de commerce",
+                            "Business registration number"
+                          )}
                         </label>
                         <input
                           type="text"
                           name="business_registration_number"
                           value={form_data.business_registration_number}
                           onChange={handleInputChange}
-                          placeholder="Ex: RC/YAO/2024/B/1234"
+                          placeholder={t(
+                            "Ex: RC/YAO/2024/B/1234",
+                            "e.g., RC/YAO/2024/B/1234"
+                          )}
                           className="w-full px-4 py-3 border-2 border-gray-200 text-gray-800 placeholder:text-gray-400 rounded-xl focus:outline-none focus:ring-2 focus:ring-[#6149CD] focus:border-transparent transition-all"
                         />
                       </div>
@@ -648,21 +687,24 @@ export default function DGOrganisationPage() {
                     <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
                       <div>
                         <label className="block text-sm font-semibold text-gray-700 mb-2">
-                          Numéro fiscal
+                          {t("Numéro fiscal", "Tax number")}
                         </label>
                         <input
                           type="text"
                           name="tax_number"
                           value={form_data.tax_number}
                           onChange={handleInputChange}
-                          placeholder="Ex: M012345678901X"
+                          placeholder={t(
+                            "Ex: M012345678901X",
+                            "e.g., M012345678901X"
+                          )}
                           className="w-full px-4 py-3 border-2 border-gray-200 text-gray-800 placeholder:text-gray-400 rounded-xl focus:outline-none focus:ring-2 focus:ring-[#6149CD] focus:border-transparent transition-all"
                         />
                       </div>
 
                       <div>
                         <label className="block text-sm font-semibold text-gray-700 mb-2">
-                          Capital social
+                          {t("Capital social", "Share capital")}
                         </label>
                         <div className="flex items-center space-x-2">
                           <DollarSign className="w-5 h-5 text-gray-400" />
@@ -671,7 +713,7 @@ export default function DGOrganisationPage() {
                             name="capital_share"
                             value={form_data.capital_share}
                             onChange={handleInputChange}
-                            placeholder="Ex: 5000000 XAF"
+                            placeholder={t("Ex: 5000000 XAF", "e.g., 5000000 XAF")}
                             className="flex-1 px-4 py-3 border-2 border-gray-200 text-gray-800 placeholder:text-gray-400 rounded-xl focus:outline-none focus:ring-2 focus:ring-[#6149CD] focus:border-transparent transition-all"
                           />
                         </div>
@@ -681,7 +723,7 @@ export default function DGOrganisationPage() {
                     <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
                       <div>
                         <label className="block text-sm font-semibold text-gray-700 mb-2">
-                          Date d'enregistrement
+                          {t("Date d'enregistrement", "Registration date")}
                         </label>
                         <div className="flex items-center space-x-2">
                           <Calendar className="w-5 h-5 text-gray-400" />
@@ -697,7 +739,7 @@ export default function DGOrganisationPage() {
 
                       <div>
                         <label className="block text-sm font-semibold text-gray-700 mb-2">
-                          Date de création
+                          {t("Date de création", "Creation date")}
                         </label>
                         <input
                           type="datetime-local"
@@ -715,21 +757,23 @@ export default function DGOrganisationPage() {
                 <div className="mb-8 pt-8 border-t border-gray-200">
                   <h3 className="text-xl font-bold text-gray-900 mb-6 flex items-center space-x-2">
                     <Users className="w-6 h-6 text-[#6149CD]" />
-                    <span>Informations opérationnelles</span>
+                    <span>
+                      {t("Informations opérationnelles", "Operational information")}
+                    </span>
                   </h3>
 
                   <div className="space-y-4">
                     <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
                       <div>
                         <label className="block text-sm font-semibold text-gray-700 mb-2">
-                          Nombre d'employés
+                          {t("Nombre d'employés", "Number of employees")}
                         </label>
                         <input
                           type="number"
                           name="number_of_employees"
                           value={form_data.number_of_employees}
                           onChange={handleInputChange}
-                          placeholder="Ex: 50"
+                          placeholder={t("Ex: 50", "e.g., 50")}
                           min="0"
                           className="w-full px-4 py-3 border-2 border-gray-200 text-gray-800 placeholder:text-gray-400 rounded-xl focus:outline-none focus:ring-2 focus:ring-[#6149CD] focus:border-transparent transition-all"
                         />
@@ -737,7 +781,7 @@ export default function DGOrganisationPage() {
 
                       <div>
                         <label className="block text-sm font-semibold text-gray-700 mb-2">
-                          Site web
+                          {t("Site web", "Website")}
                         </label>
                         <div className="flex items-center space-x-2">
                           <Globe className="w-5 h-5 text-gray-400" />
@@ -746,7 +790,7 @@ export default function DGOrganisationPage() {
                             name="web_site_url"
                             value={form_data.web_site_url}
                             onChange={handleInputChange}
-                            placeholder="exemple.com"
+                            placeholder={t("exemple.com", "example.com")}
                             className="flex-1 px-4 py-3 border-2 border-gray-200 text-gray-800 placeholder:text-gray-400 rounded-xl focus:outline-none focus:ring-2 focus:ring-[#6149CD] focus:border-transparent transition-all"
                           />
                         </div>
@@ -756,7 +800,7 @@ export default function DGOrganisationPage() {
                     <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
                       <div>
                         <label className="block text-sm font-semibold text-gray-700 mb-2">
-                          URL du logo
+                          {t("URL du logo", "Logo URL")}
                         </label>
                         <div className="flex items-center space-x-2">
                           <Globe className="w-5 h-5 text-gray-400" />
@@ -765,7 +809,10 @@ export default function DGOrganisationPage() {
                             name="logo_url"
                             value={form_data.logo_url}
                             onChange={handleInputChange}
-                            placeholder="https://exemple.com/logo.png"
+                            placeholder={t(
+                              "https://exemple.com/logo.png",
+                              "https://example.com/logo.png"
+                            )}
                             className="flex-1 px-4 py-3 border-2 border-gray-200 text-gray-800 placeholder:text-gray-400 rounded-xl focus:outline-none focus:ring-2 focus:ring-[#6149CD] focus:border-transparent transition-all"
                           />
                         </div>
@@ -778,12 +825,12 @@ export default function DGOrganisationPage() {
                 <div className="mb-8 pt-8 border-t border-gray-200">
                   <h3 className="text-xl font-bold text-gray-900 mb-6 flex items-center space-x-2">
                     <Briefcase className="w-6 h-6 text-[#6149CD]" />
-                    <span>Domaines d'activité</span>
+                    <span>{t("Domaines d'activité", "Business domains")}</span>
                   </h3>
 
                   <div>
                     <label className="block text-sm font-semibold text-gray-700 mb-2">
-                      Ajouter un domaine
+                      {t("Ajouter un domaine", "Add a domain")}
                     </label>
                     <div className="flex items-center space-x-2 mb-3">
                       <input
@@ -798,7 +845,10 @@ export default function DGOrganisationPage() {
                             handleAddBusinessDomain();
                           }
                         }}
-                        placeholder="Ex: Transport interurbain"
+                        placeholder={t(
+                          "Ex: Transport interurbain",
+                          "e.g., Intercity transport"
+                        )}
                         className="flex-1 px-4 py-3 border-2 border-gray-200 text-gray-800 placeholder:text-gray-400 rounded-xl focus:outline-none focus:ring-2 focus:ring-[#6149CD] focus:border-transparent transition-all"
                       />
                       <button
@@ -807,7 +857,7 @@ export default function DGOrganisationPage() {
                         style={{ backgroundColor: BUTTON_COLOR }}
                         className="px-6 py-3 text-white rounded-xl font-semibold hover:opacity-90 transition-opacity"
                       >
-                        Ajouter
+                        {t("Ajouter", "Add")}
                       </button>
                     </div>
 
@@ -837,12 +887,12 @@ export default function DGOrganisationPage() {
                 <div className="pt-8 border-t border-gray-200">
                   <h3 className="text-xl font-bold text-gray-900 mb-6 flex items-center space-x-2">
                     <Tag className="w-6 h-6 text-[#6149CD]" />
-                    <span>Mots-clés</span>
+                    <span>{t("Mots-clés", "Keywords")}</span>
                   </h3>
 
                   <div>
                     <label className="block text-sm font-semibold text-gray-700 mb-2">
-                      Ajouter un mot-clé
+                      {t("Ajouter un mot-clé", "Add a keyword")}
                     </label>
                     <div className="flex items-center space-x-2 mb-3">
                       <input
@@ -855,7 +905,10 @@ export default function DGOrganisationPage() {
                             handleAddKeyword();
                           }
                         }}
-                        placeholder="Ex: voyage, transport, tourisme"
+                        placeholder={t(
+                          "Ex: voyage, transport, tourisme",
+                          "e.g., travel, transport, tourism"
+                        )}
                         className="flex-1 px-4 py-3 border-2 border-gray-200 text-gray-800 placeholder:text-gray-400 rounded-xl focus:outline-none focus:ring-2 focus:ring-[#6149CD] focus:border-transparent transition-all"
                       />
                       <button
@@ -864,7 +917,7 @@ export default function DGOrganisationPage() {
                         style={{ backgroundColor: BUTTON_COLOR }}
                         className="px-6 py-3 text-white rounded-xl font-semibold hover:opacity-90 transition-opacity"
                       >
-                        Ajouter
+                        {t("Ajouter", "Add")}
                       </button>
                     </div>
 
@@ -898,7 +951,7 @@ export default function DGOrganisationPage() {
                     onClick={() => router.push("/user/organization/dashboard")}
                     className="px-6 py-3 border-2 border-gray-300 text-gray-700 rounded-xl font-semibold hover:bg-gray-100 active:bg-gray-200 transition-colors"
                   >
-                    Annuler
+                    {t("Annuler", "Cancel")}
                   </button>
 
                   <button
@@ -910,12 +963,12 @@ export default function DGOrganisationPage() {
                     {is_loading ? (
                       <>
                         <div className="w-5 h-5 border-2 border-white border-t-transparent rounded-full animate-spin"></div>
-                        <span>Création en cours...</span>
+                        <span>{t("Création en cours...", "Creating...")}</span>
                       </>
                     ) : (
                       <>
                         <Building className="w-5 h-5" />
-                        <span>Créer l'organisation</span>
+                        <span>{t("Créer l'organisation", "Create organization")}</span>
                       </>
                     )}
                   </button>
@@ -947,10 +1000,13 @@ export default function DGOrganisationPage() {
                 </svg>
               </div>
               <h2 className="text-xl sm:text-2xl font-bold text-gray-900 mb-2">
-                Succès !
+                {t("Succès !", "Success!")}
               </h2>
               <p className="text-gray-600 mb-6 text-sm sm:text-base">
-                Organisation créée avec succès
+                {t(
+                  "Organisation créée avec succès",
+                  "Organization created successfully"
+                )}
               </p>
               <button
                 onClick={() => {
@@ -959,7 +1015,7 @@ export default function DGOrganisationPage() {
                 }}
                 className="w-full py-2.5 sm:py-3 bg-green-600 text-white rounded-xl font-semibold hover:bg-green-700 transition-colors text-sm sm:text-base"
               >
-                Fermer
+                {t("Fermer", "Close")}
               </button>
             </div>
           </div>
@@ -975,7 +1031,7 @@ export default function DGOrganisationPage() {
                 <AlertCircle className="w-10 h-10 sm:w-12 sm:h-12 text-red-600" />
               </div>
               <h2 className="text-xl sm:text-2xl font-bold text-gray-900 mb-2">
-                Erreur
+                {t("Erreur", "Error")}
               </h2>
               <div className="bg-red-50 rounded-xl p-4 mb-6">
                 <p className="text-sm sm:text-base text-red-800">
@@ -988,7 +1044,7 @@ export default function DGOrganisationPage() {
                 }}
                 className="w-full py-2.5 sm:py-3 bg-red-600 text-white rounded-xl font-semibold hover:bg-red-700 transition-colors text-sm sm:text-base"
               >
-                Fermer
+                {t("Fermer", "Close")}
               </button>
             </div>
           </div>

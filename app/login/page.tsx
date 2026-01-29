@@ -4,6 +4,7 @@ import React, { useState, useEffect } from "react";
 import { Eye, EyeOff } from "lucide-react";
 import Image from "next/image";
 import { useRouter } from "next/navigation";
+import { useLanguage } from "../providers";
 
 /**
  * Login Page Component
@@ -24,6 +25,7 @@ export default function LoginPage() {
   const [is_loading, setIsLoading] = useState(false);
   const [error_message, setErrorMessage] = useState("");
   const router = useRouter();
+  const { t } = useLanguage();
 
   const CAROUSEL_IMAGES = [
     "/images/siege3.jpg",
@@ -38,7 +40,7 @@ export default function LoginPage() {
     setErrorMessage("");
 
     if (!username || !password) {
-      setErrorMessage("Veuillez remplir tous les champs");
+      setErrorMessage(t("Veuillez remplir tous les champs", "Please fill in all fields"));
       return;
     }
 
@@ -57,12 +59,12 @@ export default function LoginPage() {
       });
 
       if (response.status === 500) {
-        setErrorMessage("Compte inexistant ou mot de passe incorrect");
+        setErrorMessage(t("Compte inexistant ou mot de passe incorrect", "Account not found or incorrect password"));
         return;
       }
 
       if (!response.ok) {
-        throw new Error("Identifiants incorrects");
+        throw new Error(t("Identifiants incorrects", "Invalid credentials"));
       }
 
       const data = await response.json();
@@ -78,7 +80,7 @@ export default function LoginPage() {
       const user_role = data.role[0];
 
       if (user_role == "BSM") {
-        throw new Error("Une erreur est survenue lors de la connexion");
+        throw new Error(t("Une erreur est survenue lors de la connexion", "An error occurred during login"));
       }
 
       if (user_role === "USAGER") {
@@ -91,7 +93,7 @@ export default function LoginPage() {
         router.push("/");
       }
     } catch (error: any) {
-      setErrorMessage("Une erreur est survenue lors de la connexion");
+      setErrorMessage(t("Une erreur est survenue lors de la connexion", "An error occurred during login"));
       console.error("Login error:", error);
     } finally {
       setIsLoading(false);
@@ -131,10 +133,10 @@ export default function LoginPage() {
 
           {/* Title */}
           <h1 className="text-4xl lg:text-5xl font-normal text-gray-900 mb-3">
-            Se connecter
+            {t("Se connecter", "Sign in")}
           </h1>
           <p className="text-gray-600 mb-10 text-base">
-            Accédez à votre espace personnel en toute sécurité
+            {t("Accédez à votre espace personnel en toute sécurité", "Access your personal space securely")}
           </p>
 
           {/* Login Form */}
@@ -149,7 +151,7 @@ export default function LoginPage() {
             {/* username Field */}
             <fieldset className="h-15 border border-gray-500 rounded-lg px-4 pt-1 pb-3 hover:border-[#6149CD] focus-within:border-[#6149CD] transition-colors">
               <legend className="text-sm text-gray-700 px-2">
-                Nom d&apos;utilisateur *
+                {t("Nom d'utilisateur *", "Username *")}
               </legend>
               <input
                 type="text"
@@ -162,7 +164,7 @@ export default function LoginPage() {
             {/* Password Field */}
             <fieldset className="h-15 border border-gray-500 rounded-lg px-4 pt-1 pb-3 relative hover:border-[#6149CD] focus-within:border-[#6149CD] transition-colors">
               <legend className="text-sm text-gray-700 px-2">
-                Mot de passe *
+                {t("Mot de passe *", "Password *")}
               </legend>
               <div className="flex items-center">
                 <input
@@ -198,7 +200,7 @@ export default function LoginPage() {
                 htmlFor="remember_me"
                 className="ml-2.5 text-sm text-gray-900 cursor-pointer select-none"
               >
-                Se souvenir de moi
+                {t("Se souvenir de moi", "Remember me")}
               </label>
             </div>
 
@@ -210,17 +212,17 @@ export default function LoginPage() {
               onKeyDown={(e) => e.key === "Enter" && handleSubmit()}
               className="h-12 w-full text-black rounded-md font-bold hover:opacity-95 transition-opacity focus:outline-none focus:ring-2 focus:ring-purple-500 focus:ring-offset-2 mt-3 disabled:opacity-50 disabled:cursor-not-allowed"
             >
-              {is_loading ? "Connexion en cours..." : "Se connecter"}
+              {is_loading ? t("Connexion en cours...", "Signing in...") : t("Se connecter", "Sign in")}
             </button>
 
             {/* Sign Up Link */}
             <div className="text-center text-sm text-gray-600 pt-2">
-              Vous n&apos;avez pas de compte?{" "}
+              {t("Vous n'avez pas de compte?", "Don't have an account?")}{" "}
               <a
                 href="/signup"
                 className="font-semibold text-gray-900 hover:underline"
               >
-                S&apos;inscrire
+                {t("S'inscrire", "Sign up")}
               </a>
             </div>
           </div>

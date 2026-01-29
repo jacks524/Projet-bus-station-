@@ -27,6 +27,7 @@ import {
   User,
 } from "lucide-react";
 import { useRouter, useSearchParams } from "next/navigation";
+import { useLanguage } from "../../../providers";
 
 interface OrganizationData {
   id: string;
@@ -66,6 +67,7 @@ interface UserData {
  */
 function DetailOrganizationContent() {
   const router = useRouter();
+  const { t } = useLanguage();
   const searchParams = useSearchParams();
   const organization_id = searchParams.get("id");
 
@@ -94,39 +96,42 @@ function DetailOrganizationContent() {
   const MENU_ITEMS = [
     {
       icon: Home,
-      label: "Dashboard",
+      label: t("Dashboard", "Dashboard"),
       path: "/user/organization/dashboard",
       active: true,
     },
     {
       icon: Briefcase,
-      label: "Organisation",
+      label: t("Organisation", "Organization"),
       path: "/user/organization/organization",
       active: false,
     },
     {
       icon: Building2,
-      label: "Agence",
+      label: t("Agence", "Agency"),
       path: "/user/organization/agencies",
       active: false,
     },
     {
       icon: Settings,
-      label: "Mes paramètres",
+      label: t("Mes paramètres", "Settings"),
       path: "/user/organization/settings",
       active: false,
     },
   ];
 
   const LEGAL_FORMS = [
-    "SARL",
-    "SA",
-    "SAS",
-    "Entreprise individuelle",
-    "Association",
-    "Coopérative",
-    "GIE",
-    "Autre",
+    { value: "SARL", label: t("SARL", "SARL") },
+    { value: "SA", label: t("SA", "SA") },
+    { value: "SAS", label: t("SAS", "SAS") },
+    {
+      value: "Entreprise individuelle",
+      label: t("Entreprise individuelle", "Sole proprietorship"),
+    },
+    { value: "Association", label: t("Association", "Association") },
+    { value: "Coopérative", label: t("Coopérative", "Cooperative") },
+    { value: "GIE", label: t("GIE", "GIE") },
+    { value: "Autre", label: t("Autre", "Other") },
   ];
 
   useEffect(() => {
@@ -169,13 +174,19 @@ function DetailOrganizationContent() {
         },
       );
 
-      if (!response.ok) throw new Error("Erreur lors du chargement");
+      if (!response.ok)
+        throw new Error(t("Erreur lors du chargement", "Error loading data"));
 
       const data = await response.json();
       setOrganization(data);
       setFormData(data);
     } catch (error: any) {
-      setErrorMessage("Impossible de charger les détails de l'organisation");
+      setErrorMessage(
+        t(
+          "Impossible de charger les détails de l'organisation",
+          "Unable to load organization details"
+        ),
+      );
       setShowErrorModal(true);
       console.error("Fetch Organization Error:", error);
     } finally {
@@ -228,13 +239,21 @@ function DetailOrganizationContent() {
         },
       );
 
-      if (!response.ok) throw new Error("Erreur lors de la mise à jour");
+      if (!response.ok)
+        throw new Error(
+          t("Erreur lors de la mise à jour", "Error during update"),
+        );
 
       setShowSuccessModal(true);
       setEditMode(false);
       fetchOrganizationDetails();
     } catch (error: any) {
-      setErrorMessage("Erreur lors de la mise à jour de l'organisation");
+      setErrorMessage(
+        t(
+          "Erreur lors de la mise à jour de l'organisation",
+          "Error updating the organization"
+        ),
+      );
       setShowErrorModal(true);
       console.error("Update Organization Error:", error);
     } finally {
@@ -258,11 +277,17 @@ function DetailOrganizationContent() {
         },
       );
 
-      if (!response.ok) throw new Error("Erreur lors de la suppression");
+      if (!response.ok)
+        throw new Error(t("Erreur lors de la suppression", "Error during deletion"));
 
       router.push("/user/organization/dashboard");
     } catch (error: any) {
-      setErrorMessage("Erreur lors de la suppression de l'organisation, vérifiez qu'aucune agence n'y est associée.");
+      setErrorMessage(
+        t(
+          "Erreur lors de la suppression de l'organisation, vérifiez qu'aucune agence n'y est associée.",
+          "Error deleting the organization. Please check that no agencies are linked to it."
+        ),
+      );
       setShowErrorModal(true);
       console.error("Delete Organization Error:", error);
     } finally {
@@ -292,7 +317,7 @@ function DetailOrganizationContent() {
       <div className="min-h-screen bg-gray-50 flex items-center justify-center">
         <div className="text-center">
           <Settings className="w-12 h-12 text-[#6149CD] animate-spin mx-auto mb-4" />
-          <p className="text-gray-600">Chargement...</p>
+          <p className="text-gray-600">{t("Chargement...", "Loading...")}</p>
         </div>
       </div>
     );
@@ -303,13 +328,15 @@ function DetailOrganizationContent() {
       <div className="min-h-screen bg-gray-50 flex items-center justify-center">
         <div className="text-center">
           <AlertCircle className="w-12 h-12 text-red-600 mx-auto mb-4" />
-          <p className="text-gray-600">Organisation introuvable</p>
+          <p className="text-gray-600">
+            {t("Organisation introuvable", "Organization not found")}
+          </p>
           <button
             onClick={() => router.push("/user/organization/dashboard")}
             style={{ backgroundColor: BUTTON_COLOR }}
             className="mt-4 px-6 py-2 text-white rounded-lg hover:opacity-90"
           >
-            Retour au dashboard
+            {t("Retour au dashboard", "Back to dashboard")}
           </button>
         </div>
       </div>
@@ -366,7 +393,7 @@ function DetailOrganizationContent() {
                 <ArrowLeft className="w-6 h-6 text-gray-900" />
               </button>
               <h1 className="text-2xl font-semibold text-gray-900">
-                Détails de l'organisation
+                {t("Détails de l'organisation", "Organization details")}
               </h1>
             </div>
 
@@ -379,14 +406,14 @@ function DetailOrganizationContent() {
                     className="flex items-center space-x-2 px-4 py-2 text-white rounded-lg hover:opacity-90 transition-opacity"
                   >
                     <Edit className="w-4 h-4" />
-                    <span>Modifier</span>
+                    <span>{t("Modifier", "Edit")}</span>
                   </button>
                   <button
                     onClick={() => setShowDeleteModal(true)}
                     className="flex items-center space-x-2 px-4 py-2 bg-red-600 text-white rounded-lg hover:bg-red-700 transition-colors"
                   >
                     <Trash2 className="w-4 h-4" />
-                    <span>Supprimer</span>
+                    <span>{t("Supprimer", "Delete")}</span>
                   </button>
                 </>
               ) : (
@@ -399,7 +426,9 @@ function DetailOrganizationContent() {
                   >
                     <Save className="w-4 h-4" />
                     <span>
-                      {is_saving ? "Enregistrement..." : "Enregistrer"}
+                      {is_saving
+                        ? t("Enregistrement...", "Saving...")
+                        : t("Enregistrer", "Save")}
                     </span>
                   </button>
                   <button
@@ -410,7 +439,7 @@ function DetailOrganizationContent() {
                     className="flex items-center space-x-2 px-4 py-2 border border-gray-300 text-gray-700 rounded-lg hover:bg-gray-100 transition-colors"
                   >
                     <CancelIcon className="w-4 h-4" />
-                    <span>Annuler</span>
+                    <span>{t("Annuler", "Cancel")}</span>
                   </button>
                 </>
               )}
@@ -439,14 +468,16 @@ function DetailOrganizationContent() {
                       className="w-full flex items-center space-x-3 px-4 py-2 hover:bg-gray-100 transition-colors"
                     >
                       <Settings className="w-4 h-4 text-gray-600" />
-                      <span className="text-gray-700">Paramètres</span>
+                      <span className="text-gray-700">
+                        {t("Paramètres", "Settings")}
+                      </span>
                     </button>
                     <button
                       onClick={handleLogout}
                       className="w-full flex items-center space-x-3 px-4 py-2 hover:bg-gray-100 transition-colors text-red-600"
                     >
                       <LogOut className="w-4 h-4" />
-                      <span>Se déconnecter</span>
+                      <span>{t("Se déconnecter", "Sign out")}</span>
                     </button>
                   </div>
                 )}
@@ -483,14 +514,14 @@ function DetailOrganizationContent() {
             <div className="bg-white rounded-xl shadow-sm border border-gray-200 p-6">
               <h3 className="text-xl font-bold text-gray-900 mb-6 flex items-center space-x-2">
                 <Briefcase className="w-6 h-6 text-[#6149CD]" />
-                <span>Informations générales</span>
+                <span>{t("Informations générales", "General information")}</span>
               </h3>
 
               <div className="space-y-4">
                 <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
                   <div>
                     <label className="block text-sm font-semibold text-gray-700 mb-2">
-                      Nom complet
+                      {t("Nom complet", "Full name")}
                     </label>
                     <input
                       type="text"
@@ -504,7 +535,7 @@ function DetailOrganizationContent() {
 
                   <div>
                     <label className="block text-sm font-semibold text-gray-700 mb-2">
-                      Abréviation
+                      {t("Abréviation", "Abbreviation")}
                     </label>
                     <input
                       type="text"
@@ -520,7 +551,7 @@ function DetailOrganizationContent() {
                 <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
                   <div>
                     <label className="block text-sm font-semibold text-gray-700 mb-2">
-                      Email
+                      {t("Email", "Email")}
                     </label>
                     <input
                       type="email"
@@ -534,7 +565,10 @@ function DetailOrganizationContent() {
 
                   <div>
                     <label className="block text-sm font-semibold text-gray-700 mb-2">
-                      Nom du dirigeant (non modifiable)
+                      {t(
+                        "Nom du dirigeant (non modifiable)",
+                        "Leader name (not editable)"
+                      )}
                     </label>
                     <input
                       type="text"
@@ -547,7 +581,7 @@ function DetailOrganizationContent() {
 
                 <div>
                   <label className="block text-sm font-semibold text-gray-700 mb-2">
-                    Description
+                    {t("Description", "Description")}
                   </label>
                   <textarea
                     name="description"
@@ -565,14 +599,14 @@ function DetailOrganizationContent() {
             <div className="bg-white rounded-xl shadow-sm border border-gray-200 p-6">
               <h3 className="text-xl font-bold text-gray-900 mb-6 flex items-center space-x-2">
                 <FileText className="w-6 h-6 text-[#6149CD]" />
-                <span>Informations légales</span>
+                <span>{t("Informations légales", "Legal information")}</span>
               </h3>
 
               <div className="space-y-4">
                 <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
                   <div>
                     <label className="block text-sm font-semibold text-gray-700 mb-2">
-                      Forme juridique
+                      {t("Forme juridique", "Legal form")}
                     </label>
                     <select
                       name="legal_form"
@@ -581,10 +615,10 @@ function DetailOrganizationContent() {
                       disabled={!edit_mode}
                       className="w-full px-4 py-3 border-2 border-gray-200 text-gray-800 rounded-xl focus:outline-none focus:ring-2 focus:ring-[#6149CD] disabled:bg-gray-50"
                     >
-                      <option value="">Sélectionner</option>
+                      <option value="">{t("Sélectionner", "Select")}</option>
                       {LEGAL_FORMS.map((form) => (
-                        <option key={form} value={form}>
-                          {form}
+                        <option key={form.value} value={form.value}>
+                          {form.label}
                         </option>
                       ))}
                     </select>
@@ -592,7 +626,10 @@ function DetailOrganizationContent() {
 
                   <div>
                     <label className="block text-sm font-semibold text-gray-700 mb-2">
-                      N° registre de commerce
+                      {t(
+                        "N° registre de commerce",
+                        "Business registration number"
+                      )}
                     </label>
                     <input
                       type="text"
@@ -608,7 +645,7 @@ function DetailOrganizationContent() {
                 <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
                   <div>
                     <label className="block text-sm font-semibold text-gray-700 mb-2">
-                      Numéro fiscal
+                      {t("Numéro fiscal", "Tax number")}
                     </label>
                     <input
                       type="text"
@@ -622,7 +659,7 @@ function DetailOrganizationContent() {
 
                   <div>
                     <label className="block text-sm font-semibold text-gray-700 mb-2">
-                      Capital social
+                      {t("Capital social", "Share capital")}
                     </label>
                     <input
                       type="number"
@@ -638,14 +675,17 @@ function DetailOrganizationContent() {
                 <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
                   <div>
                     <label className="block text-sm font-semibold text-gray-700 mb-2">
-                      Date d'enregistrement (non modifiable)
+                      {t(
+                        "Date d'enregistrement (non modifiable)",
+                        "Registration date (not editable)"
+                      )}
                     </label>
                     <input
                       type="text"
                       value={
                         organization.registration_date
                           ? formatDate(organization.registration_date)
-                          : "Non renseigné"
+                          : t("Non renseigné", "Not provided")
                       }
                       disabled
                       className="w-full px-4 py-3 border-2 border-gray-200 text-gray-800 rounded-xl bg-gray-100"
@@ -654,11 +694,14 @@ function DetailOrganizationContent() {
 
                   <div>
                     <label className="block text-sm font-semibold text-gray-700 mb-2">
-                      Année de création (non modifiable)
+                      {t(
+                        "Année de création (non modifiable)",
+                        "Year founded (not editable)"
+                      )}
                     </label>
                     <input
                       type="text"
-                      value={organization.year_founded || "Non renseigné"}
+                      value={organization.year_founded || t("Non renseigné", "Not provided")}
                       disabled
                       className="w-full px-4 py-3 border-2 border-gray-200 text-gray-800 rounded-xl bg-gray-100"
                     />
@@ -671,13 +714,13 @@ function DetailOrganizationContent() {
             <div className="bg-white rounded-xl shadow-sm border border-gray-200 p-6">
               <h3 className="text-xl font-bold text-gray-900 mb-6 flex items-center space-x-2">
                 <Globe className="w-6 h-6 text-[#6149CD]" />
-                <span>Informations web</span>
+                <span>{t("Informations web", "Web information")}</span>
               </h3>
 
               <div className="space-y-4">
                 <div>
                   <label className="block text-sm font-semibold text-gray-700 mb-2">
-                    Site web
+                    {t("Site web", "Website")}
                   </label>
                   <input
                     type="url"
@@ -685,14 +728,14 @@ function DetailOrganizationContent() {
                     value={form_data.website_url || ""}
                     onChange={handleInputChange}
                     disabled={!edit_mode}
-                    placeholder="https://exemple.com"
+                    placeholder={t("https://exemple.com", "https://example.com")}
                     className="w-full px-4 py-3 border-2 border-gray-200 text-gray-800 rounded-xl focus:outline-none focus:ring-2 focus:ring-[#6149CD] disabled:bg-gray-50"
                   />
                 </div>
 
                 <div>
                   <label className="block text-sm font-semibold text-gray-700 mb-2">
-                    Réseau social
+                    {t("Réseau social", "Social network")}
                   </label>
                   <input
                     type="text"
@@ -700,18 +743,18 @@ function DetailOrganizationContent() {
                     value={form_data.social_network || ""}
                     onChange={handleInputChange}
                     disabled={!edit_mode}
-                    placeholder="https://facebook.com/..."
+                    placeholder={t("https://facebook.com/...", "https://facebook.com/...")}
                     className="w-full px-4 py-3 border-2 border-gray-200 text-gray-800 rounded-xl focus:outline-none focus:ring-2 focus:ring-[#6149CD] disabled:bg-gray-50"
                   />
                 </div>
 
                 <div>
                   <label className="block text-sm font-semibold text-gray-700 mb-2">
-                    Logo URL (non modifiable)
+                    {t("Logo URL (non modifiable)", "Logo URL (not editable)")}
                   </label>
                   <input
                     type="text"
-                    value={organization.logo_url || "Non renseigné"}
+                    value={organization.logo_url || t("Non renseigné", "Not provided")}
                     disabled
                     className="w-full px-4 py-3 border-2 border-gray-200 text-gray-800 rounded-xl bg-gray-100"
                   />
@@ -722,13 +765,13 @@ function DetailOrganizationContent() {
             {/* Section 4: Informations supplémentaires */}
             <div className="bg-white rounded-xl shadow-sm border border-gray-200 p-6">
               <h3 className="text-xl font-bold text-gray-900 mb-6">
-                Informations supplémentaires
+                {t("Informations supplémentaires", "Additional information")}
               </h3>
 
               <div className="space-y-4">
                 <div>
                   <label className="block text-sm font-semibold text-gray-700 mb-2">
-                    Mots-clés (non modifiables)
+                    {t("Mots-clés (non modifiables)", "Keywords (not editable)")}
                   </label>
                   <div className="flex flex-wrap gap-2">
                     {organization.keywords &&
@@ -743,14 +786,16 @@ function DetailOrganizationContent() {
                         </span>
                       ))
                     ) : (
-                      <p className="text-gray-500">Aucun mot-clé</p>
+                      <p className="text-gray-500">
+                        {t("Aucun mot-clé", "No keyword")}
+                      </p>
                     )}
                   </div>
                 </div>
 
                 <div>
                   <label className="block text-sm font-semibold text-gray-700 mb-2">
-                    Domaines d'activité
+                    {t("Domaines d'activité", "Business domains")}
                   </label>
                   <div className="flex flex-wrap gap-2">
                     {organization.business_domains &&
@@ -764,7 +809,9 @@ function DetailOrganizationContent() {
                         </span>
                       ))
                     ) : (
-                      <p className="text-gray-500">Aucun domaine d'activité</p>
+                      <p className="text-gray-500">
+                        {t("Aucun domaine d'activité", "No business domain")}
+                      </p>
                     )}
                   </div>
                 </div>
@@ -772,7 +819,7 @@ function DetailOrganizationContent() {
                 <div className="grid grid-cols-1 md:grid-cols-2 gap-4 pt-4 border-t border-gray-200">
                   <div>
                     <label className="block text-sm font-semibold text-gray-700 mb-2">
-                      Date de création
+                      {t("Date de création", "Creation date")}
                     </label>
                     <p className="text-gray-900">
                       {formatDate(organization.created_at)}
@@ -781,7 +828,7 @@ function DetailOrganizationContent() {
 
                   <div>
                     <label className="block text-sm font-semibold text-gray-700 mb-2">
-                      Statut
+                      {t("Statut", "Status")}
                     </label>
                     <span className="px-3 py-1 bg-green-100 text-green-800 rounded-full text-sm font-semibold">
                       {organization.status}
@@ -804,7 +851,10 @@ function DetailOrganizationContent() {
               </div>
 
               <p className="text-gray-700 mb-6">
-                Êtes-vous sûr de vouloir supprimer l'organisation{" "}
+                {t(
+                  "Êtes-vous sûr de vouloir supprimer l'organisation",
+                  "Are you sure you want to delete the organization"
+                )}{" "}
                 <span className="font-bold">{organization.long_name}</span> ?
               </p>
 
@@ -814,14 +864,16 @@ function DetailOrganizationContent() {
                   disabled={is_deleting}
                   className="flex-1 py-3 border-2 border-gray-300 text-gray-700 rounded-xl font-semibold hover:bg-gray-100 transition-colors disabled:opacity-50"
                 >
-                  Annuler
+                  {t("Annuler", "Cancel")}
                 </button>
                 <button
                   onClick={handleDelete}
                   disabled={is_deleting}
                   className="flex-1 py-3 bg-red-600 text-white rounded-xl font-semibold hover:bg-red-700 transition-colors disabled:opacity-50"
                 >
-                  {is_deleting ? "Suppression..." : "Supprimer"}
+                  {is_deleting
+                    ? t("Suppression...", "Deleting...")
+                    : t("Supprimer", "Delete")}
                 </button>
               </div>
             </div>
@@ -850,16 +902,19 @@ function DetailOrganizationContent() {
                 </svg>
               </div>
               <h2 className="text-xl sm:text-2xl font-bold text-gray-900 mb-2">
-                Succès !
+                {t("Succès !", "Success!")}
               </h2>
               <p className="text-gray-600 mb-6 text-sm sm:text-base">
-                Organisation mis à jour avec succès
+                {t(
+                  "Organisation mis à jour avec succès",
+                  "Organization updated successfully"
+                )}
               </p>
               <button
                 onClick={() => setShowSuccessModal(false)}
                 className="w-full py-2.5 sm:py-3 bg-green-600 text-white rounded-xl font-semibold hover:bg-green-700 transition-colors text-sm sm:text-base"
               >
-                Fermer
+                {t("Fermer", "Close")}
               </button>
             </div>
           </div>
@@ -875,7 +930,7 @@ function DetailOrganizationContent() {
                 <AlertCircle className="w-10 h-10 sm:w-12 sm:h-12 text-red-600" />
               </div>
               <h2 className="text-xl sm:text-2xl font-bold text-gray-900 mb-2">
-                Erreur
+                {t("Erreur", "Error")}
               </h2>
               <div className="bg-red-50 rounded-xl p-4 mb-6">
                 <p className="text-sm sm:text-base text-red-800">
@@ -888,7 +943,7 @@ function DetailOrganizationContent() {
                 }}
                 className="w-full py-2.5 sm:py-3 bg-red-600 text-white rounded-xl font-semibold hover:bg-red-700 transition-colors text-sm sm:text-base"
               >
-                Fermer
+                {t("Fermer", "Close")}
               </button>
             </div>
           </div>
@@ -905,7 +960,7 @@ export default function DetailOrganizationPage() {
         <div className="min-h-screen bg-gray-50 flex items-center justify-center">
           <div className="text-center">
             <div className="w-8 h-8 border-4 border-[#6149CD] border-t-transparent rounded-full animate-spin mx-auto mb-4"></div>
-            <p className="text-gray-600">Chargement...</p>
+            <p className="text-gray-600">{t("Chargement...", "Loading...")}</p>
           </div>
         </div>
       }

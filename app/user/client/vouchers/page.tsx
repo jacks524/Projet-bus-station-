@@ -19,6 +19,7 @@ import {
   Percent,
 } from "lucide-react";
 import { useRouter } from "next/navigation";
+import { useLanguage } from "../../../providers";
 
 interface Coupon {
   idCoupon: string;
@@ -58,45 +59,46 @@ export default function ClientVouchersPage() {
   const [user_data, setUserData] = useState<UserData | null>(null);
 
   const router = useRouter();
+  const { t } = useLanguage();
 
   const API_BASE_URL = process.env.NEXT_PUBLIC_API_BASE_URL;
   const BUTTON_COLOR = "#6149CD";
 
   const MENU_ITEMS = [
-    { icon: Home, label: "Accueil", path: "/user/client/home", active: false },
+    { icon: Home, label: t("Accueil", "Home"), path: "/user/client/home", active: false },
     {
       icon: Calendar,
-      label: "Réserver",
+      label: t("Réserver", "Book"),
       path: "/user/client/book",
       active: false,
     },
     {
       icon: FileText,
-      label: "Réservations",
+      label: t("Réservations", "Bookings"),
       path: "/user/client/reservations",
       active: false,
     },
     {
       icon: Ticket,
-      label: "Billets",
+      label: t("Billets", "Tickets"),
       path: "/user/client/tickets",
       active: false,
     },
     {
       icon: Gift,
-      label: "Coupons",
+      label: t("Coupons", "Vouchers"),
       path: "/user/client/vouchers",
       active: true,
     },
     {
       icon: History,
-      label: "Historique",
+      label: t("Historique", "History"),
       path: "/user/client/history",
       active: false,
     },
     {
       icon: Settings,
-      label: "Mes paramètres",
+      label: t("Mes paramètres", "Settings"),
       path: "/user/client/settings",
       active: false,
     },
@@ -134,7 +136,7 @@ export default function ClientVouchersPage() {
       });
 
       if (!response.ok) {
-        throw new Error("Erreur lors du chargement des coupons");
+        throw new Error(t("Erreur lors du chargement des coupons", "Error loading vouchers"));
       }
 
       const data = await response.json();
@@ -145,7 +147,7 @@ export default function ClientVouchersPage() {
 
       setCoupons(valid_coupons);
     } catch (error: any) {
-      setErrorMessage("Impossible de charger vos coupons");
+      setErrorMessage(t("Impossible de charger vos coupons", "Unable to load your vouchers"));
       console.error("Fetch Coupons Error:", error);
     } finally {
       setIsLoading(false);
@@ -281,7 +283,7 @@ export default function ClientVouchersPage() {
                 <Menu className="w-6 h-6 text-gray-900" />
               </button>
               <h1 className="text-2xl font-semibold text-gray-900">
-                Mes coupons
+                {t("Mes coupons", "My vouchers")}
               </h1>
             </div>
 
@@ -320,14 +322,16 @@ export default function ClientVouchersPage() {
                       className="w-full flex items-center space-x-3 px-4 py-2 hover:bg-gray-100 transition-colors"
                     >
                       <Settings className="w-4 h-4 text-gray-600" />
-                      <span className="text-gray-700">Paramètres</span>
+                      <span className="text-gray-700">
+                        {t("Paramètres", "Settings")}
+                      </span>
                     </button>
                     <button
                       onClick={handleLogout}
                       className="w-full flex items-center space-x-3 px-4 py-2 hover:bg-gray-100 transition-colors text-red-600"
                     >
                       <LogOut className="w-4 h-4" />
-                      <span>Se déconnecter</span>
+                      <span>{t("Se déconnecter", "Sign out")}</span>
                     </button>
                   </div>
                 )}
@@ -348,7 +352,7 @@ export default function ClientVouchersPage() {
                     <div className="text-center">
                       <Gift className="w-16 h-16 text-[#6149CD] animate-spin mx-auto mb-4" />
                       <p className="text-gray-600">
-                        Chargement de vos coupons...
+                        {t("Chargement de vos coupons...", "Loading your vouchers...")}
                       </p>
                     </div>
                   </div>
@@ -367,10 +371,10 @@ export default function ClientVouchersPage() {
                       className="w-16 h-16 text-gray-400 mx-auto mb-4 hover:scale-105 active:scale-95 transition-transform cursor-pointer"
                     />
                     <h3 className="text-xl font-semibold text-gray-900 mb-2">
-                      Aucun coupon disponible
+                      {t("Aucun coupon disponible", "No vouchers available")}
                     </h3>
                     <p className="text-gray-600 mb-6">
-                      Vous n'avez pas encore de coupons de réduction valides
+                      {t("Vous n'avez pas encore de coupons de réduction valides", "You don't have valid discount vouchers yet")}
                     </p>
                   </div>
                 ) : (
@@ -384,11 +388,13 @@ export default function ClientVouchersPage() {
                       </div>
                       <div>
                         <h3 className="text-2xl font-bold text-gray-900">
-                          Vos coupons de réduction
+                          {t("Vos coupons de réduction", "Your discount vouchers")}
                         </h3>
                         <p className="text-sm text-gray-600">
-                          {coupons.length} coupon{coupons.length > 1 ? "s" : ""}{" "}
-                          valide{coupons.length > 1 ? "s" : ""}
+                          {t(
+                            `${coupons.length} coupon${coupons.length > 1 ? "s" : ""} valide${coupons.length > 1 ? "s" : ""}`,
+                            `${coupons.length} voucher${coupons.length > 1 ? "s" : ""} valid`
+                          )}
                         </p>
                       </div>
                     </div>
@@ -402,7 +408,7 @@ export default function ClientVouchersPage() {
                           {/* Badge de statut */}
                           <div className="absolute top-4 right-4">
                             <span className="px-3 py-1 bg-green-100 text-green-800 rounded-full text-xs font-semibold">
-                              ✓ Valide
+                              {t("✓ Valide", "✓ Valid")}
                             </span>
                           </div>
 
@@ -420,7 +426,7 @@ export default function ClientVouchersPage() {
                               <Percent className="w-6 h-6 text-amber-700" />
                             </div>
                             <p className="text-sm text-gray-600">
-                              de réduction
+                              {t("de réduction", "discount")}
                             </p>
                           </div>
 
@@ -429,19 +435,19 @@ export default function ClientVouchersPage() {
                             <div className="flex items-center space-x-2 text-xs text-gray-600">
                               <CalendarCheck className="w-3.5 h-3.5 text-green-600" />
                               <span>
-                                Début : {formatDate(coupon.dateDebut)}
+                                {t("Début", "Start")} : {formatDate(coupon.dateDebut)}
                               </span>
                             </div>
                             <div className="flex items-center space-x-2 text-xs text-gray-600">
                               <CalendarX className="w-3.5 h-3.5 text-red-600" />
-                              <span>Fin : {formatDate(coupon.dateFin)}</span>
+                              <span>{t("Fin", "End")} : {formatDate(coupon.dateFin)}</span>
                             </div>
                           </div>
 
                           {/* Code coupon */}
                           <div className="bg-white rounded-lg p-2 border border-dashed border-gray-300">
                             <p className="text-xs text-gray-500 mb-1">
-                              Code coupon
+                              {t("Code coupon", "Voucher code")}
                             </p>
                             <p className="text-xs font-mono font-semibold text-gray-800 truncate">
                               {coupon.idCoupon}
@@ -458,7 +464,7 @@ export default function ClientVouchersPage() {
               <div className="relative h-80">
                 <img
                   src="/images/cameroun7.jpg"
-                  alt="Coupons"
+                  alt={t("Coupons", "Vouchers")}
                   className="w-full h-full object-cover"
                   onError={(e) => {
                     e.currentTarget.src =
@@ -469,23 +475,25 @@ export default function ClientVouchersPage() {
                 <div className="absolute bottom-0 left-0 right-0 p-8">
                   <div className="max-w-4xl mx-auto">
                     <h2 className="text-3xl md:text-4xl font-bold text-white mb-4 drop-shadow-lg">
-                      Économisez sur vos voyages
+                      {t("Économisez sur vos voyages", "Save on your trips")}
                     </h2>
                     <p className="text-white/90 text-lg mb-6 drop-shadow-md">
-                      Utilisez vos coupons lors de vos prochaines réservations
+                      {t("Utilisez vos coupons lors de vos prochaines réservations", "Use your vouchers on your next bookings")}
                     </p>
                     <div className="flex flex-wrap gap-4">
                       <div className="flex items-center space-x-3 bg-white/20 backdrop-blur-sm rounded-lg px-4 py-2">
                         <Gift className="w-5 h-5 text-white" />
                         <span className="text-white font-medium">
-                          {coupons.length} coupon{coupons.length > 1 ? "s" : ""}{" "}
-                          valide{coupons.length > 1 ? "s" : ""}
+                          {t(
+                            `${coupons.length} coupon${coupons.length > 1 ? "s" : ""} valide${coupons.length > 1 ? "s" : ""}`,
+                            `${coupons.length} voucher${coupons.length > 1 ? "s" : ""} valid`
+                          )}
                         </span>
                       </div>
                       <div className="flex items-center space-x-3 bg-white/20 backdrop-blur-sm rounded-lg px-4 py-2">
                         <Tag className="w-5 h-5 text-white" />
                         <span className="text-white font-medium">
-                          Réductions exclusives
+                          {t("Réductions exclusives", "Exclusive discounts")}
                         </span>
                       </div>
                     </div>

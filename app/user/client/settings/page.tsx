@@ -21,6 +21,7 @@ import {
   UserCircle,
 } from "lucide-react";
 import { useRouter } from "next/navigation";
+import { useLanguage } from "../../../providers";
 
 interface UserProfile {
   userId: string;
@@ -50,45 +51,46 @@ export default function ClientSettingsPage() {
   const [show_profile_menu, setShowProfileMenu] = useState(false);
   const [show_mobile_menu, setShowMobileMenu] = useState(false);
   const router = useRouter();
+  const { t } = useLanguage();
 
   const API_BASE_URL = process.env.NEXT_PUBLIC_API_BASE_URL;
   const BUTTON_COLOR = "#6149CD";
 
   const MENU_ITEMS = [
-    { icon: Home, label: "Accueil", path: "/user/client/home", active: false },
+    { icon: Home, label: t("Accueil", "Home"), path: "/user/client/home", active: false },
     {
       icon: Calendar,
-      label: "Réserver",
+      label: t("Réserver", "Book"),
       path: "/user/client/book",
       active: false,
     },
     {
       icon: FileText,
-      label: "Réservations",
+      label: t("Réservations", "Bookings"),
       path: "/user/client/reservations",
       active: false,
     },
     {
       icon: Ticket,
-      label: "Billets",
+      label: t("Billets", "Tickets"),
       path: "/user/client/tickets",
       active: false,
     },
     {
       icon: Gift,
-      label: "Coupons",
+      label: t("Coupons", "Vouchers"),
       path: "/user/client/vouchers",
       active: false,
     },
     {
       icon: History,
-      label: "Historique",
+      label: t("Historique", "History"),
       path: "/user/client/history",
       active: false,
     },
     {
       icon: Settings,
-      label: "Mes paramètres",
+      label: t("Mes paramètres", "Settings"),
       path: "/user/client/settings",
       active: true,
     },
@@ -125,7 +127,7 @@ export default function ClientSettingsPage() {
       });
 
       if (!response.ok) {
-        throw new Error("Erreur lors du chargement du profil");
+        throw new Error(t("Erreur lors du chargement du profil", "Error loading profile"));
       }
 
       const data = await response.json();
@@ -141,7 +143,7 @@ export default function ClientSettingsPage() {
 
       setUserProfile({ ...data, email });
     } catch (error: any) {
-      setErrorMessage("Impossible de charger les informations du profil");
+      setErrorMessage(t("Impossible de charger les informations du profil", "Unable to load profile information"));
       console.error("Fetch Profile Error:", error);
     } finally {
       setIsLoading(false);
@@ -158,10 +160,10 @@ export default function ClientSettingsPage() {
 
   const getRoleLabel = (role: string) => {
     const role_labels: { [key: string]: string } = {
-      USAGER: "Client",
-      AGENCE_VOYAGE: "Agence de voyage",
-      ORGANISATION: "Organisation",
-      BSM: "Administrateur BSM",
+      USAGER: t("Client", "Client"),
+      AGENCE_VOYAGE: t("Agence de voyage", "Travel agency"),
+      ORGANISATION: t("Organisation", "Organization"),
+      BSM: t("Administrateur BSM", "BSM administrator"),
     };
     return role_labels[role] || role;
   };
@@ -278,7 +280,7 @@ export default function ClientSettingsPage() {
                 <Menu className="w-6 h-6 text-gray-900" />
               </button>
               <h1 className="text-2xl font-semibold text-gray-900">
-                Mes paramètres
+                {t("Mes paramètres", "Settings")}
               </h1>
             </div>
 
@@ -310,14 +312,16 @@ export default function ClientSettingsPage() {
                       className="w-full flex items-center space-x-3 px-4 py-2 hover:bg-gray-100 transition-colors"
                     >
                       <Settings className="w-4 h-4 text-gray-600" />
-                      <span className="text-gray-700">Paramètres</span>
+                      <span className="text-gray-700">
+                        {t("Paramètres", "Settings")}
+                      </span>
                     </button>
                     <button
                       onClick={handleLogout}
                       className="w-full flex items-center space-x-3 px-4 py-2 hover:bg-gray-100 transition-colors text-red-600"
                     >
                       <LogOut className="w-4 h-4" />
-                      <span>Se déconnecter</span>
+                      <span>{t("Se déconnecter", "Sign out")}</span>
                     </button>
                   </div>
                 )}
@@ -332,7 +336,9 @@ export default function ClientSettingsPage() {
             <div className="flex items-center justify-center py-20">
               <div className="text-center">
                 <Settings className="w-12 h-12 text-[#6149CD] animate-spin mx-auto mb-4" />
-                <p className="text-gray-600">Chargement de votre profil...</p>
+                <p className="text-gray-600">
+                  {t("Chargement de votre profil...", "Loading your profile...")}
+                </p>
               </div>
             </div>
           )}
@@ -345,7 +351,7 @@ export default function ClientSettingsPage() {
                 style={{ backgroundColor: BUTTON_COLOR }}
                 className="px-6 py-2 text-white rounded-lg hover:opacity-90 transition-opacity"
               >
-                Réessayer
+                {t("Réessayer", "Try again")}
               </button>
             </div>
           )}
@@ -381,12 +387,12 @@ export default function ClientSettingsPage() {
               <div className="bg-white rounded-lg shadow-sm border border-gray-200 p-6">
                 <h3 className="text-lg font-semibold text-gray-900 mb-4 flex items-center space-x-2">
                   <UserCircle className="w-5 h-5 text-[#6149CD]" />
-                  <span>Informations personnelles</span>
+                  <span>{t("Informations personnelles", "Personal information")}</span>
                 </h3>
                 <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
                   <div>
                     <label className="block text-sm font-medium text-gray-700 mb-2">
-                      Prénom
+                      {t("Prénom", "First name")}
                     </label>
                     <input
                       type="text"
@@ -397,7 +403,7 @@ export default function ClientSettingsPage() {
                   </div>
                   <div>
                     <label className="block text-sm font-medium text-gray-700 mb-2">
-                      Nom
+                      {t("Nom", "Last name")}
                     </label>
                     <input
                       type="text"
@@ -413,18 +419,18 @@ export default function ClientSettingsPage() {
               <div className="bg-white rounded-lg shadow-sm border border-gray-200 p-6">
                 <h3 className="text-lg font-semibold text-gray-900 mb-4 flex items-center space-x-2">
                   <Phone className="w-5 h-5 text-[#6149CD]" />
-                  <span>Coordonnées</span>
+                  <span>{t("Coordonnées", "Contact details")}</span>
                 </h3>
                 <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
                   <div>
                     <label className="block text-sm font-medium text-gray-700 mb-2">
-                      Téléphone
+                      {t("Téléphone", "Phone")}
                     </label>
                     <div className="flex items-center space-x-2">
                       <Phone className="w-4 h-4 text-gray-400" />
                       <input
                         type="text"
-                        value={user_profile.phone_number || "Non renseigné"}
+                        value={user_profile.phone_number || t("Non renseigné", "Not provided")}
                         readOnly
                         className="flex-1 px-4 py-2 border border-gray-300 rounded-lg bg-gray-50 text-gray-900"
                       />
@@ -432,13 +438,13 @@ export default function ClientSettingsPage() {
                   </div>
                   <div>
                     <label className="block text-sm font-medium text-gray-700 mb-2">
-                      Email
+                      {t("Email", "Email")}
                     </label>
                     <div className="flex items-center space-x-2">
                       <Mail className="w-4 h-4 text-gray-400" />
                       <input
                         type="email"
-                        value={user_profile.email || "Non renseigné"}
+                        value={user_profile.email || t("Non renseigné", "Not provided")}
                         readOnly
                         className="flex-1 px-4 py-2 border border-gray-300 rounded-lg bg-gray-50 text-gray-900"
                       />
@@ -448,7 +454,7 @@ export default function ClientSettingsPage() {
                 {user_profile.address && (
                   <div className="mt-6">
                     <label className="block text-sm font-medium text-gray-700 mb-2">
-                      Adresse
+                      {t("Adresse", "Address")}
                     </label>
                     <div className="flex items-start space-x-2">
                       <MapPinned className="w-4 h-4 text-gray-400 mt-2.5" />
@@ -467,12 +473,12 @@ export default function ClientSettingsPage() {
               <div className="bg-white rounded-lg shadow-sm border border-gray-200 p-6">
                 <h3 className="text-lg font-semibold text-gray-900 mb-4 flex items-center space-x-2">
                   <User className="w-5 h-5 text-[#6149CD]" />
-                  <span>Informations du compte</span>
+                  <span>{t("Informations du compte", "Account information")}</span>
                 </h3>
                 <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
                   <div>
                     <label className="block text-sm font-medium text-gray-700 mb-2">
-                      Nom d'utilisateur
+                      {t("Nom d'utilisateur", "Username")}
                     </label>
                     <input
                       type="text"
@@ -483,7 +489,7 @@ export default function ClientSettingsPage() {
                   </div>
                   <div>
                     <label className="block text-sm font-medium text-gray-700 mb-2">
-                      ID utilisateur
+                      {t("ID utilisateur", "User ID")}
                     </label>
                     <input
                       type="text"
@@ -501,13 +507,13 @@ export default function ClientSettingsPage() {
                   onClick={() => router.push("/user/client/home")}
                   className="px-6 py-2 border border-gray-300 text-gray-700 rounded-lg hover:bg-gray-300 active:bg-gray-200 transition-colors"
                 >
-                  Retour à l'accueil
+                  {t("Retour à l'accueil", "Back to home")}
                 </button>
                 <button
                   onClick={handleLogout}
                   className="px-6 py-2 bg-red-600 text-white rounded-lg hover:bg-red-700 active:bg-red-800 transition-colors"
                 >
-                  Se déconnecter
+                  {t("Se déconnecter", "Sign out")}
                 </button>
               </div>
             </div>

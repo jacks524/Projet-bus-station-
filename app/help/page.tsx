@@ -18,6 +18,8 @@ import {
   ChevronDown,
 } from "lucide-react";
 import { useRouter } from "next/navigation";
+import { useLanguage } from "../providers";
+import { RAW_FAQ_CATEGORIES, RAW_FAQ_DATA } from "./faq-data";
 
 interface FAQItem {
   id: string;
@@ -40,195 +42,108 @@ export default function ClientHelpPage() {
   const [search_query, setSearchQuery] = useState("");
   const [expanded_items, setExpandedItems] = useState<string[]>([]);
   const [selected_category, setSelectedCategory] = useState<string>("all");
+  const [chat_messages, setChatMessages] = useState<
+    { role: "user" | "assistant"; content: string }[]
+  >([]);
+  const [chat_input, setChatInput] = useState("");
+  const [is_chat_loading, setIsChatLoading] = useState(false);
+  const [chat_error, setChatError] = useState("");
 
   const router = useRouter();
+  const { t, language } = useLanguage();
 
   const BUTTON_COLOR = "#6149CD";
 
-  const FAQ_CATEGORIES = [
-    { value: "all", label: "Toutes les questions", icon: HelpCircle },
-    { value: "account", label: "Compte et connexion", icon: User },
-    { value: "reservation", label: "Réservations", icon: Calendar },
-    { value: "payment", label: "Paiements", icon: CreditCard },
-    { value: "travel", label: "Voyages", icon: Bus },
-    { value: "agency", label: "Agences", icon: Building2 },
-    { value: "support", label: "Support", icon: Phone },
-  ];
+  const FAQ_CATEGORIES = RAW_FAQ_CATEGORIES.map((category) => ({
+    value: category.value,
+    label: t(category.label_fr, category.label_en),
+    icon:
+      category.value === "account"
+        ? User
+        : category.value === "reservation"
+          ? Calendar
+          : category.value === "payment"
+            ? CreditCard
+            : category.value === "travel"
+              ? Bus
+              : category.value === "agency"
+                ? Building2
+                : category.value === "support"
+                  ? Phone
+                  : HelpCircle,
+  }));
 
-  const FAQ_DATA: FAQItem[] = [
-    // Compte et connexion
-    {
-      id: "1",
-      question: "Comment créer un compte sur BusStation ?",
-      answer:
-        "Pour créer un compte, cliquez sur le bouton 'S'inscrire' en haut de la page d'accueil. Remplissez le formulaire avec vos informations personnelles (nom, prénom, email, numéro de téléphone). Vous recevrez un email de confirmation pour activer votre compte.",
-      category: "account",
-    },
-    {
-      id: "2",
-      question: "J'ai oublié mon mot de passe, que faire ?",
-      answer:
-        "Cliquez sur 'Mot de passe oublié' sur la page de connexion. Entrez votre adresse email et nous vous enverrons un lien pour réinitialiser votre mot de passe. Suivez les instructions dans l'email pour créer un nouveau mot de passe.",
-      category: "account",
-    },
-    {
-      id: "3",
-      question: "Comment modifier mes informations personnelles ?",
-      answer:
-        "Connectez-vous à votre compte, puis accédez à 'Mes paramètres' dans le menu. Vous pouvez modifier votre nom, prénom, email, numéro de téléphone et adresse. N'oubliez pas de sauvegarder vos modifications.",
-      category: "account",
-    },
-    {
-      id: "4",
-      question: "Est-ce que mes données personnelles sont sécurisées ?",
-      answer:
-        "Oui, nous utilisons les dernières technologies de cryptage pour protéger vos données personnelles. Vos informations sont stockées de manière sécurisée et ne sont jamais partagées avec des tiers sans votre consentement.",
-      category: "account",
-    },
+  const FAQ_DATA: FAQItem[] = RAW_FAQ_DATA.map((faq) => ({
+    id: faq.id,
+    question: t(faq.question_fr, faq.question_en),
+    answer: t(faq.answer_fr, faq.answer_en),
+    category: faq.category,
+  }));
 
-    // Réservations
-    {
-      id: "5",
-      question: "Comment réserver un billet de voyage ?",
-      answer:
-        "Allez dans la section 'Réserver', sélectionnez votre ville de départ et d'arrivée, choisissez la date de voyage. Parcourez les voyages disponibles, sélectionnez celui qui vous convient, choisissez vos places et remplissez les informations des passagers. Confirmez votre réservation et procédez au paiement.",
-      category: "reservation",
-    },
-    {
-      id: "6",
-      question: "Puis-je choisir ma place dans le bus ?",
-      answer:
-        "Oui, lors de la réservation, vous aurez accès à un plan des places du bus. Les places disponibles sont affichées en blanc, les places déjà réservées en rouge, et vos sélections en vert. Cliquez sur les places que vous souhaitez réserver.",
-      category: "reservation",
-    },
-    {
-      id: "7",
-      question: "Comment annuler ou modifier ma réservation ?",
-      answer:
-        "Pour annuler ou modifier une réservation, allez dans 'Mes réservations', sélectionnez la réservation concernée et cliquez sur 'Annuler' ou 'Modifier'. Notez que des frais d'annulation peuvent s'appliquer selon les conditions de l'agence et le délai d'annulation.",
-      category: "reservation",
-    },
-    {
-      id: "8",
-      question: "Quel est le délai maximum pour annuler une réservation ?",
-      answer:
-        "Le délai d'annulation varie selon l'agence et la classe de voyage. Généralement, vous pouvez annuler jusqu'à 24-48 heures avant le départ. Consultez les conditions d'annulation spécifiques à votre réservation dans la section 'Mes réservations'.",
-      category: "reservation",
-    },
-    {
-      id: "9",
-      question: "Puis-je réserver pour plusieurs passagers ?",
-      answer:
-        "Oui, lors de la sélection des places, vous pouvez choisir plusieurs sièges. Vous devrez ensuite renseigner les informations de chaque passager (nom, prénom, numéro de pièce d'identité, âge).",
-      category: "reservation",
-    },
+  const handleSendChat = async () => {
+    const trimmed = chat_input.trim();
+    if (!trimmed || is_chat_loading) return;
 
-    // Paiements
-    {
-      id: "10",
-      question: "Quels sont les moyens de paiement acceptés ?",
-      answer:
-        "Nous acceptons les paiements par Mobile Money (MTN Mobile Money, Orange Money), ainsi que les cartes bancaires Visa et Mastercard. Le paiement est sécurisé et vos informations bancaires sont protégées.",
-      category: "payment",
-    },
-    {
-      id: "11",
-      question: "Mon paiement a échoué, que faire ?",
-      answer:
-        "Si votre paiement échoue, vérifiez d'abord que vous avez suffisamment de fonds. Assurez-vous que vos informations de paiement sont correctes. Si le problème persiste, contactez notre support client ou essayez avec un autre moyen de paiement.",
-      category: "payment",
-    },
-    {
-      id: "12",
-      question: "Puis-je obtenir un remboursement ?",
-      answer:
-        "Les remboursements sont possibles selon les conditions d'annulation de chaque agence. Si vous annulez dans les délais autorisés, vous serez remboursé selon le taux d'annulation applicable. Le remboursement est généralement effectué sous 5-10 jours ouvrables.",
-      category: "payment",
-    },
-    {
-      id: "13",
-      question: "Où puis-je trouver ma facture ?",
-      answer:
-        "Après avoir effectué un paiement, vous pouvez télécharger votre facture depuis la section 'Mes billets' ou 'Historique'. Cliquez sur le voyage concerné et sélectionnez 'Télécharger la facture'.",
-      category: "payment",
-    },
+    const next_messages = [
+      ...chat_messages,
+      { role: "user" as const, content: trimmed },
+    ];
 
-    // Voyages
-    {
-      id: "14",
-      question: "Comment puis-je suivre mon voyage en temps réel ?",
-      answer:
-        "Une fois votre billet confirmé, vous recevrez des notifications sur l'état de votre voyage. Vous pouvez également consulter les détails dans 'Mes billets' pour voir l'heure de départ prévue et toute mise à jour en temps réel.",
-      category: "travel",
-    },
-    {
-      id: "15",
-      question: "Que dois-je faire le jour du voyage ?",
-      answer:
-        "Présentez-vous au point de départ au moins 30 minutes avant l'heure de départ. Munissez-vous de votre billet (version numérique ou imprimée) et d'une pièce d'identité valide. Le chauffeur vérifiera votre billet avant l'embarquement.",
-      category: "travel",
-    },
-    {
-      id: "16",
-      question: "Puis-je emporter des bagages ?",
-      answer:
-        "Oui, chaque passager peut emporter des bagages. Le nombre et le poids autorisés dépendent de la classe de voyage et de l'agence. Généralement, 1 à 2 bagages de 20-25 kg sont autorisés. Consultez les détails lors de la réservation.",
-      category: "travel",
-    },
-    {
-      id: "17",
-      question: "Que se passe-t-il si j'arrive en retard ?",
-      answer:
-        "Si vous arrivez après l'heure de départ, le bus ne vous attendra pas et votre billet sera considéré comme non utilisé. Nous vous recommandons d'arriver au moins 30 minutes à l'avance pour éviter tout problème.",
-      category: "travel",
-    },
+    setChatMessages(next_messages);
+    setChatInput("");
+    setChatError("");
+    setIsChatLoading(true);
 
-    // Agences
-    {
-      id: "18",
-      question: "Comment choisir une agence de confiance ?",
-      answer:
-        "Toutes les agences sur BusStation sont validées par notre équipe. Vous pouvez consulter les avis et notes laissés par d'autres voyageurs. Vérifiez également les équipements proposés (WiFi, climatisation, toilettes) et les conditions d'annulation avant de réserver.",
-      category: "agency",
-    },
-    {
-      id: "19",
-      question: "Comment contacter une agence de voyage ?",
-      answer:
-        "Les coordonnées de chaque agence (téléphone, email, réseaux sociaux) sont disponibles dans la fiche détaillée du voyage. Vous pouvez les contacter directement pour toute question spécifique concernant votre réservation.",
-      category: "agency",
-    },
-    {
-      id: "20",
-      question: "Puis-je créer ma propre agence sur BusStation ?",
-      answer:
-        "Oui, si vous êtes un professionnel du transport, vous pouvez créer un compte Chef d'Agence et enregistrer votre agence. Votre demande sera examinée par notre équipe de validation avant d'être approuvée. Contactez-nous pour plus d'informations.",
-      category: "agency",
-    },
+    try {
+      const response = await fetch("/api/help-chat", {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({
+          message: trimmed,
+          history: next_messages.slice(-6),
+          language,
+        }),
+      });
 
-    // Support
-    {
-      id: "21",
-      question: "Comment contacter le support client ?",
-      answer:
-        "Vous pouvez nous contacter par email à bryanngoupeyou9@gmail.com, par téléphone au +237 655 12 10 10, ou via notre chat en direct disponible du lundi au vendredi de 8h à 18h. Nous nous engageons à répondre dans les 24 heures.",
-      category: "support",
-    },
-    {
-      id: "22",
-      question: "J'ai un problème technique, qui contacter ?",
-      answer:
-        "Pour tout problème technique (erreur de chargement, bug, paiement bloqué), contactez immédiatement notre support technique à bryanngoupeyou9@gmail.com.com ou appelez notre hotline. Décrivez précisément le problème rencontré pour une résolution rapide.",
-      category: "support",
-    },
-    {
-      id: "23",
-      question: "Proposez-vous une assistance en cas de litige ?",
-      answer:
-        "Oui, en cas de litige avec une agence, notre service client peut intervenir comme médiateur. Contactez-nous avec les détails de votre réservation et du problème rencontré. Nous ferons de notre mieux pour trouver une solution satisfaisante.",
-      category: "support",
-    },
-  ];
+      if (!response.ok) {
+        let detail = "";
+        try {
+          const err = await response.json();
+          detail =
+            err?.detail?.error?.message ||
+            err?.detail?.message ||
+            err?.error ||
+            "";
+        } catch {
+          // ignore JSON parse errors
+        }
+        throw new Error(
+          detail ||
+            t(
+              "Impossible de joindre l'assistant",
+              "Unable to reach the assistant"
+            ),
+        );
+      }
+
+      const data = await response.json();
+      setChatMessages((prev) => [
+        ...prev,
+        { role: "assistant", content: data.reply || "" },
+      ]);
+    } catch (error) {
+      const message =
+        error && typeof error === "object" && "message" in error
+          ? String(error.message)
+          : t(
+              "Une erreur est survenue, réessayez plus tard.",
+              "An error occurred, please try again later."
+            );
+      setChatError(message);
+    } finally {
+      setIsChatLoading(false);
+    }
+  };
 
   const toggleItem = (id: string) => {
     setExpandedItems((prev) =>
@@ -288,21 +203,21 @@ export default function ClientHelpPage() {
                   className="w-full flex items-center space-x-3 px-4 py-3 rounded-lg text-gray-600 hover:bg-gray-100 transition-colors"
                 >
                   <ArrowLeft className="w-5 h-5" />
-                  <span className="font-medium">Accueil</span>
+                  <span className="font-medium">{t("Accueil", "Home")}</span>
                 </button>
                 <button
                   onClick={() => router.push("/contact")}
                   className="w-full flex items-center space-x-3 px-4 py-3 rounded-lg text-gray-600 hover:bg-gray-100 transition-colors"
                 >
                   <MessageCircle className="w-5 h-5" />
-                  <span className="font-medium">Nous contacter</span>
+                  <span className="font-medium">{t("Nous contacter", "Contact us")}</span>
                 </button>
                 <button
                   onClick={() => router.push("/login")}
                   className="w-full flex items-center space-x-3 px-4 py-3 rounded-lg text-gray-600 hover:bg-gray-100 transition-colors"
                 >
                   <User className="w-5 h-5" />
-                  <span className="font-medium">Se connecter</span>
+                  <span className="font-medium">{t("Se connecter", "Sign in")}</span>
                 </button>
               </nav>
             </div>
@@ -330,7 +245,7 @@ export default function ClientHelpPage() {
             </button>
 
             <h1 className="text-xl sm:text-2xl font-semibold text-gray-900 hidden sm:block">
-              Centre d'aide
+              {t("Centre d'aide", "Help center")}
             </h1>
           </div>
 
@@ -340,7 +255,7 @@ export default function ClientHelpPage() {
               className="flex items-center space-x-2 px-4 py-2 text-gray-700 hover:bg-gray-100 rounded-lg transition-colors"
             >
               <MessageCircle className="w-5 h-5" />
-              <span>Nous contacter</span>
+              <span>{t("Nous contacter", "Contact us")}</span>
             </button>
             <button
               onClick={() => router.push("/login")}
@@ -348,7 +263,7 @@ export default function ClientHelpPage() {
               className="flex items-center space-x-2 px-4 py-2 text-white rounded-lg hover:opacity-90 transition-opacity"
             >
               <User className="w-5 h-5" />
-              <span>Se connecter</span>
+              <span>{t("Se connecter", "Sign in")}</span>
             </button>
           </div>
         </div>
@@ -386,10 +301,10 @@ export default function ClientHelpPage() {
               <div className="bg-white rounded-xl shadow-sm border border-gray-200 p-12 text-center">
                 <Search className="w-16 h-16 text-gray-400 mx-auto mb-4" />
                 <h3 className="text-xl font-semibold text-gray-900 mb-2">
-                  Aucun résultat trouvé
+                  {t("Aucun résultat trouvé", "No results found")}
                 </h3>
                 <p className="text-gray-600">
-                  Essayez avec d'autres mots-clés ou une autre catégorie
+                  {t("Essayez avec d'autres mots-clés ou une autre catégorie", "Try different keywords or another category")}
                 </p>
               </div>
             ) : (
@@ -451,14 +366,109 @@ export default function ClientHelpPage() {
             )}
           </div>
 
+          {/* Chatbot Help Card */}
+          <div className="mt-8 bg-white rounded-xl shadow-sm border border-gray-200 p-6 sm:p-8">
+            <div className="flex items-center justify-between mb-6">
+              <div>
+                <h3 className="text-xl sm:text-2xl font-bold text-gray-900 mb-2">
+                  {t("Assistant d'aide", "Help assistant")}
+                </h3>
+                <p className="text-gray-600">
+                  {t(
+                    "Posez une question et l'assistant répond à partir des FAQ.",
+                    "Ask a question and the assistant answers based on the FAQs."
+                  )}
+                </p>
+              </div>
+              <div
+                className="hidden sm:flex w-12 h-12 rounded-full items-center justify-center"
+                style={{ backgroundColor: `${BUTTON_COLOR}15` }}
+              >
+                <MessageCircle className="w-6 h-6" style={{ color: BUTTON_COLOR }} />
+              </div>
+            </div>
+
+            <div className="bg-gray-50 border border-gray-200 rounded-xl p-4 mb-4 max-h-80 overflow-y-auto">
+              {chat_messages.length === 0 ? (
+                <div className="text-sm text-gray-600">
+                  {t(
+                    "Bonjour ! Posez votre question sur l'utilisation de BusStation.",
+                    "Hi! Ask your question about using BusStation."
+                  )}
+                </div>
+              ) : (
+                <div className="space-y-3">
+                  {chat_messages.map((msg, index) => (
+                    <div
+                      key={`${msg.role}-${index}`}
+                      className={`flex ${
+                        msg.role === "user" ? "justify-end" : "justify-start"
+                      }`}
+                    >
+                      <div
+                        className={`max-w-[80%] rounded-2xl px-4 py-2 text-sm leading-relaxed ${
+                          msg.role === "user"
+                            ? "bg-[#6149CD] text-white"
+                            : "bg-white text-gray-800 border border-gray-200"
+                        }`}
+                      >
+                        {msg.content}
+                      </div>
+                    </div>
+                  ))}
+                  {is_chat_loading && (
+                    <div className="flex justify-start">
+                      <div className="bg-white text-gray-500 border border-gray-200 rounded-2xl px-4 py-2 text-sm">
+                        {t("Assistant en train de répondre...", "Assistant is typing...")}
+                      </div>
+                    </div>
+                  )}
+                </div>
+              )}
+            </div>
+
+            {chat_error && (
+              <div className="mb-4 text-sm text-red-600">
+                {chat_error}
+              </div>
+            )}
+
+            <div className="flex flex-col sm:flex-row gap-3">
+              <textarea
+                value={chat_input}
+                onChange={(e) => setChatInput(e.target.value)}
+                onKeyDown={(e) => {
+                  if (e.key === "Enter" && !e.shiftKey) {
+                    e.preventDefault();
+                    handleSendChat();
+                  }
+                }}
+                placeholder={t(
+                  "Ex: Comment réserver un billet ?",
+                  "e.g., How do I book a ticket?"
+                )}
+                rows={2}
+                className="flex-1 resize-none rounded-xl border border-gray-200 px-4 py-3 text-sm text-gray-900 placeholder:text-gray-500 focus:outline-none focus:ring-2 focus:ring-[#6149CD]"
+              />
+              <button
+                onClick={handleSendChat}
+                disabled={is_chat_loading || !chat_input.trim()}
+                style={{ backgroundColor: BUTTON_COLOR }}
+                className="px-5 py-3 text-white rounded-xl font-semibold hover:opacity-90 transition-opacity disabled:opacity-50 disabled:cursor-not-allowed"
+              >
+                {t("Envoyer", "Send")}
+              </button>
+            </div>
+          </div>
+
           {/* Contact Support Card */}
           <div className="mt-8 bg-white rounded-xl shadow-sm border border-gray-200 p-6 sm:p-8">
             <div className="text-center mb-6">
               <h3 className="text-xl sm:text-2xl font-bold text-gray-900 mb-2">
-                Vous ne trouvez pas ce que vous cherchez ?
+                {t("Vous ne trouvez pas ce que vous cherchez ?", "Can't find what you're looking for?")}
               </h3>
               <p className="text-gray-600">
-                Notre équipe est là pour vous aider
+                {t("Notre équipe est là pour vous aider", "Our team is here to help")}
               </p>
             </div>
 
@@ -470,11 +480,11 @@ export default function ClientHelpPage() {
                 >
                   <Mail className="w-6 h-6" style={{ color: BUTTON_COLOR }} />
                 </div>
-                <h4 className="font-semibold text-gray-900 mb-2">Email</h4>
+                <h4 className="font-semibold text-gray-900 mb-2">{t("Email", "Email")}</h4>
                 <p className="text-sm text-gray-600 mb-3">
                   bryanngoupeyou9@gmail.com
                 </p>
-                <p className="text-xs text-gray-500">Réponse sous 24h</p>
+                <p className="text-xs text-gray-500">{t("Réponse sous 24h", "Reply within 24h")}</p>
               </div>
 
               <div className="bg-gray-50 rounded-xl p-6 text-center">
@@ -484,9 +494,9 @@ export default function ClientHelpPage() {
                 >
                   <Phone className="w-6 h-6" style={{ color: BUTTON_COLOR }} />
                 </div>
-                <h4 className="font-semibold text-gray-900 mb-2">Téléphone</h4>
+                <h4 className="font-semibold text-gray-900 mb-2">{t("Téléphone", "Phone")}</h4>
                 <p className="text-sm text-gray-600 mb-3">+237 655 12 10 10</p>
-                <p className="text-xs text-gray-500">Lun-Ven 8h-18h</p>
+                <p className="text-xs text-gray-500">{t("Lun-Ven 8h-18h", "Mon-Fri 8am-6pm")}</p>
               </div>
 
               <div className="bg-gray-50 rounded-xl p-6 text-center">
@@ -500,14 +510,14 @@ export default function ClientHelpPage() {
                   />
                 </div>
                 <h4 className="font-semibold text-gray-900 mb-2">
-                  Nous contacter
+                  {t("Nous contacter", "Contact us")}
                 </h4>
                 <button
                   onClick={() => router.push("/contact")}
                   style={{ backgroundColor: BUTTON_COLOR }}
                   className="text-white px-4 py-2 rounded-lg text-sm hover:opacity-90 transition-opacity"
                 >
-                  Envoyer un message
+                  {t("Envoyer un message", "Send a message")}
                 </button>
               </div>
             </div>

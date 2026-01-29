@@ -48,6 +48,7 @@ import {
   Legend,
 } from "recharts";
 import { useRouter, useSearchParams } from "next/navigation";
+import { useLanguage } from "../../../providers";
 
 interface AgencyData {
   agency_id: string;
@@ -117,6 +118,7 @@ interface UserData {
 
 function DetailAgencyContent() {
   const router = useRouter();
+  const { t } = useLanguage();
   const searchParams = useSearchParams();
   const agency_id = searchParams.get("id");
 
@@ -155,25 +157,25 @@ function DetailAgencyContent() {
   const MENU_ITEMS = [
     {
       icon: Home,
-      label: "Dashboard",
+      label: t("Dashboard", "Dashboard"),
       path: "/user/organization/dashboard",
       active: true,
     },
     {
       icon: Briefcase,
-      label: "Organisation",
+      label: t("Organisation", "Organization"),
       path: "/user/organization/organization",
       active: false,
     },
     {
       icon: Building2,
-      label: "Agence",
+      label: t("Agence", "Agency"),
       path: "/user/organization/agencies",
       active: false,
     },
     {
       icon: Settings,
-      label: "Mes paramètres",
+      label: t("Mes paramètres", "Settings"),
       path: "/user/organization/settings",
       active: false,
     },
@@ -222,13 +224,19 @@ function DetailAgencyContent() {
         },
       });
 
-      if (!response.ok) throw new Error("Erreur lors du chargement");
+      if (!response.ok)
+        throw new Error(t("Erreur lors du chargement", "Error loading data"));
 
       const data = await response.json();
       setAgency(data);
       setFormData(data);
     } catch (error: any) {
-      setErrorMessage("Impossible de charger les détails de l'agence");
+      setErrorMessage(
+        t(
+          "Impossible de charger les détails de l'agence",
+          "Unable to load agency details"
+        ),
+      );
       setShowErrorModal(true);
       console.error("Fetch Agency Error:", error);
     } finally {
@@ -254,7 +262,12 @@ function DetailAgencyContent() {
       );
 
       if (!response.ok)
-        throw new Error("Erreur lors du chargement des statistiques");
+        throw new Error(
+          t(
+            "Erreur lors du chargement des statistiques",
+            "Error loading statistics"
+          ),
+        );
 
       const data = await response.json();
       setGeneralStats(data);
@@ -282,7 +295,12 @@ function DetailAgencyContent() {
       );
 
       if (!response.ok)
-        throw new Error("Erreur lors du chargement des évolutions");
+        throw new Error(
+          t(
+            "Erreur lors du chargement des évolutions",
+            "Error loading trends"
+          ),
+        );
 
       const data = await response.json();
       setEvolutionStats(data);
@@ -329,13 +347,21 @@ function DetailAgencyContent() {
         body: JSON.stringify(update_body),
       });
 
-      if (!response.ok) throw new Error("Erreur lors de la mise à jour");
+      if (!response.ok)
+        throw new Error(
+          t("Erreur lors de la mise à jour", "Error during update"),
+        );
 
       setShowSuccessModal(true);
       setEditMode(false);
       fetchAgencyDetails();
     } catch (error: any) {
-      setErrorMessage("Erreur lors de la mise à jour de l'agence");
+      setErrorMessage(
+        t(
+          "Erreur lors de la mise à jour de l'agence",
+          "Error updating the agency"
+        ),
+      );
       setShowErrorModal(true);
       console.error("Update Agency Error:", error);
     } finally {
@@ -356,11 +382,17 @@ function DetailAgencyContent() {
         },
       });
 
-      if (!response.ok) throw new Error("Erreur lors de la suppression");
+      if (!response.ok)
+        throw new Error(t("Erreur lors de la suppression", "Error during deletion"));
 
       router.push("/user/organization/dashboard");
     } catch (error: any) {
-      setErrorMessage("Erreur lors de la suppression de l'agence.");
+      setErrorMessage(
+        t(
+          "Erreur lors de la suppression de l'agence.",
+          "Error deleting the agency."
+        ),
+      );
       setShowErrorModal(true);
       console.error("Delete Agency Error:", error);
     } finally {
@@ -378,7 +410,7 @@ function DetailAgencyContent() {
   };
 
   const formatDate = (dateString: string) => {
-    if (!dateString) return "Non renseigné";
+    if (!dateString) return t("Non renseigné", "Not provided");
     return new Date(dateString).toLocaleDateString("fr-FR", {
       month: "numeric",
       year: "numeric",
@@ -399,7 +431,7 @@ function DetailAgencyContent() {
       <div className="min-h-screen bg-gray-50 flex items-center justify-center">
         <div className="text-center">
           <Settings className="w-12 h-12 text-[#6149CD] animate-spin mx-auto mb-4" />
-          <p className="text-gray-600">Chargement...</p>
+          <p className="text-gray-600">{t("Chargement...", "Loading...")}</p>
         </div>
       </div>
     );
@@ -410,13 +442,15 @@ function DetailAgencyContent() {
       <div className="min-h-screen bg-gray-50 flex items-center justify-center">
         <div className="text-center">
           <AlertCircle className="w-12 h-12 text-red-600 mx-auto mb-4" />
-          <p className="text-gray-600">Agence introuvable</p>
+          <p className="text-gray-600">
+            {t("Agence introuvable", "Agency not found")}
+          </p>
           <button
             onClick={() => router.push("/user/organization/dashboard")}
             style={{ backgroundColor: BUTTON_COLOR }}
             className="mt-4 px-6 py-2 text-white rounded-lg hover:opacity-90"
           >
-            Retour au dashboard
+            {t("Retour au dashboard", "Back to dashboard")}
           </button>
         </div>
       </div>
@@ -482,13 +516,13 @@ function DetailAgencyContent() {
   const getChartTitle = () => {
     switch (active_chart) {
       case "reservations":
-        return "Évolution des réservations";
+        return t("Évolution des réservations", "Bookings trend");
       case "voyages":
-        return "Évolution des voyages";
+        return t("Évolution des voyages", "Trips trend");
       case "revenus":
-        return "Évolution des revenus";
+        return t("Évolution des revenus", "Revenue trend");
       case "utilisateurs":
-        return "Évolution des utilisateurs";
+        return t("Évolution des utilisateurs", "Users trend");
       default:
         return "";
     }
@@ -581,7 +615,7 @@ function DetailAgencyContent() {
                 <ArrowLeft className="w-6 h-6 text-gray-900" />
               </button>
               <h1 className="text-2xl font-semibold text-gray-900">
-                Détails de l'agence
+                {t("Détails de l'agence", "Agency details")}
               </h1>
             </div>
 
@@ -606,14 +640,14 @@ function DetailAgencyContent() {
                     className="flex items-center space-x-2 px-4 py-2 text-white rounded-lg hover:opacity-90 transition-opacity"
                   >
                     <Edit className="w-4 h-4" />
-                    <span>Modifier</span>
+                    <span>{t("Modifier", "Edit")}</span>
                   </button>
                   <button
                     onClick={() => setShowDeleteModal(true)}
                     className="flex items-center space-x-2 px-4 py-2 bg-red-600 text-white rounded-lg hover:bg-red-700 transition-colors"
                   >
                     <Trash2 className="w-4 h-4" />
-                    <span>Supprimer</span>
+                    <span>{t("Supprimer", "Delete")}</span>
                   </button>
                 </>
               ) : (
@@ -626,7 +660,9 @@ function DetailAgencyContent() {
                   >
                     <Save className="w-4 h-4" />
                     <span>
-                      {is_saving ? "Enregistrement..." : "Enregistrer"}
+                      {is_saving
+                        ? t("Enregistrement...", "Saving...")
+                        : t("Enregistrer", "Save")}
                     </span>
                   </button>
                   <button
@@ -637,7 +673,7 @@ function DetailAgencyContent() {
                     className="flex items-center space-x-2 px-4 py-2 border border-gray-300 text-gray-700 rounded-lg hover:bg-gray-100 transition-colors"
                   >
                     <CancelIcon className="w-4 h-4" />
-                    <span>Annuler</span>
+                    <span>{t("Annuler", "Cancel")}</span>
                   </button>
                 </>
               )}
@@ -666,14 +702,16 @@ function DetailAgencyContent() {
                       className="w-full flex items-center space-x-3 px-4 py-2 hover:bg-gray-100 transition-colors"
                     >
                       <Settings className="w-4 h-4 text-gray-600" />
-                      <span className="text-gray-700">Paramètres</span>
+                      <span className="text-gray-700">
+                        {t("Paramètres", "Settings")}
+                      </span>
                     </button>
                     <button
                       onClick={handleLogout}
                       className="w-full flex items-center space-x-3 px-4 py-2 hover:bg-gray-100 transition-colors text-red-600"
                     >
                       <LogOut className="w-4 h-4" />
-                      <span>Se déconnecter</span>
+                      <span>{t("Se déconnecter", "Sign out")}</span>
                     </button>
                   </div>
                 )}
@@ -718,7 +756,9 @@ function DetailAgencyContent() {
 
               <div className="mt-4 pt-4 border-t border-gray-200">
                 <p className="text-sm text-gray-600">
-                  <span className="font-semibold">ID Agence :</span>{" "}
+                  <span className="font-semibold">
+                    {t("ID Agence :", "Agency ID:")}
+                  </span>{" "}
                   {agency.agency_id}
                 </p>
               </div>
@@ -728,14 +768,14 @@ function DetailAgencyContent() {
             <div className="bg-white rounded-xl shadow-sm border border-gray-200 p-6">
               <h3 className="text-xl font-bold text-gray-900 mb-6 flex items-center space-x-2">
                 <Building className="w-6 h-6 text-[#6149CD]" />
-                <span>Informations principales</span>
+                <span>{t("Informations principales", "Main information")}</span>
               </h3>
 
               <div className="space-y-4">
                 <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
                   <div>
                     <label className="block text-sm font-semibold text-gray-700 mb-2">
-                      Nom complet
+                      {t("Nom complet", "Full name")}
                     </label>
                     <input
                       type="text"
@@ -749,7 +789,7 @@ function DetailAgencyContent() {
 
                   <div>
                     <label className="block text-sm font-semibold text-gray-700 mb-2">
-                      Abréviation
+                      {t("Abréviation", "Abbreviation")}
                     </label>
                     <input
                       type="text"
@@ -768,14 +808,14 @@ function DetailAgencyContent() {
             <div className="bg-white rounded-xl shadow-sm border border-gray-200 p-6">
               <h3 className="text-xl font-bold text-gray-900 mb-6 flex items-center space-x-2">
                 <MapPin className="w-6 h-6 text-[#6149CD]" />
-                <span>Localisation</span>
+                <span>{t("Localisation", "Location")}</span>
               </h3>
 
               <div className="space-y-4">
                 <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
                   <div>
                     <label className="block text-sm font-semibold text-gray-700 mb-2">
-                      Ville
+                      {t("Ville", "City")}
                     </label>
                     <input
                       type="text"
@@ -789,7 +829,7 @@ function DetailAgencyContent() {
 
                   <div>
                     <label className="block text-sm font-semibold text-gray-700 mb-2">
-                      Zone/Quartier
+                      {t("Zone/Quartier", "Area/District")}
                     </label>
                     <input
                       type="text"
@@ -808,13 +848,13 @@ function DetailAgencyContent() {
             <div className="bg-white rounded-xl shadow-sm border border-gray-200 p-6">
               <h3 className="text-xl font-bold text-gray-900 mb-6 flex items-center space-x-2">
                 <Globe className="w-6 h-6 text-[#6149CD]" />
-                <span>Informations supplémentaires</span>
+                <span>{t("Informations supplémentaires", "Additional information")}</span>
               </h3>
 
               <div className="space-y-4">
                 <div>
                   <label className="block text-sm font-semibold text-gray-700 mb-2">
-                    Réseau social
+                    {t("Réseau social", "Social network")}
                   </label>
                   <input
                     type="text"
@@ -822,7 +862,10 @@ function DetailAgencyContent() {
                     value={form_data.social_network || ""}
                     onChange={handleInputChange}
                     disabled={!edit_mode}
-                    placeholder="https://facebook.com/agence"
+                    placeholder={t(
+                      "https://facebook.com/agence",
+                      "https://facebook.com/agency"
+                    )}
                     className="w-full px-4 py-3 border-2 border-gray-200 text-gray-800 rounded-xl focus:outline-none focus:ring-2 focus:ring-[#6149CD] disabled:bg-gray-50"
                   />
                 </div>
@@ -830,7 +873,7 @@ function DetailAgencyContent() {
                 <div>
                   <label className="text-sm font-semibold text-gray-700 mb-2 flex items-center space-x-2">
                     <MessageSquare className="w-4 h-4 text-[#6149CD]" />
-                    <span>Message d'accueil</span>
+                    <span>{t("Message d'accueil", "Welcome message")}</span>
                   </label>
                   <textarea
                     name="greeting_message"
@@ -844,7 +887,7 @@ function DetailAgencyContent() {
 
                 <div>
                   <label className="block text-sm font-semibold text-gray-700 mb-2">
-                    Description
+                    {t("Description", "Description")}
                   </label>
                   <textarea
                     name="description"
@@ -861,14 +904,14 @@ function DetailAgencyContent() {
             {/* Section 4: Informations de validation */}
             <div className="bg-white rounded-xl shadow-sm border border-gray-200 p-6">
               <h3 className="text-xl font-bold text-gray-900 mb-6">
-                Informations de validation
+                {t("Informations de validation", "Validation information")}
               </h3>
 
               <div className="space-y-4">
                 <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
                   <div>
                     <label className="block text-sm font-semibold text-gray-700 mb-2">
-                      Statut de validation
+                      {t("Statut de validation", "Validation status")}
                     </label>
                     <span
                       className={`inline-block px-4 py-2 rounded-full text-sm font-semibold ${getStatusBadge(
@@ -881,7 +924,7 @@ function DetailAgencyContent() {
 
                   <div>
                     <label className="block text-sm font-semibold text-gray-700 mb-2">
-                      Date de validation
+                      {t("Date de validation", "Validation date")}
                     </label>
                     <p className="text-gray-900">
                       {formatDate(agency.date_validation)}
@@ -892,7 +935,7 @@ function DetailAgencyContent() {
                 {agency.motif_rejet && (
                   <div>
                     <label className="block text-sm font-semibold text-gray-700 mb-2">
-                      Motif de rejet
+                      {t("Motif de rejet", "Rejection reason")}
                     </label>
                     <div className="bg-red-50 border border-red-200 rounded-lg p-4">
                       <p className="text-red-800">{agency.motif_rejet}</p>
@@ -904,7 +947,7 @@ function DetailAgencyContent() {
                   <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
                     <div>
                       <label className="block text-sm font-semibold text-gray-700 mb-2">
-                        Date de création
+                        {t("Date de création", "Creation date")}
                       </label>
                       <p className="text-gray-900">
                         {formatDate(agency.created_at)}
@@ -914,7 +957,7 @@ function DetailAgencyContent() {
                     {agency.bsm_validator_id && (
                       <div>
                         <label className="block text-sm font-semibold text-gray-700 mb-2">
-                          ID Validateur BSM
+                          {t("ID Validateur BSM", "BSM validator ID")}
                         </label>
                         <p className="text-gray-900 font-mono text-sm">
                           {agency.bsm_validator_id}
@@ -933,7 +976,7 @@ function DetailAgencyContent() {
                 <div className="bg-white rounded-xl shadow-sm border border-gray-200 p-6">
                   <h3 className="text-2xl font-bold text-gray-900 flex items-center space-x-2">
                     <BarChart3 className="w-7 h-7 text-[#6149CD]" />
-                    <span>Statistiques de l'agence</span>
+                    <span>{t("Statistiques de l'agence", "Agency statistics")}</span>
                   </h3>
                 </div>
 
@@ -949,7 +992,7 @@ function DetailAgencyContent() {
                       {general_stats.nombreEmployes}
                     </h3>
                     <p className="text-xs sm:text-sm md:text-base text-gray-600 mt-1">
-                      Employés
+                      {t("Employés", "Employees")}
                     </p>
                   </div>
 
@@ -963,7 +1006,7 @@ function DetailAgencyContent() {
                       {general_stats.nombreChauffeurs}
                     </h3>
                     <p className="text-xs sm:text-sm md:text-base text-gray-600 mt-1">
-                      Chauffeurs
+                      {t("Chauffeurs", "Drivers")}
                     </p>
                   </div>
 
@@ -977,7 +1020,7 @@ function DetailAgencyContent() {
                       {general_stats.nombreVoyages}
                     </h3>
                     <p className="text-xs sm:text-sm md:text-base text-gray-600 mt-1">
-                      Voyages
+                      {t("Voyages", "Trips")}
                     </p>
                   </div>
 
@@ -991,7 +1034,7 @@ function DetailAgencyContent() {
                       {general_stats.nombreReservations}
                     </h3>
                     <p className="text-xs sm:text-sm md:text-base text-gray-600 mt-1">
-                      Réservations
+                      {t("Réservations", "Bookings")}
                     </p>
                   </div>
                 </div>
@@ -1001,7 +1044,7 @@ function DetailAgencyContent() {
                   <div className="bg-linear-to-br from-green-400 to-green-600 rounded-xl shadow-lg p-4 sm:p-6 text-white">
                     <div className="flex items-center justify-between mb-2 sm:mb-4">
                       <h3 className="text-sm sm:text-lg Ffont-semibold">
-                        Revenus totaux potentiels
+                        {t("Revenus totaux potentiels", "Potential total revenue")}
                       </h3>
                       <TrendingUp className="w-5 h-5 sm:w-6 sm:h-6" />
                     </div>
@@ -1014,7 +1057,7 @@ function DetailAgencyContent() {
                     <div className="flex items-center space-x-2 mb-2">
                       <UserPlus className="w-4 h-4 sm:w-5 sm:h-5 text-[#6149CD]" />
                       <h3 className="text-gray-600 text-xs sm:text-base">
-                        Nouveaux utilisateurs
+                        {t("Nouveaux utilisateurs", "New users")}
                       </h3>
                     </div>
                     <p className="text-xl sm:text-2xl md:text-3xl font-bold text-gray-900">
@@ -1024,7 +1067,7 @@ function DetailAgencyContent() {
 
                   <div className="bg-white rounded-xl shadow-sm border border-gray-200 p-4 sm:p-6 sm:col-span-2 md:col-span-1">
                     <h3 className="text-gray-600 mb-2 text-xs sm:text-base">
-                      Taux d'occupation
+                      {t("Taux d'occupation", "Occupancy rate")}
                     </h3>
                     <div className="flex items-center space-x-3 sm:space-x-4">
                       <div className="flex-1">
@@ -1063,7 +1106,7 @@ function DetailAgencyContent() {
                               : "bg-gray-100 text-gray-700 hover:bg-gray-200"
                           }`}
                         >
-                          Réservations
+                          {t("Réservations", "Bookings")}
                         </button>
                         <button
                           onClick={() => setActiveChart("voyages")}
@@ -1073,7 +1116,7 @@ function DetailAgencyContent() {
                               : "bg-gray-100 text-gray-700 hover:bg-gray-200"
                           }`}
                         >
-                          Voyages
+                          {t("Voyages", "Trips")}
                         </button>
                         <button
                           onClick={() => setActiveChart("revenus")}
@@ -1083,7 +1126,7 @@ function DetailAgencyContent() {
                               : "bg-gray-100 text-gray-700 hover:bg-gray-200"
                           }`}
                         >
-                          Revenus
+                          {t("Revenus", "Revenue")}
                         </button>
                         <button
                           onClick={() => setActiveChart("utilisateurs")}
@@ -1093,7 +1136,7 @@ function DetailAgencyContent() {
                               : "bg-gray-100 text-gray-700 hover:bg-gray-200"
                           }`}
                         >
-                          Utilisateurs
+                          {t("Utilisateurs", "Users")}
                         </button>
                       </div>
                     </div>
@@ -1158,7 +1201,7 @@ function DetailAgencyContent() {
                       ) : (
                         <div className="flex items-center justify-center h-full">
                           <p className="text-gray-500">
-                            Aucune donnée disponible
+                            {t("Aucune donnée disponible", "No data available")}
                           </p>
                         </div>
                       )}
@@ -1217,7 +1260,7 @@ function DetailAgencyContent() {
                         ) : (
                           <div className="flex items-center justify-center h-full">
                             <p className="text-gray-500 text-sm">
-                              Aucun voyage
+                              {t("Aucun voyage", "No trips")}
                             </p>
                           </div>
                         )}
@@ -1275,7 +1318,7 @@ function DetailAgencyContent() {
                         ) : (
                           <div className="flex items-center justify-center h-full">
                             <p className="text-gray-500 text-sm">
-                              Aucune réservation
+                              {t("Aucune réservation", "No bookings")}
                             </p>
                           </div>
                         )}
@@ -1290,7 +1333,7 @@ function DetailAgencyContent() {
                     Object.keys(general_stats.revenue_by_class).length > 0 && (
                       <div className="bg-white rounded-xl shadow-sm border border-gray-200 p-4 sm:p-6">
                         <h3 className="text-base sm:text-lg font-bold text-gray-900 mb-4">
-                          Revenus par classe
+                          {t("Revenus par classe", "Revenue by class")}
                         </h3>
                         <div className="h-64">
                           <ResponsiveContainer width="100%" height="100%">
@@ -1323,7 +1366,7 @@ function DetailAgencyContent() {
                               <Bar
                                 dataKey="value"
                                 fill="#6149CD"
-                                name="Revenu"
+                                name={t("Revenu", "Revenue")}
                                 radius={[8, 8, 0, 0]}
                               />
                             </BarChart>
@@ -1337,7 +1380,7 @@ function DetailAgencyContent() {
                     Object.keys(general_stats.top_destinations).length > 0 && (
                       <div className="bg-white rounded-xl shadow-sm border border-gray-200 p-4 sm:p-6">
                         <h3 className="text-base sm:text-lg font-bold text-gray-900 mb-4">
-                          Top 10 destinations
+                          {t("Top 10 destinations", "Top 10 destinations")}
                         </h3>
                         <div className="h-64">
                           <ResponsiveContainer width="100%" height="100%">
@@ -1374,7 +1417,7 @@ function DetailAgencyContent() {
                               <Bar
                                 dataKey="value"
                                 fill="#10B981"
-                                name="Voyages"
+                                name={t("Voyages", "Trips")}
                                 radius={[0, 8, 8, 0]}
                               />
                             </BarChart>
@@ -1440,7 +1483,7 @@ function DetailAgencyContent() {
                       .length > 0 && (
                       <div className="bg-white rounded-xl shadow-sm border border-gray-200 p-4 sm:p-6">
                         <h3 className="text-base sm:text-lg font-bold text-gray-900 mb-4">
-                          Réservations par jour
+                          {t("Réservations par jour", "Bookings per day")}
                         </h3>
                         <div className="h-64">
                           <ResponsiveContainer width="100%" height="100%">
@@ -1470,7 +1513,7 @@ function DetailAgencyContent() {
                               <Bar
                                 dataKey="value"
                                 fill="#8B5CF6"
-                                name="Réservations"
+                                name={t("Réservations", "Bookings")}
                                 radius={[8, 8, 0, 0]}
                               />
                             </BarChart>
@@ -1484,7 +1527,10 @@ function DetailAgencyContent() {
                     Object.keys(general_stats.trips_by_driver).length > 0 && (
                       <div className="bg-white rounded-xl shadow-sm border border-gray-200 p-4 sm:p-6 lg:col-span-2">
                         <h3 className="text-base sm:text-lg font-bold text-gray-900 mb-4">
-                          Top 10 chauffeurs (par nombre de voyages)
+                          {t(
+                            "Top 10 chauffeurs (par nombre de voyages)",
+                            "Top 10 drivers (by number of trips)"
+                          )}
                         </h3>
                         <div className="h-64">
                           <ResponsiveContainer width="100%" height="100%">
@@ -1521,7 +1567,7 @@ function DetailAgencyContent() {
                               <Bar
                                 dataKey="value"
                                 fill="#EF4444"
-                                name="Voyages"
+                                name={t("Voyages", "Trips")}
                                 radius={[0, 8, 8, 0]}
                               />
                             </BarChart>
@@ -1539,7 +1585,7 @@ function DetailAgencyContent() {
                       evolution_stats.evolution_taux_occupation.length > 0 && (
                         <div className="bg-white rounded-xl shadow-sm border border-gray-200 p-4 sm:p-6">
                           <h3 className="text-base sm:text-lg font-bold text-gray-900 mb-4">
-                            Évolution du taux d'occupation
+                            {t("Évolution du taux d'occupation", "Occupancy rate trend")}
                           </h3>
                           <div className="h-64">
                             <ResponsiveContainer width="100%" height="100%">
@@ -1575,7 +1621,7 @@ function DetailAgencyContent() {
                                   stroke="#6149CD"
                                   strokeWidth={2}
                                   dot={{ fill: "#6149CD", r: 3 }}
-                                  name="Taux (%)"
+                                  name={t("Taux (%)", "Rate (%)")}
                                 />
                               </LineChart>
                             </ResponsiveContainer>
@@ -1588,7 +1634,7 @@ function DetailAgencyContent() {
                       evolution_stats.evolution_annulations.length > 0 && (
                         <div className="bg-white rounded-xl shadow-sm border border-gray-200 p-4 sm:p-6">
                           <h3 className="text-base sm:text-lg font-bold text-gray-900 mb-4">
-                            Évolution des annulations
+                            {t("Évolution des annulations", "Cancellations trend")}
                           </h3>
                           <div className="h-64">
                             <ResponsiveContainer width="100%" height="100%">
@@ -1624,7 +1670,7 @@ function DetailAgencyContent() {
                                   stroke="#EF4444"
                                   strokeWidth={2}
                                   dot={{ fill: "#EF4444", r: 3 }}
-                                  name="Annulations"
+                                  name={t("Annulations", "Cancellations")}
                                 />
                               </LineChart>
                             </ResponsiveContainer>
@@ -1638,7 +1684,7 @@ function DetailAgencyContent() {
                         0 && (
                         <div className="bg-white rounded-xl shadow-sm border border-gray-200 p-4 sm:p-6">
                           <h3 className="text-base sm:text-lg font-bold text-gray-900 mb-4">
-                            Revenus par mois
+                            {t("Revenus par mois", "Revenue per month")}
                           </h3>
                           <div className="h-64">
                             <ResponsiveContainer width="100%" height="100%">
@@ -1671,7 +1717,7 @@ function DetailAgencyContent() {
                                 <Bar
                                   dataKey="value"
                                   fill="#10B981"
-                                  name="Revenu"
+                                  name={t("Revenu", "Revenue")}
                                   radius={[8, 8, 0, 0]}
                                 />
                               </BarChart>
@@ -1686,7 +1732,7 @@ function DetailAgencyContent() {
                         .length > 0 && (
                         <div className="bg-white rounded-xl shadow-sm border border-gray-200 p-4 sm:p-6">
                           <h3 className="text-base sm:text-lg font-bold text-gray-900 mb-4">
-                            Réservations par mois
+                            {t("Réservations par mois", "Bookings per month")}
                           </h3>
                           <div className="h-64">
                             <ResponsiveContainer width="100%" height="100%">
@@ -1716,7 +1762,7 @@ function DetailAgencyContent() {
                                 <Bar
                                   dataKey="value"
                                   fill="#6149CD"
-                                  name="Réservations"
+                                  name={t("Réservations", "Bookings")}
                                   radius={[8, 8, 0, 0]}
                                 />
                               </BarChart>
@@ -1742,7 +1788,10 @@ function DetailAgencyContent() {
               </div>
 
               <p className="text-gray-700 mb-6">
-                Êtes-vous sûr de vouloir supprimer l'agence{" "}
+                {t(
+                  "Êtes-vous sûr de vouloir supprimer l'agence",
+                  "Are you sure you want to delete the agency"
+                )}{" "}
                 <span className="font-bold">{agency.long_name}</span> ?
               </p>
 
@@ -1752,14 +1801,16 @@ function DetailAgencyContent() {
                   disabled={is_deleting}
                   className="flex-1 py-3 border-2 border-gray-300 text-gray-700 rounded-xl font-semibold hover:bg-gray-100 transition-colors disabled:opacity-50"
                 >
-                  Annuler
+                  {t("Annuler", "Cancel")}
                 </button>
                 <button
                   onClick={handleDelete}
                   disabled={is_deleting}
                   className="flex-1 py-3 bg-red-600 text-white rounded-xl font-semibold hover:bg-red-700 transition-colors disabled:opacity-50"
                 >
-                  {is_deleting ? "Suppression..." : "Supprimer"}
+                  {is_deleting
+                    ? t("Suppression...", "Deleting...")
+                    : t("Supprimer", "Delete")}
                 </button>
               </div>
             </div>
@@ -1788,16 +1839,16 @@ function DetailAgencyContent() {
                 </svg>
               </div>
               <h2 className="text-xl sm:text-2xl font-bold text-gray-900 mb-2">
-                Succès !
+                {t("Succès !", "Success!")}
               </h2>
               <p className="text-gray-600 mb-6 text-sm sm:text-base">
-                Agence mis à jour avec succès
+                {t("Agence mis à jour avec succès", "Agency updated successfully")}
               </p>
               <button
                 onClick={() => setShowSuccessModal(false)}
                 className="w-full py-2.5 sm:py-3 bg-green-600 text-white rounded-xl font-semibold hover:bg-green-700 transition-colors text-sm sm:text-base"
               >
-                Fermer
+                {t("Fermer", "Close")}
               </button>
             </div>
           </div>
@@ -1813,7 +1864,7 @@ function DetailAgencyContent() {
                 <AlertCircle className="w-10 h-10 sm:w-12 sm:h-12 text-red-600" />
               </div>
               <h2 className="text-xl sm:text-2xl font-bold text-gray-900 mb-2">
-                Erreur
+                {t("Erreur", "Error")}
               </h2>
               <div className="bg-red-50 rounded-xl p-4 mb-6">
                 <p className="text-sm sm:text-base text-red-800">
@@ -1826,7 +1877,7 @@ function DetailAgencyContent() {
                 }}
                 className="w-full py-2.5 sm:py-3 bg-red-600 text-white rounded-xl font-semibold hover:bg-red-700 transition-colors text-sm sm:text-base"
               >
-                Fermer
+                {t("Fermer", "Close")}
               </button>
             </div>
           </div>
@@ -1843,7 +1894,7 @@ export default function DetailAgencyPage() {
         <div className="min-h-screen bg-gray-50 flex items-center justify-center">
           <div className="text-center">
             <div className="w-8 h-8 border-4 border-[#6149CD] border-t-transparent rounded-full animate-spin mx-auto mb-4"></div>
-            <p className="text-gray-600">Chargement...</p>
+            <p className="text-gray-600">{t("Chargement...", "Loading...")}</p>
           </div>
         </div>
       }

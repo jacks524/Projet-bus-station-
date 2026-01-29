@@ -22,6 +22,7 @@ import {
   Printer,
 } from "lucide-react";
 import { useRouter } from "next/navigation";
+import { useLanguage } from "../../../providers";
 
 interface Voyage {
   idVoyage: string;
@@ -89,46 +90,47 @@ export default function ClientTicketsPage() {
   const [total_pages, setTotalPages] = useState(0);
 
   const router = useRouter();
+  const { t } = useLanguage();
 
   const API_BASE_URL = process.env.NEXT_PUBLIC_API_BASE_URL;
   const BUTTON_COLOR = "#6149CD";
   const TICKETS_PER_PAGE = 5;
 
   const MENU_ITEMS = [
-    { icon: Home, label: "Accueil", path: "/user/client/home", active: false },
+    { icon: Home, label: t("Accueil", "Home"), path: "/user/client/home", active: false },
     {
       icon: Calendar,
-      label: "Réserver",
+      label: t("Réserver", "Book"),
       path: "/user/client/book",
       active: false,
     },
     {
       icon: FileText,
-      label: "Réservations",
+      label: t("Réservations", "Bookings"),
       path: "/user/client/reservations",
       active: false,
     },
     {
       icon: Ticket,
-      label: "Billets",
+      label: t("Billets", "Tickets"),
       path: "/user/client/tickets",
       active: true,
     },
     {
       icon: Gift,
-      label: "Coupons",
+      label: t("Coupons", "Vouchers"),
       path: "/user/client/vouchers",
       active: false,
     },
     {
       icon: History,
-      label: "Historique",
+      label: t("Historique", "History"),
       path: "/user/client/history",
       active: false,
     },
     {
       icon: Settings,
-      label: "Mes paramètres",
+      label: t("Mes paramètres", "Settings"),
       path: "/user/client/settings",
       active: false,
     },
@@ -180,7 +182,7 @@ export default function ClientTicketsPage() {
       );
 
       if (!response.ok) {
-        throw new Error("Erreur lors du chargement des billets");
+        throw new Error(t("Erreur lors du chargement des billets", "Error loading tickets"));
       }
 
       const data = await response.json();
@@ -202,7 +204,7 @@ export default function ClientTicketsPage() {
       setTickets(confirmed_tickets);
       setTotalPages(data.totalPages || 0);
     } catch (error: any) {
-      setErrorMessage("Impossible de charger vos billets");
+      setErrorMessage(t("Impossible de charger vos billets", "Unable to load your tickets"));
       console.error("Fetch Tickets Error:", error);
     } finally {
       setIsLoading(false);
@@ -226,7 +228,7 @@ export default function ClientTicketsPage() {
       <!DOCTYPE html>
       <html>
       <head>
-        <title>Billet - ${ticket.reservation.idReservation}</title>
+        <title>${t("Billet", "Ticket")} - ${ticket.reservation.idReservation}</title>
         <style>
           body {
             font-family: 'Segoe UI', Arial, sans-serif;
@@ -317,33 +319,33 @@ export default function ClientTicketsPage() {
           <!-- En-tête -->
           <div class="ticket-header">
             <img src="/images/busstation.png" alt="BusStation Logo" class="ticket-logo">
-            <div class="ticket-title">BILLET DE VOYAGE</div>
+            <div class="ticket-title">${t("BILLET DE VOYAGE", "TRAVEL TICKET")}</div>
             <div><strong>N° ${ticket.reservation.idReservation}</strong></div>
-            <div class="status-badge">CONFIRMÉ</div>
+            <div class="status-badge">${t("CONFIRMÉ", "CONFIRMED")}</div>
           </div>
 
           <!-- Section Voyage -->
           <table>
             <thead>
               <tr>
-                <th colspan="2">Informations du voyage</th>
+                <th colspan="2">${t("Informations du voyage", "Trip information")}</th>
               </tr>
             </thead>
             <tbody>
               <tr>
-                <td class="label">Agence</td>
+                <td class="label">${t("Agence", "Agency")}</td>
                 <td class="value">${ticket.agence.longName}</td>
               </tr>
               <tr>
-                <td class="label">Itinéraire</td>
-                <td class="value">De ${ticket.voyage.lieuDepart} vers ${ticket.voyage.lieuArrive}</td>
+                <td class="label">${t("Itinéraire", "Route")}</td>
+                <td class="value">${t("De", "From")} ${ticket.voyage.lieuDepart} ${t("vers", "to")} ${ticket.voyage.lieuArrive}</td>
               </tr>
               <tr>
-                <td class="label">Points de ramassage</td>
-                <td class="value">Départ: ${ticket.voyage.pointDeDepart}<br>Arrivée: ${ticket.voyage.pointArrivee}</td>
+                <td class="label">${t("Points de ramassage", "Pickup points")}</td>
+                <td class="value">${t("Départ", "Departure")}: ${ticket.voyage.pointDeDepart}<br>${t("Arrivée", "Arrival")}: ${ticket.voyage.pointArrivee}</td>
               </tr>
               <tr>
-                <td class="label">Date de départ</td>
+                <td class="label">${t("Date de départ", "Departure date")}</td>
                 <td class="value" style="color: #6149CD; font-weight: bold;">${formatDate(ticket.voyage.dateDepartPrev)}</td>
               </tr>
             </tbody>
@@ -353,20 +355,20 @@ export default function ClientTicketsPage() {
           <table>
             <thead>
               <tr>
-                <th colspan="2">Passager & Réservation</th>
+                <th colspan="2">${t("Passager & Réservation", "Passenger & Booking")}</th>
               </tr>
             </thead>
             <tbody>
               <tr>
-                <td class="label">Nombre de passagers</td>
+                <td class="label">${t("Nombre de passagers", "Number of passengers")}</td>
                 <td class="value">${ticket.reservation.nbrPassager}</td>
               </tr>
               <tr>
-                <td class="label">Réservé le</td>
+                <td class="label">${t("Réservé le", "Booked on")}</td>
                 <td class="value">${formatDate(ticket.reservation.dateReservation)}</td>
               </tr>
               <tr>
-                <td class="label">Confirmé le</td>
+                <td class="label">${t("Confirmé le", "Confirmed on")}</td>
                 <td class="value">${formatDate(ticket.reservation.dateConfirmation)}</td>
               </tr>
             </tbody>
@@ -376,12 +378,12 @@ export default function ClientTicketsPage() {
           <table>
             <thead>
               <tr>
-                <th colspan="2">Détails du paiement</th>
+                <th colspan="2">${t("Détails du paiement", "Payment details")}</th>
               </tr>
             </thead>
             <tbody>
               <tr>
-                <td class="label">Montant payé</td>
+                <td class="label">${t("Montant payé", "Amount paid")}</td>
                 <td class="value price-large">${ticket.reservation.prixTotal} FCFA</td>
               </tr>
             </tbody>
@@ -389,9 +391,9 @@ export default function ClientTicketsPage() {
 
           <!-- Pied de page -->
           <div class="ticket-footer">
-            <p>Merci d'avoir choisi <strong>BusStation</strong> pour votre voyage.</p>
-            <p><em>Veuillez présenter ce billet (numérique ou papier) lors de l'embarquement.</em></p>
-            <p>Imprimé le ${new Date().toLocaleDateString("fr-FR")} à ${new Date().toLocaleTimeString("fr-FR")}</p>
+            <p>${t("Merci d'avoir choisi", "Thank you for choosing")} <strong>BusStation</strong> ${t("pour votre voyage.", "for your trip.")}</p>
+            <p><em>${t("Veuillez présenter ce billet (numérique ou papier) lors de l'embarquement.", "Please present this ticket (digital or paper) at boarding.")}</em></p>
+            <p>${t("Imprimé le", "Printed on")} ${new Date().toLocaleDateString("fr-FR")} ${t("à", "at")} ${new Date().toLocaleTimeString("fr-FR")}</p>
           </div>
         </div>
 
@@ -531,7 +533,7 @@ export default function ClientTicketsPage() {
                 <Menu className="w-6 h-6 text-gray-900" />
               </button>
               <h1 className="text-2xl font-semibold text-gray-900">
-                Mes billets
+                {t("Mes billets", "My tickets")}
               </h1>
             </div>
 
@@ -570,14 +572,16 @@ export default function ClientTicketsPage() {
                       className="w-full flex items-center space-x-3 px-4 py-2 hover:bg-gray-100 transition-colors"
                     >
                       <Settings className="w-4 h-4 text-gray-600" />
-                      <span className="text-gray-700">Paramètres</span>
+                      <span className="text-gray-700">
+                        {t("Paramètres", "Settings")}
+                      </span>
                     </button>
                     <button
                       onClick={handleLogout}
                       className="w-full flex items-center space-x-3 px-4 py-2 hover:bg-gray-100 transition-colors text-red-600"
                     >
                       <LogOut className="w-4 h-4" />
-                      <span>Se déconnecter</span>
+                      <span>{t("Se déconnecter", "Sign out")}</span>
                     </button>
                   </div>
                 )}
@@ -599,7 +603,7 @@ export default function ClientTicketsPage() {
                       <div className="text-center">
                         <Ticket className="w-16 h-16 text-[#6149CD] animate-spin mx-auto mb-4" />
                         <p className="text-gray-600">
-                          Chargement de vos billets...
+                          {t("Chargement de vos billets...", "Loading your tickets...")}
                         </p>
                       </div>
                     </div>
@@ -612,17 +616,17 @@ export default function ClientTicketsPage() {
                     <div className="bg-white rounded-xl p-12 text-center">
                       <Ticket className="w-16 h-16 text-gray-400 mx-auto mb-4" />
                       <h3 className="text-xl font-semibold text-gray-900 mb-2">
-                        Aucun billet disponible
+                        {t("Aucun billet disponible", "No tickets available")}
                       </h3>
                       <p className="text-gray-600 mb-6">
-                        Vous n'avez pas encore de billets confirmés
+                        {t("Vous n'avez pas encore de billets confirmés", "You don't have confirmed tickets yet")}
                       </p>
                       <button
                         onClick={() => router.push("/user/client/reservations")}
                         style={{ backgroundColor: BUTTON_COLOR }}
                         className="px-6 py-3 text-white rounded-lg hover:opacity-90 transition-opacity"
                       >
-                        Payer une reservation
+                        {t("Payer une reservation", "Pay a reservation")}
                       </button>
                     </div>
                   ) : (
@@ -636,11 +640,13 @@ export default function ClientTicketsPage() {
                         </div>
                         <div>
                           <h3 className="text-2xl font-bold text-gray-900">
-                            Vos billets confirmés
+                            {t("Vos billets confirmés", "Your confirmed tickets")}
                           </h3>
                           <p className="text-sm text-gray-600">
-                            {tickets.length} billet
-                            {tickets.length > 1 ? "s" : ""} sur cette page
+                            {t(
+                              `${tickets.length} billet${tickets.length > 1 ? "s" : ""} sur cette page`,
+                              `${tickets.length} ticket${tickets.length > 1 ? "s" : ""} on this page`
+                            )}
                           </p>
                         </div>
                       </div>
@@ -657,14 +663,14 @@ export default function ClientTicketsPage() {
                                   {data.agence.longName}
                                 </h3>
                                 <p className="text-sm text-gray-500">
-                                  Confirmé le{" "}
+                                  {t("Confirmé le", "Confirmed on")}{" "}
                                   {formatDate(
                                     data.reservation.dateConfirmation,
                                   )}
                                 </p>
                               </div>
                               <span className="px-3 py-1 bg-green-100 text-green-800 rounded-full text-xs font-semibold">
-                                ✓ Confirmé
+                                {t("✓ Confirmé", "✓ Confirmed")}
                               </span>
                             </div>
 
@@ -674,7 +680,7 @@ export default function ClientTicketsPage() {
                                   <MapPin className="w-4 h-4 text-gray-500" />
                                   <span className="text-gray-700">
                                     <span className="font-semibold">
-                                      De {data.voyage.lieuDepart} vers{" "}
+                                      {t("De", "From")} {data.voyage.lieuDepart} {t("vers", "to")}{" "}
                                       {data.voyage.lieuArrive}
                                     </span>
                                   </span>
@@ -682,8 +688,8 @@ export default function ClientTicketsPage() {
                                 <div className="flex items-center space-x-2 text-xs text-gray-600">
                                   <Compass className="w-3.5 h-3.5 text-gray-400" />
                                   <span>
-                                    Itinéraire : De {data.voyage.pointDeDepart}{" "}
-                                    vers {data.voyage.pointArrivee}
+                                    {t("Itinéraire", "Route")} : {t("De", "From")} {data.voyage.pointDeDepart}{" "}
+                                    {t("vers", "to")} {data.voyage.pointArrivee}
                                   </span>
                                 </div>
                               </div>
@@ -692,17 +698,17 @@ export default function ClientTicketsPage() {
                                 <div className="flex items-center space-x-2 text-sm">
                                   <Clock className="w-4 h-4 text-gray-500" />
                                   <span className="text-gray-700">
-                                    Départ :{" "}
+                                    {t("Départ", "Departure")} :{" "}
                                     {formatDate(data.voyage.dateDepartPrev)}
                                   </span>
                                 </div>
                                 <div className="flex items-center space-x-2 text-sm">
                                   <Users className="w-4 h-4 text-gray-500" />
                                   <span className="text-gray-700">
-                                    {data.reservation.nbrPassager} passager
-                                    {data.reservation.nbrPassager > 1
-                                      ? "s"
-                                      : ""}
+                                    {t(
+                                      `${data.reservation.nbrPassager} passager${data.reservation.nbrPassager > 1 ? "s" : ""}`,
+                                      `${data.reservation.nbrPassager} passenger${data.reservation.nbrPassager > 1 ? "s" : ""}`
+                                    )}
                                   </span>
                                 </div>
                               </div>
@@ -711,7 +717,7 @@ export default function ClientTicketsPage() {
                             <div className="flex items-center justify-between pt-4 border-t border-gray-200">
                               <div>
                                 <p className="text-sm text-gray-600 mb-1">
-                                  Montant payé
+                                  {t("Montant payé", "Amount paid")}
                                 </p>
                                 <p className="text-2xl font-bold text-green-600">
                                   {data.reservation.prixTotal} FCFA
@@ -722,7 +728,7 @@ export default function ClientTicketsPage() {
                                 className="px-6 py-3 bg-[#6149CD] text-white rounded-lg hover:opacity-90 active:opacity-80 transition-all font-semibold flex items-center space-x-2"
                               >
                                 <Printer className="w-5 h-5" />
-                                <span>Imprimer</span>
+                                <span>{t("Imprimer", "Print")}</span>
                               </button>
                             </div>
                           </div>
@@ -740,11 +746,11 @@ export default function ClientTicketsPage() {
                             className="flex items-center space-x-2 px-4 py-2 border border-gray-300 rounded-lg text-gray-700 hover:bg-gray-50 disabled:opacity-50 disabled:cursor-not-allowed transition-colors"
                           >
                             <ChevronLeft className="w-4 h-4" />
-                            <span>Précédent</span>
+                            <span>{t("Précédent", "Previous")}</span>
                           </button>
 
                           <span className="text-sm text-gray-600">
-                            Page {current_page + 1} sur {total_pages}
+                            {t("Page", "Page")} {current_page + 1} {t("sur", "of")} {total_pages}
                           </span>
 
                           <button
@@ -756,7 +762,7 @@ export default function ClientTicketsPage() {
                             disabled={current_page === total_pages - 1}
                             className="flex items-center space-x-2 px-4 py-2 border border-gray-300 rounded-lg text-gray-700 hover:bg-gray-50 disabled:opacity-50 disabled:cursor-not-allowed transition-colors"
                           >
-                            <span>Suivant</span>
+                            <span>{t("Suivant", "Next")}</span>
                             <ChevronRight className="w-4 h-4" />
                           </button>
                         </div>
@@ -769,7 +775,7 @@ export default function ClientTicketsPage() {
                 <div className="lg:col-span-1 relative min-h-125">
                   <img
                     src="/images/cameroun6.jpg"
-                    alt="Billets"
+                    alt={t("Billets", "Tickets")}
                     className="absolute inset-0 w-full h-full object-cover"
                     onError={(e) => {
                       e.currentTarget.src =
@@ -780,10 +786,10 @@ export default function ClientTicketsPage() {
                   <div className="absolute inset-0 flex flex-col justify-between p-8">
                     <div>
                       <h2 className="text-3xl md:text-4xl font-bold text-white mb-4 drop-shadow-lg">
-                        Vos billets
+                        {t("Vos billets", "Your tickets")}
                       </h2>
                       <p className="text-white/90 text-lg mb-6 drop-shadow-md">
-                        Consultez et imprimez vos billets confirmés
+                        {t("Consultez et imprimez vos billets confirmés", "View and print your confirmed tickets")}
                       </p>
                     </div>
 
@@ -792,17 +798,17 @@ export default function ClientTicketsPage() {
                         <div className="flex items-center space-x-3 mb-2">
                           <Ticket className="w-6 h-6 text-white" />
                           <span className="text-white font-semibold">
-                            Billets confirmés
+                            {t("Billets confirmés", "Confirmed tickets")}
                           </span>
                         </div>
                         <p className="text-3xl font-bold text-white">
-                          Nombre par page : {tickets.length}
+                          {t("Nombre par page", "Count per page")} : {tickets.length}
                         </p>
                       </div>
 
                       <div className="bg-white/20 backdrop-blur-sm rounded-xl p-4">
                         <p className="text-sm text-white/90">
-                          Imprimez vos billets pour l'embarquement
+                          {t("Imprimez vos billets pour l'embarquement", "Print your tickets for boarding")}
                         </p>
                       </div>
                     </div>

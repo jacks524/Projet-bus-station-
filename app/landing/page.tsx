@@ -23,6 +23,7 @@ import {
 } from "lucide-react";
 import Image from "next/image";
 import { useRouter } from "next/navigation";
+import { useLanguage } from "../providers";
 
 /**
  * BusStation Landing Page
@@ -39,6 +40,7 @@ export default function LandingPage() {
   const [show_mobile_menu, setShowMobileMenu] = useState(false);
   const [active_faq, setActiveFaq] = useState<number | null>(null);
   const router = useRouter();
+  const { t } = useLanguage();
 
   const PRIMARY_COLOR = "#6149CD";
   const ACCENT_GREEN = "#10B981";
@@ -66,30 +68,38 @@ export default function LandingPage() {
   const features = [
     {
       icon: Calendar,
-      title: "Réservation Instantanée",
-      description:
+      title: t("Réservation Instantanée", "Instant Booking"),
+      description: t(
         "Réservez votre voyage en quelques clics. Simple, rapide et sécurisé.",
+        "Book your trip in a few clicks. Simple, fast, and secure."
+      ),
       color: "from-blue-500 to-cyan-500",
     },
     {
       icon: Shield,
-      title: "Paiement Sécurisé",
-      description:
+      title: t("Paiement Sécurisé", "Secure Payment"),
+      description: t(
         "Vos transactions sont protégées avec les dernières technologies de sécurité.",
+        "Your transactions are protected with the latest security technologies."
+      ),
       color: "from-green-500 to-emerald-500",
     },
     {
       icon: Clock,
-      title: "Disponible 24/7",
-      description:
+      title: t("Disponible 24/7", "Available 24/7"),
+      description: t(
         "Réservez à tout moment, de n'importe où. Notre plateforme ne dort jamais.",
+        "Book anytime, anywhere. Our platform never sleeps."
+      ),
       color: "from-purple-500 to-pink-500",
     },
     {
       icon: Star,
-      title: "Agences Vérifiées",
-      description:
+      title: t("Agences Vérifiées", "Verified Agencies"),
+      description: t(
         "Toutes nos agences sont validées et notées par nos utilisateurs.",
+        "All our agencies are verified and rated by users."
+      ),
       color: "from-orange-500 to-red-500",
     },
   ];
@@ -97,60 +107,74 @@ export default function LandingPage() {
   const steps = [
     {
       number: "01",
-      title: "Recherchez votre destination",
-      description:
+      title: t("Recherchez votre destination", "Find your destination"),
+      description: t(
         "Parcourez nos voyages disponibles vers toutes les villes du Cameroun.",
+        "Browse available trips to cities across Cameroon."
+      ),
       icon: MapPin,
     },
     {
       number: "02",
-      title: "Sélectionnez votre voyage",
-      description:
+      title: t("Sélectionnez votre voyage", "Select your trip"),
+      description: t(
         "Comparez les prix, horaires et agences pour trouver le meilleur choix.",
+        "Compare prices, schedules, and agencies to find the best choice."
+      ),
       icon: Bus,
     },
     {
       number: "03",
-      title: "Réservez en toute sécurité",
-      description: "Payez en ligne et imprimer votre billet.",
+      title: t("Réservez en toute sécurité", "Book safely"),
+      description: t("Payez en ligne et imprimer votre billet.", "Pay online and print your ticket."),
       icon: CreditCard,
     },
     {
       number: "04",
-      title: "Voyagez sereinement",
-      description:
+      title: t("Voyagez sereinement", "Travel with peace of mind"),
+      description: t(
         "Présentez votre billet électronique et profitez de votre voyage.",
+        "Show your e-ticket and enjoy your trip."
+      ),
       icon: CheckCircle,
     },
   ];
 
   const stats = [
-    { value: "50,000+", label: "Voyageurs satisfaits", icon: Users },
-    { value: "100+", label: "Agences partenaires", icon: Award },
-    { value: "20+", label: "Villes desservies", icon: Globe },
-    { value: "98%", label: "Taux de satisfaction", icon: Star },
+    { value: "50,000+", label: t("Voyageurs satisfaits", "Satisfied travelers"), icon: Users },
+    { value: "100+", label: t("Agences partenaires", "Partner agencies"), icon: Award },
+    { value: "20+", label: t("Villes desservies", "Cities served"), icon: Globe },
+    { value: "98%", label: t("Taux de satisfaction", "Satisfaction rate"), icon: Star },
   ];
 
   const faqs = [
     {
-      question: "Comment puis-je réserver un voyage ?",
-      answer:
+      question: t("Comment puis-je réserver un voyage ?", "How do I book a trip?"),
+      answer: t(
         "Créez un compte, recherchez votre destination, sélectionnez votre voyage et procédez au paiement. Vous recevrez votre billet par email instantanément.",
+        "Create an account, search your destination, select your trip, and proceed to payment. You will receive your ticket by email instantly."
+      ),
     },
     {
-      question: "Les paiements sont-ils sécurisés ?",
-      answer:
+      question: t("Les paiements sont-ils sécurisés ?", "Are payments secure?"),
+      answer: t(
         "Oui, nous utilisons les dernières technologies de cryptage SSL et nos partenaires de paiement sont certifiés PCI-DSS.",
+        "Yes, we use the latest SSL encryption technologies and our payment partners are PCI-DSS certified."
+      ),
     },
     {
-      question: "Puis-je payer ma réservation ?",
-      answer:
+      question: t("Puis-je payer ma réservation ?", "Can I pay for my booking online?"),
+      answer: t(
         "Oui, il est tout à fait possible de payer votre réservation en ligne.",
+        "Yes, you can pay for your booking online."
+      ),
     },
     {
-      question: "Comment devenir une organisation ?",
-      answer:
+      question: t("Comment devenir une organisation ?", "How do I become an organization?"),
+      answer: t(
         "Soumettez vos documents et notre équipe validera votre profil sous 48h.",
+        "Submit your documents and our team will validate your profile within 48 hours."
+      ),
     },
   ];
 
@@ -181,38 +205,38 @@ export default function LandingPage() {
                 href="#features"
                 className="text-gray-700 hover:text-[#6149CD] font-medium transition-colors duration-300 text-sm lg:text-base"
               >
-                Fonctionnalités
+                {t("Fonctionnalités", "Features")}
               </a>
               <a
                 href="#how-it-works"
                 className="text-gray-700 hover:text-[#6149CD] font-medium transition-colors duration-300 text-sm lg:text-base"
               >
-                Comment ça marche
+                {t("Comment ça marche", "How it works")}
               </a>
               <a
                 href="#stats"
                 className="text-gray-700 hover:text-[#6149CD] font-medium transition-colors duration-300 text-sm lg:text-base"
               >
-                À propos
+                {t("À propos", "About")}
               </a>
               <a
                 href="#faq"
                 className="text-gray-700 hover:text-[#6149CD] font-medium transition-colors duration-300 text-sm lg:text-base"
               >
-                FAQ
+                {t("FAQ", "FAQ")}
               </a>
               <button
                 onClick={() => router.push("/login")}
                 className="text-gray-700 hover:text-[#6149CD] font-medium transition-colors duration-300 text-sm lg:text-base"
               >
-                Connexion
+                {t("Connexion", "Sign in")}
               </button>
               <button
                 onClick={() => router.push("/signup")}
                 style={{ backgroundColor: PRIMARY_COLOR }}
                 className="px-4 lg:px-6 py-2 lg:py-3 text-white rounded-full font-semibold hover:opacity-90 transition-all duration-300 transform hover:scale-105 shadow-lg hover:shadow-xl text-sm lg:text-base"
               >
-                S'inscrire
+                {t("S'inscrire", "Sign up")}
               </button>
             </div>
 
@@ -244,28 +268,28 @@ export default function LandingPage() {
               onClick={() => setShowMobileMenu(false)}
               className="block py-2 text-gray-700 hover:text-[#6149CD] font-medium transition-colors active:bg-gray-50 rounded-lg px-2"
             >
-              Fonctionnalités
+              {t("Fonctionnalités", "Features")}
             </a>
             <a
               href="#how-it-works"
               onClick={() => setShowMobileMenu(false)}
               className="block py-2 text-gray-700 hover:text-[#6149CD] font-medium transition-colors active:bg-gray-50 rounded-lg px-2"
             >
-              Comment ça marche
+              {t("Comment ça marche", "How it works")}
             </a>
             <a
               href="#stats"
               onClick={() => setShowMobileMenu(false)}
               className="block py-2 text-gray-700 hover:text-[#6149CD] font-medium transition-colors active:bg-gray-50 rounded-lg px-2"
             >
-              À propos
+              {t("À propos", "About")}
             </a>
             <a
               href="#faq"
               onClick={() => setShowMobileMenu(false)}
               className="block py-2 text-gray-700 hover:text-[#6149CD] font-medium transition-colors active:bg-gray-50 rounded-lg px-2"
             >
-              FAQ
+              {t("FAQ", "FAQ")}
             </a>
             <div className="pt-3 border-t border-gray-200 space-y-3">
               <button
@@ -275,7 +299,7 @@ export default function LandingPage() {
                 }}
                 className="w-full py-3 text-gray-700 hover:text-[#6149CD] font-medium transition-colors border border-gray-300 rounded-full hover:border-[#6149CD]"
               >
-                Connexion
+                {t("Connexion", "Sign in")}
               </button>
               <button
                 onClick={() => {
@@ -285,7 +309,7 @@ export default function LandingPage() {
                 style={{ backgroundColor: PRIMARY_COLOR }}
                 className="w-full py-3 text-white rounded-full font-semibold hover:opacity-90 transition-opacity shadow-md"
               >
-                S'inscrire
+                {t("S'inscrire", "Sign up")}
               </button>
             </div>
           </div>
@@ -312,17 +336,17 @@ export default function LandingPage() {
                   style={{ backgroundColor: PRIMARY_COLOR }}
                   className="px-4 py-2 rounded-full text-white text-sm font-semibold animate-bounce-slow"
                 >
-                  La révolution du transport au Cameroun
+                  {t("La révolution du transport au Cameroun", "The transport revolution in Cameroon")}
                 </span>
               </div>
 
               <h1 className="text-5xl sm:text-6xl lg:text-7xl font-black text-gray-900 leading-tight">
-                Voyagez{" "}
+                {t("Voyagez", "Travel")}{" "}
                 <span
                   style={{ color: PRIMARY_COLOR }}
                   className="relative inline-block"
                 >
-                  Plus Simple
+                  {t("Plus Simple", "Simpler")}
                   <svg
                     className="absolute -bottom-2 left-0 w-full"
                     height="12"
@@ -337,13 +361,14 @@ export default function LandingPage() {
                   </svg>
                 </span>
                 <br />
-                Plus Rapide
+                {t("Plus Rapide", "Faster")}
               </h1>
 
               <p className="text-xl text-gray-600 leading-relaxed max-w-xl">
-                Réservez vos voyages en quelques clics avec BusStation.
-                Connectez-vous aux meilleures agences de transport du Cameroun
-                et voyagez en toute sérénité.
+                {t(
+                  "Réservez vos voyages en quelques clics avec BusStation. Connectez-vous aux meilleures agences de transport du Cameroun et voyagez en toute sérénité.",
+                  "Book your trips in just a few clicks with BusStation. Connect with the best transport agencies in Cameroon and travel with peace of mind."
+                )}
               </p>
 
               <div className="flex flex-col sm:flex-row gap-4">
@@ -352,13 +377,13 @@ export default function LandingPage() {
                   style={{ backgroundColor: PRIMARY_COLOR }}
                   className="group px-8 py-4 text-white rounded-full font-bold text-lg hover:opacity-90 transition-all duration-300 transform hover:scale-105 shadow-2xl flex items-center justify-center space-x-2"
                 >
-                  <span>Commencer maintenant</span>
+                  <span>{t("Commencer maintenant", "Get started")}</span>
                 </button>
                 <button
                   onClick={() => router.push("/login")}
                   className="px-8 py-4 border-2 border-gray-900 text-gray-900 rounded-full font-bold text-lg hover:bg-gray-900 hover:text-white transition-all duration-300 transform hover:scale-105"
                 >
-                  Se connecter
+                  {t("Se connecter", "Sign in")}
                 </button>
               </div>
 
@@ -370,7 +395,7 @@ export default function LandingPage() {
                     style={{ color: ACCENT_GREEN }}
                   />
                   <span className="text-gray-600 font-medium">
-                    100% Sécurisé
+                    {t("100% Sécurisé", "100% Secure")}
                   </span>
                 </div>
                 <div className="flex items-center space-x-2">
@@ -379,7 +404,7 @@ export default function LandingPage() {
                     style={{ color: ACCENT_GREEN }}
                   />
                   <span className="text-gray-600 font-medium">
-                    Support 24/7
+                    {t("Support 24/7", "24/7 Support")}
                   </span>
                 </div>
                 <div className="flex items-center space-x-2">
@@ -388,7 +413,7 @@ export default function LandingPage() {
                     style={{ color: ACCENT_GREEN }}
                   />
                   <span className="text-gray-600 font-medium">
-                    Agences vérifiées
+                    {t("Agences vérifiées", "Verified agencies")}
                   </span>
                 </div>
               </div>
@@ -413,7 +438,7 @@ export default function LandingPage() {
                   >
                     <img
                       src={src}
-                      alt={`Voyage au Cameroun ${index + 1}`}
+                      alt={t(`Voyage au Cameroun ${index + 1}`, `Trip in Cameroon ${index + 1}`)}
                       className="w-full h-full object-cover"
                     />
                   </div>
@@ -432,7 +457,7 @@ export default function LandingPage() {
                         50K+
                       </p>
                       <p className="text-xs text-gray-600 font-medium">
-                        Utilisateurs
+                        {t("Utilisateurs", "Users")}
                       </p>
                     </div>
                     <div className="text-center border-x border-gray-200">
@@ -443,7 +468,7 @@ export default function LandingPage() {
                         100+
                       </p>
                       <p className="text-xs text-gray-600 font-medium">
-                        Agences
+                        {t("Agences", "Agencies")}
                       </p>
                     </div>
                     <div className="text-center">
@@ -454,7 +479,7 @@ export default function LandingPage() {
                         98%
                       </p>
                       <p className="text-xs text-gray-600 font-medium">
-                        Satisfaction
+                        {t("Satisfaction", "Satisfaction")}
                       </p>
                     </div>
                   </div>
@@ -500,11 +525,14 @@ export default function LandingPage() {
         <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
           <div className="text-center mb-16 animate-fade-in-up">
             <h2 className="text-4xl sm:text-5xl font-black text-gray-900 mb-4">
-              Pourquoi choisir{" "}
+              {t("Pourquoi choisir", "Why choose")}{" "}
               <span style={{ color: PRIMARY_COLOR }}>BusStation</span> ?
             </h2>
             <p className="text-xl text-gray-600 max-w-3xl mx-auto">
-              Une expérience de réservation pensée pour vous simplifier la vie
+              {t(
+                "Une expérience de réservation pensée pour vous simplifier la vie",
+                "A booking experience designed to simplify your life"
+              )}
             </p>
           </div>
 
@@ -537,10 +565,10 @@ export default function LandingPage() {
         <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
           <div className="text-center mb-16">
             <h2 className="text-4xl sm:text-5xl font-black text-gray-900 mb-4">
-              Comment ça marche ?
+              {t("Comment ça marche ?", "How does it work?")}
             </h2>
             <p className="text-xl text-gray-600 max-w-3xl mx-auto">
-              Quatre étapes simples pour réserver votre voyage
+              {t("Quatre étapes simples pour réserver votre voyage", "Four simple steps to book your trip")}
             </p>
           </div>
 
@@ -593,7 +621,7 @@ export default function LandingPage() {
               style={{ backgroundColor: PRIMARY_COLOR }}
               className="group px-10 py-5 text-white rounded-full font-bold text-lg hover:opacity-90 transition-all duration-300 transform hover:scale-105 shadow-2xl inline-flex items-center space-x-3"
             >
-              <span>Commencer maintenant</span>
+              <span>{t("Commencer maintenant", "Get started")}</span>
             </button>
           </div>
         </div>
@@ -613,10 +641,13 @@ export default function LandingPage() {
         <div className="relative max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
           <div className="text-center mb-16">
             <h2 className="text-4xl sm:text-5xl font-black mb-4">
-              BusStation en chiffres
+              {t("BusStation en chiffres", "BusStation in numbers")}
             </h2>
             <p className="text-xl text-purple-100 max-w-3xl mx-auto">
-              La confiance de milliers d'utilisateurs à travers le Cameroun
+              {t(
+                "La confiance de milliers d'utilisateurs à travers le Cameroun",
+                "Trusted by thousands of users across Cameroon"
+              )}
             </p>
           </div>
 
@@ -645,10 +676,13 @@ export default function LandingPage() {
         <div className="max-w-4xl mx-auto px-4 sm:px-6 lg:px-8">
           <div className="text-center mb-16">
             <h2 className="text-4xl sm:text-5xl font-black text-gray-900 mb-4">
-              Questions fréquentes
+              {t("Questions fréquentes", "Frequently asked questions")}
             </h2>
             <p className="text-xl text-gray-600">
-              Tout ce que vous devez savoir sur BusStation
+              {t(
+                "Tout ce que vous devez savoir sur BusStation",
+                "Everything you need to know about BusStation"
+              )}
             </p>
           </div>
 
@@ -692,7 +726,7 @@ export default function LandingPage() {
               onClick={() => router.push("/help")}
               className="inline-flex items-center space-x-2 px-8 py-4 bg-[#6149CD] text-white rounded-xl font-bold text-lg hover:opacity-90 active:opacity-80 transition-all shadow-lg hover:shadow-xl transform hover:scale-105"
             >
-              <span>Voir plus de questions</span>
+              <span>{t("Voir plus de questions", "See more questions")}</span>
               <ChevronDown className="w-5 h-5 transform -rotate-90" />
             </button>
           </div>
@@ -714,24 +748,26 @@ export default function LandingPage() {
 
             <div className="relative">
               <h2 className="text-4xl sm:text-5xl font-black text-white mb-6">
-                Prêt à voyager autrement ?
+                {t("Prêt à voyager autrement ?", "Ready to travel differently?")}
               </h2>
               <p className="text-xl text-purple-100 mb-10 max-w-2xl mx-auto">
-                Rejoignez des milliers de voyageurs qui ont choisi BusStation
-                pour leurs déplacements au Cameroun.
+                {t(
+                  "Rejoignez des milliers de voyageurs qui ont choisi BusStation pour leurs déplacements au Cameroun.",
+                  "Join thousands of travelers who chose BusStation for trips across Cameroon."
+                )}
               </p>
               <div className="flex flex-col sm:flex-row gap-4 justify-center">
                 <button
                   onClick={() => router.push("/signup")}
                   className="px-10 py-5 bg-white text-[#6149CD] rounded-full font-bold text-lg hover:bg-gray-100 transition-all duration-300 transform hover:scale-105 shadow-2xl"
                 >
-                  Créer mon compte gratuit
+                  {t("Créer mon compte gratuit", "Create my free account")}
                 </button>
                 <button
                   onClick={() => router.push("/login")}
                   className="px-10 py-5 border-2 border-white text-white rounded-full font-bold text-lg hover:bg-white hover:text-[#6149CD] transition-all duration-300 transform hover:scale-105"
                 >
-                  Me connecter
+                  {t("Me connecter", "Sign in")}
                 </button>
               </div>
             </div>
@@ -750,20 +786,22 @@ export default function LandingPage() {
                 className="h-12 w-auto mb-4 brightness-0 invert"
               />
               <p className="text-gray-400 text-sm leading-relaxed">
-                La plateforme de réservation de voyages la plus simple et
-                sécurisée au Cameroun.
+                {t(
+                  "La plateforme de réservation de voyages la plus simple et sécurisée au Cameroun.",
+                  "The simplest and safest travel booking platform in Cameroon."
+                )}
               </p>
             </div>
 
             <div>
-              <h4 className="font-bold mb-4">Produit</h4>
+              <h4 className="font-bold mb-4">{t("Produit", "Product")}</h4>
               <ul className="space-y-2 text-gray-400 text-sm">
                 <li>
                   <a
                     href="#features"
                     className="hover:text-white transition-colors"
                   >
-                    Fonctionnalités
+                    {t("Fonctionnalités", "Features")}
                   </a>
                 </li>
                 <li>
@@ -771,7 +809,7 @@ export default function LandingPage() {
                     href="#how-it-works"
                     className="hover:text-white transition-colors"
                   >
-                    Comment ça marche
+                    {t("Comment ça marche", "How it works")}
                   </a>
                 </li>
                 <li>
@@ -779,44 +817,44 @@ export default function LandingPage() {
                     href="#stats"
                     className="hover:text-white transition-colors"
                   >
-                    Nos chiffres
+                    {t("Nos chiffres", "Our numbers")}
                   </a>
                 </li>
               </ul>
             </div>
 
             <div>
-              <h4 className="font-bold mb-4">Entreprise</h4>
+              <h4 className="font-bold mb-4">{t("Entreprise", "Company")}</h4>
               <ul className="space-y-2 text-gray-400 text-sm">
                 <li>
                   <a href="#" className="hover:text-white transition-colors">
-                    À propos
+                    {t("À propos", "About")}
                   </a>
                 </li>
                 <li>
                   <a href="#" className="hover:text-white transition-colors">
-                    Agences partenaires
+                    {t("Agences partenaires", "Partner agencies")}
                   </a>
                 </li>
                 <li>
                   <a href="#" className="hover:text-white transition-colors">
-                    Carrières
+                    {t("Carrières", "Careers")}
                   </a>
                 </li>
               </ul>
             </div>
 
             <div>
-              <h4 className="font-bold mb-4">Support</h4>
+              <h4 className="font-bold mb-4">{t("Support", "Support")}</h4>
               <ul className="space-y-2 text-gray-400 text-sm">
                 <li>
                   <a href="/help" className="hover:text-white transition-colors">
-                    FAQ
+                    {t("FAQ", "FAQ")}
                   </a>
                 </li>
                 <li>
                   <a href="/contact" className="hover:text-white transition-colors">
-                    Nous contacter
+                    {t("Nous contacter", "Contact us")}
                   </a>
                 </li>
               </ul>
@@ -826,17 +864,17 @@ export default function LandingPage() {
           <div className="border-t border-gray-800 pt-8">
             <div className="flex flex-col md:flex-row justify-between items-center">
               <p className="text-gray-400 text-sm mb-4 md:mb-0">
-                © 2025 BusStation. Tous droits réservés.
+                {t("© 2025 BusStation. Tous droits réservés.", "© 2025 BusStation. All rights reserved.")}
               </p>
               <div className="flex space-x-6 text-sm text-gray-400">
                 <a href="#" className="hover:text-white transition-colors">
-                  Mentions légales
+                  {t("Mentions légales", "Legal notice")}
                 </a>
                 <a href="#" className="hover:text-white transition-colors">
-                  Confidentialité
+                  {t("Confidentialité", "Privacy")}
                 </a>
                 <a href="#" className="hover:text-white transition-colors">
-                  Conditions
+                  {t("Conditions", "Terms")}
                 </a>
               </div>
             </div>

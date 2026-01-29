@@ -23,6 +23,7 @@ import {
   ArrowLeft,
 } from "lucide-react";
 import { useRouter } from "next/navigation";
+import { useLanguage } from "../providers";
 
 interface ContactFormData {
   nom: string;
@@ -60,6 +61,7 @@ export default function ContactPage() {
   });
 
   const router = useRouter();
+  const { t } = useLanguage();
 
   const API_BASE_URL = process.env.NEXT_PUBLIC_API_BASE_URL;
   const BUTTON_COLOR = "#6149CD";
@@ -67,33 +69,33 @@ export default function ContactPage() {
   const CONTACT_INFO = [
     {
       icon: Mail,
-      label: "Email",
+      label: t("Email", "Email"),
       value: "bryanngoupeyou9@gmail.com",
-      subtext: "Réponse sous 24h",
+      subtext: t("Réponse sous 24h", "Reply within 24h"),
     },
     {
       icon: Phone,
-      label: "Téléphone",
+      label: t("Téléphone", "Phone"),
       value: "+237 655 12 10 10",
-      subtext: "Lun-Ven 8h-18h",
+      subtext: t("Lun-Ven 8h-18h", "Mon-Fri 8am-6pm"),
     },
     {
       icon: MapPin,
-      label: "Adresse",
-      value: "Yaoundé, Cameroun",
-      subtext: "Siège social",
+      label: t("Adresse", "Address"),
+      value: t("Yaoundé, Cameroun", "Yaounde, Cameroon"),
+      subtext: t("Siège social", "Head office"),
     },
   ];
 
   const SUBJECTS = [
-    "Question générale",
-    "Problème de réservation",
-    "Problème de paiement",
-    "Annulation/Remboursement",
-    "Problème technique",
-    "Partenariat",
-    "Suggestion d'amélioration",
-    "Autre",
+    t("Question générale", "General question"),
+    t("Problème de réservation", "Booking issue"),
+    t("Problème de paiement", "Payment issue"),
+    t("Annulation/Remboursement", "Cancellation/Refund"),
+    t("Problème technique", "Technical issue"),
+    t("Partenariat", "Partnership"),
+    t("Suggestion d'amélioration", "Improvement suggestion"),
+    t("Autre", "Other"),
   ];
 
   const handleInputChange = (e: any) => {
@@ -127,7 +129,7 @@ export default function ContactPage() {
       });
 
       if (!response.ok) {
-        throw new Error("Erreur lors de l'envoi du message");
+        throw new Error(t("Erreur lors de l'envoi du message", "Error sending the message"));
       }
 
       setShowSuccessModal(true);
@@ -142,7 +144,10 @@ export default function ContactPage() {
     } catch (error: any) {
       console.error("Contact Error:", error);
       setErrorMessage(
-        "Une erreur est survenue lors de l'envoi du message. Veuillez réessayer.",
+        t(
+          "Une erreur est survenue lors de l'envoi du message. Veuillez réessayer.",
+          "An error occurred while sending the message. Please try again."
+        )
       );
       setShowErrorModal(true);
     } finally {
@@ -198,21 +203,21 @@ export default function ContactPage() {
                   className="w-full flex items-center space-x-3 px-4 py-3 rounded-lg text-gray-600 hover:bg-gray-100 transition-colors"
                 >
                   <ArrowLeft className="w-5 h-5" />
-                  <span className="font-medium">Accueil</span>
+                  <span className="font-medium">{t("Accueil", "Home")}</span>
                 </button>
                 <button
                   onClick={() => router.push("/help")}
                   className="w-full flex items-center space-x-3 px-4 py-3 rounded-lg text-gray-600 hover:bg-gray-100 transition-colors"
                 >
                   <HelpCircle className="w-5 h-5" />
-                  <span className="font-medium">Aide</span>
+                  <span className="font-medium">{t("Aide", "Help")}</span>
                 </button>
                 <button
                   onClick={() => router.push("/login")}
                   className="w-full flex items-center space-x-3 px-4 py-3 rounded-lg text-gray-600 hover:bg-gray-100 transition-colors"
                 >
                   <User className="w-5 h-5" />
-                  <span className="font-medium">Se connecter</span>
+                  <span className="font-medium">{t("Se connecter", "Sign in")}</span>
                 </button>
               </nav>
             </div>
@@ -240,7 +245,7 @@ export default function ContactPage() {
             </button>
 
             <h1 className="text-xl sm:text-2xl font-semibold text-gray-900 hidden sm:block">
-              Nous contacter
+              {t("Nous contacter", "Contact us")}
             </h1>
           </div>
 
@@ -250,7 +255,7 @@ export default function ContactPage() {
               className="flex items-center space-x-2 px-4 py-2 text-gray-700 hover:bg-gray-100 rounded-lg transition-colors"
             >
               <HelpCircle className="w-5 h-5" />
-              <span>Aide</span>
+              <span>{t("Aide", "Help")}</span>
             </button>
             <button
               onClick={() => router.push("/login")}
@@ -258,7 +263,7 @@ export default function ContactPage() {
               className="flex items-center space-x-2 px-4 py-2 text-white rounded-lg hover:opacity-90 transition-opacity"
             >
               <User className="w-5 h-5" />
-              <span>Se connecter</span>
+              <span>{t("Se connecter", "Sign in")}</span>
             </button>
           </div>
         </div>
@@ -319,25 +324,25 @@ export default function ContactPage() {
                     />
                   </div>
                   <h3 className="font-semibold text-gray-900">
-                    Heures d'ouverture
+                    {t("Heures d'ouverture", "Business hours")}
                   </h3>
                 </div>
                 <div className="space-y-2">
                   <div className="flex justify-between text-xs sm:text-sm">
-                    <span className="text-gray-600">Lundi - Vendredi</span>
+                    <span className="text-gray-600">{t("Lundi - Vendredi", "Monday - Friday")}</span>
                     <span className="text-gray-900 font-medium">
                       8h00 - 18h00
                     </span>
                   </div>
                   <div className="flex justify-between text-xs sm:text-sm">
-                    <span className="text-gray-600">Samedi</span>
+                    <span className="text-gray-600">{t("Samedi", "Saturday")}</span>
                     <span className="text-gray-900 font-medium">
                       9h00 - 14h00
                     </span>
                   </div>
                   <div className="flex justify-between text-xs sm:text-sm">
-                    <span className="text-gray-600">Dimanche</span>
-                    <span className="text-red-600 font-medium">Fermé</span>
+                    <span className="text-gray-600">{t("Dimanche", "Sunday")}</span>
+                    <span className="text-red-600 font-medium">{t("Fermé", "Closed")}</span>
                   </div>
                 </div>
               </div>
@@ -348,11 +353,13 @@ export default function ContactPage() {
               <div className="bg-white rounded-xl shadow-sm border border-gray-200 p-6 sm:p-8">
                 <div className="mb-6">
                   <h3 className="text-xl sm:text-2xl font-bold text-gray-900 mb-2">
-                    Envoyez-nous un message
+                    {t("Envoyez-nous un message", "Send us a message")}
                   </h3>
                   <p className="text-gray-600 text-sm sm:text-base">
-                    Remplissez le formulaire ci-dessous et nous vous répondrons
-                    dans les plus brefs délais
+                    {t(
+                      "Remplissez le formulaire ci-dessous et nous vous répondrons dans les plus brefs délais",
+                      "Fill out the form below and we will get back to you as soon as possible"
+                    )}
                   </p>
                 </div>
 
@@ -361,7 +368,7 @@ export default function ContactPage() {
                   <div className="grid grid-cols-1 md:grid-cols-2 gap-4 sm:gap-6">
                     <div>
                       <label className="block text-sm font-semibold text-gray-700 mb-2">
-                        Nom *
+                        {t("Nom *", "Last name *")}
                       </label>
                       <input
                         type="text"
@@ -370,13 +377,13 @@ export default function ContactPage() {
                         onChange={handleInputChange}
                         required
                         className="w-full px-4 py-3 border-2 border-gray-200 rounded-xl focus:outline-none focus:ring-2 focus:ring-[#6149CD] focus:border-transparent text-gray-900 placeholder:text-gray-400"
-                        placeholder="Votre nom"
+                        placeholder={t("Votre nom", "Your last name")}
                       />
                     </div>
 
                     <div>
                       <label className="block text-sm font-semibold text-gray-700 mb-2">
-                        Prénom *
+                        {t("Prénom *", "First name *")}
                       </label>
                       <input
                         type="text"
@@ -385,7 +392,7 @@ export default function ContactPage() {
                         onChange={handleInputChange}
                         required
                         className="w-full px-4 py-3 border-2 border-gray-200 rounded-xl focus:outline-none focus:ring-2 focus:ring-[#6149CD] focus:border-transparent text-gray-900 placeholder:text-gray-400"
-                        placeholder="Votre prénom"
+                        placeholder={t("Votre prénom", "Your first name")}
                       />
                     </div>
                   </div>
@@ -394,7 +401,7 @@ export default function ContactPage() {
                   <div className="grid grid-cols-1 md:grid-cols-2 gap-4 sm:gap-6">
                     <div>
                       <label className="block text-sm font-semibold text-gray-700 mb-2">
-                        Email *
+                        {t("Email *", "Email *")}
                       </label>
                       <input
                         type="email"
@@ -403,13 +410,13 @@ export default function ContactPage() {
                         onChange={handleInputChange}
                         required
                         className="w-full px-4 py-3 border-2 border-gray-200 rounded-xl focus:outline-none focus:ring-2 focus:ring-[#6149CD] focus:border-transparent text-gray-900 placeholder:text-gray-400"
-                        placeholder="exemple@email.com"
+                        placeholder={t("exemple@email.com", "example@email.com")}
                       />
                     </div>
 
                     <div>
                       <label className="block text-sm font-semibold text-gray-700 mb-2">
-                        Téléphone
+                        {t("Téléphone", "Phone")}
                       </label>
                       <input
                         type="tel"
@@ -417,7 +424,7 @@ export default function ContactPage() {
                         value={form_data.telephone}
                         onChange={handleInputChange}
                         className="w-full px-4 py-3 border-2 border-gray-200 rounded-xl focus:outline-none focus:ring-2 focus:ring-[#6149CD] focus:border-transparent text-gray-900 placeholder:text-gray-400"
-                        placeholder="+237 6XX XX XX XX"
+                        placeholder={t("+237 6XX XX XX XX", "+237 6XX XX XX XX")}
                         maxLength={9}
                       />
                     </div>
@@ -426,7 +433,7 @@ export default function ContactPage() {
                   {/* Sujet */}
                   <div>
                     <label className="block text-sm font-semibold text-gray-700 mb-2">
-                      Sujet *
+                      {t("Sujet *", "Subject *")}
                     </label>
                     <select
                       name="sujet"
@@ -435,7 +442,7 @@ export default function ContactPage() {
                       required
                       className="w-full px-4 py-3 border-2 border-gray-200 rounded-xl focus:outline-none focus:ring-2 focus:ring-[#6149CD] focus:border-transparent text-gray-900"
                     >
-                      <option value="">Sélectionnez un sujet</option>
+                      <option value="">{t("Sélectionnez un sujet", "Select a subject")}</option>
                       {SUBJECTS.map((subject, index) => (
                         <option key={index} value={subject}>
                           {subject}
@@ -447,7 +454,7 @@ export default function ContactPage() {
                   {/* Message */}
                   <div>
                     <label className="block text-sm font-semibold text-gray-700 mb-2">
-                      Message *
+                      {t("Message *", "Message *")}
                     </label>
                     <textarea
                       name="message"
@@ -456,10 +463,16 @@ export default function ContactPage() {
                       required
                       rows={6}
                       className="w-full px-4 py-3 border-2 border-gray-200 rounded-xl focus:outline-none focus:ring-2 focus:ring-[#6149CD] focus:border-transparent resize-none text-gray-900 placeholder:text-gray-400"
-                      placeholder="Décrivez votre demande en détail (minimum 10 caractères)..."
+                      placeholder={t(
+                        "Décrivez votre demande en détail (minimum 10 caractères)...",
+                        "Describe your request in detail (minimum 10 characters)..."
+                      )}
                     />
                     <p className="text-sm text-gray-500 mt-2">
-                      {form_data.message.length} / 10 caractères minimum
+                      {t(
+                        `${form_data.message.length} / 10 caractères minimum`,
+                        `${form_data.message.length} / 10 characters minimum`
+                      )}
                     </p>
                   </div>
 
@@ -473,19 +486,21 @@ export default function ContactPage() {
                     {is_submitting ? (
                       <>
                         <div className="w-5 h-5 border-2 border-white border-t-transparent rounded-full animate-spin"></div>
-                        <span>Envoi en cours...</span>
+                        <span>{t("Envoi en cours...", "Sending...")}</span>
                       </>
                     ) : (
                       <>
                         <Send className="w-5 h-5" />
-                        <span>Envoyer le message</span>
+                        <span>{t("Envoyer le message", "Send message")}</span>
                       </>
                     )}
                   </button>
 
                   <p className="text-center text-xs sm:text-sm text-gray-500">
-                    En envoyant ce message, vous acceptez notre politique de
-                    confidentialité
+                    {t(
+                      "En envoyant ce message, vous acceptez notre politique de confidentialité",
+                      "By sending this message, you accept our privacy policy"
+                    )}
                   </p>
                 </form>
               </div>
@@ -503,11 +518,13 @@ export default function ContactPage() {
                 <CheckCircle className="w-12 h-12 text-white" />
               </div>
               <h2 className="text-2xl font-bold text-gray-900 mb-2">
-                Message envoyé !
+                {t("Message envoyé !", "Message sent!")}
               </h2>
               <p className="text-gray-600 mb-6">
-                Votre message a été envoyé avec succès. Nous vous répondrons
-                dans les plus brefs délais.
+                {t(
+                  "Votre message a été envoyé avec succès. Nous vous répondrons dans les plus brefs délais.",
+                  "Your message has been sent successfully. We will respond as soon as possible."
+                )}
               </p>
               <button
                 onClick={() => {
@@ -516,7 +533,7 @@ export default function ContactPage() {
                 }}
                 className="w-full py-3 bg-green-600 text-white rounded-xl font-semibold hover:bg-green-700 transition-colors"
               >
-                Retour à l'accueil
+                {t("Retour à l'accueil", "Back to home")}
               </button>
             </div>
           </div>
@@ -532,7 +549,7 @@ export default function ContactPage() {
                 <AlertCircle className="w-12 h-12 text-white" />
               </div>
               <h2 className="text-2xl font-bold text-gray-900 mb-2">
-                Erreur d'envoi
+                {t("Erreur d'envoi", "Sending error")}
               </h2>
               <div className="bg-red-50 rounded-xl p-4 mb-6">
                 <p className="text-sm text-red-800">{error_message}</p>
@@ -544,7 +561,7 @@ export default function ContactPage() {
                 }}
                 className="w-full py-3 bg-red-600 text-white rounded-xl font-semibold hover:bg-red-700 transition-colors"
               >
-                Fermer
+                {t("Fermer", "Close")}
               </button>
             </div>
           </div>

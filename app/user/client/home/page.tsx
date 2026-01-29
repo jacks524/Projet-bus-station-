@@ -25,6 +25,7 @@ import {
 } from "lucide-react";
 import Image from "next/image";
 import { useRouter } from "next/navigation";
+import { useLanguage } from "../../../providers";
 
 interface Voyage {
   idVoyage: string;
@@ -88,46 +89,47 @@ export default function ClientHomePage() {
   const [is_loading_agences, setIsLoadingAgences] = useState(false);
   const [agences_search, setAgencesSearch] = useState("");
   const router = useRouter();
+  const { t } = useLanguage();
 
   const API_BASE_URL = process.env.NEXT_PUBLIC_API_BASE_URL;
   const BUTTON_COLOR = "#6149CD";
   const VOYAGES_PER_PAGE = 15;
   const AGENCES_PER_PAGE = 6;
   const MENU_ITEMS = [
-    { icon: Home, label: "Accueil", path: "/user/client/home", active: true },
+    { icon: Home, label: t("Accueil", "Home"), path: "/user/client/home", active: true },
     {
       icon: Calendar,
-      label: "Réserver",
+      label: t("Réserver", "Book"),
       path: "/user/client/book",
       active: false,
     },
     {
       icon: FileText,
-      label: "Réservations",
+      label: t("Réservations", "Bookings"),
       path: "/user/client/reservations",
       active: false,
     },
     {
       icon: Ticket,
-      label: "Billets",
+      label: t("Billets", "Tickets"),
       path: "/user/client/tickets",
       active: false,
     },
     {
       icon: Gift,
-      label: "Coupons",
+      label: t("Coupons", "Vouchers"),
       path: "/user/client/vouchers",
       active: false,
     },
     {
       icon: History,
-      label: "Historique",
+      label: t("Historique", "History"),
       path: "/user/client/history",
       active: false,
     },
     {
       icon: Settings,
-      label: "Mes paramètres",
+      label: t("Mes paramètres", "Settings"),
       path: "/user/client/settings",
       active: false,
     },
@@ -168,7 +170,12 @@ export default function ClientHomePage() {
       );
 
       if (!response.ok) {
-        throw new Error("Erreur lors du chargement des voyages");
+        throw new Error(
+          t(
+            "Erreur lors du chargement des voyages",
+            "Error loading trips"
+          ),
+        );
       }
 
       const data = await response.json();
@@ -183,7 +190,7 @@ export default function ClientHomePage() {
 
       setVoyages(voyages_futurs);
     } catch (error: any) {
-      setErrorMessage("Une erreur est survenue");
+      setErrorMessage(t("Une erreur est survenue", "An error occurred"));
       console.error("Fetch Voyages Error:", error);
     } finally {
       setIsLoading(false);
@@ -210,7 +217,12 @@ export default function ClientHomePage() {
       );
 
       if (!response.ok) {
-        throw new Error("Erreur lors du chargement des agences");
+        throw new Error(
+          t(
+            "Erreur lors du chargement des agences",
+            "Error loading agencies"
+          ),
+        );
       }
 
       const data = await response.json();
@@ -357,7 +369,9 @@ export default function ClientHomePage() {
               >
                 <Menu className="w-6 h-6 text-gray-900" />
               </button>
-              <h1 className="text-2xl font-semibold text-gray-900">Voyages</h1>
+              <h1 className="text-2xl font-semibold text-gray-900">
+                {t("Voyages", "Trips")}
+              </h1>
             </div>
 
             <div className="flex items-center space-x-4">
@@ -395,14 +409,16 @@ export default function ClientHomePage() {
                       className="w-full flex items-center space-x-3 px-4 py-2 hover:bg-gray-100 transition-colors"
                     >
                       <Settings className="w-4 h-4 text-gray-600" />
-                      <span className="text-gray-700">Paramètres</span>
+                      <span className="text-gray-700">
+                        {t("Paramètres", "Settings")}
+                      </span>
                     </button>
                     <button
                       onClick={handleLogout}
                       className="w-full flex items-center space-x-3 px-4 py-2 hover:bg-gray-100 transition-colors text-red-600"
                     >
                       <LogOut className="w-4 h-4" />
-                      <span>Se déconnecter</span>
+                      <span>{t("Se déconnecter", "Sign out")}</span>
                     </button>
                   </div>
                 )}
@@ -416,8 +432,8 @@ export default function ClientHomePage() {
           <div className="flex items-center justify-between mb-6">
             <h2 className="text-xl font-semibold text-gray-900">
               {voyages.length === 0
-                ? "Aucun voyage disponible"
-                : "Voyages disponibles"}
+                ? t("Aucun voyage disponible", "No trips available")
+                : t("Voyages disponibles", "Available trips")}
             </h2>
             <div className="flex items-center space-x-3">
               <button
@@ -428,7 +444,7 @@ export default function ClientHomePage() {
                 <RefreshCw
                   className={`w-4 h-4 ${is_loading ? "animate-spin" : ""}`}
                 />
-                <span>Actualiser</span>
+                <span>{t("Actualiser", "Refresh")}</span>
               </button>
               <button
                 onClick={() => router.push("/user/client/book")}
@@ -436,7 +452,7 @@ export default function ClientHomePage() {
                 className="flex items-center space-x-2 px-6 py-2 text-white rounded-lg hover:opacity-90 active:opacity-80 transition-opacity"
               >
                 <Calendar className="w-5 h-5" />
-                <span>Réserver</span>
+                <span>{t("Réserver", "Book")}</span>
               </button>
             </div>
           </div>
@@ -447,7 +463,7 @@ export default function ClientHomePage() {
                 <div className="flex items-center justify-center py-20">
                   <div className="text-center">
                     <RefreshCw className="w-8 h-8 text-[#6149CD] animate-spin mx-auto mb-4" />
-                    <p className="text-gray-600">Chargement des voyages...</p>
+                    <p className="text-gray-600">{t("Chargement des voyages...", "Loading trips...")}</p>
                   </div>
                 </div>
               )}
@@ -460,7 +476,7 @@ export default function ClientHomePage() {
                     style={{ backgroundColor: BUTTON_COLOR }}
                     className="px-6 py-2 text-white rounded-lg hover:opacity-90 active:opacity-80 transition-opacity"
                   >
-                    Réessayer
+                    {t("Réessayer", "Try again")}
                   </button>
                 </div>
               )}
@@ -472,17 +488,17 @@ export default function ClientHomePage() {
                     onClick={() => window.location.reload()}
                     className="text-xl font-semibold text-gray-900 mb-2 hover:scale-105 active:scale-95 transition-transform cursor-pointer"
                   >
-                    Aucun voyage disponible
+                    {t("Aucun voyage disponible", "No trips available")}
                   </h3>
                   <p className="text-gray-600 mb-6">
-                    Il n'y a pas de voyages disponibles pour le moment.
+                    {t("Il n'y a pas de voyages disponibles pour le moment.", "There are no trips available right now.")}
                   </p>
                   <button
                     onClick={fetchVoyages}
                     style={{ backgroundColor: BUTTON_COLOR }}
                     className="px-6 py-2 text-white rounded-lg hover:opacity-90 transition-opacity"
                   >
-                    Actualiser
+                    {t("Actualiser", "Refresh")}
                   </button>
                 </div>
               )}
@@ -497,7 +513,7 @@ export default function ClientHomePage() {
                       <div className="relative h-48 w-full">
                         <Image
                           src={voyage.smallImage || "https://images.unsplash.com/photo-1544620347-c4fd4a3d5957?w=800"}
-                          alt={voyage.titre || "Voyage Image"}
+                          alt={voyage.titre || t("Image du voyage", "Trip image")}
                           fill
                           style={{ objectFit: "cover" }}
                           quality={75}
@@ -516,8 +532,8 @@ export default function ClientHomePage() {
                         <div className="flex items-center space-x-2 mb-2">
                           <Compass className="w-4 h-4 shrink-0 text-gray-600" />
                           <span className="line-clamp-1 text-gray-600 text-sm">
-                            Itinéaire : {voyage.pointDeDepart} vers{" "}
-                            {voyage.pointArrivee}
+                            {t("Itinéraire", "Route")} : {voyage.pointDeDepart}{" "}
+                            {t("vers", "to")} {voyage.pointArrivee}
                           </span>
                         </div>
                         <div className="flex items-center space-x-2 mb-2">
@@ -525,13 +541,13 @@ export default function ClientHomePage() {
                           <span className="line-clamp-1 text-gray-600 text-sm">
                             {voyage.nbrPlaceReservable} /{" "}
                             {voyage.nbrPlaceRestante + voyage.nbrPlaceConfirm}{" "}
-                            Places restantes
+                            {t("Places restantes", "Seats left")}
                           </span>
                         </div>
                         <div className="flex items-center space-x-2 mb-2">
                           <Group className="w-4 h-4 shrink-0 text-gray-600" />
                           <span className="line-clamp-1 text-gray-600 text-sm">
-                            Classe : {voyage.nomClasseVoyage}
+                            {t("Classe", "Class")} : {voyage.nomClasseVoyage}
                           </span>
                         </div>
                         <div
@@ -539,7 +555,7 @@ export default function ClientHomePage() {
                           className="flex items-center justify-between px-2 py-2 rounded-lg text-white"
                         >
                           <span className="text-sm">
-                            Le {formatDate(voyage.dateDepartPrev)}
+                            {t("Le", "On")} {formatDate(voyage.dateDepartPrev)}
                           </span>
                           <span className="font-bold">{voyage.prix} FCFA</span>
                         </div>
@@ -547,7 +563,7 @@ export default function ClientHomePage() {
                           onClick={() => handleReserver(voyage.idVoyage)}
                           className="w-full mt-3 px-4 py-2 border-2 border-[#6149CD] text-[#6149CD] rounded-lg font-semibold hover:bg-[#6149CD] active:opacity-80 hover:text-white transition-colors"
                         >
-                          Réserver maintenant
+                          {t("Réserver maintenant", "Book now")}
                         </button>
                       </div>
                     </div>
@@ -559,7 +575,7 @@ export default function ClientHomePage() {
             <div className="w-full lg:w-80 shrink-0">
               <div className="bg-white border border-gray-200 rounded-lg p-4 sticky top-24">
                 <h3 className="text-lg font-semibold text-gray-900 mb-4">
-                  Agences validées
+                  {t("Agences validées", "Validated agencies")}
                 </h3>
 
                 <div className="flex gap-2 mb-4">
@@ -567,7 +583,7 @@ export default function ClientHomePage() {
                     <Search className="absolute left-3 top-1/2 transform -translate-y-1/2 w-4 h-4 text-gray-400" />
                     <input
                       type="text"
-                      placeholder="Rechercher..."
+                      placeholder={t("Rechercher...", "Search...")}
                       value={agences_search}
                       onChange={(e) => setAgencesSearch(e.target.value)}
                       className="w-full pl-10 pr-4 py-2 placeholder:text-gray-400 border border-gray-300 rounded-lg text-sm text-gray-800 focus:outline-none focus:ring-2 focus:ring-[#6149CD] focus:border-transparent"
@@ -592,7 +608,7 @@ export default function ClientHomePage() {
                   </div>
                 ) : agences.length === 0 ? (
                   <p className="text-sm text-gray-600 text-center py-8">
-                    Aucune agence validée
+                    {t("Aucune agence validée", "No validated agencies")}
                   </p>
                 ) : (
                   <>
@@ -609,19 +625,19 @@ export default function ClientHomePage() {
                             className="border border-gray-200 rounded-lg p-3 hover:shadow-md transition-shadow cursor-pointer"
                           >
                             <h4 className="font-semibold text-sm text-gray-900 mb-1 truncate">
-                              Nom : {agence.long_name}
+                              {t("Nom", "Name")} : {agence.long_name}
                             </h4>
                             <h3 className="font-semibold text-sm text-gray-900 mb-1 truncate">
-                              Abriévation : {agence.short_name}
+                              {t("Abréviation", "Abbreviation")} : {agence.short_name}
                             </h3>
                             <p className="text-xs text-gray-600 line-clamp-1">
-                              Ville : {agence.ville}
+                              {t("Ville", "City")} : {agence.ville}
                             </p>
                             <p className="text-xs text-gray-600 line-clamp-1">
-                              Zone : {agence.location}
+                              {t("Zone", "Area")} : {agence.location}
                             </p>
                             <p className="text-xs text-gray-600 line-clamp-1">
-                              Réseau social : {agence.social_network}
+                              {t("Réseau social", "Social network")} : {agence.social_network}
                             </p>
                           </div>
                         ))}

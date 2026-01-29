@@ -13,6 +13,7 @@ import {
 } from "lucide-react";
 import Image from "next/image";
 import { useRouter } from "next/navigation";
+import { useLanguage } from "../providers";
 
 /**
  * Signup Page Component with Multi-Role Support
@@ -65,6 +66,7 @@ export default function SignupPage() {
   const [error_message, setErrorMessage] = useState("");
   const [success_message, setSuccessMessage] = useState("");
   const router = useRouter();
+  const { t } = useLanguage();
 
   const CAROUSEL_IMAGES = [
     "/images/siege1.jpg",
@@ -80,17 +82,17 @@ export default function SignupPage() {
     setSuccessMessage("");
 
     if (!isFormValid()) {
-      setErrorMessage("Veuillez remplir tous les champs");
+      setErrorMessage(t("Veuillez remplir tous les champs", "Please fill in all fields"));
       return;
     }
 
     if (password !== confirmPassword) {
-      setErrorMessage("Les mots de passe ne correspondent pas");
+      setErrorMessage(t("Les mots de passe ne correspondent pas", "Passwords do not match"));
       return;
     }
 
     if (!acceptTerms) {
-      setErrorMessage("Veuillez accepter les conditions d'utilisation");
+      setErrorMessage(t("Veuillez accepter les conditions d'utilisation", "Please accept the terms of use"));
       return;
     }
 
@@ -123,21 +125,24 @@ export default function SignupPage() {
       if (!response.ok) {
         const error_data = await response.json();
         throw new Error(
-          error_data.message || "Une erreur est survenue lors de l'inscription",
+          error_data.message || t("Une erreur est survenue lors de l'inscription", "An error occurred during signup"),
         );
       }
 
       await response.json();
 
       setSuccessMessage(
-        "Compte créé avec succès ! Redirection dans quelques instants...",
+        t(
+          "Compte créé avec succès ! Redirection dans quelques instants...",
+          "Account created successfully! Redirecting shortly..."
+        )
       );
 
       setTimeout(() => {
         router.push("/login");
       }, 2000);
     } catch (error: any) {
-      setErrorMessage("Une erreur est survenue lors de l'inscription");
+      setErrorMessage(t("Une erreur est survenue lors de l'inscription", "An error occurred during signup"));
       console.error("Signup error:", error);
     } finally {
       setIsLoading(false);
@@ -221,7 +226,7 @@ export default function SignupPage() {
                 <div key={index} className="min-w-full h-full relative">
                   <Image
                     src={image_path}
-                    alt={`Slide ${index + 1}`}
+                    alt={t(`Diapositive ${index + 1}`, `Slide ${index + 1}`)}
                     fill
                     style={{ objectFit: "cover" }}
                     quality={75}
@@ -240,7 +245,7 @@ export default function SignupPage() {
                     width: currentSlide === index ? "32px" : "8px",
                   }}
                   className="h-2 rounded-full transition-all duration-300"
-                  aria-label={`Go to slide ${index + 1}`}
+                  aria-label={t(`Aller à la diapositive ${index + 1}`, `Go to slide ${index + 1}`)}
                 />
               ))}
             </div>
@@ -262,16 +267,19 @@ export default function SignupPage() {
 
           {/* Title */}
           <h1 className="text-4xl lg:text-5xl font-normal text-gray-900 mb-3">
-            S&apos;inscrire
+            {t("S'inscrire", "Sign up")}
           </h1>
           <p className="text-gray-600 mb-8 text-base">
-            Choisissez votre type de compte et complétez les informations requises.
+            {t(
+              "Choisissez votre type de compte et complétez les informations requises.",
+              "Choose your account type and complete the required information."
+            )}
           </p>
 
           {/* Account Type Selection */}
           <div className="mb-8">
             <label className="block text-sm font-medium text-gray-700 mb-3">
-              Type de compte
+              {t("Type de compte", "Account type")}
             </label>
             <div className="grid grid-cols-1 md:grid-cols-3 gap-3">
               <button
@@ -283,7 +291,9 @@ export default function SignupPage() {
                 }`}
               >
                 <User className={`w-6 h-6 mx-auto mb-2 ${accountType === "client" ? "text-[#6149CD]" : "text-gray-600"}`} />
-                <div className="text-sm font-medium text-gray-900">Client</div>
+                <div className="text-sm font-medium text-gray-900">
+                  {t("Client", "Client")}
+                </div>
               </button>
 
               <button
@@ -295,7 +305,9 @@ export default function SignupPage() {
                 }`}
               >
                 <MapPin className={`w-6 h-6 mx-auto mb-2 ${accountType === "bsm" ? "text-[#6149CD]" : "text-gray-600"}`} />
-                <div className="text-sm font-medium text-gray-900">Gérant de Gare</div>
+                <div className="text-sm font-medium text-gray-900">
+                  {t("Gérant de Gare", "Station manager")}
+                </div>
               </button>
 
               <button
@@ -307,7 +319,9 @@ export default function SignupPage() {
                 }`}
               >
                 <Building2 className={`w-6 h-6 mx-auto mb-2 ${accountType === "company" ? "text-[#6149CD]" : "text-gray-600"}`} />
-                <div className="text-sm font-medium text-gray-900">Chef de Société</div>
+                <div className="text-sm font-medium text-gray-900">
+                  {t("Chef de Société", "Company manager")}
+                </div>
               </button>
             </div>
           </div>
@@ -331,7 +345,9 @@ export default function SignupPage() {
             {/* First Name and Last Name */}
             <div className="grid grid-cols-2 gap-4">
               <fieldset className="h-15 border border-gray-500 rounded-lg px-4 pt-1 pb-3 hover:border-[#6149CD] focus-within:border-[#6149CD] transition-colors">
-                <legend className="text-sm text-gray-700 px-2">Nom *</legend>
+                <legend className="text-sm text-gray-700 px-2">
+                  {t("Nom *", "Last name *")}
+                </legend>
                 <input
                   type="text"
                   value={firstName}
@@ -341,7 +357,9 @@ export default function SignupPage() {
               </fieldset>
 
               <fieldset className="h-15 border border-gray-500 rounded-lg px-4 pt-1 pb-3 hover:border-[#6149CD] focus-within:border-[#6149CD] transition-colors">
-                <legend className="text-sm text-gray-700 px-2">Prénom *</legend>
+                <legend className="text-sm text-gray-700 px-2">
+                  {t("Prénom *", "First name *")}
+                </legend>
                 <input
                   type="text"
                   value={lastName}
@@ -354,7 +372,9 @@ export default function SignupPage() {
             {/* Email and Phone */}
             <div className="grid grid-cols-2 gap-4">
               <fieldset className="h-15 border border-gray-500 rounded-lg px-4 pt-1 pb-3 hover:border-[#6149CD] focus-within:border-[#6149CD] transition-colors">
-                <legend className="text-sm text-gray-700 px-2">Email *</legend>
+                <legend className="text-sm text-gray-700 px-2">
+                  {t("Email *", "Email *")}
+                </legend>
                 <input
                   type="email"
                   value={email}
@@ -364,7 +384,9 @@ export default function SignupPage() {
               </fieldset>
 
               <fieldset className="h-15 border border-gray-500 rounded-lg px-4 pt-1 pb-3 hover:border-[#6149CD] focus-within:border-[#6149CD] transition-colors">
-                <legend className="text-sm text-gray-700 px-2">Numéro *</legend>
+                <legend className="text-sm text-gray-700 px-2">
+                  {t("Numéro *", "Phone *")}
+                </legend>
                 <div className="flex items-center gap-2">
                   <span className="text-base text-gray-900 font-medium shrink-0">
                     +237 🇨🇲
@@ -373,7 +395,7 @@ export default function SignupPage() {
                     type="tel"
                     value={phone}
                     onChange={(e) => setPhone(e.target.value)}
-                    placeholder="6XX XX XX XX"
+                    placeholder={t("6XX XX XX XX", "6XX XX XX XX")}
                     maxLength={9}
                     className="w-full outline-none text-base text-black"
                   />
@@ -384,7 +406,7 @@ export default function SignupPage() {
             {/* Username */}
             <fieldset className="h-15 border border-gray-500 rounded-lg px-4 pt-1 pb-3 hover:border-[#6149CD] focus-within:border-[#6149CD] transition-colors">
               <legend className="text-sm text-gray-700 px-2">
-                Nom d&apos;utilisateur *
+                {t("Nom d'utilisateur *", "Username *")}
               </legend>
               <input
                 type="text"
@@ -396,7 +418,9 @@ export default function SignupPage() {
 
             {/* Gender */}
             <div className="space-y-2">
-              <label className="text-sm text-gray-700">Genre *</label>
+              <label className="text-sm text-gray-700">
+                {t("Genre *", "Gender *")}
+              </label>
               <div className="flex gap-6">
                 <label className="flex items-center space-x-3 cursor-pointer group">
                   <input
@@ -408,7 +432,7 @@ export default function SignupPage() {
                     className="appearance-none w-5 h-5 border-2 border-gray-400 rounded-full cursor-pointer checked:bg-[#6149CD] checked:border-gray-400 outline-none"
                   />
                   <span className="text-base text-gray-900 group-hover:text-[#6149CD] transition-colors">
-                    Masculin
+                    {t("Masculin", "Male")}
                   </span>
                 </label>
 
@@ -422,7 +446,7 @@ export default function SignupPage() {
                     className="appearance-none w-5 h-5 border-2 border-gray-400 rounded-full cursor-pointer checked:bg-[#6149CD] checked:border-gray-400 outline-none"
                   />
                   <span className="text-base text-gray-900 group-hover:text-[#6149CD] transition-colors">
-                    Féminin
+                    {t("Féminin", "Female")}
                   </span>
                 </label>
               </div>
@@ -433,7 +457,9 @@ export default function SignupPage() {
               <>
                 <div className="grid grid-cols-2 gap-4">
                   <fieldset className="h-15 border border-gray-500 rounded-lg px-4 pt-1 pb-3 hover:border-[#6149CD] focus-within:border-[#6149CD] transition-colors">
-                    <legend className="text-sm text-gray-700 px-2">Numéro CNI</legend>
+                    <legend className="text-sm text-gray-700 px-2">
+                      {t("Numéro CNI", "National ID number")}
+                    </legend>
                     <input
                       type="text"
                       value={cniNumber}
@@ -443,7 +469,9 @@ export default function SignupPage() {
                   </fieldset>
 
                   <fieldset className="h-15 border border-gray-500 rounded-lg px-4 pt-1 pb-3 hover:border-[#6149CD] focus-within:border-[#6149CD] transition-colors">
-                    <legend className="text-sm text-gray-700 px-2">Ville de résidence</legend>
+                    <legend className="text-sm text-gray-700 px-2">
+                      {t("Ville de résidence", "City of residence")}
+                    </legend>
                     <input
                       type="text"
                       value={city}
@@ -454,7 +482,9 @@ export default function SignupPage() {
                 </div>
 
                 <fieldset className="h-15 border border-gray-500 rounded-lg px-4 pt-1 pb-3 hover:border-[#6149CD] focus-within:border-[#6149CD] transition-colors">
-                  <legend className="text-sm text-gray-700 px-2">Nom de la gare routière</legend>
+                  <legend className="text-sm text-gray-700 px-2">
+                    {t("Nom de la gare routière", "Bus station name")}
+                  </legend>
                   <input
                     type="text"
                     value={busStationName}
@@ -464,12 +494,14 @@ export default function SignupPage() {
                 </fieldset>
 
                 <fieldset className="h-15 border border-gray-500 rounded-lg px-4 pt-1 pb-3 hover:border-[#6149CD] focus-within:border-[#6149CD] transition-colors">
-                  <legend className="text-sm text-gray-700 px-2">Fonction/Poste</legend>
+                  <legend className="text-sm text-gray-700 px-2">
+                    {t("Fonction/Poste", "Position/Role")}
+                  </legend>
                   <input
                     type="text"
                     value={position}
                     onChange={(e) => setPosition(e.target.value)}
-                    placeholder="Ex: Gérant, Manager, Superviseur"
+                    placeholder={t("Ex: Gérant, Manager, Superviseur", "e.g. Manager, Supervisor")}
                     className="w-full outline-none text-base text-black placeholder:text-gray-400"
                   />
                 </fieldset>
@@ -478,10 +510,10 @@ export default function SignupPage() {
                   <label className="flex flex-col items-center cursor-pointer">
                     <Upload className="w-8 h-8 text-gray-400 mb-2" />
                     <span className="text-sm text-gray-600 text-center mb-1">
-                      Document d&apos;autorisation (optionnel)
+                      {t("Document d'autorisation (optionnel)", "Authorization document (optional)")}
                     </span>
                     <span className="text-xs text-gray-500 text-center">
-                      Lettre de la gare ou attestation de travail
+                      {t("Lettre de la gare ou attestation de travail", "Station letter or work certificate")}
                     </span>
                     <input
                       type="file"
@@ -503,7 +535,9 @@ export default function SignupPage() {
             {accountType === "company" && (
               <>
                 <fieldset className="h-15 border border-gray-500 rounded-lg px-4 pt-1 pb-3 hover:border-[#6149CD] focus-within:border-[#6149CD] transition-colors">
-                  <legend className="text-sm text-gray-700 px-2">Nom de la société</legend>
+                <legend className="text-sm text-gray-700 px-2">
+                  {t("Nom de la société", "Company name")}
+                </legend>
                   <input
                     type="text"
                     value={companyName}
@@ -514,7 +548,9 @@ export default function SignupPage() {
 
                 <div className="grid grid-cols-2 gap-4">
                   <fieldset className="h-15 border border-gray-500 rounded-lg px-4 pt-1 pb-3 hover:border-[#6149CD] focus-within:border-[#6149CD] transition-colors">
-                    <legend className="text-sm text-gray-700 px-2">Numéro de contribuable</legend>
+                    <legend className="text-sm text-gray-700 px-2">
+                      {t("Numéro de contribuable", "Taxpayer number")}
+                    </legend>
                     <input
                       type="text"
                       value={taxNumber}
@@ -525,7 +561,7 @@ export default function SignupPage() {
 
                   <fieldset className="h-15 border border-gray-500 rounded-lg px-4 pt-1 pb-3 hover:border-[#6149CD] focus-within:border-[#6149CD] transition-colors">
                   <legend className="text-sm text-gray-700 px-2">
-                    Matricule d&apos;entreprise
+                    {t("Matricule d'entreprise", "Company registration number")}
                   </legend>
                     <input
                       type="text"
@@ -537,12 +573,14 @@ export default function SignupPage() {
                 </div>
 
                 <fieldset className="h-15 border border-gray-500 rounded-lg px-4 pt-1 pb-3 hover:border-[#6149CD] focus-within:border-[#6149CD] transition-colors">
-                  <legend className="text-sm text-gray-700 px-2">Identité du chef de société</legend>
+                  <legend className="text-sm text-gray-700 px-2">
+                    {t("Identité du chef de société", "Company manager ID")}
+                  </legend>
                   <input
                     type="text"
                     value={managerIdentity}
                     onChange={(e) => setManagerIdentity(e.target.value)}
-                    placeholder="CNI ou Passeport"
+                    placeholder={t("CNI ou Passeport", "National ID or Passport")}
                     className="w-full outline-none text-base text-black placeholder:text-gray-400"
                   />
                 </fieldset>
@@ -551,10 +589,10 @@ export default function SignupPage() {
                   <label className="flex flex-col items-center cursor-pointer">
                     <Upload className="w-8 h-8 text-gray-400 mb-2" />
                     <span className="text-sm text-gray-600 text-center mb-1">
-                      Document du Ministère des Transports *
+                      {t("Document du Ministère des Transports *", "Ministry of Transport document *")}
                     </span>
                     <span className="text-xs text-gray-500 text-center">
-                      Attestation de reconnaissance officielle
+                      {t("Attestation de reconnaissance officielle", "Official recognition certificate")}
                     </span>
                     <input
                       type="file"
@@ -576,7 +614,7 @@ export default function SignupPage() {
             <div className="grid grid-cols-2 gap-4">
               <fieldset className="h-15 border border-gray-500 rounded-lg px-4 pt-1 pb-3 relative hover:border-[#6149CD] focus-within:border-[#6149CD] transition-colors">
                 <legend className="text-sm text-gray-700 px-2">
-                  Mot de passe *
+                  {t("Mot de passe *", "Password *")}
                 </legend>
                 <div className="flex items-center">
                   <input
@@ -601,7 +639,7 @@ export default function SignupPage() {
 
               <fieldset className="h-15 border border-gray-500 rounded-lg px-4 pt-1 pb-3 relative hover:border-[#6149CD] focus-within:border-[#6149CD] transition-colors">
                 <legend className="text-sm text-gray-700 px-2">
-                  Confirmation
+                  {t("Confirmation", "Confirm")}
                 </legend>
                 <div className="flex items-center">
                   <input
@@ -632,14 +670,14 @@ export default function SignupPage() {
                   <>
                     <Check className="w-4 h-4 text-green-500 mr-2 shrink-0" />
                     <span className="text-green-600 whitespace-nowrap">
-                      Les mots de passe correspondent
+                      {t("Les mots de passe correspondent", "Passwords match")}
                     </span>
                   </>
                 ) : (
                   <>
                     <X className="w-4 h-4 text-red-500 mr-2 shrink-0" />
                     <span className="text-red-600 whitespace-nowrap">
-                      Les mots de passe ne correspondent pas
+                      {t("Les mots de passe ne correspondent pas", "Passwords do not match")}
                     </span>
                   </>
                 )}
@@ -659,13 +697,13 @@ export default function SignupPage() {
                 htmlFor="accept_terms"
                 className="ml-2.5 text-sm text-gray-900 cursor-pointer select-none"
               >
-                J&apos;accepte l&apos;ensemble des{" "}
+                {t("J'accepte l'ensemble des", "I accept the")}{" "}
                 <a href="#" className="font-bold text-gray-900 hover:underline">
-                  Conditions d&apos;utilisation
+                  {t("Conditions d'utilisation", "Terms of use")}
                 </a>{" "}
-                et des{" "}
+                {t("et des", "and the")}{" "}
                 <a href="#" className="font-bold text-gray-900 hover:underline">
-                  Politiques de confidentialité
+                  {t("Politiques de confidentialité", "Privacy policies")}
                 </a>
               </label>
             </div>
@@ -682,17 +720,17 @@ export default function SignupPage() {
               }}
               className="h-12 w-full text-white rounded-md font-bold hover:opacity-95 transition-opacity focus:outline-none focus:ring-2 focus:ring-purple-500 focus:ring-offset-2 disabled:opacity-70 disabled:cursor-not-allowed"
             >
-              {is_loading ? "Création du compte..." : "Créer votre compte"}
+              {is_loading ? t("Création du compte...", "Creating account...") : t("Créer votre compte", "Create your account")}
             </button>
 
             {/* Login Link */}
             <div className="text-center text-sm text-gray-600 pt-2">
-              Vous avez déjà un compte?{" "}
+              {t("Vous avez déjà un compte?", "Already have an account?")}{" "}
               <a
                 href="/login"
                 className="font-bold text-gray-900 hover:underline"
               >
-                Se connecter
+                {t("Se connecter", "Sign in")}
               </a>
             </div>
           </div>

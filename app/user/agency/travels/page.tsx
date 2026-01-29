@@ -33,6 +33,7 @@ import {
   Music,
 } from "lucide-react";
 import { useRouter } from "next/navigation";
+import { useLanguage } from "../../../providers";
 import {
   LineChart,
   Line,
@@ -151,6 +152,7 @@ export default function AgencyTravelsPage() {
   const [show_error_modal, setShowErrorModal] = useState(false);
 
   const router = useRouter();
+  const { t } = useLanguage();
 
   const API_BASE_URL = process.env.NEXT_PUBLIC_API_BASE_URL;
   const BUTTON_COLOR = "#6149CD";
@@ -159,26 +161,26 @@ export default function AgencyTravelsPage() {
   const MENU_ITEMS = [
     {
       icon: Home,
-      label: "Dashboard",
+      label: t("Dashboard", "Dashboard"),
       path: "/user/agency/dashboard",
       active: false,
     },
-    { icon: Bus, label: "Voyages", path: "/user/agency/travels", active: true },
+    { icon: Bus, label: t("Voyages", "Trips"), path: "/user/agency/travels", active: true },
     {
       icon: Calendar,
-      label: "Réservations",
+      label: t("Réservations", "Bookings"),
       path: "/user/agency/reservations",
       active: false,
     },
     {
       icon: Users,
-      label: "Chauffeurs",
+      label: t("Chauffeurs", "Drivers"),
       path: "/user/agency/drivers",
       active: false,
     },
     {
       icon: Settings,
-      label: "Mes paramètres",
+      label: t("Mes paramètres", "Settings"),
       path: "/user/agency/settings",
       active: false,
     },
@@ -242,7 +244,7 @@ export default function AgencyTravelsPage() {
       );
 
       if (!response.ok)
-        throw new Error("Erreur lors du chargement des agences");
+        throw new Error(t("Erreur lors du chargement des agences", "Error loading agencies"));
 
       const data = await response.json();
       const all_agences = data.content || data || [];
@@ -260,7 +262,7 @@ export default function AgencyTravelsPage() {
       }
     } catch (error: any) {
       console.error("Fetch Agences Error:", error);
-      setErrorMessage("Impossible de charger vos agences");
+      setErrorMessage(t("Impossible de charger vos agences", "Unable to load your agencies"));
     } finally {
       setIsLoadingAgences(false);
     }
@@ -285,14 +287,14 @@ export default function AgencyTravelsPage() {
       );
 
       if (!response.ok)
-        throw new Error("Erreur lors du chargement des voyages");
+        throw new Error(t("Erreur lors du chargement des voyages", "Error loading trips"));
 
       const data = await response.json();
       setVoyages(data.content || []);
       setTotalPages(data.totalPages || 0);
     } catch (error: any) {
       console.error("Fetch Voyages Error:", error);
-      setErrorMessage("Impossible de charger les voyages");
+      setErrorMessage(t("Impossible de charger les voyages", "Unable to load trips"));
     } finally {
       setIsLoading(false);
     }
@@ -316,14 +318,14 @@ export default function AgencyTravelsPage() {
       );
 
       if (!response.ok)
-        throw new Error("Erreur lors du chargement des statistiques");
+        throw new Error(t("Erreur lors du chargement des statistiques", "Error loading statistics"));
 
       const data = await response.json();
       setSelectedVoyageStats(data);
       setShowStatsModal(true);
     } catch (error: any) {
       console.error("Fetch Stats Error:", error);
-      alert("Impossible de charger les statistiques du voyage");
+      alert(t("Impossible de charger les statistiques du voyage", "Unable to load trip statistics"));
     } finally {
       setIsLoadingStats(false);
     }
@@ -347,7 +349,7 @@ export default function AgencyTravelsPage() {
         },
       );
 
-      if (!response.ok) throw new Error("Erreur lors de la suppression");
+      if (!response.ok) throw new Error(t("Erreur lors de la suppression", "Error during deletion"));
 
       setShowDeleteModal(false);
       setSelectedVoyageToDelete(null);
@@ -357,7 +359,7 @@ export default function AgencyTravelsPage() {
       }
     } catch (error: any) {
       console.error("Delete Voyage Error:", error);
-      setErrorMessage("Erreur lors de la suppression du voyage");
+      setErrorMessage(t("Erreur lors de la suppression du voyage", "Error deleting trip"));
       setShowErrorModal(true);
     } finally {
       setIsDeleting(false);
@@ -535,7 +537,7 @@ export default function AgencyTravelsPage() {
                 <Menu className="w-5 h-5 sm:w-6 sm:h-6 text-gray-900" />
               </button>
               <h1 className="text-lg sm:text-2xl font-semibold text-gray-900">
-                Gestion des voyages
+                {t("Gestion des voyages", "Trip management")}
               </h1>
             </div>
 
@@ -546,8 +548,10 @@ export default function AgencyTravelsPage() {
                 className="flex items-center space-x-2 px-3 sm:px-4 py-2 text-white rounded-lg hover:opacity-90 transition-opacity text-sm sm:text-base"
               >
                 <Plus className="w-4 h-4 sm:w-5 sm:h-5" />
-                <span className="hidden sm:inline">Créer un voyage</span>
-                <span className="sm:hidden">Créer</span>
+                <span className="hidden sm:inline">
+                  {t("Créer un voyage", "Create a trip")}
+                </span>
+                <span className="sm:hidden">{t("Créer", "Create")}</span>
               </button>
 
               <div className="relative">
@@ -581,14 +585,16 @@ export default function AgencyTravelsPage() {
                         className="w-full flex items-center space-x-3 px-4 py-2 hover:bg-gray-100 transition-colors"
                       >
                         <Settings className="w-4 h-4 text-gray-600" />
-                        <span className="text-gray-700">Paramètres</span>
+                        <span className="text-gray-700">
+                          {t("Paramètres", "Settings")}
+                        </span>
                       </button>
                       <button
                         onClick={handleLogout}
                         className="w-full flex items-center space-x-3 px-4 py-2 hover:bg-gray-100 transition-colors text-red-600"
                       >
                         <LogOut className="w-4 h-4" />
-                        <span>Se déconnecter</span>
+                        <span>{t("Se déconnecter", "Sign out")}</span>
                       </button>
                     </div>
                   </>
@@ -605,7 +611,9 @@ export default function AgencyTravelsPage() {
             <div className="flex items-center justify-center py-20">
               <div className="text-center">
                 <Bus className="w-8 h-8 text-[#6149CD] animate-spin mx-auto mb-4" />
-                <p className="text-gray-600">Chargement en cours...</p>
+                <p className="text-gray-600">
+                  {t("Chargement en cours...", "Loading...")}
+                </p>
               </div>
             </div>
           )}
@@ -620,7 +628,7 @@ export default function AgencyTravelsPage() {
                 onClick={() => window.location.reload()}
                 className="px-4 sm:px-6 py-2.5 sm:py-3 bg-[#6149CD] text-white rounded-lg hover:opacity-75 transition-colors text-sm sm:text-base"
               >
-                Réessayer
+                {t("Réessayer", "Try again")}
               </button>
             </div>
           )}
@@ -630,10 +638,13 @@ export default function AgencyTravelsPage() {
             <div className="bg-white rounded-xl shadow-sm border border-gray-200 p-6 sm:p-12 text-center">
               <Building2 className="w-12 h-12 sm:w-16 sm:h-16 text-gray-400 mx-auto mb-4" />
               <h3 className="text-lg sm:text-xl font-semibold text-gray-900 mb-2">
-                Aucune agence validée
+                {t("Aucune agence validée", "No validated agency")}
               </h3>
               <p className="text-sm sm:text-base text-gray-600">
-                Vous devez avoir une agence pour créer des voyages
+                {t(
+                  "Vous devez avoir une agence pour créer des voyages",
+                  "You need an agency to create trips"
+                )}
               </p>
             </div>
           )}
@@ -650,10 +661,10 @@ export default function AgencyTravelsPage() {
                     </div>
                     <div className="min-w-0 flex-1">
                       <p className="text-xs sm:text-sm text-gray-600">
-                        Agence sélectionnée
+                        {t("Agence sélectionnée", "Selected agency")}
                       </p>
                       <h2 className="text-base sm:text-xl font-bold text-gray-900 truncate">
-                        {selected_agence?.long_name || "Aucune"}
+                        {selected_agence?.long_name || t("Aucune", "None")}
                       </h2>
                     </div>
                   </div>
@@ -667,7 +678,7 @@ export default function AgencyTravelsPage() {
                         className="w-full sm:w-auto flex items-center justify-center space-x-2 px-4 py-2 border border-gray-300 rounded-lg hover:bg-gray-50 transition-colors"
                       >
                         <span className="text-gray-700 text-sm sm:text-base">
-                          Changer
+                          {t("Changer", "Switch")}
                         </span>
                         <ChevronDown className="w-4 h-4 text-gray-600" />
                       </button>
@@ -731,7 +742,10 @@ export default function AgencyTravelsPage() {
                     <div className="space-y-4">
                       <h2 className="text-xl sm:text-2xl font-bold text-gray-900 flex items-center space-x-2">
                         <Clock className="w-6 h-6 text-[#6149CD]" />
-                        <span>Voyages à venir ({voyages_a_venir.length})</span>
+                        <span>
+                          {t("Voyages à venir", "Upcoming trips")} (
+                          {voyages_a_venir.length})
+                        </span>
                       </h2>
 
                       <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4 sm:gap-6">
@@ -759,8 +773,8 @@ export default function AgencyTravelsPage() {
                             <div className="p-4">
                               <div className="flex items-center justify-between mb-3">
                                 <h3 className="text-lg font-bold text-gray-900">
-                                  De {voyage.lieuDepart} vers{" "}
-                                  {voyage.lieuArrive}
+                                  {t("De", "From")} {voyage.lieuDepart}{" "}
+                                  {t("vers", "to")} {voyage.lieuArrive}
                                 </h3>
                               </div>
 
@@ -768,8 +782,8 @@ export default function AgencyTravelsPage() {
                                 <div className="flex items-center space-x-2 text-sm text-gray-600">
                                   <Compass className="w-4 h-4" />
                                   <span>
-                                    De {voyage.pointDeDepart} vers{" "}
-                                    {voyage.pointArrivee}
+                                    {t("De", "From")} {voyage.pointDeDepart}{" "}
+                                    {t("vers", "to")} {voyage.pointArrivee}
                                   </span>
                                 </div>
                                 <div className="flex items-center space-x-2 text-sm text-gray-600">
@@ -784,7 +798,7 @@ export default function AgencyTravelsPage() {
                                     {voyage.nbrPlaceReservable} /{" "}
                                     {voyage.nbrPlaceRestante +
                                       voyage.nbrPlaceConfirm}{" "}
-                                    places restantes
+                                    {t("places restantes", "seats left")}
                                   </span>
                                 </div>
                               </div>
@@ -810,7 +824,9 @@ export default function AgencyTravelsPage() {
 
                               <div className="flex items-center justify-between pt-4 border-t border-gray-200">
                                 <div>
-                                  <p className="text-xs text-gray-600">Prix</p>
+                                  <p className="text-xs text-gray-600">
+                                    {t("Prix", "Price")}
+                                  </p>
                                   <p className="text-lg font-bold text-[#6149CD]">
                                     {formatRevenue(voyage.prix)}
                                   </p>
@@ -823,7 +839,7 @@ export default function AgencyTravelsPage() {
                                   className="flex items-center space-x-2 px-4 py-2 bg-red-600 text-white rounded-lg hover:bg-red-700 transition-colors"
                                 >
                                   <Trash2 className="w-4 h-4" />
-                                  <span>Supprimer</span>
+                                  <span>{t("Supprimer", "Delete")}</span>
                                 </button>
                               </div>
                             </div>
@@ -839,7 +855,8 @@ export default function AgencyTravelsPage() {
                       <h2 className="text-xl sm:text-2xl font-bold text-gray-900 flex items-center space-x-2">
                         <CheckCircle className="w-6 h-6 text-green-600" />
                         <span>
-                          Voyages effectués ({voyages_effectues.length})
+                          {t("Voyages effectués", "Completed trips")} (
+                          {voyages_effectues.length})
                         </span>
                       </h2>
 
@@ -860,7 +877,7 @@ export default function AgencyTravelsPage() {
                               />
                               <div className="absolute top-3 right-3">
                                 <span className="px-3 py-1 bg-green-500 text-white text-xs font-semibold rounded-full">
-                                  Effectué
+                                  {t("Effectué", "Completed")}
                                 </span>
                               </div>
                             </div>
@@ -868,8 +885,8 @@ export default function AgencyTravelsPage() {
                             <div className="p-4">
                               <div className="flex items-center justify-between mb-3">
                                 <h3 className="text-lg font-bold text-gray-900">
-                                  De {voyage.lieuDepart} vers{" "}
-                                  {voyage.lieuArrive}
+                                  {t("De", "From")} {voyage.lieuDepart}{" "}
+                                  {t("vers", "to")} {voyage.lieuArrive}
                                 </h3>
                               </div>
 
@@ -877,8 +894,8 @@ export default function AgencyTravelsPage() {
                                 <div className="flex items-center space-x-2 text-sm text-gray-600">
                                   <Compass className="w-4 h-4" />
                                   <span>
-                                    De {voyage.pointDeDepart} vers{" "}
-                                    {voyage.pointArrivee}
+                                    {t("De", "From")} {voyage.pointDeDepart}{" "}
+                                    {t("vers", "to")} {voyage.pointArrivee}
                                   </span>
                                 </div>
                                 <div className="flex items-center space-x-2 text-sm text-gray-600">
@@ -890,7 +907,8 @@ export default function AgencyTravelsPage() {
                                 <div className="flex items-center space-x-2 text-sm text-gray-600">
                                   <Users className="w-4 h-4" />
                                   <span>
-                                    {voyage.nbrPlaceConfirm} passager(s)
+                                    {voyage.nbrPlaceConfirm}{" "}
+                                    {t("passager(s)", "passenger(s)")}
                                   </span>
                                 </div>
                               </div>
@@ -898,7 +916,7 @@ export default function AgencyTravelsPage() {
                               <div className="flex items-center justify-between pt-4 border-t border-gray-200">
                                 <div>
                                   <p className="text-xs text-gray-600">
-                                    Prix unitaire
+                                    {t("Prix unitaire", "Unit price")}
                                   </p>
                                   <p className="text-lg font-bold text-[#6149CD]">
                                     {formatRevenue(voyage.prix)}
@@ -913,7 +931,7 @@ export default function AgencyTravelsPage() {
                                   className="flex items-center space-x-2 px-4 py-2 text-white rounded-lg hover:opacity-90 transition-opacity disabled:opacity-50"
                                 >
                                   <BarChart3 className="w-4 h-4" />
-                                  <span>Stats</span>
+                                  <span>{t("Stats", "Stats")}</span>
                                 </button>
                               </div>
                             </div>
@@ -928,17 +946,20 @@ export default function AgencyTravelsPage() {
                     <div className="bg-white rounded-xl shadow-sm border border-gray-200 p-12 text-center">
                       <Bus className="w-16 h-16 text-gray-400 mx-auto mb-4" />
                       <h3 className="text-xl font-semibold text-gray-900 mb-2">
-                        Aucun voyage
+                        {t("Aucun voyage", "No trips")}
                       </h3>
                       <p className="text-gray-600 mb-6">
-                        Créez votre premier voyage pour commencer
+                        {t(
+                          "Créez votre premier voyage pour commencer",
+                          "Create your first trip to get started"
+                        )}
                       </p>
                       <button
                         onClick={() => router.push("/user/agency/travel")}
                         style={{ backgroundColor: BUTTON_COLOR }}
                         className="px-6 py-3 text-white rounded-lg hover:opacity-90 transition-opacity"
                       >
-                        Créer un voyage
+                        {t("Créer un voyage", "Create a trip")}
                       </button>
                     </div>
                   )}
@@ -954,11 +975,12 @@ export default function AgencyTravelsPage() {
                         className="flex items-center space-x-2 px-4 py-2 border border-gray-300 rounded-lg text-gray-700 hover:bg-gray-50 disabled:opacity-50 disabled:cursor-not-allowed transition-colors"
                       >
                         <ChevronLeft className="w-4 h-4" />
-                        <span>Précédent</span>
+                        <span>{t("Précédent", "Previous")}</span>
                       </button>
 
                       <span className="text-sm text-gray-600">
-                        Page {current_page + 1} sur {total_pages}
+                        {t("Page", "Page")} {current_page + 1}{" "}
+                        {t("sur", "of")} {total_pages}
                       </span>
 
                       <button
@@ -970,7 +992,7 @@ export default function AgencyTravelsPage() {
                         disabled={current_page === total_pages - 1}
                         className="flex items-center space-x-2 px-4 py-2 border border-gray-300 rounded-lg text-gray-700 hover:bg-gray-50 disabled:opacity-50 disabled:cursor-not-allowed transition-colors"
                       >
-                        <span>Suivant</span>
+                        <span>{t("Suivant", "Next")}</span>
                         <ChevronRight className="w-4 h-4" />
                       </button>
                     </div>
@@ -989,11 +1011,11 @@ export default function AgencyTravelsPage() {
               <div className="flex items-center justify-between p-6 border-b border-gray-200 sticky top-0 bg-white rounded-t-2xl z-10">
                 <div>
                   <h2 className="text-2xl font-bold text-gray-900">
-                    Statistiques du voyage
+                    {t("Statistiques du voyage", "Trip statistics")}
                   </h2>
                   <p className="text-sm text-gray-600 mt-1">
-                    De {selected_voyage_stats.lieu_depart} vers{" "}
-                    {selected_voyage_stats.lieu_arrive}
+                    {t("De", "From")} {selected_voyage_stats.lieu_depart}{" "}
+                    {t("vers", "to")} {selected_voyage_stats.lieu_arrive}
                   </p>
                 </div>
                 <button
@@ -1016,25 +1038,33 @@ export default function AgencyTravelsPage() {
                   </h3>
                   <div className="grid grid-cols-2 md:grid-cols-4 gap-4">
                     <div>
-                      <p className="text-white/80 text-sm">Chauffeur</p>
+                      <p className="text-white/80 text-sm">
+                        {t("Chauffeur", "Driver")}
+                      </p>
                       <p className="font-semibold">
                         {selected_voyage_stats.nom_chauffeur}
                       </p>
                     </div>
                     <div>
-                      <p className="text-white/80 text-sm">Véhicule</p>
+                      <p className="text-white/80 text-sm">
+                        {t("Véhicule", "Vehicle")}
+                      </p>
                       <p className="font-semibold">
                         {selected_voyage_stats.vehicule_nom}
                       </p>
                     </div>
                     <div>
-                      <p className="text-white/80 text-sm">Plaque</p>
+                      <p className="text-white/80 text-sm">
+                        {t("Plaque", "Plate")}
+                      </p>
                       <p className="font-semibold">
                         {selected_voyage_stats.vehicule_plaque}
                       </p>
                     </div>
                     <div>
-                      <p className="text-white/80 text-sm">Classe</p>
+                      <p className="text-white/80 text-sm">
+                        {t("Classe", "Class")}
+                      </p>
                       <p className="font-semibold">
                         {selected_voyage_stats.nom_classe_voyage}
                       </p>
@@ -1051,7 +1081,9 @@ export default function AgencyTravelsPage() {
                     <h3 className="text-2xl font-bold text-gray-900">
                       {selected_voyage_stats.total_passagers}
                     </h3>
-                    <p className="text-sm text-gray-600">Passagers</p>
+                    <p className="text-sm text-gray-600">
+                      {t("Passagers", "Passengers")}
+                    </p>
                   </div>
 
                   <div className="bg-white rounded-xl shadow-sm border border-gray-200 p-4">
@@ -1061,7 +1093,9 @@ export default function AgencyTravelsPage() {
                     <h3 className="text-2xl font-bold text-gray-900">
                       {selected_voyage_stats.total_reservations}
                     </h3>
-                    <p className="text-sm text-gray-600">Réservations</p>
+                    <p className="text-sm text-gray-600">
+                      {t("Réservations", "Bookings")}
+                    </p>
                   </div>
 
                   <div className="bg-white rounded-xl shadow-sm border border-gray-200 p-4">
@@ -1071,7 +1105,9 @@ export default function AgencyTravelsPage() {
                     <h3 className="text-2xl font-bold text-gray-900">
                       {selected_voyage_stats.places_confirmees}
                     </h3>
-                    <p className="text-sm text-gray-600">tickets payés</p>
+                    <p className="text-sm text-gray-600">
+                      {t("tickets payés", "paid tickets")}
+                    </p>
                   </div>
 
                   <div className="bg-white rounded-xl shadow-sm border border-gray-200 p-4">
@@ -1081,7 +1117,9 @@ export default function AgencyTravelsPage() {
                     <h3 className="text-2xl font-bold text-gray-900">
                       {selected_voyage_stats.taux_occupation.toFixed(5)}%
                     </h3>
-                    <p className="text-sm text-gray-600">Occupation</p>
+                    <p className="text-sm text-gray-600">
+                      {t("Occupation", "Occupancy")}
+                    </p>
                   </div>
 
                   <div className="bg-white rounded-xl shadow-sm border border-gray-200 p-4">
@@ -1091,7 +1129,9 @@ export default function AgencyTravelsPage() {
                     <h3 className="text-2xl font-bold text-gray-900">
                       {selected_voyage_stats.places_restantes}
                     </h3>
-                    <p className="text-sm text-gray-600">Places restantes</p>
+                    <p className="text-sm text-gray-600">
+                      {t("Places restantes", "Seats left")}
+                    </p>
                   </div>
 
                   <div className="bg-white rounded-xl shadow-sm border border-gray-200 p-4">
@@ -1101,7 +1141,9 @@ export default function AgencyTravelsPage() {
                     <h3 className="text-2xl font-bold text-gray-900">
                       {selected_voyage_stats.total_places}
                     </h3>
-                    <p className="text-sm text-gray-600">Places totales</p>
+                    <p className="text-sm text-gray-600">
+                      {t("Places totales", "Total seats")}
+                    </p>
                   </div>
                 </div>
 
@@ -1109,7 +1151,7 @@ export default function AgencyTravelsPage() {
                 <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
                   <div className="bg-linear-to-br from-green-400 to-green-600 rounded-xl p-6 text-white">
                     <h3 className="text-sm font-semibold mb-2">
-                      Revenus potentiels
+                      {t("Revenus potentiels", "Potential revenue")}
                     </h3>
                     <p className="text-3xl font-bold">
                       {formatRevenue(selected_voyage_stats.revenus_totaux)}
@@ -1118,7 +1160,7 @@ export default function AgencyTravelsPage() {
 
                   <div className="bg-linear-to-br from-blue-400 to-blue-600 rounded-xl p-6 text-white">
                     <h3 className="text-sm font-semibold mb-2">
-                      Revenus confirmés
+                      {t("Revenus confirmés", "Confirmed revenue")}
                     </h3>
                     <p className="text-3xl font-bold">
                       {formatRevenue(selected_voyage_stats.revenus_confirmes)}
@@ -1133,7 +1175,7 @@ export default function AgencyTravelsPage() {
                     .length > 0 && (
                     <div className="bg-white rounded-xl shadow-sm border border-gray-200 p-6 lg:col-span-2">
                       <h3 className="text-lg font-bold text-gray-900 mb-4">
-                        Revenus par jour
+                        {t("Revenus par jour", "Revenue per day")}
                       </h3>
                       <div className="h-64">
                         <ResponsiveContainer width="100%" height="100%">
@@ -1180,7 +1222,7 @@ export default function AgencyTravelsPage() {
                                 stroke: "#fff",
                                 strokeWidth: 2,
                               }}
-                              name="Revenu"
+                              name={t("Revenu", "Revenue")}
                             />
                           </LineChart>
                         </ResponsiveContainer>
@@ -1193,7 +1235,7 @@ export default function AgencyTravelsPage() {
                     .length > 0 && (
                     <div className="bg-white rounded-xl shadow-sm border border-gray-200 p-6">
                       <h3 className="text-lg font-bold text-gray-900 mb-4">
-                        Passagers par genre
+                        {t("Passagers par genre", "Passengers by gender")}
                       </h3>
                       <div className="h-64">
                         <ResponsiveContainer width="100%" height="100%">
@@ -1230,7 +1272,7 @@ export default function AgencyTravelsPage() {
                   ).length > 0 && (
                     <div className="bg-white rounded-xl shadow-sm border border-gray-200 p-6">
                       <h3 className="text-lg font-bold text-gray-900 mb-4">
-                        Passagers par âge
+                        {t("Passagers par âge", "Passengers by age")}
                       </h3>
                       <div className="h-64">
                         <ResponsiveContainer width="100%" height="100%">
@@ -1266,7 +1308,7 @@ export default function AgencyTravelsPage() {
                     .length > 0 && (
                     <div className="bg-white rounded-xl shadow-sm border border-gray-200 p-6">
                       <h3 className="text-lg font-bold text-gray-900 mb-4">
-                        Distribution des bagages
+                        {t("Distribution des bagages", "Baggage distribution")}
                       </h3>
                       <div className="h-64">
                         <ResponsiveContainer width="100%" height="100%">
@@ -1303,7 +1345,10 @@ export default function AgencyTravelsPage() {
                   ).length > 0 && (
                     <div className="bg-white rounded-xl shadow-sm border border-gray-200 p-6 lg:col-span-2">
                       <h3 className="text-lg font-bold text-gray-900 mb-4">
-                        Villes d'origine des passagers
+                        {t(
+                          "Villes d'origine des passagers",
+                          "Passengers' origin cities"
+                        )}
                       </h3>
                       <div className="h-64">
                         <ResponsiveContainer width="100%" height="100%">
@@ -1355,7 +1400,10 @@ export default function AgencyTravelsPage() {
                   <AlertCircle className="w-20 h-20 text-red-600" />
                 </div>
                 <p className="text-gray-700 mb-6 align-center text-center">
-                  Êtes-vous sûr de vouloir supprimer ce voyage ?
+                  {t(
+                    "Êtes-vous sûr de vouloir supprimer ce voyage ?",
+                    "Are you sure you want to delete this trip?"
+                  )}
                 </p>
 
                 <div className="flex items-center space-x-3">
@@ -1367,14 +1415,16 @@ export default function AgencyTravelsPage() {
                     disabled={is_deleting}
                     className="flex-1 py-3 border-2 border-gray-300 text-gray-700 rounded-xl font-semibold hover:bg-gray-100 transition-colors disabled:opacity-50"
                   >
-                    Annuler
+                    {t("Annuler", "Cancel")}
                   </button>
                   <button
                     onClick={handleDeleteVoyage}
                     disabled={is_deleting}
                     className="flex-1 py-3 bg-red-600 text-white rounded-xl font-semibold hover:bg-red-700 transition-colors disabled:opacity-50"
                   >
-                    {is_deleting ? "Suppression..." : "Supprimer"}
+                    {is_deleting
+                      ? t("Suppression...", "Deleting...")
+                      : t("Supprimer", "Delete")}
                   </button>
                 </div>
               </div>
@@ -1403,16 +1453,19 @@ export default function AgencyTravelsPage() {
                   </svg>
                 </div>
                 <h2 className="text-xl sm:text-2xl font-bold text-gray-900 mb-2">
-                  Succès !
+                  {t("Succès !", "Success!")}
                 </h2>
                 <p className="text-gray-600 mb-6 text-sm sm:text-base">
-                  Agence mis à jour avec succès
+                  {t(
+                    "Agence mis à jour avec succès",
+                    "Agency updated successfully"
+                  )}
                 </p>
                 <button
                   onClick={() => setShowSuccessModal(false)}
                   className="w-full py-2.5 sm:py-3 bg-green-600 text-white rounded-xl font-semibold hover:bg-green-700 transition-colors text-sm sm:text-base"
                 >
-                  Fermer
+                  {t("Fermer", "Close")}
                 </button>
               </div>
             </div>
@@ -1428,7 +1481,7 @@ export default function AgencyTravelsPage() {
                   <AlertCircle className="w-10 h-10 sm:w-12 sm:h-12 text-red-600" />
                 </div>
                 <h2 className="text-xl sm:text-2xl font-bold text-gray-900 mb-2">
-                  Erreur
+                  {t("Erreur", "Error")}
                 </h2>
                 <div className="bg-red-50 rounded-xl p-4 mb-6">
                   <p className="text-sm sm:text-base text-red-800">
@@ -1442,7 +1495,7 @@ export default function AgencyTravelsPage() {
                   }}
                   className="w-full py-2.5 sm:py-3 bg-red-600 text-white rounded-xl font-semibold hover:bg-red-700 transition-colors text-sm sm:text-base"
                 >
-                  Fermer
+                  {t("Fermer", "Close")}
                 </button>
               </div>
             </div>

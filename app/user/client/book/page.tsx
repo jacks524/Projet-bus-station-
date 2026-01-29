@@ -22,6 +22,7 @@ import {
   Compass,
 } from "lucide-react";
 import { useRouter } from "next/navigation";
+import { useLanguage } from "../../../providers";
 
 interface Voyage {
   idVoyage: string;
@@ -74,46 +75,47 @@ export default function ClientReservePage() {
   const [date_depart, setDateDepart] = useState("");
 
   const router = useRouter();
+  const { t } = useLanguage();
 
   const API_BASE_URL = process.env.NEXT_PUBLIC_API_BASE_URL;
   const BUTTON_COLOR = "#6149CD";
   const VOYAGES_PER_PAGE = 12;
 
   const MENU_ITEMS = [
-    { icon: Home, label: "Accueil", path: "/user/client/home", active: false },
+    { icon: Home, label: t("Accueil", "Home"), path: "/user/client/home", active: false },
     {
       icon: Calendar,
-      label: "Réserver",
+      label: t("Réserver", "Book"),
       path: "/user/client/book",
       active: true,
     },
     {
       icon: FileText,
-      label: "Réservations",
+      label: t("Réservations", "Bookings"),
       path: "/user/client/reservations",
       active: false,
     },
     {
       icon: Ticket,
-      label: "Billets",
+      label: t("Billets", "Tickets"),
       path: "/user/client/tickets",
       active: false,
     },
     {
       icon: Gift,
-      label: "Coupons",
+      label: t("Coupons", "Vouchers"),
       path: "/user/client/vouchers",
       active: false,
     },
     {
       icon: History,
-      label: "Historique",
+      label: t("Historique", "History"),
       path: "/user/client/history",
       active: false,
     },
     {
       icon: Settings,
-      label: "Mes paramètres",
+      label: t("Mes paramètres", "Settings"),
       path: "/user/client/settings",
       active: false,
     },
@@ -145,7 +147,10 @@ export default function ClientReservePage() {
   const searchVoyages = async () => {
     if (!ville_depart || !ville_arrive) {
       setErrorMessage(
-        "Veuillez renseigner au moins la ville de départ et d'arrivée",
+        t(
+          "Veuillez renseigner au moins la ville de départ et d'arrivée",
+          "Please provide at least the departure and arrival cities"
+        )
       );
       return;
     }
@@ -165,7 +170,7 @@ export default function ClientReservePage() {
       );
 
       if (!response.ok) {
-        throw new Error("Erreur lors de la recherche");
+        throw new Error(t("Erreur lors de la recherche", "Search error"));
       }
 
       const data = await response.json();
@@ -224,7 +229,7 @@ export default function ClientReservePage() {
       setTotalPages(total_pages_calculated);
       setHasSearched(true);
     } catch (error: any) {
-      setErrorMessage("Une erreur est survenue lors de la recherche");
+      setErrorMessage(t("Une erreur est survenue lors de la recherche", "An error occurred during the search"));
       console.error("Search Error:", error);
     } finally {
       setIsLoading(false);
@@ -383,7 +388,7 @@ export default function ClientReservePage() {
                 <Menu className="w-6 h-6 text-gray-900" />
               </button>
               <h1 className="text-2xl font-semibold text-gray-900">
-                Rechercher un voyage
+                {t("Rechercher un voyage", "Search for a trip")}
               </h1>
             </div>
 
@@ -422,14 +427,16 @@ export default function ClientReservePage() {
                       className="w-full flex items-center space-x-3 px-4 py-2 hover:bg-gray-100 transition-colors"
                     >
                       <Settings className="w-4 h-4 text-gray-600" />
-                      <span className="text-gray-700">Paramètres</span>
+                      <span className="text-gray-700">
+                        {t("Paramètres", "Settings")}
+                      </span>
                     </button>
                     <button
                       onClick={handleLogout}
                       className="w-full flex items-center space-x-3 px-4 py-2 hover:bg-gray-100 transition-colors text-red-600"
                     >
                       <LogOut className="w-4 h-4" />
-                      <span>Se déconnecter</span>
+                      <span>{t("Se déconnecter", "Sign out")}</span>
                     </button>
                   </div>
                 )}
@@ -446,7 +453,7 @@ export default function ClientReservePage() {
             <div className="relative h-80">
               <img
                 src="/images/cameroun4.jpg"
-                alt="Voyage"
+                alt={t("Voyage", "Trip")}
                 className="w-full h-full object-cover"
                 onError={(e) => {
                   e.currentTarget.src =
@@ -456,22 +463,25 @@ export default function ClientReservePage() {
               <div className="absolute inset-0 bg-linear-to-r from-black/70 via-black/50 to-transparent"></div>
               <div className="absolute inset-0 flex flex-col justify-center px-8 md:px-12">
                 <h1 className="text-4xl md:text-5xl lg:text-6xl font-bold text-white mb-4 drop-shadow-lg">
-                  Voyagez en toute sérénité
+                  {t("Voyagez en toute sérénité", "Travel with peace of mind")}
                 </h1>
                 <p className="text-xl md:text-2xl text-white/90 mb-6 max-w-2xl drop-shadow-md">
-                  Trouvez et réservez votre prochain voyage en quelques clics
+                  {t(
+                    "Trouvez et réservez votre prochain voyage en quelques clics",
+                    "Find and book your next trip in a few clicks"
+                  )}
                 </p>
                 <div className="flex flex-wrap gap-6">
                   <div className="flex items-center space-x-3 bg-white/20 backdrop-blur-sm rounded-lg px-4 py-2">
                     <Calendar className="w-6 h-6 text-white" />
                     <span className="text-white font-medium">
-                      Réservation simple
+                      {t("Réservation simple", "Easy booking")}
                     </span>
                   </div>
                   <div className="flex items-center space-x-3 bg-white/20 backdrop-blur-sm rounded-lg px-4 py-2">
                     <MapPin className="w-6 h-6 text-white" />
                     <span className="text-white font-medium">
-                      Multiples destinations
+                      {t("Multiples destinations", "Multiple destinations")}
                     </span>
                   </div>
                 </div>
@@ -489,10 +499,10 @@ export default function ClientReservePage() {
                 </div>
                 <div>
                   <h2 className="text-2xl font-bold text-gray-900">
-                    Trouvez un voyage
+                    {t("Trouvez un voyage", "Find a trip")}
                   </h2>
                   <p className="text-sm text-gray-600">
-                    Remplissez les champs pour rechercher
+                    {t("Remplissez les champs pour rechercher", "Fill in the fields to search")}
                   </p>
                 </div>
               </div>
@@ -503,7 +513,7 @@ export default function ClientReservePage() {
                   <div className="group">
                     <label className="text-sm font-semibold text-gray-700 mb-2 flex items-center space-x-2">
                       <MapPin className="w-4 h-4 text-[#6149CD]" />
-                      <span>Ville de départ *</span>
+                      <span>{t("Ville de départ *", "Departure city *")}</span>
                     </label>
                     <div className="relative">
                       <div className="absolute inset-y-0 left-0 pl-4 flex items-center pointer-events-none">
@@ -513,7 +523,7 @@ export default function ClientReservePage() {
                         type="text"
                         value={ville_depart}
                         onChange={(e) => setVilleDepart(e.target.value)}
-                        placeholder="Ex: Yaoundé"
+                        placeholder={t("Ex: Yaoundé", "e.g. Yaoundé")}
                         required
                         className="w-full pl-12 pr-4 py-3 border-2 border-gray-200 text-gray-800 placeholder:text-gray-400 rounded-xl focus:outline-none focus:ring-2 focus:ring-[#6149CD] focus:border-transparent transition-all bg-white hover:border-gray-300"
                       />
@@ -524,7 +534,7 @@ export default function ClientReservePage() {
                   <div className="group">
                     <label className="text-sm font-semibold text-gray-700 mb-2 flex items-center space-x-2">
                       <MapPin className="w-4 h-4 text-[#6149CD]" />
-                      <span>Ville d'arrivée *</span>
+                      <span>{t("Ville d'arrivée *", "Arrival city *")}</span>
                     </label>
                     <div className="relative">
                       <div className="absolute inset-y-0 left-0 pl-4 flex items-center pointer-events-none">
@@ -534,7 +544,7 @@ export default function ClientReservePage() {
                         type="text"
                         value={ville_arrive}
                         onChange={(e) => setVilleArrive(e.target.value)}
-                        placeholder="Ex: Douala"
+                        placeholder={t("Ex: Douala", "e.g. Douala")}
                         required
                         className="w-full pl-12 pr-4 py-3 border-2 border-gray-200 text-gray-800 rounded-xl focus:outline-none focus:ring-2 focus:ring-[#6149CD] focus:border-transparent transition-all bg-white hover:border-gray-300"
                       />
@@ -545,7 +555,7 @@ export default function ClientReservePage() {
                   <div className="group">
                     <label className="text-sm font-semibold text-gray-700 mb-2 flex items-center space-x-2">
                       <Compass className="w-4 h-4 text-[#6149CD]" />
-                      <span>Zone de départ</span>
+                      <span>{t("Zone de départ", "Departure area")}</span>
                     </label>
                     <div className="relative">
                       <div className="absolute inset-y-0 left-0 pl-4 flex items-center pointer-events-none">
@@ -555,7 +565,7 @@ export default function ClientReservePage() {
                         type="text"
                         value={zone_depart}
                         onChange={(e) => setZoneDepart(e.target.value)}
-                        placeholder="Ex: Mvan"
+                        placeholder={t("Ex: Mvan", "e.g. Mvan")}
                         className="w-full pl-12 pr-4 py-3 border-2 border-gray-200 text-gray-800 rounded-xl focus:outline-none focus:ring-2 focus:ring-[#6149CD] focus:border-transparent transition-all bg-white hover:border-gray-300"
                       />
                     </div>
@@ -565,7 +575,7 @@ export default function ClientReservePage() {
                   <div className="group">
                     <label className="text-sm font-semibold text-gray-700 mb-2 flex items-center space-x-2">
                       <Compass className="w-4 h-4 text-[#6149CD]" />
-                      <span>Zone d'arrivée</span>
+                      <span>{t("Zone d'arrivée", "Arrival area")}</span>
                     </label>
                     <div className="relative">
                       <div className="absolute inset-y-0 left-0 pl-4 flex items-center pointer-events-none">
@@ -575,7 +585,7 @@ export default function ClientReservePage() {
                         type="text"
                         value={zone_arrive}
                         onChange={(e) => setZoneArrive(e.target.value)}
-                        placeholder="Ex: Akwa"
+                        placeholder={t("Ex: Akwa", "e.g. Akwa")}
                         className="w-full pl-12 pr-4 py-3 border-2 border-gray-200 text-gray-800 rounded-xl focus:outline-none focus:ring-2 focus:ring-[#6149CD] focus:border-transparent transition-all bg-white hover:border-gray-300"
                       />
                     </div>
@@ -585,7 +595,7 @@ export default function ClientReservePage() {
                   <div className="group md:col-span-2">
                     <label className="text-sm font-semibold text-gray-700 mb-2 flex items-center space-x-2">
                       <Calendar className="w-4 h-4 text-[#6149CD]" />
-                      <span>Date de départ</span>
+                      <span>{t("Date de départ", "Departure date")}</span>
                     </label>
                     <div className="relative">
                       <div className="absolute inset-y-0 left-0 pl-4 flex items-center pointer-events-none">
@@ -611,8 +621,8 @@ export default function ClientReservePage() {
                   <Search className="w-6 h-6" />
                   <span>
                     {is_loading
-                      ? "Recherche en cours..."
-                      : "Rechercher mon voyage"}
+                      ? t("Recherche en cours...", "Searching...")
+                      : t("Rechercher mon voyage", "Search my trip")}
                   </span>
                 </button>
               </form>
@@ -635,7 +645,7 @@ export default function ClientReservePage() {
             <div className="flex items-center justify-center py-20">
               <div className="text-center">
                 <Search className="w-12 h-12 text-[#6149CD] animate-spin mx-auto mb-4" />
-                <p className="text-gray-600">Recherche en cours...</p>
+                <p className="text-gray-600">{t("Recherche en cours...", "Searching...")}</p>
               </div>
             </div>
           )}
@@ -644,10 +654,10 @@ export default function ClientReservePage() {
             <div className="bg-white border border-gray-200 rounded-lg p-12 text-center">
               <Calendar className="w-16 h-16 text-gray-400 mx-auto mb-4" />
               <h3 className="text-xl font-semibold text-gray-900 mb-2">
-                Aucun voyage trouvé
+                {t("Aucun voyage trouvé", "No trips found")}
               </h3>
               <p className="text-gray-600">
-                Essayez de modifier vos critères de recherche
+                {t("Essayez de modifier vos critères de recherche", "Try adjusting your search criteria")}
               </p>
             </div>
           )}
@@ -671,7 +681,9 @@ export default function ClientReservePage() {
                           {getAgencyInitials(voyage.nomAgence)}
                         </div>
                         <div className="flex-1">
-                          <span className="text-gray-600">Nom de l'agence</span>
+                          <span className="text-gray-600">
+                            {t("Nom de l'agence", "Agency name")}
+                          </span>
                           <h3 className="font-bold text-gray-900 mb-1">
                             {voyage.nomAgence}
                           </h3>
@@ -688,7 +700,7 @@ export default function ClientReservePage() {
                       <div className="flex items-center text-sm">
                         <MapPin className="w-4 h-4 text-gray-500 mr-2 shrink-0" />
                         <span className="font-semibold text-gray-800">
-                          De {voyage.lieuDepart} vers {voyage.lieuArrive}
+                          {t("De", "From")} {voyage.lieuDepart} {t("vers", "to")} {voyage.lieuArrive}
                         </span>
                       </div>
 
@@ -696,8 +708,7 @@ export default function ClientReservePage() {
                       <div className="flex items-center text-xs text-gray-600">
                         <Compass className="w-3.5 h-3.5 text-gray-400 mr-2 shrink-0" />
                         <span>
-                          Itinéraire : De {voyage.pointDeDepart} vers{" "}
-                          {voyage.pointArrivee}
+                          {t("Itinéraire", "Route")} : {t("De", "From")} {voyage.pointDeDepart} {t("vers", "to")} {voyage.pointArrivee}
                         </span>
                       </div>
                     </div>
@@ -715,7 +726,7 @@ export default function ClientReservePage() {
                         <span>
                           {voyage.nbrPlaceReservable} /{" "}
                           {voyage.nbrPlaceRestante + voyage.nbrPlaceConfirm}{" "}
-                          places restantes
+                          {t("places restantes", "seats left")}
                         </span>
                       </div>
                     </div>
@@ -729,7 +740,7 @@ export default function ClientReservePage() {
                       <div className="flex items-center justify-between pt-2">
                         <div>
                           <p className="text-xs text-gray-500 mb-1">
-                            Prix du ticket
+                            {t("Prix du ticket", "Ticket price")}
                           </p>
                           <p className="text-xl font-bold text-gray-900">
                             {voyage.prix} FCFA
@@ -739,7 +750,7 @@ export default function ClientReservePage() {
                           onClick={() => handleReserver(voyage.idVoyage)}
                           className="px-6 py-2 bg-[#6149CD] text-white rounded-lg hover:opacity-80 active:opacity-90 transition-colors font-medium"
                         >
-                          Réserver
+                          {t("Réserver", "Book")}
                         </button>
                       </div>
                     </div>
@@ -758,11 +769,11 @@ export default function ClientReservePage() {
                     className="flex items-center space-x-2 px-4 py-2 border border-gray-300 rounded-lg text-gray-700 hover:bg-gray-50 disabled:opacity-50 disabled:cursor-not-allowed transition-colors"
                   >
                     <ChevronLeft className="w-4 h-4" />
-                    <span>Précédent</span>
+                    <span>{t("Précédent", "Previous")}</span>
                   </button>
 
                   <span className="text-sm text-gray-600">
-                    Page {current_page + 1} sur {total_pages}
+                    {t("Page", "Page")} {current_page + 1} {t("sur", "of")} {total_pages}
                   </span>
 
                   <button
@@ -774,7 +785,7 @@ export default function ClientReservePage() {
                     disabled={current_page === total_pages - 1}
                     className="flex items-center space-x-2 px-4 py-2 border border-gray-300 rounded-lg text-gray-700 hover:bg-gray-50 disabled:opacity-50 disabled:cursor-not-allowed transition-colors"
                   >
-                    <span>Suivant</span>
+                    <span>{t("Suivant", "Next")}</span>
                     <ChevronRight className="w-4 h-4" />
                   </button>
                 </div>

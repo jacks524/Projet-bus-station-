@@ -19,6 +19,7 @@ import {
   Briefcase,
 } from "lucide-react";
 import { useRouter } from "next/navigation";
+import { useLanguage } from "../../../providers";
 
 interface AgencyFormData {
   organisation_id: string;
@@ -88,6 +89,7 @@ export default function DGAgencePage() {
   const [is_loading_orgs, setIsLoadingOrgs] = useState(true);
 
   const router = useRouter();
+  const { t } = useLanguage();
 
   const API_BASE_URL = process.env.NEXT_PUBLIC_API_BASE_URL;
   const BUTTON_COLOR = "#6149CD";
@@ -95,25 +97,25 @@ export default function DGAgencePage() {
   const MENU_ITEMS = [
     {
       icon: Home,
-      label: "Dashboard",
+      label: t("Dashboard", "Dashboard"),
       path: "/user/organization/dashboard",
       active: false,
     },
     {
       icon: Briefcase,
-      label: "Organisation",
+      label: t("Organisation", "Organization"),
       path: "/user/organization/organization",
       active: false,
     },
     {
       icon: Building2,
-      label: "Agence",
+      label: t("Agence", "Agency"),
       path: "/user/organization/agencies",
       active: true,
     },
     {
       icon: Settings,
-      label: "Mes paramètres",
+      label: t("Mes paramètres", "Settings"),
       path: "/user/organization/settings",
       active: false,
     },
@@ -175,7 +177,12 @@ export default function DGAgencePage() {
       );
 
       if (!response.ok) {
-        throw new Error("Erreur lors du chargement des organisations");
+        throw new Error(
+          t(
+            "Erreur lors du chargement des organisations",
+            "Error loading organizations"
+          ),
+        );
       }
 
       const data = await response.json();
@@ -210,23 +217,32 @@ export default function DGAgencePage() {
 
   const validateForm = () => {
     if (!form_data.long_name.trim()) {
-      setErrorMessage("Le nom complet de l'agence est requis");
+      setErrorMessage(
+        t("Le nom complet de l'agence est requis", "Agency full name is required"),
+      );
       return false;
     }
     if (!form_data.short_name.trim()) {
-      setErrorMessage("L'abréviation de l'agence est requise");
+      setErrorMessage(
+        t(
+          "L'abréviation de l'agence est requise",
+          "Agency abbreviation is required"
+        ),
+      );
       return false;
     }
     if (!form_data.location.trim()) {
-      setErrorMessage("La localisation est requise");
+      setErrorMessage(t("La localisation est requise", "Location is required"));
       return false;
     }
     if (!form_data.ville.trim()) {
-      setErrorMessage("La ville est requise");
+      setErrorMessage(t("La ville est requise", "City is required"));
       return false;
     }
     if (!form_data.organisation_id.trim()) {
-      setErrorMessage("L'ID de l'organisation est requis");
+      setErrorMessage(
+        t("L'ID de l'organisation est requis", "Organization ID is required"),
+      );
       return false;
     }
     return true;
@@ -258,7 +274,9 @@ export default function DGAgencePage() {
       });
 
       if (!response.ok) {
-        throw new Error("Erreur lors de la création de l'agence");
+        throw new Error(
+          t("Erreur lors de la création de l'agence", "Error creating agency"),
+        );
       }
 
       const data = await response.json();
@@ -279,7 +297,10 @@ export default function DGAgencePage() {
       });
     } catch (error: any) {
       setErrorMessage(
-        "Une erreur est survenue lors de la création de l'agence",
+        t(
+          "Une erreur est survenue lors de la création de l'agence",
+          "An error occurred while creating the agency"
+        ),
       );
       setShowErrorModal(true);
       console.error("Create Agency Error:", error);
@@ -413,7 +434,7 @@ export default function DGAgencePage() {
                 <Menu className="w-6 h-6 text-gray-900" />
               </button>
               <h1 className="text-2xl font-semibold text-gray-900">
-                Créer une agence
+                {t("Créer une agence", "Create an agency")}
               </h1>
             </div>
 
@@ -452,14 +473,16 @@ export default function DGAgencePage() {
                       className="w-full flex items-center space-x-3 px-4 py-2 hover:bg-gray-100 transition-colors"
                     >
                       <Settings className="w-4 h-4 text-gray-600" />
-                      <span className="text-gray-700">Paramètres</span>
+                      <span className="text-gray-700">
+                        {t("Paramètres", "Settings")}
+                      </span>
                     </button>
                     <button
                       onClick={handleLogout}
                       className="w-full flex items-center space-x-3 px-4 py-2 hover:bg-gray-100 transition-colors text-red-600"
                     >
                       <LogOut className="w-4 h-4" />
-                      <span>Se déconnecter</span>
+                      <span>{t("Se déconnecter", "Sign out")}</span>
                     </button>
                   </div>
                 )}
@@ -477,12 +500,13 @@ export default function DGAgencePage() {
                 <AlertCircle className="w-5 h-5 text-blue-600 shrink-0 mt-0.5" />
                 <div>
                   <h3 className="font-semibold text-blue-900 mb-1">
-                    Validation BSM requise
+                    {t("Validation BSM requise", "BSM validation required")}
                   </h3>
                   <p className="text-sm text-blue-800">
-                    Après la création, votre agence sera soumise à validation
-                    par le Bureau de Suivi et de Monitoring (BSM). Vous serez
-                    notifié une fois la validation effectuée.
+                    {t(
+                      "Après la création, votre agence sera soumise à validation par le Bureau de Suivi et de Monitoring (BSM). Vous serez notifié une fois la validation effectuée.",
+                      "After creation, your agency will be submitted for validation by the Monitoring and Follow-up Office (BSM). You will be notified once validation is completed."
+                    )}
                   </p>
                 </div>
               </div>
@@ -497,17 +521,20 @@ export default function DGAgencePage() {
               <div className="bg-white rounded-xl shadow-sm border border-gray-200 p-12 text-center mb-6">
                 <Briefcase className="w-16 h-16 text-gray-400 mx-auto mb-4" />
                 <h3 className="text-xl font-semibold text-gray-900 mb-2">
-                  Aucune organisation
+                  {t("Aucune organisation", "No organization")}
                 </h3>
                 <p className="text-gray-600 mb-6">
-                  Vous devez créer une organisation avant de créer une agence
+                  {t(
+                    "Vous devez créer une organisation avant de créer une agence",
+                    "You need to create an organization before creating an agency"
+                  )}
                 </p>
                 <button
                   onClick={() => router.push("/user/organization/organization")}
                   style={{ backgroundColor: BUTTON_COLOR }}
                   className="px-6 py-3 text-white rounded-lg hover:opacity-90 transition-opacity"
                 >
-                  Créer une organisation
+                  {t("Créer une organisation", "Create an organization")}
                 </button>
               </div>
             ) : (
@@ -519,10 +546,10 @@ export default function DGAgencePage() {
                     </div>
                     <div>
                       <p className="text-sm text-gray-600">
-                        Organisation sélectionnée
+                        {t("Organisation sélectionnée", "Selected organization")}
                       </p>
                       <h2 className="text-xl font-bold text-gray-900">
-                        {selected_organization?.long_name || "Aucune"}
+                        {selected_organization?.long_name || t("Aucune", "None")}
                       </h2>
                     </div>
                   </div>
@@ -534,7 +561,9 @@ export default function DGAgencePage() {
                         onClick={() => setShowOrgSelector(!show_org_selector)}
                         className="flex items-center space-x-2 px-4 py-2 border border-gray-300 rounded-lg hover:bg-gray-50"
                       >
-                        <span className="text-gray-700">Changer</span>
+                        <span className="text-gray-700">
+                          {t("Changer", "Switch")}
+                        </span>
                         <ChevronDown className="w-4 h-4 text-gray-600" />
                       </button>
 
@@ -583,10 +612,13 @@ export default function DGAgencePage() {
                   <div className="absolute inset-0 bg-linear-to-r from-black/70 via-black/50 to-transparent"></div>
                   <div className="absolute inset-0 flex flex-col justify-center px-8">
                     <h2 className="text-4xl font-bold text-white mb-3 drop-shadow-lg">
-                      Nouvelle agence
+                      {t("Nouvelle agence", "New agency")}
                     </h2>
                     <p className="text-xl text-white/90 drop-shadow-md">
-                      Ajoutez une agence à votre organisation
+                      {t(
+                        "Ajoutez une agence à votre organisation",
+                        "Add an agency to your organization"
+                      )}
                     </p>
                   </div>
                 </div>
@@ -595,20 +627,23 @@ export default function DGAgencePage() {
                   <div className="mb-8">
                     <h3 className="text-xl font-bold text-gray-900 mb-6 flex items-center space-x-2">
                       <Building className="w-6 h-6 text-[#6149CD]" />
-                      <span>Informations principales</span>
+                      <span>{t("Informations principales", "Main information")}</span>
                     </h3>
 
                     <div className="space-y-4">
                       <div>
                         <label className="block text-sm font-semibold text-gray-700 mb-2">
-                          Nom complet de l'agence *
+                          {t("Nom complet de l'agence *", "Agency full name *")}
                         </label>
                         <input
                           type="text"
                           name="long_name"
                           value={form_data.long_name}
                           onChange={handleInputChange}
-                          placeholder="Ex: Agence BusStation Yaoundé Centre"
+                          placeholder={t(
+                            "Ex: Agence BusStation Yaoundé Centre",
+                            "e.g., BusStation Agency Yaounde Center"
+                          )}
                           required
                           className="w-full px-4 py-3 border-2 border-gray-200 text-gray-800 placeholder:text-gray-400 rounded-xl focus:outline-none focus:ring-2 focus:ring-[#6149CD] focus:border-transparent transition-all"
                         />
@@ -616,14 +651,14 @@ export default function DGAgencePage() {
 
                       <div>
                         <label className="block text-sm font-semibold text-gray-700 mb-2">
-                          Abréviation *
+                          {t("Abréviation *", "Abbreviation *")}
                         </label>
                         <input
                           type="text"
                           name="short_name"
                           value={form_data.short_name}
                           onChange={handleInputChange}
-                          placeholder="Ex: SP-YDE-CTR"
+                          placeholder={t("Ex: SP-YDE-CTR", "e.g., SP-YDE-CTR")}
                           required
                           className="w-full px-4 py-3 border-2 border-gray-200 text-gray-800 placeholder:text-gray-400 rounded-xl focus:outline-none focus:ring-2 focus:ring-[#6149CD] focus:border-transparent transition-all"
                         />
@@ -635,20 +670,20 @@ export default function DGAgencePage() {
                   <div className="mb-8 pt-8 border-t border-gray-200">
                     <h3 className="text-xl font-bold text-gray-900 mb-6 flex items-center space-x-2">
                       <MapPin className="w-6 h-6 text-[#6149CD]" />
-                      <span>Localisation</span>
+                      <span>{t("Localisation", "Location")}</span>
                     </h3>
 
                     <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
                       <div>
                         <label className="block text-sm font-semibold text-gray-700 mb-2">
-                          Ville *
+                          {t("Ville *", "City *")}
                         </label>
                         <input
                           type="text"
                           name="ville"
                           value={form_data.ville}
                           onChange={handleInputChange}
-                          placeholder="Ex: Yaoundé"
+                          placeholder={t("Ex: Yaoundé", "e.g., Yaounde")}
                           required
                           className="w-full px-4 py-3 border-2 border-gray-200 text-gray-800 placeholder:text-gray-400 rounded-xl focus:outline-none focus:ring-2 focus:ring-[#6149CD] focus:border-transparent transition-all"
                         />
@@ -656,14 +691,17 @@ export default function DGAgencePage() {
 
                       <div>
                         <label className="block text-sm font-semibold text-gray-700 mb-2">
-                          Zone/Quartier *
+                          {t("Zone/Quartier *", "Area/District *")}
                         </label>
                         <input
                           type="text"
                           name="location"
                           value={form_data.location}
                           onChange={handleInputChange}
-                          placeholder="Ex: Mvan, Marché Central"
+                          placeholder={t(
+                            "Ex: Mvan, Marché Central",
+                            "e.g., Mvan, Central Market"
+                          )}
                           required
                           className="w-full px-4 py-3 border-2 border-gray-200 text-gray-800 placeholder:text-gray-400 rounded-xl focus:outline-none focus:ring-2 focus:ring-[#6149CD] focus:border-transparent transition-all"
                         />
@@ -675,20 +713,20 @@ export default function DGAgencePage() {
                   <div className="pt-8 border-t border-gray-200">
                     <h3 className="text-xl font-bold text-gray-900 mb-6 flex items-center space-x-2">
                       <Globe className="w-6 h-6 text-[#6149CD]" />
-                      <span>Informations supplémentaires</span>
+                      <span>{t("Informations supplémentaires", "Additional information")}</span>
                     </h3>
 
                     <div className="space-y-4">
                       <div>
                         <label className="block text-sm font-semibold text-gray-700 mb-2">
-                          Réseau social
+                          {t("Réseau social", "Social network")}
                         </label>
                         <input
                           type="text"
                           name="social_network"
                           value={form_data.social_network}
                           onChange={handleInputChange}
-                          placeholder="Ex: facebook.com"
+                          placeholder={t("Ex: facebook.com", "e.g., facebook.com")}
                           className="w-full px-4 py-3 border-2 border-gray-200 text-gray-800 placeholder:text-gray-400 rounded-xl focus:outline-none focus:ring-2 focus:ring-[#6149CD] focus:border-transparent transition-all"
                         />
                       </div>
@@ -696,13 +734,16 @@ export default function DGAgencePage() {
                       <div>
                         <label className="text-sm font-semibold text-gray-700 mb-2 flex items-center space-x-2">
                           <MessageSquare className="w-4 h-4 text-[#6149CD]" />
-                          <span>Message d'accueil</span>
+                          <span>{t("Message d'accueil", "Welcome message")}</span>
                         </label>
                         <textarea
                           name="greeting_message"
                           value={form_data.greeting_message}
                           onChange={handleInputChange}
-                          placeholder="Message de bienvenue pour vos clients..."
+                          placeholder={t(
+                            "Message de bienvenue pour vos clients...",
+                            "Welcome message for your customers..."
+                          )}
                           rows={3}
                           className="w-full px-4 py-3 border-2 border-gray-200 text-gray-800 placeholder:text-gray-400 rounded-xl focus:outline-none focus:ring-2 focus:ring-[#6149CD] focus:border-transparent transition-all resize-none"
                         />
@@ -710,13 +751,16 @@ export default function DGAgencePage() {
 
                       <div>
                         <label className="block text-sm font-semibold text-gray-700 mb-2">
-                          Description
+                          {t("Description", "Description")}
                         </label>
                         <textarea
                           name="description"
                           value={form_data.description}
                           onChange={handleInputChange}
-                          placeholder="Description détaillée de l'agence..."
+                          placeholder={t(
+                            "Description détaillée de l'agence...",
+                            "Detailed agency description..."
+                          )}
                           rows={4}
                           className="w-full px-4 py-3 border-2 border-gray-200 text-gray-800 placeholder:text-gray-400 rounded-xl focus:outline-none focus:ring-2 focus:ring-[#6149CD] focus:border-transparent transition-all resize-none"
                         />
@@ -731,10 +775,10 @@ export default function DGAgencePage() {
                       onClick={() =>
                         router.push("/user/organization/dashboard")
                       }
-                      className="px-6 py-3 border-2 border-gray-300 text-gray-700 rounded-xl font-semibold hover:bg-gray-100 active:bg-gray-200 transition-colors"
-                    >
-                      Annuler
-                    </button>
+                    className="px-6 py-3 border-2 border-gray-300 text-gray-700 rounded-xl font-semibold hover:bg-gray-100 active:bg-gray-200 transition-colors"
+                  >
+                    {t("Annuler", "Cancel")}
+                  </button>
 
                     <button
                       type="submit"
@@ -745,12 +789,12 @@ export default function DGAgencePage() {
                       {is_loading ? (
                         <>
                           <div className="w-5 h-5 border-2 border-white border-t-transparent rounded-full animate-spin"></div>
-                          <span>Création en cours...</span>
+                          <span>{t("Création en cours...", "Creating...")}</span>
                         </>
                       ) : (
                         <>
                           <Building2 className="w-5 h-5" />
-                          <span>Créer l'agence</span>
+                          <span>{t("Créer l'agence", "Create agency")}</span>
                         </>
                       )}
                     </button>
@@ -783,10 +827,13 @@ export default function DGAgencePage() {
                 </svg>
               </div>
               <h2 className="text-xl sm:text-2xl font-bold text-gray-900 mb-2">
-                Succès !
+                {t("Succès !", "Success!")}
               </h2>
               <p className="text-gray-600 mb-6 text-sm sm:text-base">
-                Demande de création réussie avec succès, veuillez attendre la validation par le BSM.
+                {t(
+                  "Demande de création réussie avec succès, veuillez attendre la validation par le BSM.",
+                  "Creation request successful. Please wait for BSM validation."
+                )}
               </p>
               <button
                 onClick={() => {
@@ -795,7 +842,7 @@ export default function DGAgencePage() {
                 }}
                 className="w-full py-2.5 sm:py-3 bg-green-600 text-white rounded-xl font-semibold hover:bg-green-700 transition-colors text-sm sm:text-base"
               >
-                Fermer
+                {t("Fermer", "Close")}
               </button>
             </div>
           </div>
@@ -811,7 +858,7 @@ export default function DGAgencePage() {
                 <AlertCircle className="w-10 h-10 sm:w-12 sm:h-12 text-red-600" />
               </div>
               <h2 className="text-xl sm:text-2xl font-bold text-gray-900 mb-2">
-                Erreur
+                {t("Erreur", "Error")}
               </h2>
               <div className="bg-red-50 rounded-xl p-4 mb-6">
                 <p className="text-sm sm:text-base text-red-800">
@@ -824,7 +871,7 @@ export default function DGAgencePage() {
                 }}
                 className="w-full py-2.5 sm:py-3 bg-red-600 text-white rounded-xl font-semibold hover:bg-red-700 transition-colors text-sm sm:text-base"
               >
-                Fermer
+                {t("Fermer", "Close")}
               </button>
             </div>
           </div>

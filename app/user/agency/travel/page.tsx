@@ -31,6 +31,7 @@ import {
   Usb,
 } from "lucide-react";
 import { useRouter } from "next/navigation";
+import { useLanguage } from "../../../providers";
 
 interface AgenceValidee {
   agency_id: string;
@@ -149,6 +150,7 @@ export default function CreateVoyagePage() {
   });
 
   const router = useRouter();
+  const { t } = useLanguage();
 
   const API_BASE_URL = process.env.NEXT_PUBLIC_API_BASE_URL;
   const BUTTON_COLOR = "#6149CD";
@@ -156,43 +158,43 @@ export default function CreateVoyagePage() {
   const MENU_ITEMS = [
     {
       icon: Home,
-      label: "Dashboard",
+      label: t("Dashboard", "Dashboard"),
       path: "/user/agency/dashboard",
       active: false,
     },
     {
       icon: Bus,
-      label: "Voyages",
+      label: t("Voyages", "Trips"),
       path: "/user/agency/travels",
       active: false,
     },
     {
       icon: Calendar,
-      label: "Réservations",
+      label: t("Réservations", "Bookings"),
       path: "/user/agency/reservations",
       active: false,
     },
     {
       icon: Users,
-      label: "Chauffeurs",
+      label: t("Chauffeurs", "Drivers"),
       path: "/user/agency/drivers",
       active: false,
     },
     {
       icon: Settings,
-      label: "Mes paramètres",
+      label: t("Mes paramètres", "Settings"),
       path: "/user/agency/settings",
       active: false,
     },
   ];
 
   const AMENITIES_OPTIONS = [
-    { value: "WIFI", label: "WiFi", icon: Wifi },
-    { value: "RESTROOMS", label: "Toilette", icon: Toilet },
-    { value: "LUGGAGE_STORAGE", label: "Bagages", icon: Package },
-    { value: "MEAL_SERVICE", label: "Nourriture", icon: ChefHat },
-    { value: "ONBOARD_GUIDE", label: "Hôtesse", icon: ConciergeBell },
-    { value: "USB", label: "Port USB", icon: Usb },
+    { value: "WIFI", label: t("WiFi", "WiFi"), icon: Wifi },
+    { value: "RESTROOMS", label: t("Toilette", "Restroom"), icon: Toilet },
+    { value: "LUGGAGE_STORAGE", label: t("Bagages", "Luggage"), icon: Package },
+    { value: "MEAL_SERVICE", label: t("Nourriture", "Meals"), icon: ChefHat },
+    { value: "ONBOARD_GUIDE", label: t("Hôtesse", "Hostess"), icon: ConciergeBell },
+    { value: "USB", label: t("Port USB", "USB port"), icon: Usb },
   ];
 
   useEffect(() => {
@@ -267,7 +269,9 @@ export default function CreateVoyagePage() {
       );
 
       if (!response.ok)
-        throw new Error("Erreur lors du chargement des agences");
+        throw new Error(
+          t("Erreur lors du chargement des agences", "Error loading agencies"),
+        );
 
       const data = await response.json();
       const all_agences = data.content || data || [];
@@ -304,7 +308,9 @@ export default function CreateVoyagePage() {
       );
 
       if (!response.ok)
-        throw new Error("Erreur lors du chargement des classes");
+        throw new Error(
+          t("Erreur lors du chargement des classes", "Error loading classes"),
+        );
 
       const data = await response.json();
       const content = data.content || data || [];
@@ -338,7 +344,9 @@ export default function CreateVoyagePage() {
       );
 
       if (!response.ok)
-        throw new Error("Erreur lors du chargement des chauffeurs");
+        throw new Error(
+          t("Erreur lors du chargement des chauffeurs", "Error loading drivers"),
+        );
 
       const data = await response.json();
       setChauffeurs(Array.isArray(data) ? data : [data]);
@@ -368,7 +376,9 @@ export default function CreateVoyagePage() {
       );
 
       if (!response.ok)
-        throw new Error("Erreur lors du chargement des véhicules");
+        throw new Error(
+          t("Erreur lors du chargement des véhicules", "Error loading vehicles"),
+        );
 
       const data = await response.json();
       setVehicules(Array.isArray(data) ? data : [data]);
@@ -441,7 +451,8 @@ export default function CreateVoyagePage() {
       if (!response.ok) {
         const error_data = await response.json();
         throw new Error(
-          error_data.message || "Erreur lors de la création du voyage",
+          error_data.message ||
+            t("Erreur lors de la création du voyage", "Error creating the trip"),
         );
       }
 
@@ -450,7 +461,10 @@ export default function CreateVoyagePage() {
       console.error("Create Voyage Error:", error);
       setErrorMessage(
         error.message ||
-          "Une erreur est survenue lors de la création du voyage",
+          t(
+            "Une erreur est survenue lors de la création du voyage",
+            "An error occurred while creating the trip"
+          ),
       );
       setShowErrorModal(true);
     } finally {
@@ -573,7 +587,7 @@ export default function CreateVoyagePage() {
                 <Menu className="w-5 h-5 sm:w-6 sm:h-6 text-gray-900" />
               </button>
               <h1 className="text-lg sm:text-2xl font-semibold text-gray-900">
-                Créer un voyage
+                {t("Créer un voyage", "Create a trip")}
               </h1>
             </div>
 
@@ -605,14 +619,16 @@ export default function CreateVoyagePage() {
                       className="w-full flex items-center space-x-3 px-4 py-2 hover:bg-gray-100 transition-colors"
                     >
                       <Settings className="w-4 h-4 text-gray-600" />
-                      <span className="text-gray-700">Paramètres</span>
+                      <span className="text-gray-700">
+                        {t("Paramètres", "Settings")}
+                      </span>
                     </button>
                     <button
                       onClick={handleLogout}
                       className="w-full flex items-center space-x-3 px-4 py-2 hover:bg-gray-100 transition-colors text-red-600"
                     >
                       <LogOut className="w-4 h-4" />
-                      <span>Se déconnecter</span>
+                      <span>{t("Se déconnecter", "Sign out")}</span>
                     </button>
                   </div>
                 </>
@@ -631,10 +647,13 @@ export default function CreateVoyagePage() {
             <div className="bg-white rounded-xl shadow-sm border border-gray-200 p-12 text-center">
               <Building2 className="w-16 h-16 text-gray-400 mx-auto mb-4" />
               <h3 className="text-xl font-semibold text-gray-900 mb-2">
-                Aucune agence validée
+                {t("Aucune agence validée", "No validated agency")}
               </h3>
               <p className="text-gray-600">
-                Vous devez avoir une agence pour créer des voyages
+                {t(
+                  "Vous devez avoir une agence pour créer des voyages",
+                  "You need an agency to create trips"
+                )}
               </p>
             </div>
           ) : (
@@ -648,7 +667,7 @@ export default function CreateVoyagePage() {
                     </div>
                     <div>
                       <p className="text-sm text-gray-600">
-                        Agence sélectionnée
+                        {t("Agence sélectionnée", "Selected agency")}
                       </p>
                       <h2 className="text-xl font-bold text-gray-900">
                         {selected_agence?.long_name}
@@ -664,7 +683,9 @@ export default function CreateVoyagePage() {
                         }
                         className="flex items-center space-x-2 px-4 py-2 border border-gray-300 rounded-lg hover:bg-gray-50"
                       >
-                        <span className="text-gray-700">Changer</span>
+                        <span className="text-gray-700">
+                          {t("Changer", "Switch")}
+                        </span>
                         <ChevronDown className="w-4 h-4 text-gray-600" />
                       </button>
 
@@ -708,13 +729,13 @@ export default function CreateVoyagePage() {
                 <div className="bg-white rounded-xl shadow-sm border border-gray-200 p-6">
                   <h3 className="text-xl font-bold text-gray-900 mb-6 flex items-center space-x-2">
                     <Bus className="w-6 h-6 text-[#6149CD]" />
-                    <span>Informations générales</span>
+                    <span>{t("Informations générales", "General information")}</span>
                   </h3>
 
                   <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
                     <div className="md:col-span-2">
                       <label className="block text-sm font-semibold text-gray-700 mb-2">
-                        Titre du voyage *
+                        {t("Titre du voyage *", "Trip title *")}
                       </label>
                       <input
                         type="text"
@@ -723,13 +744,16 @@ export default function CreateVoyagePage() {
                         onChange={handleInputChange}
                         required
                         className="w-full placeholder:text-gray-450 text-gray-950 px-4 py-3 border-2 border-gray-200 rounded-xl focus:outline-none focus:ring-2 focus:ring-[#6149CD] focus:border-transparent"
-                        placeholder="Ex: Yaoundé - Douala Express"
+                        placeholder={t(
+                          "Ex: Yaoundé - Douala Express",
+                          "e.g., Yaounde - Douala Express"
+                        )}
                       />
                     </div>
 
                     <div className="md:col-span-2">
                       <label className="block text-sm font-semibold text-gray-700 mb-2">
-                        Description *
+                        {t("Description *", "Description *")}
                       </label>
                       <textarea
                         name="description"
@@ -738,13 +762,16 @@ export default function CreateVoyagePage() {
                         required
                         rows={4}
                         className="w-full placeholder:text-gray-450 text-gray-950 px-4 py-3 border-2 border-gray-200 rounded-xl focus:outline-none focus:ring-2 focus:ring-[#6149CD] focus:border-transparent resize-none"
-                        placeholder="Décrivez votre voyage..."
+                        placeholder={t(
+                          "Décrivez votre voyage...",
+                          "Describe your trip..."
+                        )}
                       />
                     </div>
 
                     <div>
                       <label className="block text-sm font-semibold text-gray-700 mb-2">
-                        Statut
+                        {t("Statut", "Status")}
                       </label>
                       <input
                         type="text"
@@ -762,13 +789,13 @@ export default function CreateVoyagePage() {
                 <div className="bg-white rounded-xl shadow-sm border border-gray-200 p-6">
                   <h3 className="text-xl font-bold text-gray-900 mb-6 flex items-center space-x-2">
                     <MapPin className="w-6 h-6 text-[#6149CD]" />
-                    <span>Itinéraire</span>
+                    <span>{t("Itinéraire", "Itinerary")}</span>
                   </h3>
 
                   <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
                     <div>
                       <label className="block text-sm font-semibold text-gray-700 mb-2">
-                        Lieu de départ *
+                        {t("Lieu de départ *", "Departure location *")}
                       </label>
                       <input
                         type="text"
@@ -778,16 +805,16 @@ export default function CreateVoyagePage() {
                         required
                         disabled
                         className="w-full placeholder:text-gray-450 text-gray-950 px-4 py-3 border-2 border-gray-200 rounded-xl focus:outline-none focus:ring-2 focus:ring-[#6149CD] bg-gray-100 cursor-not-allowed"
-                        placeholder="Ex: Yaoundé"
+                        placeholder={t("Ex: Yaoundé", "e.g., Yaounde")}
                       />
                       <p className="text-xs text-gray-500 mt-1">
-                        Ville de votre agence
+                        {t("Ville de votre agence", "Your agency's city")}
                       </p>
                     </div>
 
                     <div>
                       <label className="block text-sm font-semibold text-gray-700 mb-2">
-                        Lieu d'arrivée *
+                        {t("Lieu d'arrivée *", "Arrival location *")}
                       </label>
                       <input
                         type="text"
@@ -796,13 +823,13 @@ export default function CreateVoyagePage() {
                         onChange={handleInputChange}
                         required
                         className="w-full placeholder:text-gray-450 text-gray-950 px-4 py-3 border-2 border-gray-200 rounded-xl focus:outline-none focus:ring-2 focus:ring-[#6149CD]"
-                        placeholder="Ex: Douala"
+                        placeholder={t("Ex: Douala", "e.g., Douala")}
                       />
                     </div>
 
                     <div>
                       <label className="block text-sm font-semibold text-gray-700 mb-2">
-                        Point de départ *
+                        {t("Point de départ *", "Departure point *")}
                       </label>
                       <input
                         type="text"
@@ -812,16 +839,16 @@ export default function CreateVoyagePage() {
                         required
                         disabled
                         className="w-full placeholder:text-gray-450 text-gray-950 px-4 py-3 border-2 border-gray-200 rounded-xl focus:outline-none focus:ring-2 focus:ring-[#6149CD] bg-gray-100 cursor-not-allowed"
-                        placeholder="Ex: Mvan"
+                        placeholder={t("Ex: Mvan", "e.g., Mvan")}
                       />
                       <p className="text-xs text-gray-500 mt-1">
-                        Zone de votre agence
+                        {t("Zone de votre agence", "Your agency's area")}
                       </p>
                     </div>
 
                     <div>
                       <label className="block text-sm font-semibold text-gray-700 mb-2">
-                        Point d'arrivée *
+                        {t("Point d'arrivée *", "Arrival point *")}
                       </label>
                       <input
                         type="text"
@@ -830,7 +857,7 @@ export default function CreateVoyagePage() {
                         onChange={handleInputChange}
                         required
                         className="w-full placeholder:text-gray-450 text-gray-950 px-4 py-3 border-2 border-gray-200 rounded-xl focus:outline-none focus:ring-2 focus:ring-[#6149CD]"
-                        placeholder="Ex: Bonabéri"
+                        placeholder={t("Ex: Bonabéri", "e.g., Bonaberi")}
                       />
                     </div>
                   </div>
@@ -840,13 +867,13 @@ export default function CreateVoyagePage() {
                 <div className="bg-white rounded-xl shadow-sm border border-gray-200 p-6">
                   <h3 className="text-xl font-bold text-gray-900 mb-6 flex items-center space-x-2">
                     <Clock className="w-6 h-6 text-[#6149CD]" />
-                    <span>Dates et horaires</span>
+                    <span>{t("Dates et horaires", "Dates and times")}</span>
                   </h3>
 
                   <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
                     <div>
                       <label className="block text-sm font-semibold text-gray-700 mb-2">
-                        Date de départ prévue *
+                        {t("Date de départ prévue *", "Planned departure date *")}
                       </label>
                       <input
                         type="datetime-local"
@@ -861,7 +888,7 @@ export default function CreateVoyagePage() {
 
                     <div>
                       <label className="block text-sm font-semibold text-gray-700 mb-2">
-                        Heure de départ effectif
+                        {t("Heure de départ effectif", "Actual departure time")}
                       </label>
                       <input
                         type="datetime-local"
@@ -875,7 +902,7 @@ export default function CreateVoyagePage() {
 
                     <div>
                       <label className="block text-sm font-semibold text-gray-700 mb-2">
-                        Heure d'arrivée
+                        {t("Heure d'arrivée", "Arrival time")}
                       </label>
                       <input
                         type="datetime-local"
@@ -889,7 +916,7 @@ export default function CreateVoyagePage() {
 
                     <div>
                       <label className="block text-sm font-semibold text-gray-700 mb-2">
-                        Date limite de réservation
+                        {t("Date limite de réservation", "Booking deadline")}
                       </label>
                       <input
                         type="datetime-local"
@@ -903,7 +930,7 @@ export default function CreateVoyagePage() {
 
                     <div>
                       <label className="block text-sm font-semibold text-gray-700 mb-2">
-                        Date limite de confirmation
+                        {t("Date limite de confirmation", "Confirmation deadline")}
                       </label>
                       <input
                         type="datetime-local"
@@ -921,13 +948,13 @@ export default function CreateVoyagePage() {
                 <div className="bg-white rounded-xl shadow-sm border border-gray-200 p-6">
                   <h3 className="text-xl font-bold text-gray-900 mb-6 flex items-center space-x-2">
                     <Users className="w-6 h-6 text-[#6149CD]" />
-                    <span>Gestion des places</span>
+                    <span>{t("Gestion des places", "Seat management")}</span>
                   </h3>
 
                   <div className="grid grid-cols-1 md:grid-cols-3 gap-6">
                     <div>
                       <label className="block text-sm font-semibold text-gray-700 mb-2">
-                        Nombre de places *
+                        {t("Nombre de places *", "Number of seats *")}
                       </label>
                       <input
                         type="number"
@@ -940,13 +967,16 @@ export default function CreateVoyagePage() {
                         className="w-full placeholder:text-gray-450 text-gray-950 px-4 py-3 border-2 border-gray-200 rounded-xl focus:outline-none focus:ring-2 focus:ring-[#6149CD] bg-gray-100 cursor-not-allowed"
                       />
                       <p className="text-xs text-gray-500 mt-1">
-                        Capacité du véhicule sélectionné
+                        {t(
+                          "Capacité du véhicule sélectionné",
+                          "Capacity of the selected vehicle"
+                        )}
                       </p>
                     </div>
 
                     <div>
                       <label className="block text-sm font-semibold text-gray-700 mb-2">
-                        Places réservées
+                        {t("Places réservées", "Reserved seats")}
                       </label>
                       <input
                         type="number"
@@ -961,7 +991,7 @@ export default function CreateVoyagePage() {
 
                     <div>
                       <label className="block text-sm font-semibold text-gray-700 mb-2">
-                        Places confirmées
+                        {t("Places confirmées", "Confirmed seats")}
                       </label>
                       <input
                         type="number"
@@ -980,13 +1010,13 @@ export default function CreateVoyagePage() {
                 <div className="bg-white rounded-xl shadow-sm border border-gray-200 p-6">
                   <h3 className="text-xl font-bold text-gray-900 mb-6 flex items-center space-x-2">
                     <Car className="w-6 h-6 text-[#6149CD]" />
-                    <span>Ressources</span>
+                    <span>{t("Ressources", "Resources")}</span>
                   </h3>
 
                   <div className="grid grid-cols-1 md:grid-cols-3 gap-6">
                     <div>
                       <label className="block text-sm font-semibold text-gray-700 mb-2">
-                        Chauffeur *
+                        {t("Chauffeur *", "Driver *")}
                       </label>
                       <select
                         name="chauffeurId"
@@ -996,7 +1026,9 @@ export default function CreateVoyagePage() {
                         disabled={is_loading_chauffeurs}
                         className="w-full placeholder:text-gray-450 text-gray-950 px-4 py-3 border-2 border-gray-200 rounded-xl focus:outline-none focus:ring-2 focus:ring-[#6149CD] disabled:opacity-50"
                       >
-                        <option value="">Sélectionner un chauffeur</option>
+                        <option value="">
+                          {t("Sélectionner un chauffeur", "Select a driver")}
+                        </option>
                         {chauffeurs.map((chauffeur) => (
                           <option
                             key={chauffeur.userId}
@@ -1010,7 +1042,7 @@ export default function CreateVoyagePage() {
 
                     <div>
                       <label className="block text-sm font-semibold text-gray-700 mb-2">
-                        Véhicule *
+                        {t("Véhicule *", "Vehicle *")}
                       </label>
                       <select
                         name="vehiculeId"
@@ -1020,7 +1052,9 @@ export default function CreateVoyagePage() {
                         disabled={is_loading_vehicules}
                         className="w-full placeholder:text-gray-450 text-gray-950 px-4 py-3 border-2 border-gray-200 rounded-xl focus:outline-none focus:ring-2 focus:ring-[#6149CD] disabled:opacity-50"
                       >
-                        <option value="">Sélectionner un véhicule</option>
+                        <option value="">
+                          {t("Sélectionner un véhicule", "Select a vehicle")}
+                        </option>
                         {vehicules.map((vehicule) => (
                           <option
                             key={vehicule.idVehicule}
@@ -1034,7 +1068,7 @@ export default function CreateVoyagePage() {
 
                     <div>
                       <label className="block text-sm font-semibold text-gray-700 mb-2">
-                        Classe de voyage *
+                        {t("Classe de voyage *", "Travel class *")}
                       </label>
                       <select
                         name="classVoyageId"
@@ -1044,7 +1078,9 @@ export default function CreateVoyagePage() {
                         disabled={is_loading_classes}
                         className="w-full placeholder:text-gray-450 text-gray-950 px-4 py-3 border-2 border-gray-200 rounded-xl focus:outline-none focus:ring-2 focus:ring-[#6149CD] disabled:opacity-50"
                       >
-                        <option value="">Sélectionner une classe</option>
+                        <option value="">
+                          {t("Sélectionner une classe", "Select a class")}
+                        </option>
                         {classes_voyage.map((classe) => (
                           <option
                             key={classe.idClassVoyage}
@@ -1062,13 +1098,13 @@ export default function CreateVoyagePage() {
                 <div className="bg-white rounded-xl shadow-sm border border-gray-200 p-6">
                   <h3 className="text-xl font-bold text-gray-900 mb-6 flex items-center space-x-2">
                     <ImageIcon className="w-6 h-6 text-[#6149CD]" />
-                    <span>Images</span>
+                    <span>{t("Images", "Images")}</span>
                   </h3>
 
                   <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
                     <div>
                       <label className="block text-sm font-semibold text-gray-700 mb-2">
-                        URL petite image
+                        {t("URL petite image", "Small image URL")}
                       </label>
                       <input
                         type="url"
@@ -1082,7 +1118,7 @@ export default function CreateVoyagePage() {
 
                     <div>
                       <label className="block text-sm font-semibold text-gray-700 mb-2">
-                        URL grande image
+                        {t("URL grande image", "Large image URL")}
                       </label>
                       <input
                         type="url"
@@ -1099,7 +1135,7 @@ export default function CreateVoyagePage() {
                 {/* Amenities */}
                 <div className="bg-white rounded-xl shadow-sm border border-gray-200 p-6">
                   <h3 className="text-xl font-bold text-gray-900 mb-6">
-                    Équipements disponibles
+                    {t("Équipements disponibles", "Available amenities")}
                   </h3>
 
                   <div className="grid grid-cols-2 md:grid-cols-4 gap-4">
@@ -1140,7 +1176,7 @@ export default function CreateVoyagePage() {
                     onClick={() => router.push("/user/agency/travels")}
                     className="px-6 py-3 border-2 border-gray-300 text-gray-700 rounded-xl font-semibold hover:bg-gray-100 transition-colors"
                   >
-                    Annuler
+                    {t("Annuler", "Cancel")}
                   </button>
                   <button
                     type="submit"
@@ -1148,7 +1184,9 @@ export default function CreateVoyagePage() {
                     style={{ backgroundColor: BUTTON_COLOR }}
                     className="px-6 py-3 text-white rounded-xl font-semibold hover:opacity-90 transition-opacity disabled:opacity-50 disabled:cursor-not-allowed"
                   >
-                    {is_submitting ? "Création en cours..." : "Créer le voyage"}
+                    {is_submitting
+                      ? t("Création en cours...", "Creating...")
+                      : t("Créer le voyage", "Create trip")}
                   </button>
                 </div>
               </form>
@@ -1165,7 +1203,7 @@ export default function CreateVoyagePage() {
                   <CheckCircle className="w-12 h-12 text-white" />
                 </div>
                 <h2 className="text-2xl font-bold text-gray-900 mb-6">
-                  Voyage créé avec succès !
+                  {t("Voyage créé avec succès !", "Trip created successfully!")}
                 </h2>
                 <button
                   onClick={() => {
@@ -1174,7 +1212,7 @@ export default function CreateVoyagePage() {
                   }}
                   className="w-full py-3 bg-green-600 text-white rounded-xl font-semibold hover:opacity-90 transition-opacity"
                 >
-                  Voir mes voyages
+                  {t("Voir mes voyages", "View my trips")}
                 </button>
               </div>
             </div>
@@ -1190,7 +1228,7 @@ export default function CreateVoyagePage() {
                   <AlertCircle className="w-12 h-12 text-white" />
                 </div>
                 <h2 className="text-2xl font-bold text-gray-900 mb-2">
-                  Erreur lors de la création
+                  {t("Erreur lors de la création", "Error during creation")}
                 </h2>
                 <div className="bg-red-50 rounded-xl p-4 mb-6">
                   <p className="text-sm text-red-800">{error_message}</p>
@@ -1202,7 +1240,7 @@ export default function CreateVoyagePage() {
                   }}
                   className="w-full py-3 bg-red-600 text-white rounded-xl font-semibold hover:bg-red-700 transition-colors"
                 >
-                  Fermer
+                  {t("Fermer", "Close")}
                 </button>
               </div>
             </div>

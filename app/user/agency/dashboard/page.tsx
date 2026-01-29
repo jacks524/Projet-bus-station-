@@ -22,6 +22,7 @@ import {
   PieChart,
 } from "lucide-react";
 import { useRouter } from "next/navigation";
+import { useLanguage } from "../../../providers";
 import {
   LineChart,
   Line,
@@ -132,6 +133,7 @@ export default function AgenceDashboardPage() {
   >("reservations");
 
   const router = useRouter();
+  const { t } = useLanguage();
 
   const API_BASE_URL = process.env.NEXT_PUBLIC_API_BASE_URL;
   const BUTTON_COLOR = "#6149CD";
@@ -139,31 +141,31 @@ export default function AgenceDashboardPage() {
   const MENU_ITEMS = [
     {
       icon: Home,
-      label: "Dashboard",
+      label: t("Dashboard", "Dashboard"),
       path: "/user/agency/dashboard",
       active: true,
     },
     {
       icon: Bus,
-      label: "Voyages",
+      label: t("Voyages", "Trips"),
       path: "/user/agency/travels",
       active: false,
     },
     {
       icon: Calendar,
-      label: "Réservations",
+      label: t("Réservations", "Bookings"),
       path: "/user/agency/reservations",
       active: false,
     },
     {
       icon: Users,
-      label: "Chauffeurs",
+      label: t("Chauffeurs", "Drivers"),
       path: "/user/agency/drivers",
       active: false,
     },
     {
       icon: Settings,
-      label: "Mes paramètres",
+      label: t("Mes paramètres", "Settings"),
       path: "/user/agency/settings",
       active: false,
     },
@@ -232,7 +234,7 @@ export default function AgenceDashboardPage() {
       );
 
       if (!response.ok) {
-        throw new Error("Erreur lors du chargement des agences");
+        throw new Error(t("Erreur lors du chargement des agences", "Error loading agencies"));
       }
 
       const data = await response.json();
@@ -253,7 +255,7 @@ export default function AgenceDashboardPage() {
       }
     } catch (error: any) {
       console.error("Fetch Agences Error:", error);
-      setErrorMessage("Impossible de charger vos agences");
+      setErrorMessage(t("Impossible de charger vos agences", "Unable to load your agencies"));
       setIsLoadingStats(false);
     } finally {
       setIsLoadingAgences(false);
@@ -278,14 +280,14 @@ export default function AgenceDashboardPage() {
       );
 
       if (!response.ok) {
-        throw new Error("Erreur lors du chargement des statistiques");
+        throw new Error(t("Erreur lors du chargement des statistiques", "Error loading statistics"));
       }
 
       const data = await response.json();
       setGeneralStats(data);
     } catch (error: any) {
       console.error("Fetch General Stats Error:", error);
-      setErrorMessage("Impossible de charger les statistiques générales");
+      setErrorMessage(t("Impossible de charger les statistiques générales", "Unable to load general statistics"));
     } finally {
       setIsLoadingStats(false);
     }
@@ -306,7 +308,7 @@ export default function AgenceDashboardPage() {
       );
 
       if (!response.ok) {
-        throw new Error("Erreur lors du chargement des évolutions");
+        throw new Error(t("Erreur lors du chargement des évolutions", "Error loading trends"));
       }
 
       const data = await response.json();
@@ -416,13 +418,13 @@ export default function AgenceDashboardPage() {
   const getChartTitle = () => {
     switch (active_chart) {
       case "reservations":
-        return "Évolution des réservations";
+        return t("Évolution des réservations", "Reservations trend");
       case "voyages":
-        return "Évolution des voyages";
+        return t("Évolution des voyages", "Trips trend");
       case "revenus":
-        return "Évolution des revenus";
+        return t("Évolution des revenus", "Revenue trend");
       case "utilisateurs":
-        return "Évolution des utilisateurs";
+        return t("Évolution des utilisateurs", "Users trend");
       default:
         return "";
     }
@@ -453,13 +455,13 @@ export default function AgenceDashboardPage() {
 
   const prepareDayOfWeekData = (data: { [key: string]: number }) => {
     const daysOrder = [
-      "Lundi",
-      "Mardi",
-      "Mercredi",
-      "Jeudi",
-      "Vendredi",
-      "Samedi",
-      "Dimanche",
+      t("Lundi", "Monday"),
+      t("Mardi", "Tuesday"),
+      t("Mercredi", "Wednesday"),
+      t("Jeudi", "Thursday"),
+      t("Vendredi", "Friday"),
+      t("Samedi", "Saturday"),
+      t("Dimanche", "Sunday"),
     ];
     return daysOrder
       .map((day) => ({
@@ -590,7 +592,7 @@ export default function AgenceDashboardPage() {
                 <Menu className="w-5 h-5 sm:w-6 sm:h-6 text-gray-900" />
               </button>
               <h1 className="text-lg sm:text-2xl font-semibold text-gray-900">
-                Dashboard Agence
+                {t("Dashboard Agence", "Agency dashboard")}
               </h1>
             </div>
 
@@ -598,7 +600,7 @@ export default function AgenceDashboardPage() {
               <button
                 onClick={handleRefresh}
                 className="p-1.5 sm:p-2 hover:bg-gray-100 rounded-lg transition-colors"
-                title="Actualiser"
+                title={t("Actualiser", "Refresh")}
               >
                 <RefreshCw className="w-5 h-5 sm:w-6 sm:h-6 text-gray-600" />
               </button>
@@ -642,14 +644,16 @@ export default function AgenceDashboardPage() {
                         className="w-full flex items-center space-x-3 px-4 py-2 hover:bg-gray-100 transition-colors"
                       >
                         <Settings className="w-4 h-4 text-gray-600" />
-                        <span className="text-gray-700">Paramètres</span>
+                        <span className="text-gray-700">
+                          {t("Paramètres", "Settings")}
+                        </span>
                       </button>
                       <button
                         onClick={handleLogout}
                         className="w-full flex items-center space-x-3 px-4 py-2 hover:bg-gray-100 transition-colors text-red-600"
                       >
                         <LogOut className="w-4 h-4" />
-                        <span>Se déconnecter</span>
+                        <span>{t("Se déconnecter", "Sign out")}</span>
                       </button>
                     </div>
                   </>
@@ -666,7 +670,9 @@ export default function AgenceDashboardPage() {
             <div className="flex items-center justify-center py-20">
               <div className="text-center">
                 <RefreshCw className="w-8 h-8 text-[#6149CD] animate-spin mx-auto mb-4" />
-                <p className="text-gray-600">Chargement en cours...</p>
+                <p className="text-gray-600">
+                  {t("Chargement en cours...", "Loading...")}
+                </p>
               </div>
             </div>
           )}
@@ -681,7 +687,7 @@ export default function AgenceDashboardPage() {
                 onClick={() => window.location.reload()}
                 className="px-4 sm:px-6 py-2.5 sm:py-3 bg-[#6149CD] text-white rounded-lg hover:opacity-75 transition-colors text-sm sm:text-base"
               >
-                Réessayer
+                {t("Réessayer", "Try again")}
               </button>
             </div>
           )}
@@ -691,17 +697,20 @@ export default function AgenceDashboardPage() {
             <div className="bg-white rounded-xl shadow-sm border border-gray-200 p-6 sm:p-12 text-center">
               <Building2 className="w-12 h-12 sm:w-16 sm:h-16 text-gray-400 mx-auto mb-4" />
               <h3 className="text-lg sm:text-xl font-semibold text-gray-900 mb-2">
-                Aucune agence validée
+                {t("Aucune agence validée", "No validated agency")}
               </h3>
               <p className="text-sm sm:text-base text-gray-600 mb-6">
-                Vous n'avez pas encore d'agence validée ou en attente
+                {t(
+                  "Vous n'avez pas encore d'agence validée ou en attente",
+                  "You don't have any validated or pending agency yet"
+                )}
               </p>
               <button
                 onClick={() => router.push("/user/agency/create")}
                 style={{ backgroundColor: BUTTON_COLOR }}
                 className="px-4 sm:px-6 py-2.5 sm:py-3 text-white rounded-lg hover:opacity-90 transition-opacity text-sm sm:text-base"
               >
-                Créer une agence
+                {t("Créer une agence", "Create an agency")}
               </button>
             </div>
           )}
@@ -718,10 +727,10 @@ export default function AgenceDashboardPage() {
                     </div>
                     <div className="min-w-0 flex-1">
                       <p className="text-xs sm:text-sm text-gray-600">
-                        Agence sélectionnée
+                        {t("Agence sélectionnée", "Selected agency")}
                       </p>
                       <h2 className="text-base sm:text-xl font-bold text-gray-900 truncate">
-                        {selected_agence?.long_name || "Aucune"}
+                        {selected_agence?.long_name || t("Aucune", "None")}
                       </h2>
                       <p className="text-xs text-gray-500">
                         {selected_agence?.ville} - {selected_agence?.location}
@@ -738,7 +747,7 @@ export default function AgenceDashboardPage() {
                         className="w-full sm:w-auto flex items-center justify-center space-x-2 px-4 py-2 border border-gray-300 rounded-lg hover:bg-gray-50 transition-colors"
                       >
                         <span className="text-gray-700 text-sm sm:text-base">
-                          Changer
+                          {t("Changer", "Switch")}
                         </span>
                         <ChevronDown className="w-4 h-4 text-gray-600" />
                       </button>
@@ -795,7 +804,7 @@ export default function AgenceDashboardPage() {
                     onClick={handleRefresh}
                     className="mt-4 px-4 py-2 bg-red-600 text-white rounded-lg hover:bg-red-700 transition-colors text-sm sm:text-base"
                   >
-                    Réessayer
+                    {t("Réessayer", "Try again")}
                   </button>
                 </div>
               )}
@@ -815,7 +824,7 @@ export default function AgenceDashboardPage() {
                         {general_stats.nombreEmployes}
                       </h3>
                       <p className="text-xs sm:text-sm md:text-base text-gray-600 mt-1">
-                        Employés
+                        {t("Employés", "Employees")}
                       </p>
                     </div>
 
@@ -829,7 +838,7 @@ export default function AgenceDashboardPage() {
                         {general_stats.nombreChauffeurs}
                       </h3>
                       <p className="text-xs sm:text-sm md:text-base text-gray-600 mt-1">
-                        Chauffeurs
+                        {t("Chauffeurs", "Drivers")}
                       </p>
                     </div>
 
@@ -843,7 +852,7 @@ export default function AgenceDashboardPage() {
                         {general_stats.nombreVoyages}
                       </h3>
                       <p className="text-xs sm:text-sm md:text-base text-gray-600 mt-1">
-                        Voyages
+                        {t("Voyages", "Trips")}
                       </p>
                     </div>
 
@@ -857,7 +866,7 @@ export default function AgenceDashboardPage() {
                         {general_stats.nombreReservations}
                       </h3>
                       <p className="text-xs sm:text-sm md:text-base text-gray-600 mt-1">
-                        Réservations
+                        {t("Réservations", "Bookings")}
                       </p>
                     </div>
                   </div>
@@ -867,7 +876,7 @@ export default function AgenceDashboardPage() {
                     <div className="bg-linear-to-br from-green-400 to-green-600 rounded-xl shadow-lg p-4 sm:p-6 text-white">
                       <div className="flex items-center justify-between mb-2 sm:mb-4">
                         <h3 className="text-sm sm:text-lg font-semibold">
-                          Revenus totaux potentiels
+                        {t("Revenus totaux potentiels", "Potential total revenue")}
                         </h3>
                         <TrendingUp className="w-5 h-5 sm:w-6 sm:h-6" />
                       </div>
@@ -880,7 +889,7 @@ export default function AgenceDashboardPage() {
                       <div className="flex items-center space-x-2 mb-2">
                         <UserPlus className="w-4 h-4 sm:w-5 sm:h-5 text-[#6149CD]" />
                         <h3 className="text-gray-600 text-xs sm:text-base">
-                          Nouveaux utilisateurs
+                          {t("Nouveaux utilisateurs", "New users")}
                         </h3>
                       </div>
                       <p className="text-xl sm:text-2xl md:text-3xl font-bold text-gray-900">
@@ -890,7 +899,7 @@ export default function AgenceDashboardPage() {
 
                     <div className="bg-white rounded-xl shadow-sm border border-gray-200 p-4 sm:p-6 sm:col-span-2 md:col-span-1">
                       <h3 className="text-gray-600 mb-2 text-xs sm:text-base">
-                        Taux d'occupation
+                        {t("Taux d'occupation", "Occupancy rate")}
                       </h3>
                       <div className="flex items-center space-x-3 sm:space-x-4">
                         <div className="flex-1">
@@ -929,7 +938,7 @@ export default function AgenceDashboardPage() {
                                 : "bg-gray-100 text-gray-700 hover:bg-gray-200"
                             }`}
                           >
-                            Réservations
+                            {t("Réservations", "Bookings")}
                           </button>
                           <button
                             onClick={() => setActiveChart("voyages")}
@@ -939,7 +948,7 @@ export default function AgenceDashboardPage() {
                                 : "bg-gray-100 text-gray-700 hover:bg-gray-200"
                             }`}
                           >
-                            Voyages
+                            {t("Voyages", "Trips")}
                           </button>
                           <button
                             onClick={() => setActiveChart("revenus")}
@@ -949,7 +958,7 @@ export default function AgenceDashboardPage() {
                                 : "bg-gray-100 text-gray-700 hover:bg-gray-200"
                             }`}
                           >
-                            Revenus
+                            {t("Revenus", "Revenue")}
                           </button>
                           <button
                             onClick={() => setActiveChart("utilisateurs")}
@@ -959,7 +968,7 @@ export default function AgenceDashboardPage() {
                                 : "bg-gray-100 text-gray-700 hover:bg-gray-200"
                             }`}
                           >
-                            Utilisateurs
+                            {t("Utilisateurs", "Users")}
                           </button>
                         </div>
                       </div>
@@ -1024,7 +1033,7 @@ export default function AgenceDashboardPage() {
                         ) : (
                           <div className="flex items-center justify-center h-full">
                             <p className="text-gray-500">
-                              Aucune donnée disponible
+                              {t("Aucune donnée disponible", "No data available")}
                             </p>
                           </div>
                         )}
@@ -1039,7 +1048,7 @@ export default function AgenceDashboardPage() {
                       <div className="flex items-center space-x-2 mb-4">
                         <PieChart className="w-5 h-5 text-[#6149CD]" />
                         <h3 className="text-base sm:text-lg font-bold text-gray-900">
-                          Voyages par statut
+                          {t("Voyages par statut", "Trips by status")}
                         </h3>
                       </div>
                       <div className="h-48 sm:h-64">
@@ -1095,7 +1104,7 @@ export default function AgenceDashboardPage() {
                       <div className="flex items-center space-x-2 mb-4">
                         <PieChart className="w-5 h-5 text-[#6149CD]" />
                         <h3 className="text-base sm:text-lg font-bold text-gray-900">
-                          Réservations par statut
+                          {t("Réservations par statut", "Bookings by status")}
                         </h3>
                       </div>
                       <div className="h-48 sm:h-64">
@@ -1141,7 +1150,7 @@ export default function AgenceDashboardPage() {
                         ) : (
                           <div className="flex items-center justify-center h-full">
                             <p className="text-gray-500 text-sm">
-                              Aucune réservation
+                              {t("Aucune réservation", "No bookings")}
                             </p>
                           </div>
                         )}
@@ -1157,7 +1166,7 @@ export default function AgenceDashboardPage() {
                         0 && (
                         <div className="bg-white rounded-xl shadow-sm border border-gray-200 p-4 sm:p-6">
                           <h3 className="text-base sm:text-lg font-bold text-gray-900 mb-4">
-                            Revenus par classe
+                            {t("Revenus par classe", "Revenue by class")}
                           </h3>
                           <div className="h-64">
                             <ResponsiveContainer width="100%" height="100%">
@@ -1190,7 +1199,7 @@ export default function AgenceDashboardPage() {
                                 <Bar
                                   dataKey="value"
                                   fill="#6149CD"
-                                  name="Revenu"
+                                  name={t("Revenu", "Revenue")}
                                   radius={[8, 8, 0, 0]}
                                 />
                               </BarChart>
@@ -1205,7 +1214,7 @@ export default function AgenceDashboardPage() {
                         0 && (
                         <div className="bg-white rounded-xl shadow-sm border border-gray-200 p-4 sm:p-6">
                           <h3 className="text-base sm:text-lg font-bold text-gray-900 mb-4">
-                            Top 10 destinations
+                            {t("Top 10 destinations", "Top 10 destinations")}
                           </h3>
                           <div className="h-64">
                             <ResponsiveContainer width="100%" height="100%">
@@ -1242,7 +1251,7 @@ export default function AgenceDashboardPage() {
                                 <Bar
                                   dataKey="value"
                                   fill="#10B981"
-                                  name="Voyages"
+                                  name={t("Voyages", "Trips")}
                                   radius={[0, 8, 8, 0]}
                                 />
                               </BarChart>
@@ -1256,7 +1265,7 @@ export default function AgenceDashboardPage() {
                       Object.keys(general_stats.top_origins).length > 0 && (
                         <div className="bg-white rounded-xl shadow-sm border border-gray-200 p-4 sm:p-6">
                           <h3 className="text-base sm:text-lg font-bold text-gray-900 mb-4">
-                            Top 10 villes d'origine
+                            {t("Top 10 villes d'origine", "Top 10 origin cities")}
                           </h3>
                           <div className="h-64">
                             <ResponsiveContainer width="100%" height="100%">
@@ -1293,7 +1302,7 @@ export default function AgenceDashboardPage() {
                                 <Bar
                                   dataKey="value"
                                   fill="#F59E0B"
-                                  name="Voyages"
+                                  name={t("Voyages", "Trips")}
                                   radius={[0, 8, 8, 0]}
                                 />
                               </BarChart>
@@ -1308,7 +1317,7 @@ export default function AgenceDashboardPage() {
                         .length > 0 && (
                         <div className="bg-white rounded-xl shadow-sm border border-gray-200 p-4 sm:p-6">
                           <h3 className="text-base sm:text-lg font-bold text-gray-900 mb-4">
-                            Réservations par jour
+                            {t("Réservations par jour", "Bookings by day")}
                           </h3>
                           <div className="h-64">
                             <ResponsiveContainer width="100%" height="100%">
@@ -1338,7 +1347,7 @@ export default function AgenceDashboardPage() {
                                 <Bar
                                   dataKey="value"
                                   fill="#8B5CF6"
-                                  name="Réservations"
+                                  name={t("Réservations", "Bookings")}
                                   radius={[8, 8, 0, 0]}
                                 />
                               </BarChart>
@@ -1352,7 +1361,7 @@ export default function AgenceDashboardPage() {
                       Object.keys(general_stats.trips_by_driver).length > 0 && (
                         <div className="bg-white rounded-xl shadow-sm border border-gray-200 p-4 sm:p-6 lg:col-span-2">
                           <h3 className="text-base sm:text-lg font-bold text-gray-900 mb-4">
-                            Top 10 chauffeurs (par nombre de voyages)
+                            {t("Top 10 chauffeurs (par nombre de voyages)", "Top 10 drivers (by trips)")}
                           </h3>
                           <div className="h-64">
                             <ResponsiveContainer width="100%" height="100%">
@@ -1389,7 +1398,7 @@ export default function AgenceDashboardPage() {
                                 <Bar
                                   dataKey="value"
                                   fill="#EF4444"
-                                  name="Voyages"
+                                  name={t("Voyages", "Trips")}
                                   radius={[0, 8, 8, 0]}
                                 />
                               </BarChart>
@@ -1408,7 +1417,7 @@ export default function AgenceDashboardPage() {
                           0 && (
                           <div className="bg-white rounded-xl shadow-sm border border-gray-200 p-4 sm:p-6">
                             <h3 className="text-base sm:text-lg font-bold text-gray-900 mb-4">
-                              Évolution du taux d'occupation
+                              {t("Évolution du taux d'occupation", "Occupancy rate trend")}
                             </h3>
                             <div className="h-64">
                               <ResponsiveContainer width="100%" height="100%">
@@ -1444,7 +1453,7 @@ export default function AgenceDashboardPage() {
                                     stroke="#6149CD"
                                     strokeWidth={2}
                                     dot={{ fill: "#6149CD", r: 3 }}
-                                    name="Taux (%)"
+                                    name={t("Taux (%)", "Rate (%)")}
                                   />
                                 </LineChart>
                               </ResponsiveContainer>
@@ -1457,7 +1466,7 @@ export default function AgenceDashboardPage() {
                         evolution_stats.evolution_annulations.length > 0 && (
                           <div className="bg-white rounded-xl shadow-sm border border-gray-200 p-4 sm:p-6">
                             <h3 className="text-base sm:text-lg font-bold text-gray-900 mb-4">
-                              Évolution des annulations
+                              {t("Évolution des annulations", "Cancellations trend")}
                             </h3>
                             <div className="h-64">
                               <ResponsiveContainer width="100%" height="100%">
@@ -1493,7 +1502,7 @@ export default function AgenceDashboardPage() {
                                     stroke="#EF4444"
                                     strokeWidth={2}
                                     dot={{ fill: "#EF4444", r: 3 }}
-                                    name="Annulations"
+                                    name={t("Annulations", "Cancellations")}
                                   />
                                 </LineChart>
                               </ResponsiveContainer>
@@ -1507,7 +1516,7 @@ export default function AgenceDashboardPage() {
                           0 && (
                           <div className="bg-white rounded-xl shadow-sm border border-gray-200 p-4 sm:p-6">
                             <h3 className="text-base sm:text-lg font-bold text-gray-900 mb-4">
-                              Revenus par mois
+                              {t("Revenus par mois", "Revenue per month")}
                             </h3>
                             <div className="h-64">
                               <ResponsiveContainer width="100%" height="100%">
@@ -1540,7 +1549,7 @@ export default function AgenceDashboardPage() {
                                   <Bar
                                     dataKey="value"
                                     fill="#10B981"
-                                    name="Revenu"
+                                    name={t("Revenu", "Revenue")}
                                     radius={[8, 8, 0, 0]}
                                   />
                                 </BarChart>
@@ -1555,7 +1564,7 @@ export default function AgenceDashboardPage() {
                           .length > 0 && (
                           <div className="bg-white rounded-xl shadow-sm border border-gray-200 p-4 sm:p-6">
                             <h3 className="text-base sm:text-lg font-bold text-gray-900 mb-4">
-                              Réservations par mois
+                              {t("Réservations par mois", "Bookings per month")}
                             </h3>
                             <div className="h-64">
                               <ResponsiveContainer width="100%" height="100%">
@@ -1585,7 +1594,7 @@ export default function AgenceDashboardPage() {
                                   <Bar
                                     dataKey="value"
                                     fill="#6149CD"
-                                    name="Réservations"
+                                    name={t("Réservations", "Bookings")}
                                     radius={[8, 8, 0, 0]}
                                   />
                                 </BarChart>
@@ -1600,12 +1609,12 @@ export default function AgenceDashboardPage() {
                   {selected_agence && (
                     <div className="bg-white rounded-xl shadow-sm border border-gray-200 p-4 sm:p-6">
                       <h3 className="text-lg sm:text-xl font-bold text-gray-900 mb-4">
-                        Informations de l'agence
+                        {t("Informations de l'agence", "Agency information")}
                       </h3>
                       <div className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 gap-4">
                         <div>
                           <p className="text-xs sm:text-sm text-gray-600">
-                            Nom complet
+                            {t("Nom complet", "Full name")}
                           </p>
                           <p className="text-sm sm:text-base font-semibold text-gray-900">
                             {selected_agence.long_name}
@@ -1613,7 +1622,7 @@ export default function AgenceDashboardPage() {
                         </div>
                         <div>
                           <p className="text-xs sm:text-sm text-gray-600">
-                            Abréviation
+                            {t("Abréviation", "Abbreviation")}
                           </p>
                           <p className="text-sm sm:text-base font-semibold text-gray-900">
                             {selected_agence.short_name}
@@ -1621,7 +1630,7 @@ export default function AgenceDashboardPage() {
                         </div>
                         <div>
                           <p className="text-xs sm:text-sm text-gray-600">
-                            Ville
+                            {t("Ville", "City")}
                           </p>
                           <p className="text-sm sm:text-base font-semibold text-gray-900">
                             {selected_agence.ville}
@@ -1629,7 +1638,7 @@ export default function AgenceDashboardPage() {
                         </div>
                         <div>
                           <p className="text-xs sm:text-sm text-gray-600">
-                            Localisation
+                            {t("Localisation", "Location")}
                           </p>
                           <p className="text-sm sm:text-base font-semibold text-gray-900">
                             {selected_agence.location}
@@ -1637,7 +1646,7 @@ export default function AgenceDashboardPage() {
                         </div>
                         <div>
                           <p className="text-xs sm:text-sm text-gray-600">
-                            Statut
+                            {t("Statut", "Status")}
                           </p>
                           <span className="inline-block mt-1 px-2 py-1 bg-green-100 text-green-800 text-xs sm:text-sm rounded-full font-semibold">
                             {selected_agence.statut_validation}
@@ -1645,7 +1654,7 @@ export default function AgenceDashboardPage() {
                         </div>
                         <div>
                           <p className="text-xs sm:text-sm text-gray-600">
-                            Date de validation
+                            {t("Date de validation", "Validation date")}
                           </p>
                           <p className="text-sm sm:text-base font-semibold text-gray-900">
                             {formatDateFull(selected_agence.date_validation)}
@@ -1654,7 +1663,7 @@ export default function AgenceDashboardPage() {
                         {selected_agence.description && (
                           <div className="sm:col-span-2 md:col-span-3">
                             <p className="text-xs sm:text-sm text-gray-600">
-                              Description
+                              {t("Description", "Description")}
                             </p>
                             <p className="text-sm sm:text-base text-gray-900">
                               {selected_agence.description}
@@ -1664,7 +1673,7 @@ export default function AgenceDashboardPage() {
                         {selected_agence.social_network && (
                           <div>
                             <p className="text-xs sm:text-sm text-gray-600">
-                              Réseau social
+                              {t("Réseau social", "Social network")}
                             </p>
                             <a
                               href={selected_agence.social_network}
@@ -1688,7 +1697,7 @@ export default function AgenceDashboardPage() {
                     >
                       <Bus className="w-6 h-6 sm:w-8 sm:h-8 text-[#6149CD] mx-auto mb-2" />
                       <p className="text-xs sm:text-sm font-medium text-gray-900">
-                        Gérer les voyages
+                        {t("Gérer les voyages", "Manage trips")}
                       </p>
                     </button>
                     <button
@@ -1697,7 +1706,7 @@ export default function AgenceDashboardPage() {
                     >
                       <Calendar className="w-6 h-6 sm:w-8 sm:h-8 text-[#6149CD] mx-auto mb-2" />
                       <p className="text-xs sm:text-sm font-medium text-gray-900">
-                        Réservations
+                        {t("Réservations", "Bookings")}
                       </p>
                     </button>
                     <button
@@ -1706,7 +1715,7 @@ export default function AgenceDashboardPage() {
                     >
                       <Users className="w-6 h-6 sm:w-8 sm:h-8 text-[#6149CD] mx-auto mb-2" />
                       <p className="text-xs sm:text-sm font-medium text-gray-900">
-                        Chauffeurs
+                        {t("Chauffeurs", "Drivers")}
                       </p>
                     </button>
                     <button
@@ -1715,7 +1724,7 @@ export default function AgenceDashboardPage() {
                     >
                       <Settings className="w-6 h-6 sm:w-8 sm:h-8 text-[#6149CD] mx-auto mb-2" />
                       <p className="text-xs sm:text-sm font-medium text-gray-900">
-                        Paramètres
+                        {t("Paramètres", "Settings")}
                       </p>
                     </button>
                   </div>

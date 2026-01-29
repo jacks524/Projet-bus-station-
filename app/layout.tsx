@@ -1,6 +1,8 @@
 import type { Metadata } from "next";
 import { Inter } from "next/font/google"; 
 import "./globals.css";
+import { Providers } from "./providers";
+import GlobalControls from "./components/global-controls";
 
 const inter = Inter({
   subsets: ["latin"],
@@ -20,9 +22,12 @@ export default function RootLayout({
   children: React.ReactNode;
 }>) {
   return (
-    <html lang="en">
+    <html lang="fr" suppressHydrationWarning>
       <body className={`${inter.className} antialiased`}>
-        {children}
+        <Providers>
+          <GlobalControls />
+          {children}
+        </Providers>
       </body>
     </html>
   );

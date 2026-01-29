@@ -29,6 +29,7 @@ import {
   User,
 } from "lucide-react";
 import { useRouter } from "next/navigation";
+import { useLanguage } from "../../../providers";
 
 /**
  * Agency Reservations Page Component
@@ -139,6 +140,7 @@ export default function AgenceReservationsPage() {
   const [total_elements, setTotalElements] = useState(0);
 
   const router = useRouter();
+  const { t } = useLanguage();
 
   const API_BASE_URL = process.env.NEXT_PUBLIC_API_BASE_URL;
   const BUTTON_COLOR = "#6149CD";
@@ -147,50 +149,50 @@ export default function AgenceReservationsPage() {
   const MENU_ITEMS = [
     {
       icon: Home,
-      label: "Dashboard",
+      label: t("Dashboard", "Dashboard"),
       path: "/user/agency/dashboard",
       active: false,
     },
     {
       icon: Bus,
-      label: "Voyages",
+      label: t("Voyages", "Trips"),
       path: "/user/agency/travels",
       active: false,
     },
     {
       icon: Calendar,
-      label: "Réservations",
+      label: t("Réservations", "Bookings"),
       path: "/user/agency/reservations",
       active: true,
     },
     {
       icon: Users,
-      label: "Chauffeurs",
+      label: t("Chauffeurs", "Drivers"),
       path: "/user/agency/drivers",
       active: false,
     },
     {
       icon: Settings,
-      label: "Mes paramètres",
+      label: t("Mes paramètres", "Settings"),
       path: "/user/agency/settings",
       active: false,
     },
   ];
 
   const RESERVATION_STATUSES = [
-    { value: "ALL", label: "Tous les statuts" },
-    { value: "RESERVER", label: "Réservé" },
-    { value: "CONFIRMER", label: "Confirmé" },
-    { value: "ANNULER", label: "Annulé" },
-    { value: "VALIDER", label: "Validé" },
+    { value: "ALL", label: t("Tous les statuts", "All statuses") },
+    { value: "RESERVER", label: t("Réservé", "Reserved") },
+    { value: "CONFIRMER", label: t("Confirmé", "Confirmed") },
+    { value: "ANNULER", label: t("Annulé", "Canceled") },
+    { value: "VALIDER", label: t("Validé", "Validated") },
   ];
 
   const PAYMENT_STATUSES = [
-    { value: "ALL", label: "Tous les paiements" },
-    { value: "NO_PAYMENT", label: "En attente" },
-    { value: "PAID", label: "Payé" },
-    { value: "FAILED", label: "Échoué" },
-    { value: "PENDING", label: "Pending" },
+    { value: "ALL", label: t("Tous les paiements", "All payments") },
+    { value: "NO_PAYMENT", label: t("En attente", "Pending") },
+    { value: "PAID", label: t("Payé", "Paid") },
+    { value: "FAILED", label: t("Échoué", "Failed") },
+    { value: "PENDING", label: t("En attente", "Pending") },
   ];
 
   useEffect(() => {
@@ -252,7 +254,9 @@ export default function AgenceReservationsPage() {
       );
 
       if (!response.ok) {
-        throw new Error("Erreur lors du chargement des agences");
+        throw new Error(
+          t("Erreur lors du chargement des agences", "Error loading agencies"),
+        );
       }
 
       const data = await response.json();
@@ -273,7 +277,9 @@ export default function AgenceReservationsPage() {
       }
     } catch (error: any) {
       console.error("Fetch Agences Error:", error);
-      setErrorMessage("Impossible de charger vos agences");
+      setErrorMessage(
+        t("Impossible de charger vos agences", "Unable to load your agencies"),
+      );
       setIsLoading(false);
     } finally {
       setIsLoadingAgences(false);
@@ -298,7 +304,12 @@ export default function AgenceReservationsPage() {
       );
 
       if (!response.ok) {
-        throw new Error("Erreur lors du chargement des réservations");
+        throw new Error(
+          t(
+            "Erreur lors du chargement des réservations",
+            "Error loading reservations"
+          ),
+        );
       }
 
       const data = await response.json();
@@ -315,7 +326,9 @@ export default function AgenceReservationsPage() {
       }
     } catch (error: any) {
       console.error("Fetch Reservations Error:", error);
-      setErrorMessage("Impossible de charger les réservations");
+      setErrorMessage(
+        t("Impossible de charger les réservations", "Unable to load bookings"),
+      );
     } finally {
       setIsLoading(false);
     }
@@ -396,20 +409,20 @@ export default function AgenceReservationsPage() {
 
   const getStatusLabel = (status: string) => {
     const labels: Record<string, string> = {
-      RESERVER: "Réservé",
-      CONFIRMER: "Confirmé",
-      ANNULER: "Annulé",
-      EXPIRER: "Expiré",
+      RESERVER: t("Réservé", "Reserved"),
+      CONFIRMER: t("Confirmé", "Confirmed"),
+      ANNULER: t("Annulé", "Canceled"),
+      EXPIRER: t("Expiré", "Expired"),
     };
     return labels[status] || status;
   };
 
   const getPaymentLabel = (status: string) => {
     const labels: Record<string, string> = {
-      PENDING: "En attente",
-      COMPLETED: "Payé",
-      FAILED: "Échoué",
-      REFUNDED: "Remboursé",
+      PENDING: t("En attente", "Pending"),
+      COMPLETED: t("Payé", "Paid"),
+      FAILED: t("Échoué", "Failed"),
+      REFUNDED: t("Remboursé", "Refunded"),
     };
     return labels[status] || status;
   };
@@ -579,7 +592,7 @@ export default function AgenceReservationsPage() {
                 <Menu className="w-5 h-5 sm:w-6 sm:h-6 text-gray-900" />
               </button>
               <h1 className="text-lg sm:text-2xl font-semibold text-gray-900">
-                Réservations
+                {t("Réservations", "Bookings")}
               </h1>
             </div>
 
@@ -587,7 +600,7 @@ export default function AgenceReservationsPage() {
               <button
                 onClick={handleRefresh}
                 className="p-1.5 sm:p-2 hover:bg-gray-100 rounded-lg transition-colors"
-                title="Actualiser"
+                title={t("Actualiser", "Refresh")}
               >
                 <RefreshCw className="w-5 h-5 sm:w-6 sm:h-6 text-gray-600" />
               </button>
@@ -631,14 +644,16 @@ export default function AgenceReservationsPage() {
                         className="w-full flex items-center space-x-3 px-4 py-2 hover:bg-gray-100 transition-colors"
                       >
                         <Settings className="w-4 h-4 text-gray-600" />
-                        <span className="text-gray-700">Paramètres</span>
+                        <span className="text-gray-700">
+                          {t("Paramètres", "Settings")}
+                        </span>
                       </button>
                       <button
                         onClick={handleLogout}
                         className="w-full flex items-center space-x-3 px-4 py-2 hover:bg-gray-100 transition-colors text-red-600"
                       >
                         <LogOut className="w-4 h-4" />
-                        <span>Se déconnecter</span>
+                        <span>{t("Se déconnecter", "Sign out")}</span>
                       </button>
                     </div>
                   </>
@@ -655,7 +670,9 @@ export default function AgenceReservationsPage() {
             <div className="flex items-center justify-center py-20">
               <div className="text-center">
                 <RefreshCw className="w-8 h-8 text-[#6149CD] animate-spin mx-auto mb-4" />
-                <p className="text-gray-600">Chargement en cours...</p>
+                <p className="text-gray-600">
+                  {t("Chargement en cours...", "Loading...")}
+                </p>
               </div>
             </div>
           )}
@@ -670,7 +687,7 @@ export default function AgenceReservationsPage() {
                 onClick={() => window.location.reload()}
                 className="px-4 sm:px-6 py-2.5 sm:py-3 bg-[#6149CD] text-white rounded-lg hover:opacity-75 transition-colors text-sm sm:text-base"
               >
-                Réessayer
+                {t("Réessayer", "Try again")}
               </button>
             </div>
           )}
@@ -680,17 +697,20 @@ export default function AgenceReservationsPage() {
             <div className="bg-white rounded-xl shadow-sm border border-gray-200 p-6 sm:p-12 text-center">
               <Building2 className="w-12 h-12 sm:w-16 sm:h-16 text-gray-400 mx-auto mb-4" />
               <h3 className="text-lg sm:text-xl font-semibold text-gray-900 mb-2">
-                Aucune agence validée
+                {t("Aucune agence validée", "No validated agency")}
               </h3>
               <p className="text-sm sm:text-base text-gray-600 mb-6">
-                Vous n'avez pas encore d'agence validée
+                {t(
+                  "Vous n'avez pas encore d'agence validée",
+                  "You don't have a validated agency yet"
+                )}
               </p>
               <button
                 onClick={() => router.push("/user/agency/dashboard")}
                 style={{ backgroundColor: BUTTON_COLOR }}
                 className="px-4 sm:px-6 py-2.5 sm:py-3 text-white rounded-lg hover:opacity-90 transition-opacity text-sm sm:text-base"
               >
-                Retour au dashboard
+                {t("Retour au dashboard", "Back to dashboard")}
               </button>
             </div>
           )}
@@ -707,10 +727,10 @@ export default function AgenceReservationsPage() {
                     </div>
                     <div className="min-w-0 flex-1">
                       <p className="text-xs sm:text-sm text-gray-600">
-                        Agence sélectionnée
+                        {t("Agence sélectionnée", "Selected agency")}
                       </p>
                       <h2 className="text-base sm:text-xl font-bold text-gray-900 truncate">
-                        {selected_agence?.long_name || "Aucune"}
+                        {selected_agence?.long_name || t("Aucune", "None")}
                       </h2>
                     </div>
                   </div>
@@ -724,7 +744,7 @@ export default function AgenceReservationsPage() {
                         className="w-full sm:w-auto flex items-center justify-center space-x-2 px-4 py-2 border border-gray-300 rounded-lg hover:bg-gray-50 transition-colors"
                       >
                         <span className="text-gray-700 text-sm sm:text-base">
-                          Changer
+                          {t("Changer", "Switch")}
                         </span>
                         <ChevronDown className="w-4 h-4 text-gray-600" />
                       </button>
@@ -769,7 +789,7 @@ export default function AgenceReservationsPage() {
                   <div className="flex items-center space-x-2 mb-2">
                     <FileText className="w-4 h-4 sm:w-5 sm:h-5 text-[#6149CD]" />
                     <span className="text-xs sm:text-sm text-gray-600">
-                      Total
+                      {t("Total", "Total")}
                     </span>
                   </div>
                   <p className="text-xl sm:text-2xl font-bold text-gray-900">
@@ -781,7 +801,7 @@ export default function AgenceReservationsPage() {
                   <div className="flex items-center space-x-2 mb-2">
                     <Clock className="w-4 h-4 sm:w-5 sm:h-5 text-orange-500" />
                     <span className="text-xs sm:text-sm text-gray-600">
-                      En attente
+                      {t("En attente", "Pending")}
                     </span>
                   </div>
                   <p className="text-xl sm:text-2xl font-bold text-orange-600">
@@ -793,7 +813,7 @@ export default function AgenceReservationsPage() {
                   <div className="flex items-center space-x-2 mb-2">
                     <CheckCircle className="w-4 h-4 sm:w-5 sm:h-5 text-green-500" />
                     <span className="text-xs sm:text-sm text-gray-600">
-                      Confirmées
+                      {t("Confirmées", "Confirmed")}
                     </span>
                   </div>
                   <p className="text-xl sm:text-2xl font-bold text-green-600">
@@ -805,7 +825,7 @@ export default function AgenceReservationsPage() {
                   <div className="flex items-center space-x-2 mb-2">
                     <CreditCard className="w-4 h-4 sm:w-5 sm:h-5 text-green-500" />
                     <span className="text-xs sm:text-sm text-gray-600">
-                      Revenus
+                      {t("Revenus", "Revenue")}
                     </span>
                   </div>
                   <p className="text-lg sm:text-xl font-bold text-green-600 truncate">
@@ -821,7 +841,10 @@ export default function AgenceReservationsPage() {
                     <Search className="absolute left-3 top-1/2 transform -translate-y-1/2 w-4 h-4 sm:w-5 sm:h-5 text-gray-400" />
                     <input
                       type="text"
-                      placeholder="Rechercher par ID, départ, arrivée..."
+                      placeholder={t(
+                        "Rechercher par ID, départ, arrivée...",
+                        "Search by ID, departure, arrival..."
+                      )}
                       value={search_query}
                       onChange={(e) => setSearchQuery(e.target.value)}
                       className="w-full pl-9 sm:pl-10 pr-4 py-2 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-[#6149CD] focus:border-transparent text-gray-800 placeholder:text-gray-400 text-sm sm:text-base"
@@ -874,7 +897,7 @@ export default function AgenceReservationsPage() {
                     onClick={handleRefresh}
                     className="mt-4 px-4 py-2 bg-red-600 text-white rounded-lg hover:bg-red-700 transition-colors text-sm sm:text-base"
                   >
-                    Réessayer
+                    {t("Réessayer", "Try again")}
                   </button>
                 </div>
               )}
@@ -886,14 +909,20 @@ export default function AgenceReservationsPage() {
                     <div className="bg-white rounded-xl shadow-sm border border-gray-200 p-8 sm:p-12 text-center">
                       <FileText className="w-12 h-12 sm:w-16 sm:h-16 text-gray-400 mx-auto mb-4" />
                       <h3 className="text-lg sm:text-xl font-semibold text-gray-900 mb-2">
-                        Aucune réservation trouvée
+                        {t("Aucune réservation trouvée", "No bookings found")}
                       </h3>
                       <p className="text-sm sm:text-base text-gray-600">
                         {search_query ||
                         status_filter !== "ALL" ||
                         payment_filter !== "ALL"
-                          ? "Aucune réservation ne correspond à vos critères de recherche"
-                          : "Il n'y a pas encore de réservations pour cette agence"}
+                          ? t(
+                              "Aucune réservation ne correspond à vos critères de recherche",
+                              "No bookings match your search criteria"
+                            )
+                          : t(
+                              "Il n'y a pas encore de réservations pour cette agence",
+                              "There are no bookings for this agency yet"
+                            )}
                       </p>
                     </div>
                   ) : (
@@ -904,28 +933,28 @@ export default function AgenceReservationsPage() {
                           <thead className="bg-gray-50 border-b border-gray-200">
                             <tr>
                               <th className="text-left py-3 px-4 text-gray-600 font-semibold text-sm">
-                                ID Réservation
+                                {t("ID Réservation", "Booking ID")}
                               </th>
                               <th className="text-left py-3 px-4 text-gray-600 font-semibold text-sm">
-                                Trajet
+                                {t("Trajet", "Route")}
                               </th>
                               <th className="text-left py-3 px-4 text-gray-600 font-semibold text-sm">
-                                Date départ
+                                {t("Date départ", "Departure date")}
                               </th>
                               <th className="text-left py-3 px-4 text-gray-600 font-semibold text-sm">
-                                Passagers
+                                {t("Passagers", "Passengers")}
                               </th>
                               <th className="text-left py-3 px-4 text-gray-600 font-semibold text-sm">
-                                Montant
+                                {t("Montant", "Amount")}
                               </th>
                               <th className="text-left py-3 px-4 text-gray-600 font-semibold text-sm">
-                                Statut
+                                {t("Statut", "Status")}
                               </th>
                               <th className="text-left py-3 px-4 text-gray-600 font-semibold text-sm">
-                                Paiement
+                                {t("Paiement", "Payment")}
                               </th>
                               <th className="text-left py-3 px-4 text-gray-600 font-semibold text-sm">
-                                Actions
+                                {t("Actions", "Actions")}
                               </th>
                             </tr>
                           </thead>
@@ -945,7 +974,8 @@ export default function AgenceReservationsPage() {
                                   <div className="flex items-center space-x-1">
                                     <MapPin className="w-3 h-3 text-gray-400" />
                                     <span className="text-sm text-gray-900">
-                                      {data.voyage.lieuDepart} vers{" "}
+                                      {data.voyage.lieuDepart}{" "}
+                                      {t("vers", "to")}{" "}
                                       {data.voyage.lieuArrive}
                                     </span>
                                   </div>
@@ -996,7 +1026,7 @@ export default function AgenceReservationsPage() {
                                     onClick={() => openDetailModal(data)}
                                     style={{ backgroundColor: BUTTON_COLOR }}
                                     className="p-2 text-white rounded-lg hover:opacity-90 transition-opacity"
-                                    title="Voir détails"
+                                    title={t("Voir détails", "View details")}
                                   >
                                     <Eye className="w-4 h-4" />
                                   </button>
@@ -1022,7 +1052,8 @@ export default function AgenceReservationsPage() {
                                 <div className="flex items-center space-x-1">
                                   <MapPin className="w-3 h-3 text-gray-400" />
                                   <span className="text-sm font-semibold text-gray-900">
-                                    {data.voyage.lieuDepart} vers{" "}
+                                    {data.voyage.lieuDepart}{" "}
+                                    {t("vers", "to")}{" "}
                                     {data.voyage.lieuArrive}
                                   </span>
                                 </div>
@@ -1047,15 +1078,18 @@ export default function AgenceReservationsPage() {
                               </div>
                               <div className="flex items-center space-x-1">
                                 <Users className="w-3 h-3 text-gray-400" />
-                                <span className="text-gray-600">
-                                  {data.reservation.nbrPassager} passager(s)
-                                </span>
+                                  <span className="text-gray-600">
+                                  {data.reservation.nbrPassager}{" "}
+                                  {t("passager(s)", "passenger(s)")}
+                                  </span>
                               </div>
                             </div>
 
                             <div className="flex items-center justify-between pt-3 border-t border-gray-200">
                               <div>
-                                <p className="text-xs text-gray-500">Montant</p>
+                                <p className="text-xs text-gray-500">
+                                  {t("Montant", "Amount")}
+                                </p>
                                 <p className="text-sm font-bold text-gray-900">
                                   {formatCurrency(data.reservation.prixTotal)}
                                 </p>
@@ -1094,12 +1128,13 @@ export default function AgenceReservationsPage() {
                             className="w-full sm:w-auto flex items-center justify-center space-x-2 px-3 sm:px-4 py-2 border border-gray-300 rounded-lg hover:bg-gray-100 disabled:opacity-50 disabled:cursor-not-allowed transition-colors text-sm sm:text-base"
                           >
                             <ChevronLeft className="w-4 h-4 sm:w-5 sm:h-5" />
-                            <span>Précédent</span>
+                            <span>{t("Précédent", "Previous")}</span>
                           </button>
 
                           <span className="text-gray-600 text-sm sm:text-base order-first sm:order-0">
-                            Page {current_page + 1} sur {total_pages} (
-                            {total_elements} réservations)
+                            {t("Page", "Page")} {current_page + 1}{" "}
+                            {t("sur", "of")} {total_pages} ({total_elements}{" "}
+                            {t("réservations", "bookings")})
                           </span>
 
                           <button
@@ -1111,7 +1146,7 @@ export default function AgenceReservationsPage() {
                             disabled={current_page === total_pages - 1}
                             className="w-full sm:w-auto flex items-center justify-center space-x-2 px-3 sm:px-4 py-2 border border-gray-300 rounded-lg hover:bg-gray-100 disabled:opacity-50 disabled:cursor-not-allowed transition-colors text-sm sm:text-base"
                           >
-                            <span>Suivant</span>
+                            <span>{t("Suivant", "Next")}</span>
                             <ChevronRight className="w-4 h-4 sm:w-5 sm:h-5" />
                           </button>
                         </div>
@@ -1131,7 +1166,7 @@ export default function AgenceReservationsPage() {
           <div className="bg-white rounded-2xl shadow-2xl max-w-2xl w-full max-h-[90vh] overflow-y-auto">
             <div className="sticky top-0 bg-white flex items-center justify-between p-4 sm:p-6 border-b border-gray-200">
               <h2 className="text-xl sm:text-2xl font-bold text-gray-900">
-                Détails de la réservation
+                {t("Détails de la réservation", "Booking details")}
               </h2>
               <button
                 onClick={() => setShowDetailModal(false)}
@@ -1146,17 +1181,23 @@ export default function AgenceReservationsPage() {
               <div className="bg-gray-50 rounded-xl p-4">
                 <h3 className="font-bold text-gray-900 mb-3 flex items-center space-x-2">
                   <FileText className="w-5 h-5 text-[#6149CD]" />
-                  <span>Informations de la réservation</span>
+                  <span>
+                    {t("Informations de la réservation", "Booking information")}
+                  </span>
                 </h3>
                 <div className="grid grid-cols-1 sm:grid-cols-2 gap-3">
                   <div>
-                    <p className="text-xs text-gray-500">ID Réservation</p>
+                    <p className="text-xs text-gray-500">
+                      {t("ID Réservation", "Booking ID")}
+                    </p>
                     <p className="text-sm font-mono text-gray-900">
                       {selected_reservation.reservation.idReservation}
                     </p>
                   </div>
                   <div>
-                    <p className="text-xs text-gray-500">Date de réservation</p>
+                    <p className="text-xs text-gray-500">
+                      {t("Date de réservation", "Booking date")}
+                    </p>
                     <p className="text-sm text-gray-900">
                       {formatDate(
                         selected_reservation.reservation.dateReservation,
@@ -1164,7 +1205,9 @@ export default function AgenceReservationsPage() {
                     </p>
                   </div>
                   <div>
-                    <p className="text-xs text-gray-500">Statut</p>
+                    <p className="text-xs text-gray-500">
+                      {t("Statut", "Status")}
+                    </p>
                     <span
                       className={`inline-flex items-center space-x-1 px-2 py-1 rounded-full text-xs font-semibold ${getStatusBadge(
                         selected_reservation.reservation.statutReservation,
@@ -1181,7 +1224,9 @@ export default function AgenceReservationsPage() {
                     </span>
                   </div>
                   <div>
-                    <p className="text-xs text-gray-500">Nombre de passagers</p>
+                    <p className="text-xs text-gray-500">
+                      {t("Nombre de passagers", "Number of passengers")}
+                    </p>
                     <p className="text-sm font-semibold text-gray-900">
                       {selected_reservation.reservation.nbrPassager}
                     </p>
@@ -1193,35 +1238,38 @@ export default function AgenceReservationsPage() {
               <div className="bg-purple-50 rounded-xl p-4">
                 <h3 className="font-bold text-gray-900 mb-3 flex items-center space-x-2">
                   <Bus className="w-5 h-5 text-[#6149CD]" />
-                  <span>Informations du voyage</span>
+                  <span>{t("Informations du voyage", "Trip information")}</span>
                 </h3>
                 <div className="space-y-3">
                   <div className="flex items-center space-x-2">
                     <MapPin className="w-4 h-4 text-gray-500" />
                     <span className="text-sm text-gray-900">
-                      <strong>Trajet :</strong>{" "}
-                      {selected_reservation.voyage.lieuDepart} vers{" "}
-                      {selected_reservation.voyage.lieuArrive}
+                      <strong>{t("Trajet :", "Route:")}</strong>{" "}
+                      {selected_reservation.voyage.lieuDepart}{" "}
+                      {t("vers", "to")} {selected_reservation.voyage.lieuArrive}
                     </span>
                   </div>
                   <div className="flex items-center space-x-2">
                     <Compass className="w-4 h-4 text-gray-500" />
                     <span className="text-sm text-gray-900">
-                      <strong>Itinéraire :</strong>{" "}
-                      {selected_reservation.voyage.pointDeDepart} vers{" "}
+                      <strong>{t("Itinéraire :", "Itinerary:")}</strong>{" "}
+                      {selected_reservation.voyage.pointDeDepart}{" "}
+                      {t("vers", "to")}{" "}
                       {selected_reservation.voyage.pointArrivee}
                     </span>
                   </div>
                   <div className="flex items-center space-x-2">
                     <Clock className="w-4 h-4 text-gray-500" />
                     <span className="text-sm text-gray-900">
-                      <strong>Date de départ :</strong>{" "}
+                      <strong>{t("Date de départ :", "Departure date:")}</strong>{" "}
                       {formatDate(selected_reservation.voyage.dateDepartPrev)}
                     </span>
                   </div>
                   {selected_reservation.voyage.titre && (
                     <div>
-                      <p className="text-xs text-gray-500">Titre du voyage</p>
+                      <p className="text-xs text-gray-500">
+                        {t("Titre du voyage", "Trip title")}
+                      </p>
                       <p className="text-sm text-gray-900">
                         {selected_reservation.voyage.titre}
                       </p>
@@ -1234,11 +1282,13 @@ export default function AgenceReservationsPage() {
               <div className="bg-green-50 rounded-xl p-4">
                 <h3 className="font-bold text-gray-900 mb-3 flex items-center space-x-2">
                   <CreditCard className="w-5 h-5 text-green-600" />
-                  <span>Informations de paiement</span>
+                  <span>{t("Informations de paiement", "Payment information")}</span>
                 </h3>
                 <div className="grid grid-cols-1 sm:grid-cols-2 gap-3">
                   <div>
-                    <p className="text-xs text-gray-500">Prix total</p>
+                    <p className="text-xs text-gray-500">
+                      {t("Prix total", "Total price")}
+                    </p>
                     <p className="text-lg font-bold text-[#6149CD]">
                       {formatCurrency(
                         selected_reservation.reservation.prixTotal,
@@ -1246,7 +1296,9 @@ export default function AgenceReservationsPage() {
                     </p>
                   </div>
                   <div>
-                    <p className="text-xs text-gray-500">Montant payé</p>
+                    <p className="text-xs text-gray-500">
+                      {t("Montant payé", "Amount paid")}
+                    </p>
                     <p className="text-lg font-bold text-green-600">
                       {formatCurrency(
                         selected_reservation.reservation.montantPaye,
@@ -1254,7 +1306,9 @@ export default function AgenceReservationsPage() {
                     </p>
                   </div>
                   <div>
-                    <p className="text-xs text-gray-500">Statut du paiement</p>
+                    <p className="text-xs text-gray-500">
+                      {t("Statut du paiement", "Payment status")}
+                    </p>
                     <span
                       className={`inline-block mt-1 px-2 py-1 rounded-full text-xs font-semibold ${getPaymentBadge(
                         selected_reservation.reservation.statutPayement,
@@ -1268,7 +1322,7 @@ export default function AgenceReservationsPage() {
                   {selected_reservation.reservation.transactionCode && (
                     <div>
                       <p className="text-xs text-gray-500">
-                        Code de transaction
+                        {t("Code de transaction", "Transaction code")}
                       </p>
                       <p className="text-sm font-mono text-gray-900">
                         {selected_reservation.reservation.transactionCode}
@@ -1282,10 +1336,12 @@ export default function AgenceReservationsPage() {
               <div className="bg-blue-50 rounded-xl p-4">
                 <h3 className="font-bold text-gray-900 mb-3 flex items-center space-x-2">
                   <User className="w-5 h-5 text-blue-600" />
-                  <span>Client</span>
+                  <span>{t("Client", "Customer")}</span>
                 </h3>
                 <div>
-                  <p className="text-xs text-gray-500">ID Utilisateur</p>
+                  <p className="text-xs text-gray-500">
+                    {t("ID Utilisateur", "User ID")}
+                  </p>
                   <p className="text-sm font-mono text-gray-900">
                     {selected_reservation.reservation.idUser}
                   </p>
@@ -1298,7 +1354,7 @@ export default function AgenceReservationsPage() {
                 onClick={() => setShowDetailModal(false)}
                 className="w-full py-3 border-2 border-gray-300 text-gray-700 rounded-xl font-semibold hover:bg-gray-100 transition-colors"
               >
-                Fermer
+                {t("Fermer", "Close")}
               </button>
             </div>
           </div>

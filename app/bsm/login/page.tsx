@@ -4,6 +4,7 @@ import React, { useState, useEffect } from "react";
 import { Eye, EyeOff } from "lucide-react";
 import Image from "next/image";
 import { useRouter } from "next/navigation";
+import { useLanguage } from "../../providers";
 
 /**
  * Login Page Component
@@ -23,6 +24,7 @@ export default function LoginBSMPage() {
   const [is_loading, setIsLoading] = useState(false);
   const [error_message, setErrorMessage] = useState("");
   const router = useRouter();
+  const { t } = useLanguage();
 
   const CAROUSEL_IMAGES = [
     "/images/siege3.jpg",
@@ -37,7 +39,7 @@ export default function LoginBSMPage() {
     setErrorMessage("");
 
     if (!username || !password) {
-      setErrorMessage("Veuillez remplir tous les champs");
+      setErrorMessage(t("Veuillez remplir tous les champs", "Please fill in all fields"));
       return;
     }
 
@@ -56,13 +58,13 @@ export default function LoginBSMPage() {
       });
 
       if (!response.ok) {
-        throw new Error("Identifiants incorrects");
+        throw new Error(t("Identifiants incorrects", "Invalid credentials"));
       }
 
       const data = await response.json();
 
       if (!data.role.includes("BSM")) {
-        throw new Error("Accès réservé aux administrateurs BSM uniquement");
+        throw new Error(t("Accès réservé aux administrateurs BSM uniquement", "Access restricted to BSM administrators only"));
       }
 
       sessionStorage.setItem("bsm_token", data.token);
@@ -70,7 +72,7 @@ export default function LoginBSMPage() {
 
       router.push("/user/bsm/dashboard");
     } catch (error: any) {
-      setErrorMessage("Une erreur est survenue lors de la connexion");
+      setErrorMessage(t("Une erreur est survenue lors de la connexion", "An error occurred during login"));
       console.error("Login error:", error);
     } finally {
       setIsLoading(false);
@@ -111,10 +113,10 @@ export default function LoginBSMPage() {
 
           {/* Title */}
           <h1 className="text-4xl lg:text-5xl font-normal text-gray-900 mb-3">
-            Se connecter BSM
+            {t("Se connecter BSM", "BSM sign in")}
           </h1>
           <p className="text-gray-600 mb-10 text-base">
-            Pilotez vos opérations en toute sécurité
+            {t("Pilotez vos opérations en toute sécurité", "Manage your operations securely")}
           </p>
 
           {/* Login Form */}
@@ -129,7 +131,7 @@ export default function LoginBSMPage() {
             {/* username Field */}
             <fieldset className="h-15 border border-gray-500 rounded-lg px-4 pt-1 pb-3 hover:border-[#6149CD] focus-within:border-[#6149CD] transition-colors">
               <legend className="text-sm text-gray-700 px-2">
-                Nom d&apos;utilisateur
+                {t("Nom d'utilisateur", "Username")}
               </legend>
               <input
                 type="text"
@@ -142,7 +144,7 @@ export default function LoginBSMPage() {
             {/* Password Field */}
             <fieldset className="h-15 border border-gray-500 rounded-lg px-4 pt-1 pb-3 relative hover:border-[#6149CD] focus-within:border-[#6149CD] transition-colors">
               <legend className="text-sm text-gray-700 px-2">
-                Mot de passe
+                {t("Mot de passe", "Password")}
               </legend>
               <div className="flex items-center">
                 <input
@@ -172,7 +174,7 @@ export default function LoginBSMPage() {
               style={{ backgroundColor: BUTTON_COLOR }}
               className="h-12 w-full text-black rounded-md font-bold hover:opacity-95 transition-opacity focus:outline-none focus:ring-2 focus:ring-purple-500 focus:ring-offset-2 mt-3 disabled:opacity-50 disabled:cursor-not-allowed"
             >
-              {is_loading ? "Connexion en cours..." : "Se connecter"}
+              {is_loading ? t("Connexion en cours...", "Signing in...") : t("Se connecter", "Sign in")}
             </button>
           </div>
         </div>
@@ -191,7 +193,7 @@ export default function LoginBSMPage() {
                 <div key={index} className="min-w-full h-full relative">
                   <Image
                     src={image_path}
-                    alt={`Slide ${index + 1}`}
+                    alt={t(`Diapositive ${index + 1}`, `Slide ${index + 1}`)}
                     fill
                     style={{ objectFit: "cover" }}
                     quality={75}
@@ -214,7 +216,7 @@ export default function LoginBSMPage() {
                     width: current_slide === index ? "32px" : "8px",
                   }}
                   className="h-2 rounded-full transition-all duration-300"
-                  aria-label={`Go to slide ${index + 1}`}
+                  aria-label={t(`Aller à la diapositive ${index + 1}`, `Go to slide ${index + 1}`)}
                 />
               ))}
             </div>

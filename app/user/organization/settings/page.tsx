@@ -18,6 +18,7 @@ import {
   Briefcase,
 } from "lucide-react";
 import { useRouter } from "next/navigation";
+import { useLanguage } from "../../../providers";
 
 interface UserProfile {
   userId: string;
@@ -48,6 +49,7 @@ export default function DGSettingsPage() {
   const [show_profile_menu, setShowProfileMenu] = useState(false);
   const [show_mobile_menu, setShowMobileMenu] = useState(false);
   const router = useRouter();
+  const { t } = useLanguage();
 
   const API_BASE_URL = process.env.NEXT_PUBLIC_API_BASE_URL;
   const BUTTON_COLOR = "#6149CD";
@@ -55,25 +57,25 @@ export default function DGSettingsPage() {
   const MENU_ITEMS = [
     {
       icon: Home,
-      label: "Dashboard",
+      label: t("Dashboard", "Dashboard"),
       path: "/user/organization/dashboard",
       active: false,
     },
     {
       icon: Briefcase,
-      label: "Organisation",
+      label: t("Organisation", "Organization"),
       path: "/user/organization/organization",
       active: false,
     },
     {
       icon: Building2,
-      label: "Agence",
+      label: t("Agence", "Agency"),
       path: "/user/organization/agencies",
       active: false,
     },
     {
       icon: Settings,
-      label: "Mes paramètres",
+      label: t("Mes paramètres", "Settings"),
       path: "/user/organization/settings",
       active: true,
     },
@@ -110,7 +112,9 @@ export default function DGSettingsPage() {
       });
 
       if (!response.ok) {
-        throw new Error("Erreur lors du chargement du profil");
+        throw new Error(
+          t("Erreur lors du chargement du profil", "Error loading profile"),
+        );
       }
 
       const data = await response.json();
@@ -131,7 +135,12 @@ export default function DGSettingsPage() {
       // Combiner les données de l'API avec celles du storage
       setUserProfile({ ...data, email, organization_id });
     } catch (error: any) {
-      setErrorMessage("Impossible de charger les informations du profil");
+      setErrorMessage(
+        t(
+          "Impossible de charger les informations du profil",
+          "Unable to load profile information"
+        ),
+      );
       console.error("Fetch Profile Error:", error);
     } finally {
       setIsLoading(false);
@@ -148,10 +157,10 @@ export default function DGSettingsPage() {
 
   const getRoleLabel = (role: string) => {
     const role_labels: { [key: string]: string } = {
-      USAGER: "Client",
-      AGENCE_VOYAGE: "Agence de voyage",
-      ORGANISATION: "Directeur Général",
-      BSM: "Administrateur BSM",
+      USAGER: t("Client", "Customer"),
+      AGENCE_VOYAGE: t("Agence de voyage", "Travel agency"),
+      ORGANISATION: t("Directeur Général", "General Director"),
+      BSM: t("Administrateur BSM", "BSM Admin"),
     };
     return role_labels[role] || role;
   };
@@ -268,7 +277,7 @@ export default function DGSettingsPage() {
                 <Menu className="w-5 h-5 sm:w-6 sm:h-6 text-gray-900" />
               </button>
               <h1 className="text-lg sm:text-2xl font-semibold text-gray-900">
-                Mes paramètres
+                {t("Mes paramètres", "Settings")}
               </h1>
             </div>
 
@@ -305,14 +314,16 @@ export default function DGSettingsPage() {
                         className="w-full flex items-center space-x-3 px-4 py-2 hover:bg-gray-100 transition-colors"
                       >
                         <Settings className="w-4 h-4 text-gray-600" />
-                        <span className="text-gray-700">Paramètres</span>
+                        <span className="text-gray-700">
+                          {t("Paramètres", "Settings")}
+                        </span>
                       </button>
                       <button
                         onClick={handleLogout}
                         className="w-full flex items-center space-x-3 px-4 py-2 hover:bg-gray-100 transition-colors text-red-600"
                       >
                         <LogOut className="w-4 h-4" />
-                        <span>Se déconnecter</span>
+                        <span>{t("Se déconnecter", "Sign out")}</span>
                       </button>
                     </div>
                   </>
@@ -329,7 +340,7 @@ export default function DGSettingsPage() {
               <div className="text-center">
                 <Settings className="w-10 h-10 sm:w-12 sm:h-12 text-[#6149CD] animate-spin mx-auto mb-4" />
                 <p className="text-gray-600 text-sm sm:text-base">
-                  Chargement de votre profil...
+                  {t("Chargement de votre profil...", "Loading your profile...")}
                 </p>
               </div>
             </div>
@@ -345,7 +356,7 @@ export default function DGSettingsPage() {
                 style={{ backgroundColor: BUTTON_COLOR }}
                 className="px-4 sm:px-6 py-2 text-white rounded-lg hover:opacity-90 transition-opacity text-sm sm:text-base"
               >
-                Réessayer
+                {t("Réessayer", "Try again")}
               </button>
             </div>
           )}
@@ -383,12 +394,12 @@ export default function DGSettingsPage() {
               <div className="bg-white rounded-lg shadow-sm border border-gray-200 p-4 sm:p-6">
                 <h3 className="text-base sm:text-lg font-semibold text-gray-900 mb-4 flex items-center space-x-2">
                   <UserCircle className="w-5 h-5 text-[#6149CD]" />
-                  <span>Informations personnelles</span>
+                  <span>{t("Informations personnelles", "Personal information")}</span>
                 </h3>
                 <div className="grid grid-cols-1 md:grid-cols-2 gap-4 sm:gap-6">
                   <div>
                     <label className="block text-sm font-medium text-gray-700 mb-2">
-                      Prénom
+                      {t("Prénom", "First name")}
                     </label>
                     <input
                       type="text"
@@ -399,7 +410,7 @@ export default function DGSettingsPage() {
                   </div>
                   <div>
                     <label className="block text-sm font-medium text-gray-700 mb-2">
-                      Nom
+                      {t("Nom", "Last name")}
                     </label>
                     <input
                       type="text"
@@ -415,18 +426,20 @@ export default function DGSettingsPage() {
               <div className="bg-white rounded-lg shadow-sm border border-gray-200 p-4 sm:p-6">
                 <h3 className="text-base sm:text-lg font-semibold text-gray-900 mb-4 flex items-center space-x-2">
                   <Phone className="w-5 h-5 text-[#6149CD]" />
-                  <span>Coordonnées</span>
+                  <span>{t("Coordonnées", "Contact details")}</span>
                 </h3>
                 <div className="grid grid-cols-1 md:grid-cols-2 gap-4 sm:gap-6">
                   <div>
                     <label className="block text-sm font-medium text-gray-700 mb-2">
-                      Téléphone
+                      {t("Téléphone", "Phone")}
                     </label>
                     <div className="flex items-center space-x-2">
                       <Phone className="w-4 h-4 text-gray-400 shrink-0" />
                       <input
                         type="text"
-                        value={user_profile.phone_number || "Non renseigné"}
+                        value={
+                          user_profile.phone_number || t("Non renseigné", "Not provided")
+                        }
                         readOnly
                         className="flex-1 px-3 sm:px-4 py-2 border border-gray-300 rounded-lg bg-gray-50 text-gray-900 text-sm sm:text-base min-w-0"
                       />
@@ -434,13 +447,13 @@ export default function DGSettingsPage() {
                   </div>
                   <div>
                     <label className="block text-sm font-medium text-gray-700 mb-2">
-                      Email
+                      {t("Email", "Email")}
                     </label>
                     <div className="flex items-center space-x-2">
                       <Mail className="w-4 h-4 text-gray-400 shrink-0" />
                       <input
                         type="email"
-                        value={user_profile.email || "Non renseigné"}
+                        value={user_profile.email || t("Non renseigné", "Not provided")}
                         readOnly
                         className="flex-1 px-3 sm:px-4 py-2 border border-gray-300 rounded-lg bg-gray-50 text-gray-900 text-sm sm:text-base min-w-0"
                       />
@@ -450,7 +463,7 @@ export default function DGSettingsPage() {
                 {user_profile.address && (
                   <div className="mt-4 sm:mt-6">
                     <label className="block text-sm font-medium text-gray-700 mb-2">
-                      Adresse
+                      {t("Adresse", "Address")}
                     </label>
                     <div className="flex items-start space-x-2">
                       <MapPinned className="w-4 h-4 text-gray-400 mt-2.5 shrink-0" />
@@ -469,12 +482,12 @@ export default function DGSettingsPage() {
               <div className="bg-white rounded-lg shadow-sm border border-gray-200 p-4 sm:p-6">
                 <h3 className="text-base sm:text-lg font-semibold text-gray-900 mb-4 flex items-center space-x-2">
                   <User className="w-5 h-5 text-[#6149CD]" />
-                  <span>Informations du compte</span>
+                  <span>{t("Informations du compte", "Account information")}</span>
                 </h3>
                 <div className="grid grid-cols-1 md:grid-cols-2 gap-4 sm:gap-6">
                   <div>
                     <label className="block text-sm font-medium text-gray-700 mb-2">
-                      Nom d'utilisateur
+                      {t("Nom d'utilisateur", "Username")}
                     </label>
                     <input
                       type="text"
@@ -485,7 +498,7 @@ export default function DGSettingsPage() {
                   </div>
                   <div>
                     <label className="block text-sm font-medium text-gray-700 mb-2">
-                      ID utilisateur
+                      {t("ID utilisateur", "User ID")}
                     </label>
                     <input
                       type="text"
@@ -497,7 +510,7 @@ export default function DGSettingsPage() {
                   {user_profile.organization_id && (
                     <div className="md:col-span-2">
                       <label className="block text-sm font-medium text-gray-700 mb-2">
-                        ID Organisation
+                        {t("ID Organisation", "Organization ID")}
                       </label>
                       <div className="flex items-center space-x-2">
                         <Briefcase className="w-4 h-4 text-gray-400 shrink-0" />
@@ -519,13 +532,13 @@ export default function DGSettingsPage() {
                   onClick={() => router.push("/user/organization/dashboard")}
                   className="px-4 sm:px-6 py-2.5 border border-gray-300 text-gray-700 rounded-lg hover:bg-gray-100 active:bg-gray-200 transition-colors text-sm sm:text-base order-2 sm:order-1"
                 >
-                  Retour au dashboard
+                  {t("Retour au dashboard", "Back to dashboard")}
                 </button>
                 <button
                   onClick={handleLogout}
                   className="px-4 sm:px-6 py-2.5 bg-red-600 text-white rounded-lg hover:bg-red-700 active:bg-red-800 transition-colors text-sm sm:text-base order-1 sm:order-2"
                 >
-                  Se déconnecter
+                  {t("Se déconnecter", "Sign out")}
                 </button>
               </div>
             </div>

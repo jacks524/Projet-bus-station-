@@ -20,6 +20,7 @@ import {
   Coins,
 } from "lucide-react";
 import { useRouter } from "next/navigation";
+import { useLanguage } from "../../../providers";
 
 interface Historique {
   idHistorique: string;
@@ -61,45 +62,46 @@ export default function ClientHistoryPage() {
   const [user_data, setUserData] = useState<UserData | null>(null);
 
   const router = useRouter();
+  const { t } = useLanguage();
 
   const API_BASE_URL = process.env.NEXT_PUBLIC_API_BASE_URL;
   const BUTTON_COLOR = "#6149CD";
 
   const MENU_ITEMS = [
-    { icon: Home, label: "Accueil", path: "/user/client/home", active: false },
+    { icon: Home, label: t("Accueil", "Home"), path: "/user/client/home", active: false },
     {
       icon: Calendar,
-      label: "Réserver",
+      label: t("Réserver", "Book"),
       path: "/user/client/book",
       active: false,
     },
     {
       icon: FileText,
-      label: "Réservations",
+      label: t("Réservations", "Bookings"),
       path: "/user/client/reservations",
       active: false,
     },
     {
       icon: Ticket,
-      label: "Billets",
+      label: t("Billets", "Tickets"),
       path: "/user/client/tickets",
       active: false,
     },
     {
       icon: Gift,
-      label: "Coupons",
+      label: t("Coupons", "Vouchers"),
       path: "/user/client/vouchers",
       active: false,
     },
     {
       icon: History,
-      label: "Historique",
+      label: t("Historique", "History"),
       path: "/user/client/history",
       active: true,
     },
     {
       icon: Settings,
-      label: "Mes paramètres",
+      label: t("Mes paramètres", "Settings"),
       path: "/user/client/settings",
       active: false,
     },
@@ -140,13 +142,13 @@ export default function ClientHistoryPage() {
       );
 
       if (!response.ok) {
-        throw new Error("Erreur lors du chargement de l'historique");
+        throw new Error(t("Erreur lors du chargement de l'historique", "Error loading history"));
       }
 
       const data = await response.json();
       setHistoriques(data || []);
     } catch (error: any) {
-      setErrorMessage("Impossible de charger votre historique");
+      setErrorMessage(t("Impossible de charger votre historique", "Unable to load your history"));
       console.error("Fetch Historiques Error:", error);
     } finally {
       setIsLoading(false);
@@ -162,7 +164,7 @@ export default function ClientHistoryPage() {
   };
 
   const formatDate = (date_string: string) => {
-    if (!date_string) return "N/A";
+    if (!date_string) return t("N/A", "N/A");
     const date = new Date(date_string);
     return date.toLocaleDateString("fr-FR", {
       day: "2-digit",
@@ -175,15 +177,23 @@ export default function ClientHistoryPage() {
 
   const formatStatus = (status: string) => {
     const status_map: { [key: string]: string } = {
-      ANNULER_PAR_AGENCE_APRES_RESERVATION:
+      ANNULER_PAR_AGENCE_APRES_RESERVATION: t(
         "Annulé par l'agence après réservation",
-      ANNULER_PAR_USAGER_APRES_RESERVATION:
+        "Canceled by the agency after booking"
+      ),
+      ANNULER_PAR_USAGER_APRES_RESERVATION: t(
         "Annulé par l'usager après réservation",
-      ANNULER_PAR_AGENCE_APRES_CONFIRMATION:
+        "Canceled by the user after booking"
+      ),
+      ANNULER_PAR_AGENCE_APRES_CONFIRMATION: t(
         "Annulé par l'agence après confirmation",
-      ANNULER_PAR_USAGER_APRES_CONFIRMATION:
+        "Canceled by the agency after confirmation"
+      ),
+      ANNULER_PAR_USAGER_APRES_CONFIRMATION: t(
         "Annulé par l'usager après confirmation",
-      VALIDER: "Reservation effectuée",
+        "Canceled by the user after confirmation"
+      ),
+      VALIDER: t("Reservation effectuée", "Booking completed"),
     };
     return status_map[status] || status;
   };
@@ -330,7 +340,7 @@ export default function ClientHistoryPage() {
                 <Menu className="w-6 h-6 text-gray-900" />
               </button>
               <h1 className="text-2xl font-semibold text-gray-900">
-                Historique
+                {t("Historique", "History")}
               </h1>
             </div>
 
@@ -369,14 +379,16 @@ export default function ClientHistoryPage() {
                       className="w-full flex items-center space-x-3 px-4 py-2 hover:bg-gray-100 transition-colors"
                     >
                       <Settings className="w-4 h-4 text-gray-600" />
-                      <span className="text-gray-700">Paramètres</span>
+                      <span className="text-gray-700">
+                        {t("Paramètres", "Settings")}
+                      </span>
                     </button>
                     <button
                       onClick={handleLogout}
                       className="w-full flex items-center space-x-3 px-4 py-2 hover:bg-gray-100 transition-colors text-red-600"
                     >
                       <LogOut className="w-4 h-4" />
-                      <span>Se déconnecter</span>
+                      <span>{t("Se déconnecter", "Sign out")}</span>
                     </button>
                   </div>
                 )}
@@ -393,7 +405,7 @@ export default function ClientHistoryPage() {
               <div className="relative h-64">
                 <img
                   src="/images/cameroun1___.jpg"
-                  alt="Historique"
+                  alt={t("Historique", "History")}
                   className="w-full h-full object-cover"
                   onError={(e) => {
                     e.currentTarget.src =
@@ -403,10 +415,10 @@ export default function ClientHistoryPage() {
                 <div className="absolute inset-0 bg-linear-to-b from-black/60 via-black/40 to-transparent"></div>
                 <div className="absolute top-0 left-0 right-0 p-8">
                   <h2 className="text-3xl md:text-4xl font-bold text-white mb-2 drop-shadow-lg">
-                    Historique de vos réservations
+                    {t("Historique de vos réservations", "Your reservation history")}
                   </h2>
                   <p className="text-white/90 text-lg drop-shadow-md">
-                    Consultez toutes vos activités passées
+                    {t("Consultez toutes vos activités passées", "View all your past activities")}
                   </p>
                 </div>
               </div>
@@ -418,7 +430,7 @@ export default function ClientHistoryPage() {
                     <div className="text-center">
                       <History className="w-16 h-16 text-[#6149CD] animate-spin mx-auto mb-4" />
                       <p className="text-gray-600">
-                        Chargement de l'historique...
+                        {t("Chargement de l'historique...", "Loading history...")}
                       </p>
                     </div>
                   </div>
@@ -437,17 +449,17 @@ export default function ClientHistoryPage() {
                       className="w-16 h-16 text-gray-400 mx-auto mb-4 hover:scale-105 active:scale-95 transition-transform cursor-pointer"
                     />
                     <h3 className="text-xl font-semibold text-gray-900 mb-2">
-                      Aucun historique
+                      {t("Aucun historique", "No history")}
                     </h3>
                     <p className="text-gray-600 mb-6">
-                      Votre historique de réservations est vide
+                      {t("Votre historique de réservations est vide", "Your reservation history is empty")}
                     </p>
                     <button
                       onClick={() => router.push("/user/client/book")}
                       style={{ backgroundColor: BUTTON_COLOR }}
                       className="px-6 py-3 text-white rounded-lg hover:opacity-90 transition-opacity"
                     >
-                      Réserver un voyage
+                      {t("Réserver un voyage", "Book a trip")}
                     </button>
                   </div>
                 ) : (
@@ -473,7 +485,7 @@ export default function ClientHistoryPage() {
                                 {formatStatus(item.statusHistorique)}
                               </h3>
                               <p className="text-sm text-gray-600 mt-1">
-                                Réservation N° {item.idReservation}
+                                {t("Réservation N°", "Reservation No.")} {item.idReservation}
                               </p>
                             </div>
                             <span className="text-xs text-gray-500 ml-4 whitespace-nowrap">
@@ -491,7 +503,7 @@ export default function ClientHistoryPage() {
                               <div className="flex items-center space-x-2">
                                 <Clock className="w-3.5 h-3.5" />
                                 <span>
-                                  Réservé le {formatDate(item.dateReservation)}
+                                  {t("Réservé le", "Booked on")} {formatDate(item.dateReservation)}
                                 </span>
                               </div>
                             )}
@@ -499,9 +511,10 @@ export default function ClientHistoryPage() {
                               <CheckCircle className="w-3.5 h-3.5 text-gray-400" />
                               <span>
                                 {item.dateConfirmation
-                                  ? "Confirmé le " +
+                                  ? t("Confirmé le", "Confirmed on") +
+                                    " " +
                                     formatDate(item.dateConfirmation)
-                                  : "Pas encore confirmé"}
+                                  : t("Pas encore confirmé", "Not confirmed yet")}
                               </span>
                             </div>
                             {item.causeAnnulation && (
@@ -509,11 +522,11 @@ export default function ClientHistoryPage() {
                                 <AlertCircle className="w-3.5 h-3.5 text-orange-600 shrink-0 mt-0.5" />
                                 <div>
                                   <p className="font-semibold text-gray-700">
-                                    Cause : {item.causeAnnulation}
+                                    {t("Cause", "Reason")} : {item.causeAnnulation}
                                   </p>
                                   {item.origineAnnulation && (
                                     <p className="text-gray-600 mt-1">
-                                      Origine : {item.origineAnnulation}
+                                      {t("Origine", "Source")} : {item.origineAnnulation}
                                     </p>
                                   )}
                                 </div>
@@ -523,7 +536,7 @@ export default function ClientHistoryPage() {
                               <div className="col-span-full flex items-center space-x-2 mt-2 p-2 bg-green-50 rounded border border-green-200">
                                 <Coins className="w-3.5 h-3.5 text-green-600" />
                                 <span className="font-semibold text-green-700">
-                                  Compensation :{" "}
+                                  {t("Compensation", "Compensation")} :{" "}
                                   {(item.compensation * 100).toFixed(0)}%
                                 </span>
                               </div>
@@ -540,7 +553,7 @@ export default function ClientHistoryPage() {
               <div className="relative h-30">
                 <img
                   src="/images/cameroun3___.jpg"
-                  alt="Historique"
+                  alt={t("Historique", "History")}
                   className="w-full h-full object-cover"
                   onError={(e) => {
                     e.currentTarget.src =
@@ -551,10 +564,10 @@ export default function ClientHistoryPage() {
                 <div className="absolute bottom-0 left-0 right-0 p-8">
                   <div className="max-w-4xl mx-auto text-center">
                     <h3 className="text-2xl md:text-3xl font-bold text-white mb-2 drop-shadow-lg">
-                      Votre parcours avec nous
+                      {t("Votre parcours avec nous", "Your journey with us")}
                     </h3>
                     <p className="text-white/90 drop-shadow-md">
-                      Merci de voyager avec BusStation
+                      {t("Merci de voyager avec BusStation", "Thank you for traveling with BusStation")}
                     </p>
                   </div>
                 </div>

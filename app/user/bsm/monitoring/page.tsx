@@ -21,6 +21,7 @@ import {
   AlertCircle,
 } from "lucide-react";
 import { useRouter } from "next/navigation";
+import { useLanguage } from "../../../providers";
 
 interface Agence {
   agency_id: string;
@@ -75,6 +76,7 @@ export default function BSMMonitoringPage() {
   const [total_elements, setTotalElements] = useState(0);
 
   const router = useRouter();
+  const { t } = useLanguage();
 
   const API_BASE_URL = process.env.NEXT_PUBLIC_API_BASE_URL;
   const BUTTON_COLOR = "#6149CD";
@@ -83,19 +85,19 @@ export default function BSMMonitoringPage() {
   const MENU_ITEMS = [
     {
       icon: Home,
-      label: "Dashboard",
+      label: t("Dashboard", "Dashboard"),
       path: "/user/bsm/dashboard",
       active: false,
     },
     {
       icon: Eye,
-      label: "Surveillance",
+      label: t("Surveillance", "Monitoring"),
       path: "/user/bsm/monitoring",
       active: true,
     },
     {
       icon: Settings,
-      label: "Mes paramètres",
+      label: t("Mes paramètres", "Settings"),
       path: "/user/bsm/settings",
       active: false,
     },
@@ -158,7 +160,9 @@ export default function BSMMonitoringPage() {
       );
 
       if (!response.ok) {
-        throw new Error("Erreur lors du chargement des agences");
+        throw new Error(
+          t("Erreur lors du chargement des agences", "Error loading agencies"),
+        );
       }
 
       const data = await response.json();
@@ -174,7 +178,12 @@ export default function BSMMonitoringPage() {
       setTotalPages(data.page?.totalPages || 0);
       setTotalElements(filtered_agences.length);
     } catch (error: any) {
-      setErrorMessage("Impossible de charger les agences en attente");
+      setErrorMessage(
+        t(
+          "Impossible de charger les agences en attente",
+          "Unable to load pending agencies"
+        ),
+      );
       console.error("Fetch Agences Error:", error);
     } finally {
       setIsLoading(false);
@@ -198,13 +207,18 @@ export default function BSMMonitoringPage() {
     if (!selected_agence) return;
 
     if (action === "reject" && !motif_rejet.trim()) {
-      setValidationError("Veuillez renseigner le motif de rejet");
+      setValidationError(
+        t("Veuillez renseigner le motif de rejet", "Please provide a rejection reason"),
+      );
       return;
     }
 
     if (action === "reject" && motif_rejet.trim().length < 10) {
       setValidationError(
-        "Le motif de rejet doit contenir au moins 10 caractères",
+        t(
+          "Le motif de rejet doit contenir au moins 10 caractères",
+          "The rejection reason must be at least 10 characters"
+        ),
       );
       return;
     }
@@ -236,9 +250,10 @@ export default function BSMMonitoringPage() {
 
       if (!response.ok) {
         throw new Error(
-          `Erreur lors de la ${
-            action === "approve" ? "validation" : "rejection"
-          }`,
+          t(
+            `Erreur lors de la ${action === "approve" ? "validation" : "rejection"}`,
+            `Error while ${action === "approve" ? "approving" : "rejecting"}`
+          ),
         );
       }
 
@@ -246,13 +261,17 @@ export default function BSMMonitoringPage() {
       setMotifRejet("");
       fetchAgences();
       setSuccessMessage(
-        `Agence ${action === "approve" ? "validée" : "rejetée"} avec succès!`,
+        t(
+          `Agence ${action === "approve" ? "validée" : "rejetée"} avec succès!`,
+          `Agency ${action === "approve" ? "approved" : "rejected"} successfully!`
+        ),
       );
     } catch (error: any) {
       setValidationError(
-        `Une erreur est survenue lors de la ${
-          action === "approve" ? "validation" : "rejection"
-        }. Veuillez réessayer.`,
+        t(
+          `Une erreur est survenue lors de la ${action === "approve" ? "validation" : "rejection"}. Veuillez réessayer.`,
+          `An error occurred while ${action === "approve" ? "approving" : "rejecting"}. Please try again.`
+        ),
       );
       console.error("Validation Error:", error);
     } finally {
@@ -261,7 +280,7 @@ export default function BSMMonitoringPage() {
   };
 
   const formatDate = (date_string: string) => {
-    if (!date_string) return "N/A";
+    if (!date_string) return t("N/A", "N/A");
     const date = new Date(date_string);
     return date.toLocaleDateString("fr-FR", {
       day: "2-digit",
@@ -384,7 +403,7 @@ export default function BSMMonitoringPage() {
                 <Menu className="w-6 h-6 text-gray-900" />
               </button>
               <h1 className="text-2xl font-semibold text-gray-900">
-                Surveillance des agences
+                {t("Surveillance des agences", "Agency monitoring")}
               </h1>
             </div>
 
@@ -423,14 +442,16 @@ export default function BSMMonitoringPage() {
                       className="w-full flex items-center space-x-3 px-4 py-2 hover:bg-gray-100 transition-colors"
                     >
                       <Settings className="w-4 h-4 text-gray-600" />
-                      <span className="text-gray-700">Paramètres</span>
+                      <span className="text-gray-700">
+                        {t("Paramètres", "Settings")}
+                      </span>
                     </button>
                     <button
                       onClick={handleLogout}
                       className="w-full flex items-center space-x-3 px-4 py-2 hover:bg-gray-100 transition-colors text-red-600"
                     >
                       <LogOut className="w-4 h-4" />
-                      <span>Se déconnecter</span>
+                      <span>{t("Se déconnecter", "Sign out")}</span>
                     </button>
                   </div>
                 )}
@@ -474,10 +495,13 @@ export default function BSMMonitoringPage() {
                   <div className="absolute inset-0 flex flex-col justify-between p-8">
                     <div>
                       <h2 className="text-3xl md:text-4xl font-bold text-white mb-4 drop-shadow-lg">
-                        Surveillance
+                        {t("Surveillance", "Monitoring")}
                       </h2>
                       <p className="text-white/90 text-lg mb-6 drop-shadow-md">
-                        Validez ou rejetez les agences en attente
+                        {t(
+                          "Validez ou rejetez les agences en attente",
+                          "Approve or reject pending agencies"
+                        )}
                       </p>
                     </div>
 
@@ -486,17 +510,20 @@ export default function BSMMonitoringPage() {
                         <div className="flex items-center space-x-3 mb-2">
                           <Building2 className="w-6 h-6 text-white" />
                           <span className="text-white font-semibold">
-                            Nombre d'agences en attente
+                            {t("Nombre d'agences en attente", "Pending agencies count")}
                           </span>
                         </div>
                         <p className="text-3xl font-bold text-white">
-                          Nombre par page : {total_elements}
+                          {t("Nombre par page", "Per page")}: {total_elements}
                         </p>
                       </div>
 
                       <div className="bg-white/20 backdrop-blur-sm rounded-xl p-4">
                         <p className="text-sm text-white/90">
-                          Examinez chaque agence avant validation
+                          {t(
+                            "Examinez chaque agence avant validation",
+                            "Review each agency before approval"
+                          )}
                         </p>
                       </div>
                     </div>
@@ -510,7 +537,7 @@ export default function BSMMonitoringPage() {
                       <div className="text-center">
                         <Building2 className="w-16 h-16 text-[#6149CD] animate-pulse mx-auto mb-4" />
                         <p className="text-gray-600">
-                          Chargement des agences...
+                          {t("Chargement des agences...", "Loading agencies...")}
                         </p>
                       </div>
                     </div>
@@ -529,10 +556,10 @@ export default function BSMMonitoringPage() {
                         className="w-16 h-16 text-gray-400 mx-auto mb-4 hover:scale-105 active:scale-95 transition-transform cursor-pointer"
                       />
                       <h3 className="text-xl font-semibold text-gray-900 mb-2">
-                        Aucune agence en attente
+                        {t("Aucune agence en attente", "No pending agencies")}
                       </h3>
                       <p className="text-gray-600 mb-6">
-                        Toutes les agences ont été traitées
+                        {t("Toutes les agences ont été traitées", "All agencies have been processed")}
                       </p>
                     </div>
                   ) : (
@@ -546,11 +573,12 @@ export default function BSMMonitoringPage() {
                         </div>
                         <div>
                           <h3 className="text-2xl font-bold text-gray-900">
-                            Agences à valider
+                            {t("Agences à valider", "Agencies to validate")}
                           </h3>
                           <p className="text-sm text-gray-600">
-                            {agences.length} agence
-                            {agences.length > 1 ? "s" : ""} sur cette page
+                            {agences.length} {t("agence", "agency")}
+                            {agences.length > 1 ? "s" : ""}{" "}
+                            {t("sur cette page", "on this page")}
                           </p>
                         </div>
                       </div>
@@ -574,7 +602,7 @@ export default function BSMMonitoringPage() {
                                 </p>
                               </div>
                               <span className="px-3 py-1 bg-orange-100 text-orange-800 rounded-full text-xs font-semibold">
-                                En attente
+                                {t("En attente", "Pending")}
                               </span>
                             </div>
 
@@ -584,13 +612,15 @@ export default function BSMMonitoringPage() {
                                   <MapPin className="w-4 h-4 text-gray-500" />
                                   <span className="text-gray-700">
                                     <span className="font-semibold">
-                                      Ville : {agence.ville}
+                                      {t("Ville", "City")} : {agence.ville}
                                     </span>
                                   </span>
                                 </div>
                                 <div className="flex items-center space-x-2 text-xs text-gray-600">
                                   <MapPin className="w-3.5 h-3.5 text-gray-400" />
-                                  <span>Zone : {agence.location}</span>
+                                  <span>
+                                    {t("Zone", "Area")} : {agence.location}
+                                  </span>
                                 </div>
                               </div>
 
@@ -599,14 +629,17 @@ export default function BSMMonitoringPage() {
                                   <Globe className="w-3.5 h-3.5 text-gray-400" />
                                   <span className="truncate">
                                     {agence.social_network ||
-                                      "Réseau social non renseigné"}
+                                      t(
+                                        "Réseau social non renseigné",
+                                        "Social network not provided"
+                                      )}
                                   </span>
                                 </div>
                                 <div className="flex items-center space-x-2 text-xs text-gray-600">
                                   <MessageSquare className="w-3.5 h-3.5 text-gray-400" />
                                   <span className="line-clamp-1">
                                     {agence.greeting_message ||
-                                      "Greeting non renseigné"}
+                                      t("Greeting non renseigné", "Greeting not provided")}
                                   </span>
                                 </div>
                               </div>
@@ -619,7 +652,7 @@ export default function BSMMonitoringPage() {
                                 className="px-6 py-3 text-white rounded-lg hover:opacity-90 active:opacity-80 transition-all font-semibold flex items-center space-x-2"
                               >
                                 <Eye className="w-5 h-5" />
-                                <span>Voir les détails</span>
+                                <span>{t("Voir les détails", "View details")}</span>
                               </button>
                             </div>
                           </div>
@@ -637,11 +670,12 @@ export default function BSMMonitoringPage() {
                             className="flex items-center space-x-2 px-4 py-2 border border-gray-300 rounded-lg text-gray-700 hover:bg-gray-50 disabled:opacity-50 disabled:cursor-not-allowed transition-colors"
                           >
                             <ChevronLeft className="w-4 h-4" />
-                            <span>Précédent</span>
+                            <span>{t("Précédent", "Previous")}</span>
                           </button>
 
                           <span className="text-sm text-gray-600">
-                            Page {current_page + 1} sur {total_pages}
+                            {t("Page", "Page")} {current_page + 1}{" "}
+                            {t("sur", "of")} {total_pages}
                           </span>
 
                           <button
@@ -653,7 +687,7 @@ export default function BSMMonitoringPage() {
                             disabled={current_page === total_pages - 1}
                             className="flex items-center space-x-2 px-4 py-2 border border-gray-300 rounded-lg text-gray-700 hover:bg-gray-50 disabled:opacity-50 disabled:cursor-not-allowed transition-colors"
                           >
-                            <span>Suivant</span>
+                            <span>{t("Suivant", "Next")}</span>
                             <ChevronRight className="w-4 h-4" />
                           </button>
                         </div>
@@ -673,7 +707,7 @@ export default function BSMMonitoringPage() {
           <div className="bg-white rounded-2xl shadow-2xl max-w-2xl w-full overflow-hidden">
             <div className="flex items-center justify-between p-6 border-b border-gray-200">
               <h2 className="text-2xl font-bold text-gray-900">
-                Détails de l'agence
+                {t("Détails de l'agence", "Agency details")}
               </h2>
               <button
                 onClick={() => {
@@ -692,12 +726,12 @@ export default function BSMMonitoringPage() {
                 {/* Informations générales */}
                 <div className="bg-gray-50 rounded-xl p-4">
                   <h3 className="font-bold text-gray-900 mb-3">
-                    Informations générales
+                    {t("Informations générales", "General information")}
                   </h3>
                   <div className="space-y-2">
                     <div className="flex justify-between">
                       <span className="text-sm font-semibold text-gray-700">
-                        Nom complet :
+                        {t("Nom complet", "Full name")} :
                       </span>
                       <span className="text-sm text-gray-600">
                         {selected_agence.long_name}
@@ -705,7 +739,7 @@ export default function BSMMonitoringPage() {
                     </div>
                     <div className="flex justify-between">
                       <span className="text-sm font-semibold text-gray-700">
-                        Abréviation :
+                        {t("Abréviation", "Abbreviation")} :
                       </span>
                       <span className="text-sm text-gray-600">
                         {selected_agence.short_name}
@@ -713,7 +747,7 @@ export default function BSMMonitoringPage() {
                     </div>
                     <div className="flex justify-between">
                       <span className="text-sm font-semibold text-gray-700">
-                        ID Agence :
+                        {t("ID Agence", "Agency ID")} :
                       </span>
                       <span className="text-sm text-gray-500">
                         {selected_agence.agency_id}
@@ -721,7 +755,7 @@ export default function BSMMonitoringPage() {
                     </div>
                     <div className="flex justify-between">
                       <span className="text-sm font-semibold text-gray-700">
-                        ID Organisation :
+                        {t("ID Organisation", "Organization ID")} :
                       </span>
                       <span className="text-sm text-gray-500">
                         {selected_agence.organisation_id}
@@ -732,16 +766,18 @@ export default function BSMMonitoringPage() {
 
                 {/* Localisation */}
                 <div className="bg-gray-50 rounded-xl p-4">
-                  <h3 className="font-bold text-gray-900 mb-3">Localisation</h3>
+                  <h3 className="font-bold text-gray-900 mb-3">
+                    {t("Localisation", "Location")}
+                  </h3>
                   <div className="space-y-2">
                     <div className="flex items-start space-x-2">
                       <MapPin className="w-4 h-4 text-gray-500 mt-0.5" />
                       <div className="flex-1">
                         <p className="text-sm font-semibold text-gray-700">
-                          Ville : {selected_agence.ville}
+                          {t("Ville", "City")} : {selected_agence.ville}
                         </p>
                         <p className="text-sm text-gray-600">
-                          Zone : {selected_agence.location}
+                          {t("Zone", "Area")} : {selected_agence.location}
                         </p>
                       </div>
                     </div>
@@ -751,17 +787,18 @@ export default function BSMMonitoringPage() {
                 {/* Contact et communication */}
                 <div className="bg-gray-50 rounded-xl p-4">
                   <h3 className="font-bold text-gray-900 mb-3">
-                    Contact et communication
+                    {t("Contact et communication", "Contact and communication")}
                   </h3>
                   <div className="space-y-2">
                     <div className="flex items-start space-x-2">
                       <Globe className="w-4 h-4 text-gray-500 mt-0.5" />
                       <div className="flex-1">
                         <p className="text-sm font-semibold text-gray-700">
-                          Réseau social
+                          {t("Réseau social", "Social network")}
                         </p>
                         <p className="text-sm text-gray-600 break-all">
-                          {selected_agence.social_network || "Non renseigné"}
+                          {selected_agence.social_network ||
+                            t("Non renseigné", "Not provided")}
                         </p>
                       </div>
                     </div>
@@ -769,10 +806,11 @@ export default function BSMMonitoringPage() {
                       <MessageSquare className="w-4 h-4 text-gray-500 mt-0.5" />
                       <div className="flex-1">
                         <p className="text-sm font-semibold text-gray-700">
-                          Message d'accueil
+                          {t("Message d'accueil", "Welcome message")}
                         </p>
                         <p className="text-sm text-gray-600">
-                          {selected_agence.greeting_message || "Non renseigné"}
+                          {selected_agence.greeting_message ||
+                            t("Non renseigné", "Not provided")}
                         </p>
                       </div>
                     </div>
@@ -783,7 +821,7 @@ export default function BSMMonitoringPage() {
                 {selected_agence.description && (
                   <div className="bg-gray-50 rounded-xl p-4">
                     <h3 className="font-bold text-gray-900 mb-3">
-                      Description
+                      {t("Description", "Description")}
                     </h3>
                     <p className="text-sm text-gray-600">
                       {selected_agence.description}
@@ -796,7 +834,10 @@ export default function BSMMonitoringPage() {
             {/* Champ motif de rejet */}
             <div className="px-6 pb-4">
               <label className="block text-sm font-semibold text-gray-700 mb-2">
-                Motif de rejet (obligatoire pour rejeter)
+                {t(
+                  "Motif de rejet (obligatoire pour rejeter)",
+                  "Rejection reason (required to reject)"
+                )}
               </label>
               <textarea
                 value={motif_rejet}
@@ -804,7 +845,10 @@ export default function BSMMonitoringPage() {
                   setMotifRejet(e.target.value);
                   setValidationError("");
                 }}
-                placeholder="Entrez le motif de rejet de l'agence (minimum 10 caractères)..."
+                placeholder={t(
+                  "Entrez le motif de rejet de l'agence (minimum 10 caractères)...",
+                  "Enter the agency rejection reason (minimum 10 characters)..."
+                )}
                 rows={3}
                 className="w-full px-4 py-3 border-2 text-gray-700 placeholder:text-gray-400 border-gray-200 rounded-xl focus:outline-none focus:ring-2 focus:ring-[#6149CD] focus:border-transparent resize-none"
               />
@@ -826,12 +870,12 @@ export default function BSMMonitoringPage() {
                 {is_loading_validation ? (
                   <>
                     <div className="w-5 h-5 border-2 border-white border-t-transparent rounded-full animate-spin"></div>
-                    <span>Traitement...</span>
+                    <span>{t("Traitement...", "Processing...")}</span>
                   </>
                 ) : (
                   <>
                     <XCircle className="w-5 h-5" />
-                    <span>Rejeter</span>
+                    <span>{t("Rejeter", "Reject")}</span>
                   </>
                 )}
               </button>
@@ -844,11 +888,11 @@ export default function BSMMonitoringPage() {
                 {is_loading_validation ? (
                   <>
                     <div className="w-5 h-5 border-2 border-white border-t-transparent rounded-full animate-spin"></div>
-                    <span>Traitement...</span>
+                    <span>{t("Traitement...", "Processing...")}</span>
                   </>
                 ) : (
                   <>
-                    <span>Valider</span>
+                    <span>{t("Valider", "Approve")}</span>
                   </>
                 )}
               </button>

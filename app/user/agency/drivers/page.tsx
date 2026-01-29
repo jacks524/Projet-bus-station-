@@ -16,6 +16,7 @@ import {
   ArrowLeft,
 } from "lucide-react";
 import { useRouter } from "next/navigation";
+import { useLanguage } from "../../../providers";
 
 /**
  * Agency Drivers Page Component
@@ -42,37 +43,38 @@ export default function AgenceDriversPage() {
   const [user_data, setUserData] = useState<UserData | null>(null);
 
   const router = useRouter();
+  const { t } = useLanguage();
 
   const BUTTON_COLOR = "#6149CD";
 
   const MENU_ITEMS = [
     {
       icon: Home,
-      label: "Dashboard",
+      label: t("Dashboard", "Dashboard"),
       path: "/user/agency/dashboard",
       active: false,
     },
     {
       icon: Bus,
-      label: "Voyages",
+      label: t("Voyages", "Trips"),
       path: "/user/agency/travels",
       active: false,
     },
     {
       icon: Calendar,
-      label: "Réservations",
+      label: t("Réservations", "Bookings"),
       path: "/user/agency/reservations",
       active: false,
     },
     {
       icon: Users,
-      label: "Chauffeurs",
+      label: t("Chauffeurs", "Drivers"),
       path: "/user/agency/drivers",
       active: true,
     },
     {
       icon: Settings,
-      label: "Mes paramètres",
+      label: t("Mes paramètres", "Settings"),
       path: "/user/agency/settings",
       active: false,
     },
@@ -219,7 +221,7 @@ export default function AgenceDriversPage() {
                 <Menu className="w-5 h-5 sm:w-6 sm:h-6 text-gray-900" />
               </button>
               <h1 className="text-lg sm:text-2xl font-semibold text-gray-900">
-                Gestion des Chauffeurs
+                {t("Gestion des Chauffeurs", "Driver management")}
               </h1>
             </div>
 
@@ -263,14 +265,16 @@ export default function AgenceDriversPage() {
                         className="w-full flex items-center space-x-3 px-4 py-2 hover:bg-gray-100 transition-colors"
                       >
                         <Settings className="w-4 h-4 text-gray-600" />
-                        <span className="text-gray-700">Paramètres</span>
+                        <span className="text-gray-700">
+                          {t("Paramètres", "Settings")}
+                        </span>
                       </button>
                       <button
                         onClick={handleLogout}
                         className="w-full flex items-center space-x-3 px-4 py-2 hover:bg-gray-100 transition-colors text-red-600"
                       >
                         <LogOut className="w-4 h-4" />
-                        <span>Se déconnecter</span>
+                        <span>{t("Se déconnecter", "Sign out")}</span>
                       </button>
                     </div>
                   </>
@@ -292,22 +296,28 @@ export default function AgenceDriversPage() {
               </div>
 
               <h2 className="text-2xl sm:text-3xl font-bold text-gray-900 mb-4">
-                Gestion des Chauffeurs
+                {t("Gestion des Chauffeurs", "Driver management")}
               </h2>
 
               <p className="text-base sm:text-lg text-gray-600 mb-8">
-                Cette fonctionnalité n'est pas encore disponible.
+                {t(
+                  "Cette fonctionnalité n'est pas encore disponible.",
+                  "This feature is not available yet."
+                )}
                 <br />
-                Elle sera bientôt accessible pour gérer vos chauffeurs.
+                {t(
+                  "Elle sera bientôt accessible pour gérer vos chauffeurs.",
+                  "It will be available soon to manage your drivers."
+                )}
               </p>
 
               <div className="flex flex-col sm:flex-row gap-3 sm:gap-4 justify-center">
                 <button
                   onClick={() => router.push("/user/agency/dashboard")}
                   style={{ backgroundColor: BUTTON_COLOR }}
-                  className="flex items-center justify-center space-x-2 px-6 py-3 text-white rounded-lg hover:opacity-90 transition-opacity"
-                >
-                  <span>Retour au Dashboard</span>
+                className="flex items-center justify-center space-x-2 px-6 py-3 text-white rounded-lg hover:opacity-90 transition-opacity"
+              >
+                  <span>{t("Retour au Dashboard", "Back to dashboard")}</span>
                 </button>
 
                 <button
@@ -315,7 +325,7 @@ export default function AgenceDriversPage() {
                   className="flex items-center justify-center space-x-2 px-6 py-3 border-2 border-gray-300 text-gray-700 rounded-lg hover:bg-gray-50 transition-colors"
                 >
                   <Bus className="w-5 h-5" />
-                  <span>Voir les Voyages</span>
+                  <span>{t("Voir les Voyages", "View trips")}</span>
                 </button>
               </div>
             </div>
@@ -326,17 +336,21 @@ export default function AgenceDriversPage() {
                 <div className="flex items-center space-x-3 mb-3">
                   <Car className="w-6 h-6 text-[#6149CD]" />
                   <h3 className="font-semibold text-gray-900">
-                    Fonctionnalités à venir
+                    {t("Fonctionnalités à venir", "Upcoming features")}
                   </h3>
                 </div>
                 <ul className="space-y-2 text-sm text-gray-700">
                   <li className="flex items-start">
                     <span className="mr-2">•</span>
-                    <span>Ajout et gestion des chauffeurs</span>
+                    <span>
+                      {t("Ajout et gestion des chauffeurs", "Add and manage drivers")}
+                    </span>
                   </li>
                   <li className="flex items-start">
                     <span className="mr-2">•</span>
-                    <span>Ajout et gestion des véhicules</span>
+                    <span>
+                      {t("Ajout et gestion des véhicules", "Add and manage vehicles")}
+                    </span>
                   </li>
                 </ul>
               </div>
@@ -345,11 +359,11 @@ export default function AgenceDriversPage() {
                 <div className="flex items-center space-x-3 mb-3">
                   <Building2 className="w-6 h-6 text-blue-600" />
                   <h3 className="font-semibold text-gray-900">
-                    En développement
+                    {t("En développement", "In development")}
                   </h3>
                 </div>
                 <p className="text-sm text-gray-700">
-                  Bientôt disponible.
+                  {t("Bientôt disponible.", "Available soon.")}
                 </p>
               </div>
             </div>
