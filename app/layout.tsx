@@ -11,7 +11,7 @@ const inter = Inter({
 export const metadata: Metadata = {
   title: "BusStation - MarketPlace de voyages en ligne au Cameroun",
   description:
-    "Réservez vos billets de bus en ligne auprès des meilleures agences de transport du Cameroun. Paiement sécurisé et confirmation immédiate.",
+    "Centralisez la gestion des voyages de votre organisation grâce à un tableau de bord dédié, tout en réservant vos billets auprès des meilleures agences du Cameroun. Profitez d'une interface simplifiée pour vos besoins professionnels ou personnels, avec paiement sécurisé et confirmation immédiate.",
 };
 
 export default function RootLayout({
