@@ -5,20 +5,22 @@ import {
   Home,
   Building2,
   Settings,
-  ChevronDown,
-  LogOut,
-  Menu,
-  X,
-  MapPin,
+  Briefcase,
   Building,
+  MapPin,
   Globe,
   MessageSquare,
-  CheckCircle,
-  XCircle,
   AlertCircle,
-  Briefcase,
+  RefreshCw,
+  X,
+  ChevronDown,
 } from "lucide-react";
 import { useRouter } from "next/navigation";
+import Sidebar from "@/app/components/Sidebar";
+import MobileSidebar from "@/app/components/Mobilesidebar";
+import Header from "@/app/components/Header";
+import SuccessModal from "@/app/components/SuccessModal";
+import ErrorModal from "@/app/components/ErrorModal";
 
 interface AgencyFormData {
   organisation_id: string;
@@ -50,16 +52,31 @@ interface Organization {
 }
 
 /**
- * DG Agence Page Component
+ * Agency Creation Page Component
  *
- * Form to create a new agency for the organization
- * Features validation by BSM after submission
+ * Create a new agency for the organization
  *
- * @author Thomas Djotio Ndié
- * @date 2025-01-14
+ * @author Félix DJOTIO NDIE
+ * @date 2025-01-29
  */
-export default function DGAgencePage() {
-  const [form_data, setFormData] = useState<AgencyFormData>({
+export default function AgencyPage() {
+  const router = useRouter();
+
+  const [userData, setUserData] = useState<UserData | null>(null);
+  const [showMobileMenu, setShowMobileMenu] = useState(false);
+  const [isSubmitting, setIsSubmitting] = useState(false);
+
+  const [organizations, setOrganizations] = useState<Organization[]>([]);
+  const [selectedOrganization, setSelectedOrganization] =
+    useState<Organization | null>(null);
+  const [showOrgSelector, setShowOrgSelector] = useState(false);
+  const [isLoadingOrgs, setIsLoadingOrgs] = useState(true);
+
+  const [showSuccessModal, setShowSuccessModal] = useState(false);
+  const [showErrorModal, setShowErrorModal] = useState(false);
+  const [errorMessage, setErrorMessage] = useState("");
+
+  const [formData, setFormData] = useState<AgencyFormData>({
     organisation_id: "",
     user_id: "",
     long_name: "",
@@ -71,26 +88,7 @@ export default function DGAgencePage() {
     greeting_message: "",
   });
 
-  const [is_loading, setIsLoading] = useState(false);
-  const [show_success_modal, setShowSuccessModal] = useState(false);
-  const [show_error_modal, setShowErrorModal] = useState(false);
-  const [error_message, setErrorMessage] = useState("");
-  const [agency_response, setAgencyResponse] = useState<any>(null);
-
-  const [show_profile_menu, setShowProfileMenu] = useState(false);
-  const [show_mobile_menu, setShowMobileMenu] = useState(false);
-  const [user_data, setDgData] = useState<UserData | null>(null);
-
-  const [organizations, setOrganizations] = useState<Organization[]>([]);
-  const [selected_organization, setSelectedOrganization] =
-    useState<Organization | null>(null);
-  const [show_org_selector, setShowOrgSelector] = useState(false);
-  const [is_loading_orgs, setIsLoadingOrgs] = useState(true);
-
-  const router = useRouter();
-
   const API_BASE_URL = process.env.NEXT_PUBLIC_API_BASE_URL;
-  const BUTTON_COLOR = "#6149CD";
 
   const MENU_ITEMS = [
     {
@@ -120,47 +118,45 @@ export default function DGAgencePage() {
   ];
 
   useEffect(() => {
-    const auth_token =
+    const authToken =
       localStorage.getItem("auth_token") ||
       sessionStorage.getItem("auth_token");
-
-    if (!auth_token) {
+    if (!authToken) {
       router.push("/login");
       return;
     }
 
-    const stored_user_data =
+    const storedUserData =
       localStorage.getItem("user_data") || sessionStorage.getItem("user_data");
-    if (stored_user_data) {
-      const parsed_user = JSON.parse(stored_user_data);
-      setDgData(parsed_user);
-
+    if (storedUserData) {
+      const parsedUser = JSON.parse(storedUserData);
+      setUserData(parsedUser);
       setFormData((prev) => ({
         ...prev,
-        user_id: parsed_user.userId || "",
+        user_id: parsedUser.userId || "",
       }));
     }
-  }, []);
+  }, [router]);
 
   useEffect(() => {
-    if (user_data?.userId) {
+    if (userData?.userId) {
       fetchOrganizations();
     }
-  }, [user_data?.userId]);
+  }, [userData?.userId]);
 
   useEffect(() => {
-    if (selected_organization?.id) {
+    if (selectedOrganization?.id) {
       setFormData((prev) => ({
         ...prev,
-        organisation_id: selected_organization.id,
+        organisation_id: selectedOrganization.id,
       }));
     }
-  }, [selected_organization?.id]);
+  }, [selectedOrganization?.id]);
 
   const fetchOrganizations = async () => {
     setIsLoadingOrgs(true);
     try {
-      const auth_token =
+      const authToken =
         localStorage.getItem("auth_token") ||
         sessionStorage.getItem("auth_token");
       const response = await fetch(
@@ -169,27 +165,23 @@ export default function DGAgencePage() {
           method: "GET",
           headers: {
             "Content-Type": "application/json",
-            Authorization: `Bearer ${auth_token}`,
+            Authorization: `Bearer ${authToken}`,
           },
         },
       );
 
-      if (!response.ok) {
+      if (!response.ok)
         throw new Error("Erreur lors du chargement des organisations");
-      }
 
       const data = await response.json();
-
-      // Filtrer les organisations créées par l'utilisateur ET qui ne sont pas supprimées
-      const my_orgs = data.filter(
+      const myOrgs = data.filter(
         (org: Organization) =>
-          org.created_by === user_data?.userId && org.status !== "DELETED",
+          org.created_by === userData?.userId && org.status !== "DELETED",
       );
 
-      setOrganizations(my_orgs);
-
-      if (my_orgs.length > 0 && !selected_organization) {
-        setSelectedOrganization(my_orgs[0]);
+      setOrganizations(myOrgs);
+      if (myOrgs.length > 0 && !selectedOrganization) {
+        setSelectedOrganization(myOrgs[0]);
       }
     } catch (error: any) {
       console.error("Fetch Organizations Error:", error);
@@ -199,7 +191,9 @@ export default function DGAgencePage() {
   };
 
   const handleInputChange = (
-    e: React.ChangeEvent<HTMLInputElement | HTMLTextAreaElement>,
+    e: React.ChangeEvent<
+      HTMLInputElement | HTMLTextAreaElement | HTMLSelectElement
+    >,
   ) => {
     const { name, value } = e.target;
     setFormData((prev) => ({
@@ -208,24 +202,29 @@ export default function DGAgencePage() {
     }));
   };
 
+  const handleSelectOrganization = (org: Organization) => {
+    setSelectedOrganization(org);
+    setShowOrgSelector(false);
+  };
+
   const validateForm = () => {
-    if (!form_data.long_name.trim()) {
+    if (!formData.long_name.trim()) {
       setErrorMessage("Le nom complet de l'agence est requis");
       return false;
     }
-    if (!form_data.short_name.trim()) {
+    if (!formData.short_name.trim()) {
       setErrorMessage("L'abréviation de l'agence est requise");
       return false;
     }
-    if (!form_data.location.trim()) {
+    if (!formData.location.trim()) {
       setErrorMessage("La localisation est requise");
       return false;
     }
-    if (!form_data.ville.trim()) {
+    if (!formData.ville.trim()) {
       setErrorMessage("La ville est requise");
       return false;
     }
-    if (!form_data.organisation_id.trim()) {
+    if (!formData.organisation_id.trim()) {
       setErrorMessage("L'ID de l'organisation est requis");
       return false;
     }
@@ -240,11 +239,10 @@ export default function DGAgencePage() {
       return;
     }
 
-    setIsLoading(true);
-    setErrorMessage("");
+    setIsSubmitting(true);
 
     try {
-      const auth_token =
+      const authToken =
         localStorage.getItem("auth_token") ||
         sessionStorage.getItem("auth_token");
 
@@ -252,23 +250,18 @@ export default function DGAgencePage() {
         method: "POST",
         headers: {
           "Content-Type": "application/json",
-          Authorization: `Bearer ${auth_token}`,
+          Authorization: `Bearer ${authToken}`,
         },
-        body: JSON.stringify(form_data),
+        body: JSON.stringify(formData),
       });
 
-      if (!response.ok) {
+      if (!response.ok)
         throw new Error("Erreur lors de la création de l'agence");
-      }
 
-      const data = await response.json();
-      setAgencyResponse(data);
       setShowSuccessModal(true);
-
-      // Réinitialiser le formulaire (sauf organisation_id et user_id)
       setFormData({
-        organisation_id: form_data.organisation_id,
-        user_id: form_data.user_id,
+        organisation_id: formData.organisation_id,
+        user_id: formData.user_id,
         long_name: "",
         short_name: "",
         location: "",
@@ -282,286 +275,165 @@ export default function DGAgencePage() {
         "Une erreur est survenue lors de la création de l'agence",
       );
       setShowErrorModal(true);
-      console.error("Create Agency Error:", error);
     } finally {
-      setIsLoading(false);
+      setIsSubmitting(false);
     }
   };
 
-  const handleSelectOrganization = (org: Organization) => {
-    setSelectedOrganization(org);
-    setShowOrgSelector(false);
-  };
-
-  const handleLogout = () => {
-    localStorage.removeItem("auth_token");
-    localStorage.removeItem("user_data");
-    sessionStorage.removeItem("auth_token");
-    sessionStorage.removeItem("user_data");
-    router.push("/login");
+  const isFormValid = () => {
+    return (
+      formData.long_name &&
+      formData.short_name &&
+      formData.location &&
+      formData.ville &&
+      formData.organisation_id
+    );
   };
 
   return (
-    <div className="min-h-screen bg-gray-50 flex">
-      {/* Sidebar */}
-      <>
-        <aside className="hidden lg:flex lg:flex-col w-64 bg-white border-r border-gray-200 fixed h-full">
-          <div className="p-6">
-            <div className="mb-8">
-              <button
-                onClick={() => router.push("/user/organization/dashboard")}
-                className="group relative transition-all duration-300 hover:scale-105 active:scale-95"
-              >
-                <div className="absolute inset-0 bg-linear-to-r from-[#6149CD] to-[#8B7BE8] rounded-lg opacity-0 group-hover:opacity-10 blur-xl transition-opacity duration-300"></div>
-                <img
-                  src="/images/busstation.png"
-                  alt="BusStation Logo"
-                  className="h-12 w-auto relative z-10 drop-shadow-md group-hover:drop-shadow-xl transition-all duration-300"
-                />
-              </button>
-            </div>
+    <div className="dashboard-layout">
+      <Sidebar
+        menuItems={MENU_ITEMS}
+        activePath="/user/organization/agencies"
+      />
+      <MobileSidebar
+        isOpen={showMobileMenu}
+        onClose={() => setShowMobileMenu(false)}
+        menuItems={MENU_ITEMS}
+        activePath="/user/organization/agencies"
+      />
 
-            <nav className="space-y-1">
-              {MENU_ITEMS.map((item, index) => (
-                <button
-                  key={index}
-                  onClick={() =>
-                    item.active
-                      ? window.location.reload()
-                      : router.push(item.path)
-                  }
-                  className={`w-full flex items-center space-x-3 px-4 py-3 rounded-lg transition-colors ${
-                    item.active
-                      ? "bg-[#6149CD] text-white"
-                      : "text-gray-600 hover:bg-gray-100"
-                  }`}
-                >
-                  <item.icon className="w-5 h-5" />
-                  <span className="font-medium">{item.label}</span>
-                </button>
-              ))}
-            </nav>
+      <div className="dashboard-main">
+        <Header
+          title="Créer une agence"
+          userData={userData}
+          onMenuClick={() => setShowMobileMenu(true)}
+          userType="organization"
+        />
+
+        <main className="dashboard-content">
+          {/* Section Header */}
+          <div className="section-header">
+            <h2 className="section-title">Nouvelle agence</h2>
+            <p className="section-description">
+              Ajoutez une agence à votre organisation
+            </p>
           </div>
-        </aside>
 
-        {show_mobile_menu && (
-          <>
-            <div
-              className="fixed inset-0 z-40 lg:hidden"
-              onClick={() => setShowMobileMenu(false)}
-            ></div>
-
-            <aside className="fixed left-0 top-0 h-full w-64 bg-white shadow-2xl z-50 lg:hidden transform transition-transform duration-300">
-              <div className="p-6">
-                <div className="flex items-center justify-between mb-8">
-                  <button
-                    onClick={() => {
-                      setShowMobileMenu(false);
-                      router.push("/user/organization/dashboard");
-                    }}
-                    className="group relative transition-all duration-300 hover:scale-105 active:scale-95"
-                  >
-                    <img
-                      src="/images/busstation.png"
-                      alt="BusStation Logo"
-                      className="h-9.5 w-auto"
-                    />
-                  </button>
-                  <button
-                    onClick={() => setShowMobileMenu(false)}
-                    className="p-2 hover:bg-gray-100 rounded-lg transition-colors"
-                  >
-                    <X className="w-6 h-6 text-gray-900" />
-                  </button>
-                </div>
-
-                <nav className="space-y-1">
-                  {MENU_ITEMS.map((item, index) => (
-                    <button
-                      key={index}
-                      onClick={() => {
-                        setShowMobileMenu(false);
-                        router.push(item.path);
-                      }}
-                      className={`w-full flex items-center space-x-3 px-4 py-3 rounded-lg transition-colors ${
-                        item.active
-                          ? "bg-[#6149CD] text-white"
-                          : "text-gray-600 hover:bg-gray-100"
-                      }`}
-                    >
-                      <item.icon className="w-5 h-5" />
-                      <span className="font-medium">{item.label}</span>
-                    </button>
-                  ))}
-                </nav>
-              </div>
-            </aside>
-          </>
-        )}
-      </>
-
-      {/* Main Content */}
-      <div className="flex-1 lg:ml-64">
-        {/* Header */}
-        <header className="bg-white border-b border-gray-200 sticky top-0 z-10">
-          <div className="px-6 py-4 flex items-center justify-between">
-            <div className="flex items-center space-x-3">
-              <button
-                onClick={() => setShowMobileMenu(true)}
-                className="lg:hidden p-2 hover:bg-gray-100 rounded-lg transition-colors"
-              >
-                <Menu className="w-6 h-6 text-gray-900" />
-              </button>
-              <h1 className="text-2xl font-semibold text-gray-900">
-                Créer une agence
-              </h1>
-            </div>
-
-            <div className="flex items-center space-x-4">
-              <button
-                onClick={() => router.push("/user/organization/settings")}
-                className="p-2 hover:bg-gray-100 rounded-lg transition-colors"
-              >
-                <Settings className="w-6 h-6 text-gray-600" />
-              </button>
-
-              {/* Profile Menu */}
-              <div className="relative">
-                <button
-                  onClick={() => setShowProfileMenu(!show_profile_menu)}
-                  className="flex items-center space-x-3 hover:bg-gray-100 rounded-lg px-3 py-2 transition-colors"
-                >
-                  <img
-                    src="/images/user-icon.png"
-                    alt="Profile"
-                    className="w-8.5 h-8.5 rounded-full object-cover"
-                  />
-                  <span className="font-medium text-gray-900 hidden md:block">
-                    {user_data?.username}
-                  </span>
-                  <ChevronDown className="w-4 h-4 text-gray-600" />
-                </button>
-
-                {show_profile_menu && (
-                  <div className="absolute right-0 mt-2 w-48 bg-white rounded-lg shadow-lg border border-gray-200 py-2">
-                    <button
-                      onClick={() => {
-                        setShowProfileMenu(false);
-                        router.push("/user/organization/settings");
-                      }}
-                      className="w-full flex items-center space-x-3 px-4 py-2 hover:bg-gray-100 transition-colors"
-                    >
-                      <Settings className="w-4 h-4 text-gray-600" />
-                      <span className="text-gray-700">Paramètres</span>
-                    </button>
-                    <button
-                      onClick={handleLogout}
-                      className="w-full flex items-center space-x-3 px-4 py-2 hover:bg-gray-100 transition-colors text-red-600"
-                    >
-                      <LogOut className="w-4 h-4" />
-                      <span>Se déconnecter</span>
-                    </button>
-                  </div>
-                )}
-              </div>
-            </div>
-          </div>
-        </header>
-
-        {/* Content */}
-        <main className="p-6">
-          <div className="max-w-7xl mx-auto">
+          <div className="container" style={{ maxWidth: "1200px" }}>
             {/* Info Box Validation BSM */}
-            <div className="bg-blue-50 border-l-4 border-blue-500 rounded-lg p-4 mb-6">
-              <div className="flex items-start space-x-3">
-                <AlertCircle className="w-5 h-5 text-blue-600 shrink-0 mt-0.5" />
-                <div>
-                  <h3 className="font-semibold text-blue-900 mb-1">
-                    Validation BSM requise
-                  </h3>
-                  <p className="text-sm text-blue-800">
-                    Après la création, votre agence sera soumise à validation
-                    par le Bureau de Suivi et de Monitoring (BSM). Vous serez
-                    notifié une fois la validation effectuée.
-                  </p>
-                </div>
+            <div
+              style={{
+                background: "#dbeafe",
+                borderRadius: "var(--radius-lg)",
+                padding: "var(--spacing-md)",
+                marginBottom: "var(--spacing-xl)",
+                display: "flex",
+                gap: "var(--spacing-sm)",
+                marginTop: "-30px",
+              }}
+            >
+              <AlertCircle
+                style={{
+                  width: "20px",
+                  height: "20px",
+                  color: "#2563eb",
+                  flexShrink: 0,
+                }}
+              />
+              <div>
+                <h3
+                  style={{
+                    fontWeight: "var(--font-weight-semibold)",
+                    color: "#1e3a8a",
+                    marginBottom: "4px",
+                  }}
+                >
+                  Validation du Bus Station Manager requise
+                </h3>
+                <p
+                  style={{ fontSize: "var(--font-size-sm)", color: "#1e40af" }}
+                >
+                  Après la création, votre agence sera soumise à validation par
+                  le Bus Station Manager (BSM). Vous serez notifié une fois la
+                  validation effectuée.
+                </p>
               </div>
             </div>
 
-            {/* Organization Selector */}
-            {is_loading_orgs ? (
-              <div className="flex items-center justify-center py-10 mb-6">
-                <div className="animate-spin rounded-full h-8 w-8 border-b-2 border-[#6149CD]"></div>
+            {/* Loading Organizations */}
+            {isLoadingOrgs && (
+              <div className="loading-state">
+                <RefreshCw className="spin" />
+                <p>Chargement des organisations...</p>
               </div>
-            ) : organizations.length === 0 ? (
-              <div className="bg-white rounded-xl shadow-sm border border-gray-200 p-12 text-center mb-6">
-                <Briefcase className="w-16 h-16 text-gray-400 mx-auto mb-4" />
-                <h3 className="text-xl font-semibold text-gray-900 mb-2">
-                  Aucune organisation
-                </h3>
-                <p className="text-gray-600 mb-6">
+            )}
+
+            {/* No Organizations */}
+            {!isLoadingOrgs && organizations.length === 0 && (
+              <div className="empty-state">
+                <Briefcase className="empty-icon" />
+                <h3 className="empty-title">Aucune organisation</h3>
+                <p className="empty-description">
                   Vous devez créer une organisation avant de créer une agence
                 </p>
                 <button
                   onClick={() => router.push("/user/organization/organization")}
-                  style={{ backgroundColor: BUTTON_COLOR }}
-                  className="px-6 py-3 text-white rounded-lg hover:opacity-90 transition-opacity"
+                  className="btn btn-primary"
+                  style={{ marginTop: "15px" }}
                 >
                   Créer une organisation
                 </button>
               </div>
-            ) : (
-              <div className="bg-white rounded-xl shadow-sm border border-gray-200 p-4 mb-6">
-                <div className="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-3">
-                  <div className="flex items-center space-x-3">
-                    <div className="p-3 bg-linear-to-br from-[#6149CD] to-[#8B7BE8] rounded-xl">
-                      <Briefcase className="w-6 h-6 text-white" />
-                    </div>
-                    <div>
-                      <p className="text-sm text-gray-600">
-                        Organisation sélectionnée
-                      </p>
-                      <h2 className="text-xl font-bold text-gray-900">
-                        {selected_organization?.long_name || "Aucune"}
-                      </h2>
-                    </div>
+            )}
+
+            {/* Organization Selector & Form */}
+            {!isLoadingOrgs && organizations.length > 0 && (
+              <>
+                {/* Organization Header */}
+                <div className="agency-header-card">
+                  <div className="agency-info">
+                    <h2 className="agency-name">
+                      Nom de l'organisation où vous voulez créer une agence :{" "}
+                      {selectedOrganization?.long_name || "Aucune"}
+                    </h2>
+                    <p className="agency-location">
+                      Abréviation du nom de l'organisation :{" "}
+                      {selectedOrganization?.short_name}
+                    </p>
                   </div>
 
                   {organizations.length > 1 && (
-                    <div className="relative">
+                    <div className="agency-selector">
                       <button
-                        type="button"
-                        onClick={() => setShowOrgSelector(!show_org_selector)}
-                        className="flex items-center space-x-2 px-4 py-2 border border-gray-300 rounded-lg hover:bg-gray-50"
+                        onClick={() => setShowOrgSelector(!showOrgSelector)}
+                        className="btn btn-secondary"
                       >
-                        <span className="text-gray-700">Changer</span>
-                        <ChevronDown className="w-4 h-4 text-gray-600" />
+                        Changer
+                        <ChevronDown />
                       </button>
 
-                      {show_org_selector && (
+                      {showOrgSelector && (
                         <>
                           <div
-                            className="fixed inset-0 z-10"
+                            className="selector-overlay"
                             onClick={() => setShowOrgSelector(false)}
                           ></div>
-                          <div className="absolute right-0 mt-2 w-72 bg-white rounded-lg shadow-lg border border-gray-200 py-2 z-20 max-h-60 overflow-y-auto">
+                          <div className="selector-dropdown">
                             {organizations.map((org) => (
                               <button
                                 key={org.id}
-                                type="button"
                                 onClick={() => handleSelectOrganization(org)}
-                                className={`w-full text-left px-4 py-3 hover:bg-gray-50 ${
-                                  selected_organization?.id === org.id
-                                    ? "bg-purple-50 border-l-4 border-[#6149CD]"
-                                    : ""
-                                }`}
+                                className={`selector-item ${selectedOrganization?.id === org.id ? "active" : ""}`}
                               >
-                                <p className="font-medium text-gray-900">
-                                  {org.long_name}
-                                </p>
-                                <p className="text-sm text-gray-600">
-                                  {org.short_name}
-                                </p>
+                                <div>
+                                  <p className="selector-item-name">
+                                    {org.long_name}
+                                  </p>
+                                  <p className="selector-item-city">
+                                    {org.short_name}
+                                  </p>
+                                </div>
                               </button>
                             ))}
                           </div>
@@ -570,266 +442,194 @@ export default function DGAgencePage() {
                     </div>
                   )}
                 </div>
-              </div>
-            )}
 
-            {/* Formulaire (fusionné avec image en haut) */}
-            {selected_organization && (
-              <div className="bg-white rounded-2xl shadow-lg border border-gray-200 overflow-hidden">
-                <div
-                  className="relative h-64 bg-cover bg-center"
-                  style={{ backgroundImage: "url('/images/agencyy.jpg')" }}
-                >
-                  <div className="absolute inset-0 bg-linear-to-r from-black/70 via-black/50 to-transparent"></div>
-                  <div className="absolute inset-0 flex flex-col justify-center px-8">
-                    <h2 className="text-4xl font-bold text-white mb-3 drop-shadow-lg">
-                      Nouvelle agence
-                    </h2>
-                    <p className="text-xl text-white/90 drop-shadow-md">
-                      Ajoutez une agence à votre organisation
-                    </p>
-                  </div>
-                </div>
-                <form onSubmit={handleSubmit} className="p-8">
-                  {/* Section 1 : Informations principales */}
-                  <div className="mb-8">
-                    <h3 className="text-xl font-bold text-gray-900 mb-6 flex items-center space-x-2">
-                      <Building className="w-6 h-6 text-[#6149CD]" />
-                      <span>Informations principales</span>
-                    </h3>
-
-                    <div className="space-y-4">
-                      <div>
-                        <label className="block text-sm font-semibold text-gray-700 mb-2">
+                {/* Form */}
+                <form onSubmit={handleSubmit} className="create-voyage-form">
+                  {/* Informations principales */}
+                  <div className="form-section">
+                    <div className="form-section-header">
+                      <Building />
+                      <h3>Informations principales</h3>
+                    </div>
+                    <div className="form-section-content">
+                      <div className="form-group">
+                        <label className="form-label">
                           Nom complet de l'agence *
                         </label>
                         <input
                           type="text"
                           name="long_name"
-                          value={form_data.long_name}
+                          value={formData.long_name}
                           onChange={handleInputChange}
-                          placeholder="Ex: Agence BusStation Yaoundé Centre"
                           required
-                          className="w-full px-4 py-3 border-2 border-gray-200 text-gray-800 placeholder:text-gray-400 rounded-xl focus:outline-none focus:ring-2 focus:ring-[#6149CD] focus:border-transparent transition-all"
+                          className="form-input"
+                          placeholder="Ex: Agence BusStation Yaoundé Centre"
                         />
                       </div>
 
-                      <div>
-                        <label className="block text-sm font-semibold text-gray-700 mb-2">
-                          Abréviation *
-                        </label>
+                      <div className="form-group">
+                        <label className="form-label">Abréviation *</label>
                         <input
                           type="text"
                           name="short_name"
-                          value={form_data.short_name}
+                          value={formData.short_name}
                           onChange={handleInputChange}
-                          placeholder="Ex: SP-YDE-CTR"
                           required
-                          className="w-full px-4 py-3 border-2 border-gray-200 text-gray-800 placeholder:text-gray-400 rounded-xl focus:outline-none focus:ring-2 focus:ring-[#6149CD] focus:border-transparent transition-all"
+                          className="form-input"
+                          placeholder="Ex: BST-YDE-CTR"
                         />
                       </div>
                     </div>
                   </div>
 
-                  {/* Section 2 : Localisation */}
-                  <div className="mb-8 pt-8 border-t border-gray-200">
-                    <h3 className="text-xl font-bold text-gray-900 mb-6 flex items-center space-x-2">
-                      <MapPin className="w-6 h-6 text-[#6149CD]" />
-                      <span>Localisation</span>
-                    </h3>
-
-                    <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
-                      <div>
-                        <label className="block text-sm font-semibold text-gray-700 mb-2">
-                          Ville *
-                        </label>
-                        <input
-                          type="text"
+                  {/* Localisation */}
+                  <div className="form-section">
+                    <div className="form-section-header">
+                      <MapPin />
+                      <h3>Localisation</h3>
+                    </div>
+                    <div className="form-section-content">
+                      <div className="form-group">
+                        <label className="form-label">Ville *</label>
+                        <select
                           name="ville"
-                          value={form_data.ville}
+                          value={formData.ville}
                           onChange={handleInputChange}
-                          placeholder="Ex: Yaoundé"
                           required
-                          className="w-full px-4 py-3 border-2 border-gray-200 text-gray-800 placeholder:text-gray-400 rounded-xl focus:outline-none focus:ring-2 focus:ring-[#6149CD] focus:border-transparent transition-all"
-                        />
+                          className="form-input"
+                        >
+                          <option value="">Sélectionner une ville</option>
+                          <option value="Yaoundé">Yaoundé</option>
+                          <option value="Douala">Douala</option>
+                          <option value="Bafoussam">Bafoussam</option>
+                          <option value="Bamenda">Bamenda</option>
+                          <option value="Garoua">Garoua</option>
+                          <option value="Maroua">Maroua</option>
+                          <option value="Ngaoundéré">Ngaoundéré</option>
+                          <option value="Bertoua">Bertoua</option>
+                          <option value="Ebolowa">Ebolowa</option>
+                          <option value="Kribi">Kribi</option>
+                        </select>
                       </div>
 
-                      <div>
-                        <label className="block text-sm font-semibold text-gray-700 mb-2">
-                          Zone/Quartier *
-                        </label>
+                      <div className="form-group">
+                        <label className="form-label">Zone/Quartier *</label>
                         <input
                           type="text"
                           name="location"
-                          value={form_data.location}
+                          value={formData.location}
                           onChange={handleInputChange}
-                          placeholder="Ex: Mvan, Marché Central"
                           required
-                          className="w-full px-4 py-3 border-2 border-gray-200 text-gray-800 placeholder:text-gray-400 rounded-xl focus:outline-none focus:ring-2 focus:ring-[#6149CD] focus:border-transparent transition-all"
+                          className="form-input"
+                          placeholder="Ex: Mvan, Marché Central"
                         />
                       </div>
                     </div>
                   </div>
 
-                  {/* Section 3 : Informations supplémentaires */}
-                  <div className="pt-8 border-t border-gray-200">
-                    <h3 className="text-xl font-bold text-gray-900 mb-6 flex items-center space-x-2">
-                      <Globe className="w-6 h-6 text-[#6149CD]" />
-                      <span>Informations supplémentaires</span>
-                    </h3>
-
-                    <div className="space-y-4">
-                      <div>
-                        <label className="block text-sm font-semibold text-gray-700 mb-2">
-                          Réseau social
-                        </label>
+                  {/* Informations supplémentaires */}
+                  <div className="form-section">
+                    <div className="form-section-header">
+                      <Globe />
+                      <h3>Informations supplémentaires</h3>
+                    </div>
+                    <div className="form-section-content">
+                      <div className="form-group">
+                        <label className="form-label">Réseau social</label>
                         <input
                           type="text"
                           name="social_network"
-                          value={form_data.social_network}
+                          value={formData.social_network}
                           onChange={handleInputChange}
-                          placeholder="Ex: facebook.com"
-                          className="w-full px-4 py-3 border-2 border-gray-200 text-gray-800 placeholder:text-gray-400 rounded-xl focus:outline-none focus:ring-2 focus:ring-[#6149CD] focus:border-transparent transition-all"
+                          className="form-input"
+                          placeholder="Ex: facebook.com/votre-agence"
                         />
                       </div>
 
-                      <div>
-                        <label className="text-sm font-semibold text-gray-700 mb-2 flex items-center space-x-2">
-                          <MessageSquare className="w-4 h-4 text-[#6149CD]" />
-                          <span>Message d'accueil</span>
-                        </label>
+                      <div
+                        className="form-group"
+                        style={{ gridColumn: "1 / -1" }}
+                      >
+                        <label className="form-label">Message d'accueil</label>
                         <textarea
                           name="greeting_message"
-                          value={form_data.greeting_message}
+                          value={formData.greeting_message}
                           onChange={handleInputChange}
+                          className="form-textarea"
                           placeholder="Message de bienvenue pour vos clients..."
-                          rows={3}
-                          className="w-full px-4 py-3 border-2 border-gray-200 text-gray-800 placeholder:text-gray-400 rounded-xl focus:outline-none focus:ring-2 focus:ring-[#6149CD] focus:border-transparent transition-all resize-none"
+                          style={{ minHeight: "80px" }}
                         />
                       </div>
 
-                      <div>
-                        <label className="block text-sm font-semibold text-gray-700 mb-2">
-                          Description
-                        </label>
+                      <div
+                        className="form-group"
+                        style={{ gridColumn: "1 / -1" }}
+                      >
+                        <label className="form-label">Description</label>
                         <textarea
                           name="description"
-                          value={form_data.description}
+                          value={formData.description}
                           onChange={handleInputChange}
+                          className="form-textarea"
                           placeholder="Description détaillée de l'agence..."
-                          rows={4}
-                          className="w-full px-4 py-3 border-2 border-gray-200 text-gray-800 placeholder:text-gray-400 rounded-xl focus:outline-none focus:ring-2 focus:ring-[#6149CD] focus:border-transparent transition-all resize-none"
+                          style={{ minHeight: "100px" }}
                         />
                       </div>
                     </div>
                   </div>
 
-                  {/* Buttons */}
-                  <div className="flex items-center justify-between mt-8 pt-8 border-t border-gray-200">
+                  {/* Actions */}
+                  <div className="form-actions">
                     <button
                       type="button"
                       onClick={() =>
                         router.push("/user/organization/dashboard")
                       }
-                      className="px-6 py-3 border-2 border-gray-300 text-gray-700 rounded-xl font-semibold hover:bg-gray-100 active:bg-gray-200 transition-colors"
+                      className="btn btn-secondary"
                     >
                       Annuler
                     </button>
-
                     <button
                       type="submit"
-                      disabled={is_loading}
-                      style={{ backgroundColor: BUTTON_COLOR }}
-                      className="px-8 py-3 text-white rounded-xl font-semibold hover:opacity-90 active:opacity-80 transition-all flex items-center space-x-2 disabled:opacity-50 disabled:cursor-not-allowed shadow-lg"
+                      disabled={isSubmitting || !isFormValid()}
+                      className="btn btn-primary"
                     >
-                      {is_loading ? (
+                      {isSubmitting ? (
                         <>
-                          <div className="w-5 h-5 border-2 border-white border-t-transparent rounded-full animate-spin"></div>
+                          <RefreshCw className="spin" />
                           <span>Création en cours...</span>
                         </>
                       ) : (
                         <>
-                          <Building2 className="w-5 h-5" />
+                          <Building2 />
                           <span>Créer l'agence</span>
                         </>
                       )}
                     </button>
                   </div>
                 </form>
-              </div>
+              </>
             )}
           </div>
         </main>
       </div>
 
-      {/* Success Modal */}
-      {show_success_modal && (
-        <div className="fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center z-50 p-4">
-          <div className="bg-white rounded-2xl shadow-2xl max-w-md w-full p-6 sm:p-8">
-            <div className="text-center">
-              <div className="w-16 h-16 sm:w-20 sm:h-20 bg-green-100 rounded-full flex items-center justify-center mx-auto mb-4">
-                <svg
-                  className="w-10 h-10 sm:w-12 sm:h-12 text-green-600"
-                  fill="none"
-                  stroke="currentColor"
-                  viewBox="0 0 24 24"
-                >
-                  <path
-                    strokeLinecap="round"
-                    strokeLinejoin="round"
-                    strokeWidth={2}
-                    d="M5 13l4 4L19 7"
-                  />
-                </svg>
-              </div>
-              <h2 className="text-xl sm:text-2xl font-bold text-gray-900 mb-2">
-                Succès !
-              </h2>
-              <p className="text-gray-600 mb-6 text-sm sm:text-base">
-                Demande de création réussie avec succès, veuillez attendre la validation par le BSM.
-              </p>
-              <button
-                onClick={() => {
-                  setShowSuccessModal(false);
-                  router.push("/user/organization/dashboard");
-                }}
-                className="w-full py-2.5 sm:py-3 bg-green-600 text-white rounded-xl font-semibold hover:bg-green-700 transition-colors text-sm sm:text-base"
-              >
-                Fermer
-              </button>
-            </div>
-          </div>
-        </div>
-      )}
+      <SuccessModal
+        show={showSuccessModal}
+        onClose={() => {
+          setShowSuccessModal(false);
+          router.push("/user/organization/dashboard");
+        }}
+        title="Agence créée !"
+        message="Demande de création réussie avec succès, veuillez attendre la validation par le BSM."
+        buttonText="Retour au dashboard"
+      />
 
-      {/* Error Modal */}
-      {show_error_modal && (
-        <div className="fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center z-50 p-4">
-          <div className="bg-white rounded-2xl shadow-2xl max-w-md w-full p-6 sm:p-8">
-            <div className="text-center">
-              <div className="w-16 h-16 sm:w-20 sm:h-20 bg-red-100 rounded-full flex items-center justify-center mx-auto mb-4">
-                <AlertCircle className="w-10 h-10 sm:w-12 sm:h-12 text-red-600" />
-              </div>
-              <h2 className="text-xl sm:text-2xl font-bold text-gray-900 mb-2">
-                Erreur
-              </h2>
-              <div className="bg-red-50 rounded-xl p-4 mb-6">
-                <p className="text-sm sm:text-base text-red-800">
-                  {error_message}
-                </p>
-              </div>
-              <button
-                onClick={() => {
-                  setShowErrorModal(false);
-                }}
-                className="w-full py-2.5 sm:py-3 bg-red-600 text-white rounded-xl font-semibold hover:bg-red-700 transition-colors text-sm sm:text-base"
-              >
-                Fermer
-              </button>
-            </div>
-          </div>
-        </div>
-      )}
+      <ErrorModal
+        show={showErrorModal}
+        onClose={() => setShowErrorModal(false)}
+        message={errorMessage}
+      />
     </div>
   );
 }

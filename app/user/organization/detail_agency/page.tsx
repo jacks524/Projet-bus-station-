@@ -1,36 +1,27 @@
 "use client";
 
 import React, { useState, useEffect, Suspense } from "react";
+import { useRouter, useSearchParams } from "next/navigation";
 import {
   Home,
   Building2,
   Settings,
-  ChevronDown,
-  LogOut,
-  Menu,
-  X,
   Briefcase,
-  ArrowLeft,
-  Edit,
-  Save,
-  XCircle as CancelIcon,
-  Trash2,
-  AlertCircle,
-  CheckCircle,
   MapPin,
-  Building,
   Globe,
   MessageSquare,
   RefreshCw,
   Users,
   Car,
-  TrendingUp,
-  Calendar,
   Bus,
-  Ticket,
-  UserPlus,
+  Calendar,
+  TrendingUp,
   BarChart3,
-  PieChart,
+  ArrowLeft,
+  Edit,
+  Save,
+  X,
+  Trash2,
 } from "lucide-react";
 import {
   LineChart,
@@ -42,12 +33,17 @@ import {
   ResponsiveContainer,
   BarChart,
   Bar,
-  PieChart as RechartsPieChart,
+  PieChart,
   Pie,
   Cell,
   Legend,
 } from "recharts";
-import { useRouter, useSearchParams } from "next/navigation";
+import Sidebar from "@/app/components/Sidebar";
+import MobileSidebar from "@/app/components/Mobilesidebar";
+import Header from "@/app/components/Header";
+import SuccessModal from "@/app/components/SuccessModal";
+import ErrorModal from "@/app/components/ErrorModal";
+import ConfirmModal from "@/app/components/ConfirmModal";
 
 interface AgencyData {
   agency_id: string;
@@ -79,7 +75,6 @@ interface GeneralStatistics {
   tauxOccupation: number;
   revenue_by_class: { [key: string]: number };
   top_destinations: { [key: string]: number };
-  top_origins: { [key: string]: number };
   reservations_by_day_of_week: { [key: string]: number };
   trips_by_driver: { [key: string]: number };
 }
@@ -103,61 +98,53 @@ interface EvolutionStatistics {
 
 interface UserData {
   username: string;
+  first_name: string;
+  last_name: string;
+  email: string;
   userId: string;
+  role: string[];
 }
-
-/**
- * DG Organisation Page Component
- *
- * Form to see an agency
- *
- * @author Thomas Djotio Ndié
- * @date 2025-01-14
- */
 
 function DetailAgencyContent() {
   const router = useRouter();
   const searchParams = useSearchParams();
-  const agency_id = searchParams.get("id");
+  const agencyId = searchParams.get("id");
 
   const [agency, setAgency] = useState<AgencyData | null>(null);
-  const [edit_mode, setEditMode] = useState(false);
-  const [form_data, setFormData] = useState<Partial<AgencyData>>({});
+  const [editMode, setEditMode] = useState(false);
+  const [formData, setFormData] = useState<Partial<AgencyData>>({});
 
-  const [is_loading, setIsLoading] = useState(true);
-  const [is_saving, setIsSaving] = useState(false);
-  const [is_deleting, setIsDeleting] = useState(false);
+  const [isLoading, setIsLoading] = useState(true);
+  const [isSaving, setIsSaving] = useState(false);
+  const [isDeleting, setIsDeleting] = useState(false);
 
-  const [show_delete_modal, setShowDeleteModal] = useState(false);
-  const [show_success_modal, setShowSuccessModal] = useState(false);
-  const [show_error_modal, setShowErrorModal] = useState(false);
-  const [error_message, setErrorMessage] = useState("");
+  const [showDeleteModal, setShowDeleteModal] = useState(false);
+  const [showSuccessModal, setShowSuccessModal] = useState(false);
+  const [showErrorModal, setShowErrorModal] = useState(false);
+  const [errorMessage, setErrorMessage] = useState("");
 
-  const [show_profile_menu, setShowProfileMenu] = useState(false);
-  const [show_mobile_menu, setShowMobileMenu] = useState(false);
-  const [user_data, setDgData] = useState<UserData | null>(null);
+  const [showMobileMenu, setShowMobileMenu] = useState(false);
+  const [userData, setUserData] = useState<UserData | null>(null);
 
-  const [general_stats, setGeneralStats] = useState<GeneralStatistics | null>(
+  const [generalStats, setGeneralStats] = useState<GeneralStatistics | null>(
     null,
   );
-  const [evolution_stats, setEvolutionStats] =
+  const [evolutionStats, setEvolutionStats] =
     useState<EvolutionStatistics | null>(null);
-  const [is_loading_stats, setIsLoadingStats] = useState(false);
-  const [active_chart, setActiveChart] = useState<
+  const [isLoadingStats, setIsLoadingStats] = useState(false);
+  const [activeChart, setActiveChart] = useState<
     "reservations" | "voyages" | "revenus" | "utilisateurs"
   >("reservations");
 
   const API_BASE_URL = process.env.NEXT_PUBLIC_API_BASE_URL;
-  const BUTTON_COLOR = "#6149CD";
-  const CHART_COLORS = ["#6149CD", "#8B7BE8", "#A594F9", "#C4B5FD", "#E9E3FF"];
   const PIE_COLORS = ["#10B981", "#F59E0B", "#EF4444", "#6366F1", "#8B5CF6"];
 
-  const MENU_ITEMS = [
+  const menuItems = [
     {
       icon: Home,
       label: "Dashboard",
       path: "/user/organization/dashboard",
-      active: true,
+      active: false,
     },
     {
       icon: Briefcase,
@@ -169,7 +156,7 @@ function DetailAgencyContent() {
       icon: Building2,
       label: "Agence",
       path: "/user/organization/agencies",
-      active: false,
+      active: true,
     },
     {
       icon: Settings,
@@ -180,26 +167,24 @@ function DetailAgencyContent() {
   ];
 
   useEffect(() => {
-    const auth_token =
+    const authToken =
       localStorage.getItem("auth_token") ||
       sessionStorage.getItem("auth_token");
-
-    if (!auth_token) {
+    if (!authToken) {
       router.push("/login");
       return;
     }
 
-    const stored_user_data =
+    const storedUserData =
       localStorage.getItem("user_data") || sessionStorage.getItem("user_data");
-    if (stored_user_data) {
-      const parsed_user = JSON.parse(stored_user_data);
-      setDgData(parsed_user);
+    if (storedUserData) {
+      setUserData(JSON.parse(storedUserData));
     }
 
-    if (agency_id) {
+    if (agencyId) {
       fetchAgencyDetails();
     }
-  }, [agency_id]);
+  }, [agencyId]);
 
   useEffect(() => {
     if (agency?.agency_id) {
@@ -211,14 +196,14 @@ function DetailAgencyContent() {
   const fetchAgencyDetails = async () => {
     setIsLoading(true);
     try {
-      const auth_token =
+      const authToken =
         localStorage.getItem("auth_token") ||
         sessionStorage.getItem("auth_token");
-      const response = await fetch(`${API_BASE_URL}/agence/${agency_id}`, {
+      const response = await fetch(`${API_BASE_URL}/agence/${agencyId}`, {
         method: "GET",
         headers: {
           "Content-Type": "application/json",
-          Authorization: `Bearer ${auth_token}`,
+          Authorization: `Bearer ${authToken}`,
         },
       });
 
@@ -230,25 +215,24 @@ function DetailAgencyContent() {
     } catch (error: any) {
       setErrorMessage("Impossible de charger les détails de l'agence");
       setShowErrorModal(true);
-      console.error("Fetch Agency Error:", error);
     } finally {
       setIsLoading(false);
     }
   };
 
-  const fetchGeneralStatistics = async (agence_id: string) => {
+  const fetchGeneralStatistics = async (agenceId: string) => {
     setIsLoadingStats(true);
     try {
-      const auth_token =
+      const authToken =
         localStorage.getItem("auth_token") ||
         sessionStorage.getItem("auth_token");
       const response = await fetch(
-        `${API_BASE_URL}/statistics/agence/${agence_id}/general`,
+        `${API_BASE_URL}/statistics/agence/${agenceId}/general`,
         {
           method: "GET",
           headers: {
             "Content-Type": "application/json",
-            Authorization: `Bearer ${auth_token}`,
+            Authorization: `Bearer ${authToken}`,
           },
         },
       );
@@ -265,18 +249,18 @@ function DetailAgencyContent() {
     }
   };
 
-  const fetchEvolutionStatistics = async (agence_id: string) => {
+  const fetchEvolutionStatistics = async (agenceId: string) => {
     try {
-      const auth_token =
+      const authToken =
         localStorage.getItem("auth_token") ||
         sessionStorage.getItem("auth_token");
       const response = await fetch(
-        `${API_BASE_URL}/statistics/agence/${agence_id}/evolution`,
+        `${API_BASE_URL}/statistics/agence/${agenceId}/evolution`,
         {
           method: "GET",
           headers: {
             "Content-Type": "application/json",
-            Authorization: `Bearer ${auth_token}`,
+            Authorization: `Bearer ${authToken}`,
           },
         },
       );
@@ -292,7 +276,9 @@ function DetailAgencyContent() {
   };
 
   const handleInputChange = (
-    e: React.ChangeEvent<HTMLInputElement | HTMLTextAreaElement>,
+    e: React.ChangeEvent<
+      HTMLInputElement | HTMLTextAreaElement | HTMLSelectElement
+    >,
   ) => {
     const { name, value } = e.target;
     setFormData((prev) => ({
@@ -304,29 +290,29 @@ function DetailAgencyContent() {
   const handleUpdate = async () => {
     setIsSaving(true);
     try {
-      const auth_token =
+      const authToken =
         localStorage.getItem("auth_token") ||
         sessionStorage.getItem("auth_token");
 
-      const update_body = {
-        organisation_id: form_data.organisation_id,
-        user_id: form_data.user_id,
-        long_name: form_data.long_name,
-        short_name: form_data.short_name,
-        location: form_data.location,
-        ville: form_data.ville,
-        social_network: form_data.social_network,
-        description: form_data.description,
-        greeting_message: form_data.greeting_message,
+      const updateBody = {
+        organisation_id: formData.organisation_id,
+        user_id: formData.user_id,
+        long_name: formData.long_name,
+        short_name: formData.short_name,
+        location: formData.location,
+        ville: formData.ville,
+        social_network: formData.social_network,
+        description: formData.description,
+        greeting_message: formData.greeting_message,
       };
 
-      const response = await fetch(`${API_BASE_URL}/agence/${agency_id}`, {
+      const response = await fetch(`${API_BASE_URL}/agence/${agencyId}`, {
         method: "PATCH",
         headers: {
           "Content-Type": "application/json",
-          Authorization: `Bearer ${auth_token}`,
+          Authorization: `Bearer ${authToken}`,
         },
-        body: JSON.stringify(update_body),
+        body: JSON.stringify(updateBody),
       });
 
       if (!response.ok) throw new Error("Erreur lors de la mise à jour");
@@ -337,7 +323,6 @@ function DetailAgencyContent() {
     } catch (error: any) {
       setErrorMessage("Erreur lors de la mise à jour de l'agence");
       setShowErrorModal(true);
-      console.error("Update Agency Error:", error);
     } finally {
       setIsSaving(false);
     }
@@ -346,13 +331,13 @@ function DetailAgencyContent() {
   const handleDelete = async () => {
     setIsDeleting(true);
     try {
-      const auth_token =
+      const authToken =
         localStorage.getItem("auth_token") ||
         sessionStorage.getItem("auth_token");
-      const response = await fetch(`${API_BASE_URL}/agence/${agency_id}`, {
+      const response = await fetch(`${API_BASE_URL}/agence/${agencyId}`, {
         method: "DELETE",
         headers: {
-          Authorization: `Bearer ${auth_token}`,
+          Authorization: `Bearer ${authToken}`,
         },
       });
 
@@ -360,75 +345,21 @@ function DetailAgencyContent() {
 
       router.push("/user/organization/dashboard");
     } catch (error: any) {
-      setErrorMessage("Erreur lors de la suppression de l'agence.");
+      setErrorMessage("Erreur lors de la suppression de l'agence");
       setShowErrorModal(true);
-      console.error("Delete Agency Error:", error);
     } finally {
       setIsDeleting(false);
       setShowDeleteModal(false);
     }
   };
 
-  const handleLogout = () => {
-    localStorage.removeItem("auth_token");
-    localStorage.removeItem("user_data");
-    sessionStorage.removeItem("auth_token");
-    sessionStorage.removeItem("user_data");
-    router.push("/login");
-  };
-
   const formatDate = (dateString: string) => {
     if (!dateString) return "Non renseigné";
     return new Date(dateString).toLocaleDateString("fr-FR", {
-      month: "numeric",
+      day: "numeric",
+      month: "long",
       year: "numeric",
     });
-  };
-
-  const getStatusBadge = (status: string) => {
-    const styles = {
-      VALIDEE: "bg-green-100 text-green-800",
-      EN_ATTENTE: "bg-orange-100 text-orange-800",
-      REJETEE: "bg-red-100 text-red-800",
-    };
-    return styles[status as keyof typeof styles] || "bg-gray-100 text-gray-800";
-  };
-
-  if (is_loading) {
-    return (
-      <div className="min-h-screen bg-gray-50 flex items-center justify-center">
-        <div className="text-center">
-          <Settings className="w-12 h-12 text-[#6149CD] animate-spin mx-auto mb-4" />
-          <p className="text-gray-600">Chargement...</p>
-        </div>
-      </div>
-    );
-  }
-
-  if (!agency) {
-    return (
-      <div className="min-h-screen bg-gray-50 flex items-center justify-center">
-        <div className="text-center">
-          <AlertCircle className="w-12 h-12 text-red-600 mx-auto mb-4" />
-          <p className="text-gray-600">Agence introuvable</p>
-          <button
-            onClick={() => router.push("/user/organization/dashboard")}
-            style={{ backgroundColor: BUTTON_COLOR }}
-            className="mt-4 px-6 py-2 text-white rounded-lg hover:opacity-90"
-          >
-            Retour au dashboard
-          </button>
-        </div>
-      </div>
-    );
-  }
-
-  const formatRevenue = (amount: number) => {
-    return new Intl.NumberFormat("fr-FR", {
-      style: "currency",
-      currency: "XAF",
-      minimumFractionDigits: 0,
-    }).format(amount);
   };
 
   const formatDateShort = (dateString: string) => {
@@ -438,40 +369,44 @@ function DetailAgencyContent() {
     });
   };
 
-  const getChartData = () => {
-    if (!evolution_stats) return [];
+  const formatRevenue = (amount: number) => {
+    return new Intl.NumberFormat("fr-FR", {
+      style: "currency",
+      currency: "XAF",
+      minimumFractionDigits: 0,
+    }).format(amount);
+  };
 
-    switch (active_chart) {
+  const getChartData = () => {
+    if (!evolutionStats) return [];
+
+    switch (activeChart) {
       case "reservations":
         return (
-          evolution_stats.evolutionReservations?.map((item) => ({
+          evolutionStats.evolutionReservations?.map((item) => ({
             date: formatDateShort(item.date),
             valeur: item.valeur,
-            montant: item.montant,
           })) || []
         );
       case "voyages":
         return (
-          evolution_stats.evolutionVoyages?.map((item) => ({
+          evolutionStats.evolutionVoyages?.map((item) => ({
             date: formatDateShort(item.date),
             valeur: item.valeur,
-            montant: item.montant,
           })) || []
         );
       case "revenus":
         return (
-          evolution_stats.evolutionRevenus?.map((item) => ({
+          evolutionStats.evolutionRevenus?.map((item) => ({
             date: formatDateShort(item.date),
-            valeur: item.valeur,
-            montant: item.montant,
+            valeur: item.montant,
           })) || []
         );
       case "utilisateurs":
         return (
-          evolution_stats.evolutionUtilisateurs?.map((item) => ({
+          evolutionStats.evolutionUtilisateurs?.map((item) => ({
             date: formatDateShort(item.date),
             valeur: item.valeur,
-            montant: item.montant,
           })) || []
         );
       default:
@@ -480,7 +415,7 @@ function DetailAgencyContent() {
   };
 
   const getChartTitle = () => {
-    switch (active_chart) {
+    switch (activeChart) {
       case "reservations":
         return "Évolution des réservations";
       case "voyages":
@@ -494,6 +429,28 @@ function DetailAgencyContent() {
     }
   };
 
+  const getVoyagesStatusData = () => {
+    if (!generalStats?.voyagesParStatut) return [];
+    return Object.entries(generalStats.voyagesParStatut).map(
+      ([name, value], index) => ({
+        name,
+        value,
+        color: PIE_COLORS[index % PIE_COLORS.length],
+      }),
+    );
+  };
+
+  const getReservationsStatusData = () => {
+    if (!generalStats?.reservationsParStatut) return [];
+    return Object.entries(generalStats.reservationsParStatut).map(
+      ([name, value], index) => ({
+        name,
+        value,
+        color: PIE_COLORS[index % PIE_COLORS.length],
+      }),
+    );
+  };
+
   const prepareBarChartData = (data: { [key: string]: number }) => {
     return Object.entries(data)
       .sort((a, b) => b[1] - a[1])
@@ -505,19 +462,30 @@ function DetailAgencyContent() {
   };
 
   const prepareDayOfWeekData = (data: { [key: string]: number }) => {
+    const dayMapping: { [key: string]: string } = {
+      MONDAY: "Lundi",
+      TUESDAY: "Mardi",
+      WEDNESDAY: "Mercredi",
+      THURSDAY: "Jeudi",
+      FRIDAY: "Vendredi",
+      SATURDAY: "Samedi",
+      SUNDAY: "Dimanche",
+    };
+
     const daysOrder = [
-      "Lundi",
-      "Mardi",
-      "Mercredi",
-      "Jeudi",
-      "Vendredi",
-      "Samedi",
-      "Dimanche",
+      "MONDAY",
+      "TUESDAY",
+      "WEDNESDAY",
+      "THURSDAY",
+      "FRIDAY",
+      "SATURDAY",
+      "SUNDAY",
     ];
+
     return daysOrder
-      .map((day) => ({
-        day,
-        value: data[day] || 0,
+      .map((dayKey) => ({
+        day: dayMapping[dayKey],
+        value: data[dayKey] || 0,
       }))
       .filter((item) => item.value > 0);
   };
@@ -531,574 +499,500 @@ function DetailAgencyContent() {
       }));
   };
 
-  return (
-    <div className="min-h-screen bg-gray-50 flex">
-      {/* Sidebar */}
-      <aside className="hidden lg:flex lg:flex-col w-64 bg-white border-r border-gray-200 fixed h-full">
-        <div className="p-6">
-          <div className="mb-8">
+  if (isLoading) {
+    return (
+      <div className="dashboard-layout">
+        <Sidebar
+          menuItems={menuItems}
+          activePath="/user/organization/agencies"
+        />
+        <div className="dashboard-main">
+          <div className="loading-state">
+            <RefreshCw className="spin" />
+            <p>Chargement...</p>
+          </div>
+        </div>
+      </div>
+    );
+  }
+
+  if (!agency) {
+    return (
+      <div className="dashboard-layout">
+        <Sidebar
+          menuItems={menuItems}
+          activePath="/user/organization/agencies"
+        />
+        <div className="dashboard-main">
+          <div className="empty-state">
+            <Building2 className="empty-icon" />
+            <h3 className="empty-title">Agence introuvable</h3>
             <button
               onClick={() => router.push("/user/organization/dashboard")}
-              className="group relative transition-all duration-300 hover:scale-105 active:scale-95"
+              className="btn btn-primary"
             >
-              <img
-                src="/images/busstation.png"
-                alt="BusStation Logo"
-                className="h-12 w-auto"
-              />
+              Retour au dashboard
             </button>
           </div>
-
-          <nav className="space-y-1">
-            {MENU_ITEMS.map((item, index) => (
-              <button
-                key={index}
-                onClick={() => router.push(item.path)}
-                className={`w-full flex items-center space-x-3 px-4 py-3 rounded-lg transition-colors ${
-                  item.active
-                    ? "bg-[#6149CD] text-white"
-                    : "text-gray-600 hover:bg-gray-100"
-                }`}
-              >
-                <item.icon className="w-5 h-5" />
-                <span className="font-medium">{item.label}</span>
-              </button>
-            ))}
-          </nav>
         </div>
-      </aside>
+      </div>
+    );
+  }
 
-      {/* Main Content */}
-      <div className="flex-1 lg:ml-64">
-        {/* Header */}
-        <header className="bg-white border-b border-gray-200 sticky top-0 z-10">
-          <div className="px-6 py-4 flex items-center justify-between">
-            <div className="flex items-center space-x-3">
+  return (
+    <div className="dashboard-layout">
+      <Sidebar menuItems={menuItems} activePath="/user/organization/agencies" />
+      <MobileSidebar
+        isOpen={showMobileMenu}
+        onClose={() => setShowMobileMenu(false)}
+        menuItems={menuItems}
+        activePath="/user/organization/agencies"
+      />
+
+      <div className="dashboard-main">
+        <Header
+          title="Détails de l'agence"
+          userData={userData}
+          onMenuClick={() => setShowMobileMenu(true)}
+        />
+
+        <main className="dashboard-content">
+          <div className="container" style={{ maxWidth: "1200px" }}>
+            {/* Action Buttons */}
+            <div className="detail-actions">
               <button
                 onClick={() => router.push("/user/organization/dashboard")}
-                className="p-2 hover:bg-gray-100 rounded-lg transition-colors"
+                className="btn btn-secondary"
               >
-                <ArrowLeft className="w-6 h-6 text-gray-900" />
+                <ArrowLeft />
+                Retour
               </button>
-              <h1 className="text-2xl font-semibold text-gray-900">
-                Détails de l'agence
-              </h1>
-            </div>
 
-            <div className="flex items-center space-x-4">
-              {!edit_mode ? (
-                <>
-                  <button
-                    onClick={() => {
-                      if (agency?.agency_id) {
-                        fetchGeneralStatistics(agency.agency_id);
-                        fetchEvolutionStatistics(agency.agency_id);
-                      }
-                    }}
-                    className="p-2 hover:bg-gray-100 rounded-lg transition-colors"
-                    title="Actualiser les statistiques"
-                  >
-                    <RefreshCw className="w-5 h-5 text-gray-600" />
-                  </button>
-                  <button
-                    onClick={() => setEditMode(true)}
-                    style={{ backgroundColor: BUTTON_COLOR }}
-                    className="flex items-center space-x-2 px-4 py-2 text-white rounded-lg hover:opacity-90 transition-opacity"
-                  >
-                    <Edit className="w-4 h-4" />
-                    <span>Modifier</span>
-                  </button>
-                  <button
-                    onClick={() => setShowDeleteModal(true)}
-                    className="flex items-center space-x-2 px-4 py-2 bg-red-600 text-white rounded-lg hover:bg-red-700 transition-colors"
-                  >
-                    <Trash2 className="w-4 h-4" />
-                    <span>Supprimer</span>
-                  </button>
-                </>
-              ) : (
-                <>
-                  <button
-                    onClick={handleUpdate}
-                    disabled={is_saving}
-                    style={{ backgroundColor: BUTTON_COLOR }}
-                    className="flex items-center space-x-2 px-4 py-2 text-white rounded-lg hover:opacity-90 transition-opacity disabled:opacity-50"
-                  >
-                    <Save className="w-4 h-4" />
-                    <span>
-                      {is_saving ? "Enregistrement..." : "Enregistrer"}
-                    </span>
-                  </button>
-                  <button
-                    onClick={() => {
-                      setEditMode(false);
-                      setFormData(agency);
-                    }}
-                    className="flex items-center space-x-2 px-4 py-2 border border-gray-300 text-gray-700 rounded-lg hover:bg-gray-100 transition-colors"
-                  >
-                    <CancelIcon className="w-4 h-4" />
-                    <span>Annuler</span>
-                  </button>
-                </>
-              )}
-
-              {/* Profile Menu */}
-              <div className="relative">
+              <div style={{ display: "flex", gap: "var(--spacing-sm)" }}>
                 <button
-                  onClick={() => setShowProfileMenu(!show_profile_menu)}
-                  className="flex items-center space-x-3 hover:bg-gray-100 rounded-lg px-3 py-2 transition-colors"
+                  onClick={() => {
+                    if (agency?.agency_id) {
+                      fetchGeneralStatistics(agency.agency_id);
+                      fetchEvolutionStatistics(agency.agency_id);
+                    }
+                  }}
+                  className="btn-icon"
+                  title="Actualiser"
                 >
-                  <img
-                    src="/images/user-icon.png"
-                    alt="Profile"
-                    className="w-8.5 h-8.5 rounded-full object-cover"
-                  />
-                  <span className="font-medium text-gray-900 hidden md:block">
-                    {user_data?.username}
-                  </span>
-                  <ChevronDown className="w-4 h-4 text-gray-600" />
+                  <RefreshCw />
                 </button>
 
-                {show_profile_menu && (
-                  <div className="absolute right-0 mt-2 w-48 bg-white rounded-lg shadow-lg border border-gray-200 py-2">
+                {!editMode ? (
+                  <>
                     <button
-                      onClick={() => router.push("/user/organization/settings")}
-                      className="w-full flex items-center space-x-3 px-4 py-2 hover:bg-gray-100 transition-colors"
+                      onClick={() => setEditMode(true)}
+                      className="btn btn-primary"
                     >
-                      <Settings className="w-4 h-4 text-gray-600" />
-                      <span className="text-gray-700">Paramètres</span>
+                      <Edit />
+                      Modifier
                     </button>
                     <button
-                      onClick={handleLogout}
-                      className="w-full flex items-center space-x-3 px-4 py-2 hover:bg-gray-100 transition-colors text-red-600"
+                      onClick={() => setShowDeleteModal(true)}
+                      className="btn btn-danger"
                     >
-                      <LogOut className="w-4 h-4" />
-                      <span>Se déconnecter</span>
+                      <Trash2 />
+                      Supprimer
                     </button>
-                  </div>
+                  </>
+                ) : (
+                  <>
+                    <button
+                      onClick={handleUpdate}
+                      disabled={isSaving}
+                      className="btn btn-primary"
+                    >
+                      <Save />
+                      {isSaving ? "Enregistrement..." : "Enregistrer"}
+                    </button>
+                    <button
+                      onClick={() => {
+                        setEditMode(false);
+                        setFormData(agency);
+                      }}
+                      className="btn btn-secondary"
+                    >
+                      <X />
+                      Annuler
+                    </button>
+                  </>
                 )}
               </div>
             </div>
-          </div>
-        </header>
 
-        {/* Content */}
-        <main className="p-6">
-          <div className="max-w-4xl mx-auto space-y-6">
-            {/* Agency Header */}
-            <div className="bg-white rounded-xl shadow-sm border border-gray-200 p-6">
-              <div className="flex items-start justify-between">
-                <div className="flex items-center space-x-4">
-                  <div
-                    className="w-16 h-16 rounded-full flex items-center justify-center text-white text-2xl font-bold"
-                    style={{ backgroundColor: BUTTON_COLOR }}
-                  >
-                    {agency.short_name?.substring(0, 2).toUpperCase()}
-                  </div>
-                  <div>
-                    <h2 className="text-2xl font-bold text-gray-900">
-                      {agency.long_name}
-                    </h2>
-                    <p className="text-gray-600">{agency.short_name}</p>
-                    <div className="flex items-center space-x-2 mt-2">
-                      <MapPin className="w-4 h-4 text-gray-500" />
-                      <span className="text-gray-600">{agency.ville}</span>
-                    </div>
-                  </div>
+            {/* Agency Header Card */}
+            <div className="agency-detail-header">
+              <div className="agency-detail-avatar">
+                {agency.short_name?.substring(0, 2).toUpperCase()}
+              </div>
+              <div className="agency-detail-info">
+                <h2 className="agency-detail-name">{agency.long_name}</h2>
+                <p className="agency-detail-short">{agency.short_name}</p>
+                <div className="agency-detail-location">
+                  <MapPin />
+                  <span>{agency.ville}</span>
                 </div>
-
+              </div>
+              <div className="agency-detail-status">
                 <span
-                  className={`px-4 py-2 rounded-full text-sm font-semibold ${getStatusBadge(
-                    agency.statut_validation,
-                  )}`}
+                  className={`status-badge status-${agency.statut_validation.toLowerCase()}`}
                 >
                   {agency.statut_validation}
                 </span>
               </div>
-
-              <div className="mt-4 pt-4 border-t border-gray-200">
-                <p className="text-sm text-gray-600">
-                  <span className="font-semibold">ID Agence :</span>{" "}
-                  {agency.agency_id}
-                </p>
-              </div>
             </div>
 
-            {/* Section 1: Informations principales */}
-            <div className="bg-white rounded-xl shadow-sm border border-gray-200 p-6">
-              <h3 className="text-xl font-bold text-gray-900 mb-6 flex items-center space-x-2">
-                <Building className="w-6 h-6 text-[#6149CD]" />
-                <span>Informations principales</span>
-              </h3>
-
-              <div className="space-y-4">
-                <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
-                  <div>
-                    <label className="block text-sm font-semibold text-gray-700 mb-2">
-                      Nom complet
-                    </label>
-                    <input
-                      type="text"
-                      name="long_name"
-                      value={form_data.long_name || ""}
-                      onChange={handleInputChange}
-                      disabled={!edit_mode}
-                      className="w-full px-4 py-3 border-2 border-gray-200 text-gray-800 rounded-xl focus:outline-none focus:ring-2 focus:ring-[#6149CD] disabled:bg-gray-50"
-                    />
+            {/* Information Sections */}
+            <div className="settings-sections">
+              {/* Informations principales */}
+              <div className="settings-section">
+                <div className="settings-section-header">
+                  <Building2 style={{ width: "20px", height: "20px" }} />
+                  <h3 className="settings-section-title">
+                    Informations principales
+                  </h3>
+                </div>
+                <div className="settings-section-content">
+                  <div className="settings-field">
+                    <label className="settings-label">Nom complet</label>
+                    {editMode ? (
+                      <input
+                        type="text"
+                        name="long_name"
+                        value={formData.long_name || ""}
+                        onChange={handleInputChange}
+                        className="form-input"
+                        style={{ width: "fit-content" }}
+                      />
+                    ) : (
+                      <div className="settings-value">{agency.long_name}</div>
+                    )}
                   </div>
-
-                  <div>
-                    <label className="block text-sm font-semibold text-gray-700 mb-2">
-                      Abréviation
-                    </label>
-                    <input
-                      type="text"
-                      name="short_name"
-                      value={form_data.short_name || ""}
-                      onChange={handleInputChange}
-                      disabled={!edit_mode}
-                      className="w-full px-4 py-3 border-2 border-gray-200 text-gray-800 rounded-xl focus:outline-none focus:ring-2 focus:ring-[#6149CD] disabled:bg-gray-50"
-                    />
+                  <div className="settings-field">
+                    <label className="settings-label">Abréviation</label>
+                    {editMode ? (
+                      <input
+                        type="text"
+                        name="short_name"
+                        value={formData.short_name || ""}
+                        onChange={handleInputChange}
+                        className="form-input"
+                        style={{ width: "fit-content" }}
+                      />
+                    ) : (
+                      <div className="settings-value">{agency.short_name}</div>
+                    )}
                   </div>
                 </div>
               </div>
-            </div>
 
-            {/* Section 2: Localisation */}
-            <div className="bg-white rounded-xl shadow-sm border border-gray-200 p-6">
-              <h3 className="text-xl font-bold text-gray-900 mb-6 flex items-center space-x-2">
-                <MapPin className="w-6 h-6 text-[#6149CD]" />
-                <span>Localisation</span>
-              </h3>
-
-              <div className="space-y-4">
-                <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
-                  <div>
-                    <label className="block text-sm font-semibold text-gray-700 mb-2">
-                      Ville
-                    </label>
-                    <input
-                      type="text"
-                      name="ville"
-                      value={form_data.ville || ""}
-                      onChange={handleInputChange}
-                      disabled={!edit_mode}
-                      className="w-full px-4 py-3 border-2 border-gray-200 text-gray-800 rounded-xl focus:outline-none focus:ring-2 focus:ring-[#6149CD] disabled:bg-gray-50"
-                    />
+              {/* Localisation */}
+              <div className="settings-section">
+                <div className="settings-section-header">
+                  <MapPin style={{ width: "20px", height: "20px" }} />
+                  <h3 className="settings-section-title">Localisation</h3>
+                </div>
+                <div className="settings-section-content">
+                  <div className="settings-field">
+                    <label className="settings-label">Ville</label>
+                    {editMode ? (
+                      <select
+                        name="ville"
+                        value={formData.ville || ""}
+                        onChange={handleInputChange}
+                        className="form-input"
+                        style={{ width: "fit-content" }}
+                      >
+                        <option value="">Sélectionner une ville</option>
+                        <option value="Yaoundé">Yaoundé</option>
+                        <option value="Douala">Douala</option>
+                        <option value="Bafoussam">Bafoussam</option>
+                        <option value="Bamenda">Bamenda</option>
+                        <option value="Garoua">Garoua</option>
+                        <option value="Maroua">Maroua</option>
+                        <option value="Ngaoundéré">Ngaoundéré</option>
+                        <option value="Bertoua">Bertoua</option>
+                        <option value="Ebolowa">Ebolowa</option>
+                        <option value="Kribi">Kribi</option>
+                      </select>
+                    ) : (
+                      <div className="settings-value">{agency.ville}</div>
+                    )}
                   </div>
-
-                  <div>
-                    <label className="block text-sm font-semibold text-gray-700 mb-2">
-                      Zone/Quartier
-                    </label>
-                    <input
-                      type="text"
-                      name="location"
-                      value={form_data.location || ""}
-                      onChange={handleInputChange}
-                      disabled={!edit_mode}
-                      className="w-full px-4 py-3 border-2 border-gray-200 text-gray-800 rounded-xl focus:outline-none focus:ring-2 focus:ring-[#6149CD] disabled:bg-gray-50"
-                    />
+                  <div className="settings-field">
+                    <label className="settings-label">Zone/Quartier</label>
+                    {editMode ? (
+                      <input
+                        type="text"
+                        name="location"
+                        value={formData.location || ""}
+                        onChange={handleInputChange}
+                        className="form-input"
+                        style={{ width: "fit-content" }}
+                      />
+                    ) : (
+                      <div className="settings-value">{agency.location}</div>
+                    )}
                   </div>
                 </div>
               </div>
-            </div>
 
-            {/* Section 3: Informations supplémentaires */}
-            <div className="bg-white rounded-xl shadow-sm border border-gray-200 p-6">
-              <h3 className="text-xl font-bold text-gray-900 mb-6 flex items-center space-x-2">
-                <Globe className="w-6 h-6 text-[#6149CD]" />
-                <span>Informations supplémentaires</span>
-              </h3>
-
-              <div className="space-y-4">
-                <div>
-                  <label className="block text-sm font-semibold text-gray-700 mb-2">
-                    Réseau social
-                  </label>
-                  <input
-                    type="text"
-                    name="social_network"
-                    value={form_data.social_network || ""}
-                    onChange={handleInputChange}
-                    disabled={!edit_mode}
-                    placeholder="https://facebook.com/agence"
-                    className="w-full px-4 py-3 border-2 border-gray-200 text-gray-800 rounded-xl focus:outline-none focus:ring-2 focus:ring-[#6149CD] disabled:bg-gray-50"
-                  />
+              {/* Informations supplémentaires */}
+              <div className="settings-section">
+                <div className="settings-section-header">
+                  <Globe style={{ width: "20px", height: "20px" }} />
+                  <h3 className="settings-section-title">
+                    Informations supplémentaires
+                  </h3>
                 </div>
-
-                <div>
-                  <label className="text-sm font-semibold text-gray-700 mb-2 flex items-center space-x-2">
-                    <MessageSquare className="w-4 h-4 text-[#6149CD]" />
-                    <span>Message d'accueil</span>
-                  </label>
-                  <textarea
-                    name="greeting_message"
-                    value={form_data.greeting_message || ""}
-                    onChange={handleInputChange}
-                    disabled={!edit_mode}
-                    rows={3}
-                    className="w-full px-4 py-3 border-2 border-gray-200 text-gray-800 rounded-xl focus:outline-none focus:ring-2 focus:ring-[#6149CD] disabled:bg-gray-50 resize-none"
-                  />
-                </div>
-
-                <div>
-                  <label className="block text-sm font-semibold text-gray-700 mb-2">
-                    Description
-                  </label>
-                  <textarea
-                    name="description"
-                    value={form_data.description || ""}
-                    onChange={handleInputChange}
-                    disabled={!edit_mode}
-                    rows={4}
-                    className="w-full px-4 py-3 border-2 border-gray-200 text-gray-800 rounded-xl focus:outline-none focus:ring-2 focus:ring-[#6149CD] disabled:bg-gray-50 resize-none"
-                  />
-                </div>
-              </div>
-            </div>
-
-            {/* Section 4: Informations de validation */}
-            <div className="bg-white rounded-xl shadow-sm border border-gray-200 p-6">
-              <h3 className="text-xl font-bold text-gray-900 mb-6">
-                Informations de validation
-              </h3>
-
-              <div className="space-y-4">
-                <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
-                  <div>
-                    <label className="block text-sm font-semibold text-gray-700 mb-2">
-                      Statut de validation
+                <div className="settings-section-content">
+                  <div
+                    className="settings-field"
+                    style={{ gridColumn: "1 / -1" }}
+                  >
+                    <label className="settings-label">
+                      <Globe style={{ width: "16px", height: "16px" }} />
+                      Réseau social
                     </label>
-                    <span
-                      className={`inline-block px-4 py-2 rounded-full text-sm font-semibold ${getStatusBadge(
-                        agency.statut_validation,
-                      )}`}
-                    >
-                      {agency.statut_validation}
-                    </span>
+                    {editMode ? (
+                      <input
+                        type="text"
+                        name="social_network"
+                        value={formData.social_network || ""}
+                        onChange={handleInputChange}
+                        className="form-input"
+                        placeholder="https://facebook.com/agence"
+                        style={{ width: "fit-content" }}
+                      />
+                    ) : (
+                      <div className="settings-value">
+                        {agency.social_network || "Non renseigné"}
+                      </div>
+                    )}
                   </div>
-
-                  <div>
-                    <label className="block text-sm font-semibold text-gray-700 mb-2">
-                      Date de validation
+                  <div
+                    className="settings-field"
+                    style={{ gridColumn: "1 / -1" }}
+                  >
+                    <label className="settings-label">
+                      <MessageSquare
+                        style={{ width: "16px", height: "16px" }}
+                      />
+                      Message d'accueil
                     </label>
-                    <p className="text-gray-900">
-                      {formatDate(agency.date_validation)}
-                    </p>
+                    {editMode ? (
+                      <textarea
+                        name="greeting_message"
+                        value={formData.greeting_message || ""}
+                        onChange={handleInputChange}
+                        className="form-textarea"
+                        rows={3}
+                      />
+                    ) : (
+                      <div className="settings-value">
+                        {agency.greeting_message || "Non renseigné"}
+                      </div>
+                    )}
                   </div>
-                </div>
-
-                {agency.motif_rejet && (
-                  <div>
-                    <label className="block text-sm font-semibold text-gray-700 mb-2">
-                      Motif de rejet
-                    </label>
-                    <div className="bg-red-50 border border-red-200 rounded-lg p-4">
-                      <p className="text-red-800">{agency.motif_rejet}</p>
-                    </div>
-                  </div>
-                )}
-
-                <div className="pt-4 border-t border-gray-200">
-                  <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
-                    <div>
-                      <label className="block text-sm font-semibold text-gray-700 mb-2">
-                        Date de création
-                      </label>
-                      <p className="text-gray-900">
-                        {formatDate(agency.created_at)}
-                      </p>
-                    </div>
-
-                    {agency.bsm_validator_id && (
-                      <div>
-                        <label className="block text-sm font-semibold text-gray-700 mb-2">
-                          ID Validateur BSM
-                        </label>
-                        <p className="text-gray-900 font-mono text-sm">
-                          {agency.bsm_validator_id}
-                        </p>
+                  <div
+                    className="settings-field"
+                    style={{ gridColumn: "1 / -1" }}
+                  >
+                    <label className="settings-label">Description</label>
+                    {editMode ? (
+                      <textarea
+                        name="description"
+                        value={formData.description || ""}
+                        onChange={handleInputChange}
+                        className="form-textarea"
+                        rows={4}
+                      />
+                    ) : (
+                      <div className="settings-value">
+                        {agency.description || "Non renseignée"}
                       </div>
                     )}
                   </div>
                 </div>
               </div>
-            </div>
 
-            {/* Dashboard Statistics Section */}
-            {agency && general_stats && (
-              <>
-                {/* Titre de la section */}
-                <div className="bg-white rounded-xl shadow-sm border border-gray-200 p-6">
-                  <h3 className="text-2xl font-bold text-gray-900 flex items-center space-x-2">
-                    <BarChart3 className="w-7 h-7 text-[#6149CD]" />
-                    <span>Statistiques de l'agence</span>
+              {/* Informations de validation */}
+              <div className="settings-section">
+                <div className="settings-section-header">
+                  <Building2 style={{ width: "20px", height: "20px" }} />
+                  <h3 className="settings-section-title">
+                    Informations de validation
                   </h3>
                 </div>
-
-                {/* Top Stats Grid */}
-                <div className="grid grid-cols-2 lg:grid-cols-4 gap-3 sm:gap-4 md:gap-6">
-                  <div className="bg-white rounded-xl shadow-sm border border-gray-200 p-3 sm:p-4 md:p-6">
-                    <div className="flex items-center justify-between mb-2 sm:mb-4">
-                      <div className="p-2 sm:p-3 bg-blue-100 rounded-lg">
-                        <Users className="w-4 h-4 sm:w-6 sm:h-6 text-blue-600" />
+                <div className="settings-section-content">
+                  <div className="settings-field">
+                    <label className="settings-label">Statut</label>
+                    <span
+                      className={`status-badge status-${agency.statut_validation.toLowerCase()}`}
+                    >
+                      {agency.statut_validation}
+                    </span>
+                  </div>
+                  <div className="settings-field">
+                    <label className="settings-label">Date de validation</label>
+                    <div className="settings-value">
+                      {formatDate(agency.date_validation)}
+                    </div>
+                  </div>
+                  <div className="settings-field">
+                    <label className="settings-label">Date de création</label>
+                    <div className="settings-value">
+                      {formatDate(agency.created_at)}
+                    </div>
+                  </div>
+                  {agency.bsm_validator_id && (
+                    <div className="settings-field">
+                      <label className="settings-label">
+                        ID Validateur BSM
+                      </label>
+                      <div className="settings-value settings-value-mono">
+                        {agency.bsm_validator_id}
                       </div>
                     </div>
-                    <h3 className="text-xl sm:text-2xl md:text-3xl font-bold text-gray-900">
-                      {general_stats.nombreEmployes}
-                    </h3>
-                    <p className="text-xs sm:text-sm md:text-base text-gray-600 mt-1">
-                      Employés
-                    </p>
-                  </div>
-
-                  <div className="bg-white rounded-xl shadow-sm border border-gray-200 p-3 sm:p-4 md:p-6">
-                    <div className="flex items-center justify-between mb-2 sm:mb-4">
-                      <div className="p-2 sm:p-3 bg-green-100 rounded-lg">
-                        <Car className="w-4 h-4 sm:w-6 sm:h-6 text-green-600" />
+                  )}
+                  {agency.motif_rejet && (
+                    <div
+                      className="settings-field"
+                      style={{ gridColumn: "1 / -1" }}
+                    >
+                      <label className="settings-label">Motif de rejet</label>
+                      <div className="rejection-message">
+                        {agency.motif_rejet}
                       </div>
                     </div>
-                    <h3 className="text-xl sm:text-2xl md:text-3xl font-bold text-gray-900">
-                      {general_stats.nombreChauffeurs}
-                    </h3>
-                    <p className="text-xs sm:text-sm md:text-base text-gray-600 mt-1">
-                      Chauffeurs
-                    </p>
-                  </div>
+                  )}
+                </div>
+              </div>
+            </div>
 
-                  <div className="bg-white rounded-xl shadow-sm border border-gray-200 p-3 sm:p-4 md:p-6">
-                    <div className="flex items-center justify-between mb-2 sm:mb-4">
-                      <div className="p-2 sm:p-3 bg-purple-100 rounded-lg">
-                        <Bus className="w-4 h-4 sm:w-6 sm:h-6 text-purple-600" />
-                      </div>
-                    </div>
-                    <h3 className="text-xl sm:text-2xl md:text-3xl font-bold text-gray-900">
-                      {general_stats.nombreVoyages}
-                    </h3>
-                    <p className="text-xs sm:text-sm md:text-base text-gray-600 mt-1">
-                      Voyages
-                    </p>
-                  </div>
-
-                  <div className="bg-white rounded-xl shadow-sm border border-gray-200 p-3 sm:p-4 md:p-6">
-                    <div className="flex items-center justify-between mb-2 sm:mb-4">
-                      <div className="p-2 sm:p-3 bg-orange-100 rounded-lg">
-                        <Ticket className="w-4 h-4 sm:w-6 sm:h-6 text-orange-600" />
-                      </div>
-                    </div>
-                    <h3 className="text-xl sm:text-2xl md:text-3xl font-bold text-gray-900">
-                      {general_stats.nombreReservations}
-                    </h3>
-                    <p className="text-xs sm:text-sm md:text-base text-gray-600 mt-1">
-                      Réservations
-                    </p>
-                  </div>
+            {/* Statistics Section */}
+            {generalStats && !isLoadingStats && (
+              <>
+                <div className="stats-divider">
+                  <h3>Statistiques de l'agence</h3>
                 </div>
 
-                {/* Revenue and Metrics Row */}
-                <div className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 gap-3 sm:gap-4 md:gap-6">
-                  <div className="bg-linear-to-br from-green-400 to-green-600 rounded-xl shadow-lg p-4 sm:p-6 text-white">
-                    <div className="flex items-center justify-between mb-2 sm:mb-4">
-                      <h3 className="text-sm sm:text-lg Ffont-semibold">
-                        Revenus totaux potentiels
-                      </h3>
-                      <TrendingUp className="w-5 h-5 sm:w-6 sm:h-6" />
-                    </div>
-                    <p className="text-lg sm:text-2xl md:text-3xl font-bold break-all">
-                      {formatRevenue(general_stats.revenus)}
-                    </p>
+                <div className="stats-card">
+                  <div className="stats-header">
+                    <h3>Statistiques principales</h3>
                   </div>
-
-                  <div className="bg-white rounded-xl shadow-sm border border-gray-200 p-4 sm:p-6">
-                    <div className="flex items-center space-x-2 mb-2">
-                      <UserPlus className="w-4 h-4 sm:w-5 sm:h-5 text-[#6149CD]" />
-                      <h3 className="text-gray-600 text-xs sm:text-base">
-                        Nouveaux utilisateurs
-                      </h3>
-                    </div>
-                    <p className="text-xl sm:text-2xl md:text-3xl font-bold text-gray-900">
-                      {general_stats.nouveauxUtilisateurs}
-                    </p>
-                  </div>
-
-                  <div className="bg-white rounded-xl shadow-sm border border-gray-200 p-4 sm:p-6 sm:col-span-2 md:col-span-1">
-                    <h3 className="text-gray-600 mb-2 text-xs sm:text-base">
-                      Taux d'occupation
-                    </h3>
-                    <div className="flex items-center space-x-3 sm:space-x-4">
-                      <div className="flex-1">
-                        <div className="w-full bg-gray-200 rounded-full h-2 sm:h-3">
-                          <div
-                            className="bg-[#6149CD] h-2 sm:h-3 rounded-full transition-all duration-300"
-                            style={{
-                              width: `${general_stats.tauxOccupation}%`,
-                            }}
-                          ></div>
-                        </div>
+                  <div className="stats-grid-main">
+                    <div className="stat-item">
+                      <div className="stat-content">
+                        <Users style={{ width: 20, height: 20 }} />
+                        <p className="stat-label">Employés</p>
+                        <p className="stat-value">
+                          {generalStats.nombreEmployes}
+                        </p>
                       </div>
-                      <span className="text-lg sm:text-2xl font-bold text-gray-900">
-                        {general_stats.tauxOccupation.toFixed(1)}%
+                    </div>
+
+                    <div className="stat-item">
+                      <div className="stat-content">
+                        <Car style={{ width: 20, height: 20 }} />
+                        <p className="stat-label">Chauffeurs</p>
+                        <p className="stat-value">
+                          {generalStats.nombreChauffeurs}
+                        </p>
+                      </div>
+                    </div>
+
+                    <div className="stat-item">
+                      <div className="stat-content">
+                        <Bus style={{ width: 20, height: 20 }} />
+                        <p className="stat-label">Voyages</p>
+                        <p className="stat-value">
+                          {generalStats.nombreVoyages}
+                        </p>
+                      </div>
+                    </div>
+
+                    <div className="stat-item">
+                      <div className="stat-content">
+                        <p className="stat-label">Réservations</p>
+                        <p className="stat-value">
+                          {generalStats.nombreReservations}
+                        </p>
+                      </div>
+                    </div>
+
+                    <div className="stat-item">
+                      <div className="stat-content">
+                        <p className="stat-label">Revenus totaux</p>
+                        <p className="stat-value revenue">
+                          {formatRevenue(generalStats.revenus)}
+                        </p>
+                      </div>
+                    </div>
+
+                    <div className="stat-item">
+                      <div className="stat-content">
+                        <p className="stat-label">Nouveaux utilisateurs</p>
+                        <p className="stat-value">
+                          {generalStats.nouveauxUtilisateurs}
+                        </p>
+                      </div>
+                    </div>
+                  </div>
+
+                  <div className="occupation-rate">
+                    <p className="occupation-label">Taux d'occupation</p>
+                    <div className="occupation-bar-wrapper">
+                      <div className="occupation-bar">
+                        <div
+                          className="occupation-fill"
+                          style={{ width: `${generalStats.tauxOccupation}%` }}
+                        ></div>
+                      </div>
+                      <span className="occupation-value">
+                        {generalStats.tauxOccupation.toFixed(1)}%
                       </span>
                     </div>
                   </div>
                 </div>
 
-                {/* Evolution Chart Section */}
-                {evolution_stats && (
-                  <div className="bg-white rounded-xl shadow-sm border border-gray-200 p-4 sm:p-6">
-                    <div className="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-3 mb-4 sm:mb-6">
-                      <div className="flex items-center space-x-2">
-                        <BarChart3 className="w-5 h-5 text-[#6149CD]" />
-                        <h3 className="text-lg sm:text-xl font-bold text-gray-900">
-                          {getChartTitle()}
-                        </h3>
-                      </div>
-                      <div className="flex flex-wrap gap-2">
-                        <button
-                          onClick={() => setActiveChart("reservations")}
-                          className={`px-3 py-1.5 text-xs sm:text-sm rounded-lg transition-colors ${
-                            active_chart === "reservations"
-                              ? "bg-[#6149CD] text-white"
-                              : "bg-gray-100 text-gray-700 hover:bg-gray-200"
-                          }`}
-                        >
-                          Réservations
-                        </button>
-                        <button
-                          onClick={() => setActiveChart("voyages")}
-                          className={`px-3 py-1.5 text-xs sm:text-sm rounded-lg transition-colors ${
-                            active_chart === "voyages"
-                              ? "bg-[#6149CD] text-white"
-                              : "bg-gray-100 text-gray-700 hover:bg-gray-200"
-                          }`}
-                        >
-                          Voyages
-                        </button>
-                        <button
-                          onClick={() => setActiveChart("revenus")}
-                          className={`px-3 py-1.5 text-xs sm:text-sm rounded-lg transition-colors ${
-                            active_chart === "revenus"
-                              ? "bg-[#6149CD] text-white"
-                              : "bg-gray-100 text-gray-700 hover:bg-gray-200"
-                          }`}
-                        >
-                          Revenus
-                        </button>
-                        <button
-                          onClick={() => setActiveChart("utilisateurs")}
-                          className={`px-3 py-1.5 text-xs sm:text-sm rounded-lg transition-colors ${
-                            active_chart === "utilisateurs"
-                              ? "bg-[#6149CD] text-white"
-                              : "bg-gray-100 text-gray-700 hover:bg-gray-200"
-                          }`}
-                        >
-                          Utilisateurs
-                        </button>
-                      </div>
+                {evolutionStats && (
+                  <div className="chart-card">
+                    <div className="chart-header">
+                      <h3>{getChartTitle()}</h3>
+                    </div>
+                    <div className="chart-tabs">
+                      <button
+                        onClick={() => setActiveChart("reservations")}
+                        className={`chart-tab ${activeChart === "reservations" ? "active" : ""}`}
+                      >
+                        Réservations
+                      </button>
+                      <button
+                        onClick={() => setActiveChart("voyages")}
+                        className={`chart-tab ${activeChart === "voyages" ? "active" : ""}`}
+                      >
+                        Voyages
+                      </button>
+                      <button
+                        onClick={() => setActiveChart("revenus")}
+                        className={`chart-tab ${activeChart === "revenus" ? "active" : ""}`}
+                      >
+                        Revenus
+                      </button>
+                      <button
+                        onClick={() => setActiveChart("utilisateurs")}
+                        className={`chart-tab ${activeChart === "utilisateurs" ? "active" : ""}`}
+                      >
+                        Utilisateurs
+                      </button>
                     </div>
 
-                    <div className="h-64 sm:h-80">
+                    <div className="chart-container">
                       {getChartData().length > 0 ? (
                         <ResponsiveContainer width="100%" height="100%">
                           <LineChart data={getChartData()}>
@@ -1110,193 +1004,108 @@ function DetailAgencyContent() {
                               dataKey="date"
                               stroke="#6B7280"
                               fontSize={12}
-                              tickLine={false}
                             />
-                            <YAxis
-                              stroke="#6B7280"
-                              fontSize={12}
-                              tickLine={false}
-                              axisLine={false}
-                            />
-                            <Tooltip
-                              contentStyle={{
-                                backgroundColor: "#fff",
-                                border: "1px solid #E5E7EB",
-                                borderRadius: "8px",
-                                boxShadow: "0 4px 6px -1px rgba(0,0,0,0.1)",
-                              }}
-                              labelStyle={{ color: "#374151" }}
-                            />
+                            <YAxis stroke="#6B7280" fontSize={12} />
+                            <Tooltip />
                             <Line
                               type="monotone"
                               dataKey="valeur"
-                              stroke="#6149CD"
-                              strokeWidth={3}
-                              dot={{ fill: "#6149CD", strokeWidth: 2, r: 4 }}
-                              activeDot={{
-                                r: 6,
-                                fill: "#6149CD",
-                                stroke: "#fff",
-                                strokeWidth: 2,
-                              }}
+                              stroke="#7cab1b"
+                              strokeWidth={2}
+                              dot={{ fill: "#7cab1b", r: 4 }}
                             />
-                            {active_chart === "revenus" && (
-                              <Line
-                                type="monotone"
-                                dataKey="montant"
-                                stroke="#10B981"
-                                strokeWidth={2}
-                                dot={{
-                                  fill: "#10B981",
-                                  strokeWidth: 2,
-                                  r: 3,
-                                }}
-                              />
-                            )}
                           </LineChart>
                         </ResponsiveContainer>
                       ) : (
-                        <div className="flex items-center justify-center h-full">
-                          <p className="text-gray-500">
-                            Aucune donnée disponible
-                          </p>
+                        <div className="chart-empty">
+                          <p>Aucune donnée disponible</p>
                         </div>
                       )}
                     </div>
                   </div>
                 )}
 
-                {/* Status Charts Row */}
-                <div className="grid grid-cols-1 md:grid-cols-2 gap-4 sm:gap-6">
-                  {/* Voyages par statut
-                    <div className="bg-white rounded-xl shadow-sm border border-gray-200 p-4 sm:p-6">
-                      <div className="flex items-center space-x-2 mb-4">
-                        <PieChart className="w-5 h-5 text-[#6149CD]" />
-                        <h3 className="text-base sm:text-lg font-bold text-gray-900">
-                          Voyages par statut
-                        </h3>
+                <div className="charts-row">
+                  {getVoyagesStatusData().length > 0 && (
+                    <div className="chart-card-small">
+                      <div className="chart-header">
+                        <h3>Voyages par statut</h3>
                       </div>
-                      <div className="h-48 sm:h-64">
-                        {getVoyagesStatusData().length > 0 ? (
-                          <ResponsiveContainer width="100%" height="100%">
-                            <RechartsPieChart>
-                              <Pie
-                                data={getVoyagesStatusData()}
-                                cx="50%"
-                                cy="50%"
-                                innerRadius={40}
-                                outerRadius={70}
-                                paddingAngle={5}
-                                dataKey="value"
-                              >
-                                {getVoyagesStatusData().map((entry, index) => (
+                      <div className="chart-container-small">
+                        <ResponsiveContainer width="100%" height="100%">
+                          <PieChart>
+                            <Pie
+                              data={getVoyagesStatusData()}
+                              cx="50%"
+                              cy="50%"
+                              innerRadius={40}
+                              outerRadius={80}
+                              paddingAngle={5}
+                              dataKey="value"
+                            >
+                              {getVoyagesStatusData().map((entry, index) => (
+                                <Cell
+                                  key={`cell-${index}`}
+                                  fill={entry.color}
+                                />
+                              ))}
+                            </Pie>
+                            <Tooltip />
+                            <Legend verticalAlign="bottom" height={36} />
+                          </PieChart>
+                        </ResponsiveContainer>
+                      </div>
+                    </div>
+                  )}
+
+                  {getReservationsStatusData().length > 0 && (
+                    <div className="chart-card-small">
+                      <div className="chart-header">
+                        <h3>Réservations par statut</h3>
+                      </div>
+                      <div className="chart-container-small">
+                        <ResponsiveContainer width="100%" height="100%">
+                          <PieChart>
+                            <Pie
+                              data={getReservationsStatusData()}
+                              cx="50%"
+                              cy="50%"
+                              innerRadius={40}
+                              outerRadius={80}
+                              paddingAngle={5}
+                              dataKey="value"
+                            >
+                              {getReservationsStatusData().map(
+                                (entry, index) => (
                                   <Cell
                                     key={`cell-${index}`}
                                     fill={entry.color}
                                   />
-                                ))}
-                              </Pie>
-                              <Tooltip
-                                contentStyle={{
-                                  backgroundColor: "#fff",
-                                  border: "1px solid #E5E7EB",
-                                  borderRadius: "8px",
-                                }}
-                              />
-                              <Legend
-                                verticalAlign="bottom"
-                                height={36}
-                                formatter={(value) => (
-                                  <span className="text-xs sm:text-sm text-gray-700">
-                                    {value}
-                                  </span>
-                                )}
-                              />
-                            </RechartsPieChart>
-                          </ResponsiveContainer>
-                        ) : (
-                          <div className="flex items-center justify-center h-full">
-                            <p className="text-gray-500 text-sm">
-                              Aucun voyage
-                            </p>
-                          </div>
-                        )}
+                                ),
+                              )}
+                            </Pie>
+                            <Tooltip />
+                            <Legend verticalAlign="bottom" height={36} />
+                          </PieChart>
+                        </ResponsiveContainer>
                       </div>
-                    </div> */}
-
-                  {/* Réservations par statut
-                    <div className="bg-white rounded-xl shadow-sm border border-gray-200 p-4 sm:p-6">
-                      <div className="flex items-center space-x-2 mb-4">
-                        <PieChart className="w-5 h-5 text-[#6149CD]" />
-                        <h3 className="text-base sm:text-lg font-bold text-gray-900">
-                          Réservations par statut
-                        </h3>
-                      </div>
-                      <div className="h-48 sm:h-64">
-                        {getReservationsStatusData().length > 0 ? (
-                          <ResponsiveContainer width="100%" height="100%">
-                            <RechartsPieChart>
-                              <Pie
-                                data={getReservationsStatusData()}
-                                cx="50%"
-                                cy="50%"
-                                innerRadius={40}
-                                outerRadius={70}
-                                paddingAngle={5}
-                                dataKey="value"
-                              >
-                                {getReservationsStatusData().map(
-                                  (entry, index) => (
-                                    <Cell
-                                      key={`cell-${index}`}
-                                      fill={entry.color}
-                                    />
-                                  )
-                                )}
-                              </Pie>
-                              <Tooltip
-                                contentStyle={{
-                                  backgroundColor: "#fff",
-                                  border: "1px solid #E5E7EB",
-                                  borderRadius: "8px",
-                                }}
-                              />
-                              <Legend
-                                verticalAlign="bottom"
-                                height={36}
-                                formatter={(value) => (
-                                  <span className="text-xs sm:text-sm text-gray-700">
-                                    {value}
-                                  </span>
-                                )}
-                              />
-                            </RechartsPieChart>
-                          </ResponsiveContainer>
-                        ) : (
-                          <div className="flex items-center justify-center h-full">
-                            <p className="text-gray-500 text-sm">
-                              Aucune réservation
-                            </p>
-                          </div>
-                        )}
-                      </div>
-                    </div> */}
+                    </div>
+                  )}
                 </div>
 
-                {/* New Charts Section - Statistiques avancées */}
-                <div className="grid grid-cols-1 lg:grid-cols-2 gap-4 sm:gap-6">
-                  {/* Revenus par classe */}
-                  {general_stats.revenue_by_class &&
-                    Object.keys(general_stats.revenue_by_class).length > 0 && (
-                      <div className="bg-white rounded-xl shadow-sm border border-gray-200 p-4 sm:p-6">
-                        <h3 className="text-base sm:text-lg font-bold text-gray-900 mb-4">
-                          Revenus par classe
-                        </h3>
-                        <div className="h-64">
+                <div className="charts-row">
+                  {generalStats.revenue_by_class &&
+                    Object.keys(generalStats.revenue_by_class).length > 0 && (
+                      <div className="chart-card-small">
+                        <div className="chart-header">
+                          <BarChart3 />
+                          <h3>Revenus par classe</h3>
+                        </div>
+                        <div className="chart-container-small">
                           <ResponsiveContainer width="100%" height="100%">
                             <BarChart
                               data={prepareBarChartData(
-                                general_stats.revenue_by_class,
+                                generalStats.revenue_by_class,
                               )}
                             >
                               <CartesianGrid
@@ -1313,17 +1122,10 @@ function DetailAgencyContent() {
                                 formatter={(value) =>
                                   formatRevenue(value as number)
                                 }
-                                contentStyle={{
-                                  backgroundColor: "#fff",
-                                  border: "1px solid #E5E7EB",
-                                  borderRadius: "8px",
-                                }}
                               />
-                              <Legend />
                               <Bar
                                 dataKey="value"
-                                fill="#6149CD"
-                                name="Revenu"
+                                fill="#7cab1b"
                                 radius={[8, 8, 0, 0]}
                               />
                             </BarChart>
@@ -1332,18 +1134,17 @@ function DetailAgencyContent() {
                       </div>
                     )}
 
-                  {/* Top destinations */}
-                  {general_stats.top_destinations &&
-                    Object.keys(general_stats.top_destinations).length > 0 && (
-                      <div className="bg-white rounded-xl shadow-sm border border-gray-200 p-4 sm:p-6">
-                        <h3 className="text-base sm:text-lg font-bold text-gray-900 mb-4">
-                          Top 10 destinations
-                        </h3>
-                        <div className="h-64">
+                  {generalStats.top_destinations &&
+                    Object.keys(generalStats.top_destinations).length > 0 && (
+                      <div className="chart-card-small">
+                        <div className="chart-header">
+                          <h3>Top 10 destinations</h3>
+                        </div>
+                        <div className="chart-container-small">
                           <ResponsiveContainer width="100%" height="100%">
                             <BarChart
                               data={prepareBarChartData(
-                                general_stats.top_destinations,
+                                generalStats.top_destinations,
                               )}
                               layout="vertical"
                             >
@@ -1363,165 +1164,10 @@ function DetailAgencyContent() {
                                 stroke="#6B7280"
                                 fontSize={12}
                               />
-                              <Tooltip
-                                contentStyle={{
-                                  backgroundColor: "#fff",
-                                  border: "1px solid #E5E7EB",
-                                  borderRadius: "8px",
-                                }}
-                              />
-                              <Legend />
+                              <Tooltip />
                               <Bar
                                 dataKey="value"
-                                fill="#10B981"
-                                name="Voyages"
-                                radius={[0, 8, 8, 0]}
-                              />
-                            </BarChart>
-                          </ResponsiveContainer>
-                        </div>
-                      </div>
-                    )}
-
-                  {/* Top origines
-                  {general_stats.top_origins &&
-                    Object.keys(general_stats.top_origins).length > 0 && (
-                      <div className="bg-white rounded-xl shadow-sm border border-gray-200 p-4 sm:p-6">
-                        <h3 className="text-base sm:text-lg font-bold text-gray-900 mb-4">
-                          Top 10 villes d'origine
-                        </h3>
-                        <div className="h-64">
-                          <ResponsiveContainer width="100%" height="100%">
-                            <BarChart
-                              data={prepareBarChartData(
-                                general_stats.top_origins,
-                              )}
-                              layout="vertical"
-                            >
-                              <CartesianGrid
-                                strokeDasharray="3 3"
-                                stroke="#E5E7EB"
-                              />
-                              <XAxis
-                                type="number"
-                                stroke="#6B7280"
-                                fontSize={12}
-                              />
-                              <YAxis
-                                dataKey="name"
-                                type="category"
-                                width={100}
-                                stroke="#6B7280"
-                                fontSize={12}
-                              />
-                              <Tooltip
-                                contentStyle={{
-                                  backgroundColor: "#fff",
-                                  border: "1px solid #E5E7EB",
-                                  borderRadius: "8px",
-                                }}
-                              />
-                              <Legend />
-                              <Bar
-                                dataKey="value"
-                                fill="#F59E0B"
-                                name="Voyages"
-                                radius={[0, 8, 8, 0]}
-                              />
-                            </BarChart>
-                          </ResponsiveContainer>
-                        </div>
-                      </div>
-                    )} */}
-
-                  {/* Réservations par jour de la semaine */}
-                  {general_stats.reservations_by_day_of_week &&
-                    Object.keys(general_stats.reservations_by_day_of_week)
-                      .length > 0 && (
-                      <div className="bg-white rounded-xl shadow-sm border border-gray-200 p-4 sm:p-6">
-                        <h3 className="text-base sm:text-lg font-bold text-gray-900 mb-4">
-                          Réservations par jour
-                        </h3>
-                        <div className="h-64">
-                          <ResponsiveContainer width="100%" height="100%">
-                            <BarChart
-                              data={prepareDayOfWeekData(
-                                general_stats.reservations_by_day_of_week,
-                              )}
-                            >
-                              <CartesianGrid
-                                strokeDasharray="3 3"
-                                stroke="#E5E7EB"
-                              />
-                              <XAxis
-                                dataKey="day"
-                                stroke="#6B7280"
-                                fontSize={12}
-                              />
-                              <YAxis stroke="#6B7280" fontSize={12} />
-                              <Tooltip
-                                contentStyle={{
-                                  backgroundColor: "#fff",
-                                  border: "1px solid #E5E7EB",
-                                  borderRadius: "8px",
-                                }}
-                              />
-                              <Legend />
-                              <Bar
-                                dataKey="value"
-                                fill="#8B5CF6"
-                                name="Réservations"
-                                radius={[8, 8, 0, 0]}
-                              />
-                            </BarChart>
-                          </ResponsiveContainer>
-                        </div>
-                      </div>
-                    )}
-
-                  {/* Voyages par chauffeur */}
-                  {general_stats.trips_by_driver &&
-                    Object.keys(general_stats.trips_by_driver).length > 0 && (
-                      <div className="bg-white rounded-xl shadow-sm border border-gray-200 p-4 sm:p-6 lg:col-span-2">
-                        <h3 className="text-base sm:text-lg font-bold text-gray-900 mb-4">
-                          Top 10 chauffeurs (par nombre de voyages)
-                        </h3>
-                        <div className="h-64">
-                          <ResponsiveContainer width="100%" height="100%">
-                            <BarChart
-                              data={prepareBarChartData(
-                                general_stats.trips_by_driver,
-                              )}
-                              layout="vertical"
-                            >
-                              <CartesianGrid
-                                strokeDasharray="3 3"
-                                stroke="#E5E7EB"
-                              />
-                              <XAxis
-                                type="number"
-                                stroke="#6B7280"
-                                fontSize={12}
-                              />
-                              <YAxis
-                                dataKey="name"
-                                type="category"
-                                width={120}
-                                stroke="#6B7280"
-                                fontSize={12}
-                              />
-                              <Tooltip
-                                contentStyle={{
-                                  backgroundColor: "#fff",
-                                  border: "1px solid #E5E7EB",
-                                  borderRadius: "8px",
-                                }}
-                              />
-                              <Legend />
-                              <Bar
-                                dataKey="value"
-                                fill="#EF4444"
-                                name="Voyages"
+                                fill="#7cab1b"
                                 radius={[0, 8, 8, 0]}
                               />
                             </BarChart>
@@ -1531,22 +1177,105 @@ function DetailAgencyContent() {
                     )}
                 </div>
 
-                {/* Evolution Charts - Nouveaux graphiques */}
-                {evolution_stats && (
-                  <div className="grid grid-cols-1 lg:grid-cols-2 gap-4 sm:gap-6">
-                    {/* Evolution taux d'occupation */}
-                    {evolution_stats.evolution_taux_occupation &&
-                      evolution_stats.evolution_taux_occupation.length > 0 && (
-                        <div className="bg-white rounded-xl shadow-sm border border-gray-200 p-4 sm:p-6">
-                          <h3 className="text-base sm:text-lg font-bold text-gray-900 mb-4">
-                            Évolution du taux d'occupation
-                          </h3>
-                          <div className="h-64">
+                {(generalStats?.reservations_by_day_of_week ||
+                  generalStats?.trips_by_driver) && (
+                  <div className="charts-row">
+                    {generalStats?.reservations_by_day_of_week &&
+                      Object.keys(generalStats.reservations_by_day_of_week)
+                        .length > 0 && (
+                        <div className="chart-card-small">
+                          <div className="chart-header">
+                            <h3>Réservations par jour</h3>
+                          </div>
+                          <div className="chart-container-small">
+                            <ResponsiveContainer width="100%" height="100%">
+                              <BarChart
+                                data={prepareDayOfWeekData(
+                                  generalStats.reservations_by_day_of_week,
+                                )}
+                              >
+                                <CartesianGrid
+                                  strokeDasharray="3 3"
+                                  stroke="#E5E7EB"
+                                />
+                                <XAxis
+                                  dataKey="day"
+                                  stroke="#6B7280"
+                                  fontSize={12}
+                                />
+                                <YAxis stroke="#6B7280" fontSize={12} />
+                                <Tooltip />
+                                <Bar
+                                  dataKey="value"
+                                  fill="#7cab1b"
+                                  name="Réservations"
+                                  radius={[8, 8, 0, 0]}
+                                />
+                              </BarChart>
+                            </ResponsiveContainer>
+                          </div>
+                        </div>
+                      )}
+
+                    {generalStats?.trips_by_driver &&
+                      Object.keys(generalStats.trips_by_driver).length > 0 && (
+                        <div className="chart-card-small">
+                          <div className="chart-header">
+                            <h3>Top 10 chauffeurs</h3>
+                          </div>
+                          <div className="chart-container-small">
+                            <ResponsiveContainer width="100%" height="100%">
+                              <BarChart
+                                data={prepareBarChartData(
+                                  generalStats.trips_by_driver,
+                                )}
+                                layout="vertical"
+                              >
+                                <CartesianGrid
+                                  strokeDasharray="3 3"
+                                  stroke="#E5E7EB"
+                                />
+                                <XAxis
+                                  type="number"
+                                  stroke="#6B7280"
+                                  fontSize={12}
+                                />
+                                <YAxis
+                                  dataKey="name"
+                                  type="category"
+                                  width={120}
+                                  stroke="#6B7280"
+                                  fontSize={12}
+                                />
+                                <Tooltip />
+                                <Bar
+                                  dataKey="value"
+                                  fill="#7cab1b"
+                                  name="Voyages"
+                                  radius={[0, 8, 8, 0]}
+                                />
+                              </BarChart>
+                            </ResponsiveContainer>
+                          </div>
+                        </div>
+                      )}
+                  </div>
+                )}
+
+                {evolutionStats && (
+                  <div className="charts-row">
+                    {evolutionStats.evolution_taux_occupation &&
+                      evolutionStats.evolution_taux_occupation.length > 0 && (
+                        <div className="chart-card-small">
+                          <div className="chart-header">
+                            <h3>Évolution taux d'occupation</h3>
+                          </div>
+                          <div className="chart-container-small">
                             <ResponsiveContainer width="100%" height="100%">
                               <LineChart
-                                data={evolution_stats.evolution_taux_occupation.map(
+                                data={evolutionStats.evolution_taux_occupation.map(
                                   (item) => ({
-                                    date: formatDate(item.date),
+                                    date: formatDateShort(item.date),
                                     valeur: item.valeur,
                                   }),
                                 )}
@@ -1561,20 +1290,13 @@ function DetailAgencyContent() {
                                   fontSize={12}
                                 />
                                 <YAxis stroke="#6B7280" fontSize={12} />
-                                <Tooltip
-                                  contentStyle={{
-                                    backgroundColor: "#fff",
-                                    border: "1px solid #E5E7EB",
-                                    borderRadius: "8px",
-                                  }}
-                                />
-                                <Legend />
+                                <Tooltip />
                                 <Line
                                   type="monotone"
                                   dataKey="valeur"
-                                  stroke="#6149CD"
+                                  stroke="#7cab1b"
                                   strokeWidth={2}
-                                  dot={{ fill: "#6149CD", r: 3 }}
+                                  dot={{ fill: "#7cab1b", r: 3 }}
                                   name="Taux (%)"
                                 />
                               </LineChart>
@@ -1583,19 +1305,18 @@ function DetailAgencyContent() {
                         </div>
                       )}
 
-                    {/* Evolution annulations */}
-                    {evolution_stats.evolution_annulations &&
-                      evolution_stats.evolution_annulations.length > 0 && (
-                        <div className="bg-white rounded-xl shadow-sm border border-gray-200 p-4 sm:p-6">
-                          <h3 className="text-base sm:text-lg font-bold text-gray-900 mb-4">
-                            Évolution des annulations
-                          </h3>
-                          <div className="h-64">
+                    {evolutionStats.evolution_annulations &&
+                      evolutionStats.evolution_annulations.length > 0 && (
+                        <div className="chart-card-small">
+                          <div className="chart-header">
+                            <h3>Évolution des annulations</h3>
+                          </div>
+                          <div className="chart-container-small">
                             <ResponsiveContainer width="100%" height="100%">
                               <LineChart
-                                data={evolution_stats.evolution_annulations.map(
+                                data={evolutionStats.evolution_annulations.map(
                                   (item) => ({
-                                    date: formatDate(item.date),
+                                    date: formatDateShort(item.date),
                                     valeur: item.valeur,
                                   }),
                                 )}
@@ -1610,20 +1331,13 @@ function DetailAgencyContent() {
                                   fontSize={12}
                                 />
                                 <YAxis stroke="#6B7280" fontSize={12} />
-                                <Tooltip
-                                  contentStyle={{
-                                    backgroundColor: "#fff",
-                                    border: "1px solid #E5E7EB",
-                                    borderRadius: "8px",
-                                  }}
-                                />
-                                <Legend />
+                                <Tooltip />
                                 <Line
                                   type="monotone"
                                   dataKey="valeur"
-                                  stroke="#EF4444"
+                                  stroke="#7cab1b"
                                   strokeWidth={2}
-                                  dot={{ fill: "#EF4444", r: 3 }}
+                                  dot={{ fill: "#7cab1b", r: 3 }}
                                   name="Annulations"
                                 />
                               </LineChart>
@@ -1631,20 +1345,23 @@ function DetailAgencyContent() {
                           </div>
                         </div>
                       )}
+                  </div>
+                )}
 
-                    {/* Revenus par mois */}
-                    {evolution_stats.revenue_per_month &&
-                      Object.keys(evolution_stats.revenue_per_month).length >
+                {evolutionStats && (
+                  <div className="charts-row">
+                    {evolutionStats.revenue_per_month &&
+                      Object.keys(evolutionStats.revenue_per_month).length >
                         0 && (
-                        <div className="bg-white rounded-xl shadow-sm border border-gray-200 p-4 sm:p-6">
-                          <h3 className="text-base sm:text-lg font-bold text-gray-900 mb-4">
-                            Revenus par mois
-                          </h3>
-                          <div className="h-64">
+                        <div className="chart-card-small">
+                          <div className="chart-header">
+                            <h3>Revenus par mois</h3>
+                          </div>
+                          <div className="chart-container-small">
                             <ResponsiveContainer width="100%" height="100%">
                               <BarChart
                                 data={prepareMonthlyData(
-                                  evolution_stats.revenue_per_month,
+                                  evolutionStats.revenue_per_month,
                                 )}
                               >
                                 <CartesianGrid
@@ -1661,16 +1378,10 @@ function DetailAgencyContent() {
                                   formatter={(value) =>
                                     formatRevenue(value as number)
                                   }
-                                  contentStyle={{
-                                    backgroundColor: "#fff",
-                                    border: "1px solid #E5E7EB",
-                                    borderRadius: "8px",
-                                  }}
                                 />
-                                <Legend />
                                 <Bar
                                   dataKey="value"
-                                  fill="#10B981"
+                                  fill="#7cab1b"
                                   name="Revenu"
                                   radius={[8, 8, 0, 0]}
                                 />
@@ -1680,19 +1391,18 @@ function DetailAgencyContent() {
                         </div>
                       )}
 
-                    {/* Réservations par mois */}
-                    {evolution_stats.reservations_per_month &&
-                      Object.keys(evolution_stats.reservations_per_month)
+                    {evolutionStats.reservations_per_month &&
+                      Object.keys(evolutionStats.reservations_per_month)
                         .length > 0 && (
-                        <div className="bg-white rounded-xl shadow-sm border border-gray-200 p-4 sm:p-6">
-                          <h3 className="text-base sm:text-lg font-bold text-gray-900 mb-4">
-                            Réservations par mois
-                          </h3>
-                          <div className="h-64">
+                        <div className="chart-card-small">
+                          <div className="chart-header">
+                            <h3>Réservations par mois</h3>
+                          </div>
+                          <div className="chart-container-small">
                             <ResponsiveContainer width="100%" height="100%">
                               <BarChart
                                 data={prepareMonthlyData(
-                                  evolution_stats.reservations_per_month,
+                                  evolutionStats.reservations_per_month,
                                 )}
                               >
                                 <CartesianGrid
@@ -1705,17 +1415,10 @@ function DetailAgencyContent() {
                                   fontSize={12}
                                 />
                                 <YAxis stroke="#6B7280" fontSize={12} />
-                                <Tooltip
-                                  contentStyle={{
-                                    backgroundColor: "#fff",
-                                    border: "1px solid #E5E7EB",
-                                    borderRadius: "8px",
-                                  }}
-                                />
-                                <Legend />
+                                <Tooltip />
                                 <Bar
                                   dataKey="value"
-                                  fill="#6149CD"
+                                  fill="#7cab1b"
                                   name="Réservations"
                                   radius={[8, 8, 0, 0]}
                                 />
@@ -1728,110 +1431,41 @@ function DetailAgencyContent() {
                 )}
               </>
             )}
+
+            {isLoadingStats && (
+              <div className="loading-state">
+                <RefreshCw className="spin" />
+                <p>Chargement des statistiques...</p>
+              </div>
+            )}
           </div>
         </main>
       </div>
 
-      {/* Delete Modal */}
-      {show_delete_modal && (
-        <div className="fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center z-50 p-4">
-          <div className="bg-white rounded-2xl shadow-2xl max-w-md w-full overflow-hidden">
-            <div className="p-6">
-              <div className="w-16 h-16 sm:w-20 sm:h-20 bg-red-100 rounded-full flex items-center justify-center mx-auto mb-4">
-                <AlertCircle className="w-10 h-10 sm:w-12 sm:h-12 text-red-600" />
-              </div>
+      <ConfirmModal
+        show={showDeleteModal}
+        onClose={() => setShowDeleteModal(false)}
+        onConfirm={handleDelete}
+        title="Supprimer l'agence"
+        message={`Êtes-vous sûr de vouloir supprimer l'agence ${agency?.long_name} ? Cette action est irréversible.`}
+        confirmText="Supprimer"
+        cancelText="Annuler"
+        isLoading={isDeleting}
+      />
 
-              <p className="text-gray-700 mb-6">
-                Êtes-vous sûr de vouloir supprimer l'agence{" "}
-                <span className="font-bold">{agency.long_name}</span> ?
-              </p>
+      <SuccessModal
+        show={showSuccessModal}
+        onClose={() => setShowSuccessModal(false)}
+        title="Agence mise à jour !"
+        message="Les informations de l'agence ont été mises à jour avec succès."
+        buttonText="OK"
+      />
 
-              <div className="flex items-center space-x-3">
-                <button
-                  onClick={() => setShowDeleteModal(false)}
-                  disabled={is_deleting}
-                  className="flex-1 py-3 border-2 border-gray-300 text-gray-700 rounded-xl font-semibold hover:bg-gray-100 transition-colors disabled:opacity-50"
-                >
-                  Annuler
-                </button>
-                <button
-                  onClick={handleDelete}
-                  disabled={is_deleting}
-                  className="flex-1 py-3 bg-red-600 text-white rounded-xl font-semibold hover:bg-red-700 transition-colors disabled:opacity-50"
-                >
-                  {is_deleting ? "Suppression..." : "Supprimer"}
-                </button>
-              </div>
-            </div>
-          </div>
-        </div>
-      )}
-
-      {/* Success Modal */}
-      {show_success_modal && (
-        <div className="fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center z-50 p-4">
-          <div className="bg-white rounded-2xl shadow-2xl max-w-md w-full p-6 sm:p-8">
-            <div className="text-center">
-              <div className="w-16 h-16 sm:w-20 sm:h-20 bg-green-100 rounded-full flex items-center justify-center mx-auto mb-4">
-                <svg
-                  className="w-10 h-10 sm:w-12 sm:h-12 text-green-600"
-                  fill="none"
-                  stroke="currentColor"
-                  viewBox="0 0 24 24"
-                >
-                  <path
-                    strokeLinecap="round"
-                    strokeLinejoin="round"
-                    strokeWidth={2}
-                    d="M5 13l4 4L19 7"
-                  />
-                </svg>
-              </div>
-              <h2 className="text-xl sm:text-2xl font-bold text-gray-900 mb-2">
-                Succès !
-              </h2>
-              <p className="text-gray-600 mb-6 text-sm sm:text-base">
-                Agence mis à jour avec succès
-              </p>
-              <button
-                onClick={() => setShowSuccessModal(false)}
-                className="w-full py-2.5 sm:py-3 bg-green-600 text-white rounded-xl font-semibold hover:bg-green-700 transition-colors text-sm sm:text-base"
-              >
-                Fermer
-              </button>
-            </div>
-          </div>
-        </div>
-      )}
-
-      {/* Error Modal */}
-      {show_error_modal && (
-        <div className="fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center z-50 p-4">
-          <div className="bg-white rounded-2xl shadow-2xl max-w-md w-full p-6 sm:p-8">
-            <div className="text-center">
-              <div className="w-16 h-16 sm:w-20 sm:h-20 bg-red-100 rounded-full flex items-center justify-center mx-auto mb-4">
-                <AlertCircle className="w-10 h-10 sm:w-12 sm:h-12 text-red-600" />
-              </div>
-              <h2 className="text-xl sm:text-2xl font-bold text-gray-900 mb-2">
-                Erreur
-              </h2>
-              <div className="bg-red-50 rounded-xl p-4 mb-6">
-                <p className="text-sm sm:text-base text-red-800">
-                  {error_message}
-                </p>
-              </div>
-              <button
-                onClick={() => {
-                  setShowErrorModal(false);
-                }}
-                className="w-full py-2.5 sm:py-3 bg-red-600 text-white rounded-xl font-semibold hover:bg-red-700 transition-colors text-sm sm:text-base"
-              >
-                Fermer
-              </button>
-            </div>
-          </div>
-        </div>
-      )}
+      <ErrorModal
+        show={showErrorModal}
+        onClose={() => setShowErrorModal(false)}
+        message={errorMessage}
+      />
     </div>
   );
 }
@@ -1840,10 +1474,10 @@ export default function DetailAgencyPage() {
   return (
     <Suspense
       fallback={
-        <div className="min-h-screen bg-gray-50 flex items-center justify-center">
-          <div className="text-center">
-            <div className="w-8 h-8 border-4 border-[#6149CD] border-t-transparent rounded-full animate-spin mx-auto mb-4"></div>
-            <p className="text-gray-600">Chargement...</p>
+        <div className="dashboard-layout">
+          <div className="loading-state">
+            <RefreshCw className="spin" />
+            <p>Chargement...</p>
           </div>
         </div>
       }

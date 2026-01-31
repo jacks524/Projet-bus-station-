@@ -5,26 +5,26 @@ import {
   Home,
   Building2,
   Settings,
-  ChevronDown,
-  LogOut,
-  Menu,
-  X,
+  Briefcase,
   Building,
   Mail,
   FileText,
-  Briefcase,
   Users,
   Calendar,
   DollarSign,
   Hash,
   Globe,
-  CheckCircle,
-  XCircle,
   User,
   Tag,
-  AlertCircle,
+  RefreshCw,
+  X,
 } from "lucide-react";
 import { useRouter } from "next/navigation";
+import Sidebar from "@/app/components/Sidebar";
+import MobileSidebar from "@/app/components/Mobilesidebar";
+import Header from "@/app/components/Header";
+import SuccessModal from "@/app/components/SuccessModal";
+import ErrorModal from "@/app/components/ErrorModal";
 
 interface OrganizationFormData {
   email: string;
@@ -55,16 +55,28 @@ interface UserData {
 }
 
 /**
- * DG Organisation Page Component
+ * Organization Creation Page Component
  *
- * Form to create a new organization
- * Features comprehensive organization details with validation
+ * Create a new organization with professional form
  *
- * @author Thomas Djotio Ndié
- * @date 2025-01-14
+ * @author Félix DJOTIO NDIE
+ * @date 2025-01-29
  */
-export default function DGOrganisationPage() {
-  const [form_data, setFormData] = useState<OrganizationFormData>({
+export default function OrganizationPage() {
+  const router = useRouter();
+
+  const [userData, setUserData] = useState<UserData | null>(null);
+  const [showMobileMenu, setShowMobileMenu] = useState(false);
+  const [isSubmitting, setIsSubmitting] = useState(false);
+
+  const [showSuccessModal, setShowSuccessModal] = useState(false);
+  const [showErrorModal, setShowErrorModal] = useState(false);
+  const [errorMessage, setErrorMessage] = useState("");
+
+  const [keywordsInput, setKeywordsInput] = useState("");
+  const [businessDomainsInput, setBusinessDomainsInput] = useState("");
+
+  const [formData, setFormData] = useState<OrganizationFormData>({
     email: "",
     description: "",
     keywords: [],
@@ -84,23 +96,7 @@ export default function DGOrganisationPage() {
     web_site_url: "",
   });
 
-  const [keywords_input, setKeywordsInput] = useState("");
-  const [business_domains_input, setBusinessDomainsInput] = useState("");
-
-  const [is_loading, setIsLoading] = useState(false);
-  const [show_success_modal, setShowSuccessModal] = useState(false);
-  const [show_error_modal, setShowErrorModal] = useState(false);
-  const [error_message, setErrorMessage] = useState("");
-  const [organization_response, setOrganizationResponse] = useState<any>(null);
-
-  const [show_profile_menu, setShowProfileMenu] = useState(false);
-  const [show_mobile_menu, setShowMobileMenu] = useState(false);
-  const [user_data, setDgData] = useState<UserData | null>(null);
-
-  const router = useRouter();
-
   const API_BASE_URL = process.env.NEXT_PUBLIC_API_BASE_URL;
-  const BUTTON_COLOR = "#6149CD";
 
   const MENU_ITEMS = [
     {
@@ -141,28 +137,26 @@ export default function DGOrganisationPage() {
   ];
 
   useEffect(() => {
-    const auth_token =
+    const authToken =
       localStorage.getItem("auth_token") ||
       sessionStorage.getItem("auth_token");
-
-    if (!auth_token) {
+    if (!authToken) {
       router.push("/login");
       return;
     }
 
-    const stored_user_data =
+    const storedUserData =
       localStorage.getItem("user_data") || sessionStorage.getItem("user_data");
-    if (stored_user_data) {
-      const parsed_user = JSON.parse(stored_user_data);
-      setDgData(parsed_user);
-
+    if (storedUserData) {
+      const parsedUser = JSON.parse(storedUserData);
+      setUserData(parsedUser);
       setFormData((prev) => ({
         ...prev,
-        user_id: parsed_user.userId || "",
-        ceo_name: parsed_user.last_name || "",
+        user_id: parsedUser.userId || "",
+        ceo_name: parsedUser.last_name || "",
       }));
     }
-  }, []);
+  }, [router]);
 
   const handleInputChange = (
     e: React.ChangeEvent<
@@ -178,12 +172,12 @@ export default function DGOrganisationPage() {
 
   const handleAddKeyword = () => {
     if (
-      keywords_input.trim() &&
-      !form_data.keywords.includes(keywords_input.trim())
+      keywordsInput.trim() &&
+      !formData.keywords.includes(keywordsInput.trim())
     ) {
       setFormData((prev) => ({
         ...prev,
-        keywords: [...prev.keywords, keywords_input.trim()],
+        keywords: [...prev.keywords, keywordsInput.trim()],
       }));
       setKeywordsInput("");
     }
@@ -198,14 +192,14 @@ export default function DGOrganisationPage() {
 
   const handleAddBusinessDomain = () => {
     if (
-      business_domains_input.trim() &&
-      !form_data.business_domains.includes(business_domains_input.trim())
+      businessDomainsInput.trim() &&
+      !formData.business_domains.includes(businessDomainsInput.trim())
     ) {
       setFormData((prev) => ({
         ...prev,
         business_domains: [
           ...prev.business_domains,
-          business_domains_input.trim(),
+          businessDomainsInput.trim(),
         ],
       }));
       setBusinessDomainsInput("");
@@ -220,19 +214,19 @@ export default function DGOrganisationPage() {
   };
 
   const validateForm = () => {
-    if (!form_data.long_name.trim()) {
+    if (!formData.long_name.trim()) {
       setErrorMessage("Le nom complet de l'organisation est requis");
       return false;
     }
-    if (!form_data.short_name.trim()) {
+    if (!formData.short_name.trim()) {
       setErrorMessage("L'abréviation est requise");
       return false;
     }
-    if (!form_data.ceo_name.trim()) {
+    if (!formData.ceo_name.trim()) {
       setErrorMessage("Le nom du dirigeant est requis");
       return false;
     }
-    if (!form_data.email.trim()) {
+    if (!formData.email.trim()) {
       setErrorMessage("L'email est requis");
       return false;
     }
@@ -247,11 +241,10 @@ export default function DGOrganisationPage() {
       return;
     }
 
-    setIsLoading(true);
-    setErrorMessage("");
-    console.log(form_data);
+    setIsSubmitting(true);
+
     try {
-      const auth_token =
+      const authToken =
         localStorage.getItem("auth_token") ||
         sessionStorage.getItem("auth_token");
 
@@ -259,22 +252,19 @@ export default function DGOrganisationPage() {
         method: "POST",
         headers: {
           "Content-Type": "application/json",
-          Authorization: `Bearer ${auth_token}`,
+          Authorization: `Bearer ${authToken}`,
         },
-        body: JSON.stringify(form_data),
+        body: JSON.stringify(formData),
       });
 
       if (!response.ok) {
         throw new Error("Erreur lors de la création de l'organisation");
       }
 
-      const data = await response.json();
-      setOrganizationResponse(data);
       setShowSuccessModal(true);
-
       setFormData({
-        email: form_data.email,
-        user_id: form_data.user_id,
+        email: formData.email,
+        user_id: formData.user_id,
         description: "",
         keywords: [],
         long_name: "",
@@ -296,704 +286,367 @@ export default function DGOrganisationPage() {
         "Une erreur est survenue lors de la création de l'organisation",
       );
       setShowErrorModal(true);
-      console.error("Create Organization Error:", error);
     } finally {
-      setIsLoading(false);
+      setIsSubmitting(false);
     }
   };
 
-  const handleLogout = () => {
-    localStorage.removeItem("auth_token");
-    localStorage.removeItem("user_data");
-    sessionStorage.removeItem("auth_token");
-    sessionStorage.removeItem("user_data");
-    router.push("/login");
+  const isFormValid = () => {
+    return (
+      formData.long_name &&
+      formData.short_name &&
+      formData.ceo_name &&
+      formData.email
+    );
   };
 
   return (
-    <div className="min-h-screen bg-gray-50 flex">
-      {/* Sidebar */}
-      <>
-        <aside className="hidden lg:flex lg:flex-col w-64 bg-white border-r border-gray-200 fixed h-full">
-          <div className="p-6">
-            <div className="mb-8">
-              <button
-                onClick={() => router.push("/user/organization/dashboard")}
-                className="group relative transition-all duration-300 hover:scale-105 active:scale-95"
-              >
-                <div className="absolute inset-0 bg-linear-to-r from-[#6149CD] to-[#8B7BE8] rounded-lg opacity-0 group-hover:opacity-10 blur-xl transition-opacity duration-300"></div>
-                <img
-                  src="/images/busstation.png"
-                  alt="BusStation Logo"
-                  className="h-12 w-auto relative z-10 drop-shadow-md group-hover:drop-shadow-xl transition-all duration-300"
-                />
-              </button>
+    <div className="dashboard-layout">
+      <Sidebar
+        menuItems={MENU_ITEMS}
+        activePath="/user/organization/organization"
+      />
+      <MobileSidebar
+        isOpen={showMobileMenu}
+        onClose={() => setShowMobileMenu(false)}
+        menuItems={MENU_ITEMS}
+        activePath="/user/organization/organization"
+      />
+
+      <div className="dashboard-main">
+        <Header
+          title="Créer une organisation"
+          userData={userData}
+          onMenuClick={() => setShowMobileMenu(true)}
+          userType="organization"
+        />
+
+        <main className="dashboard-content">
+          <div className="container" style={{ maxWidth: "1200px" }}>
+            <div className="section-header">
+              <h2 className="section-title">Nouvelle organisation</h2>
+              <p className="section-description">
+                Créez votre organisation de voyage
+              </p>
             </div>
 
-            <nav className="space-y-1">
-              {MENU_ITEMS.map((item, index) => (
-                <button
-                  key={index}
-                  onClick={() =>
-                    item.active
-                      ? window.location.reload()
-                      : router.push(item.path)
-                  }
-                  className={`w-full flex items-center space-x-3 px-4 py-3 rounded-lg transition-colors ${
-                    item.active
-                      ? "bg-[#6149CD] text-white"
-                      : "text-gray-600 hover:bg-gray-100"
-                  }`}
-                >
-                  <item.icon className="w-5 h-5" />
-                  <span className="font-medium">{item.label}</span>
-                </button>
-              ))}
-            </nav>
-          </div>
-        </aside>
-
-        {show_mobile_menu && (
-          <>
-            <div
-              className="fixed inset-0 z-40 lg:hidden"
-              onClick={() => setShowMobileMenu(false)}
-            ></div>
-
-            <aside className="fixed left-0 top-0 h-full w-64 bg-white shadow-2xl z-50 lg:hidden transform transition-transform duration-300">
-              <div className="p-6">
-                <div className="flex items-center justify-between mb-8">
-                  <button
-                    onClick={() => {
-                      setShowMobileMenu(false);
-                      router.push("/user/organization/dashboard");
-                    }}
-                    className="group relative transition-all duration-300 hover:scale-105 active:scale-95"
-                  >
-                    <img
-                      src="/images/busstation.png"
-                      alt="BusStation Logo"
-                      className="h-9.5 w-auto"
+            <form onSubmit={handleSubmit} className="create-voyage-form">
+              {/* Informations générales */}
+              <div className="form-section">
+                <div className="form-section-header">
+                  <Building />
+                  <h3>Informations générales</h3>
+                </div>
+                <div className="form-section-content">
+                  <div className="form-group">
+                    <label className="form-label">Nom complet *</label>
+                    <input
+                      type="text"
+                      name="long_name"
+                      value={formData.long_name}
+                      onChange={handleInputChange}
+                      required
+                      className="form-input"
+                      placeholder="Ex: BusStation Travel & Tours"
                     />
-                  </button>
-                  <button
-                    onClick={() => setShowMobileMenu(false)}
-                    className="p-2 hover:bg-gray-100 rounded-lg transition-colors"
-                  >
-                    <X className="w-6 h-6 text-gray-900" />
-                  </button>
-                </div>
+                  </div>
 
-                <nav className="space-y-1">
-                  {MENU_ITEMS.map((item, index) => (
-                    <button
-                      key={index}
-                      onClick={() => {
-                        setShowMobileMenu(false);
-                        router.push(item.path);
+                  <div className="form-group">
+                    <label className="form-label">Abréviation *</label>
+                    <input
+                      type="text"
+                      name="short_name"
+                      value={formData.short_name}
+                      onChange={handleInputChange}
+                      required
+                      className="form-input"
+                      placeholder="Ex: BTT"
+                    />
+                  </div>
+
+                  <div className="form-group">
+                    <label className="form-label">Email *</label>
+                    <input
+                      type="email"
+                      name="email"
+                      value={formData.email}
+                      onChange={handleInputChange}
+                      required
+                      className="form-input"
+                      placeholder="contact@organisation.com"
+                    />
+                  </div>
+
+                  <div className="form-group">
+                    <label className="form-label">Nom du dirigeant *</label>
+                    <input
+                      type="text"
+                      name="ceo_name"
+                      value={formData.ceo_name}
+                      onChange={handleInputChange}
+                      required
+                      disabled
+                      className="form-input"
+                      style={{
+                        backgroundColor: "var(--gray-100)",
+                        cursor: "not-allowed",
                       }}
-                      className={`w-full flex items-center space-x-3 px-4 py-3 rounded-lg transition-colors ${
-                        item.active
-                          ? "bg-[#6149CD] text-white"
-                          : "text-gray-600 hover:bg-gray-100"
-                      }`}
-                    >
-                      <item.icon className="w-5 h-5" />
-                      <span className="font-medium">{item.label}</span>
-                    </button>
-                  ))}
-                </nav>
+                    />
+                    <p className="form-helper-text">
+                      Rempli automatiquement avec votre nom
+                    </p>
+                  </div>
+
+                  <div className="form-group" style={{ gridColumn: "1 / -1" }}>
+                    <label className="form-label">Description</label>
+                    <textarea
+                      name="description"
+                      value={formData.description}
+                      onChange={handleInputChange}
+                      className="form-textarea"
+                      placeholder="Description de l'organisation..."
+                    />
+                  </div>
+                </div>
               </div>
-            </aside>
-          </>
-        )}
-      </>
 
-      {/* Main Content */}
-      <div className="flex-1 lg:ml-64">
-        {/* Header */}
-        <header className="bg-white border-b border-gray-200 sticky top-0 z-10">
-          <div className="px-6 py-4 flex items-center justify-between">
-            <div className="flex items-center space-x-3">
-              <button
-                onClick={() => setShowMobileMenu(true)}
-                className="lg:hidden p-2 hover:bg-gray-100 rounded-lg transition-colors"
-              >
-                <Menu className="w-6 h-6 text-gray-900" />
-              </button>
-              <h1 className="text-2xl font-semibold text-gray-900">
-                Créer une organisation
-              </h1>
-            </div>
+              {/* Informations légales */}
+              <div className="form-section">
+                <div className="form-section-header">
+                  <FileText />
+                  <h3>Informations légales</h3>
+                </div>
+                <div className="form-section-content">
+                  <div className="form-group">
+                    <label className="form-label">Forme juridique</label>
+                    <select
+                      name="legal_form"
+                      value={formData.legal_form}
+                      onChange={handleInputChange}
+                      className="form-select"
+                    >
+                      <option value="">Sélectionner une forme</option>
+                      {LEGAL_FORMS.map((form) => (
+                        <option key={form} value={form}>
+                          {form}
+                        </option>
+                      ))}
+                    </select>
+                  </div>
 
-            <div className="flex items-center space-x-4">
-              <button
-                onClick={() => router.push("/user/organization/settings")}
-                className="p-2 hover:bg-gray-100 rounded-lg transition-colors"
-              >
-                <Settings className="w-6 h-6 text-gray-600" />
-              </button>
+                  <div className="form-group">
+                    <label className="form-label">
+                      N° de registre de commerce
+                    </label>
+                    <input
+                      type="text"
+                      name="business_registration_number"
+                      value={formData.business_registration_number}
+                      onChange={handleInputChange}
+                      className="form-input"
+                      placeholder="Ex: RC/YAO/2024/B/1234"
+                    />
+                  </div>
 
-              {/* Profile Menu */}
-              <div className="relative">
-                <button
-                  onClick={() => setShowProfileMenu(!show_profile_menu)}
-                  className="flex items-center space-x-3 hover:bg-gray-100 rounded-lg px-3 py-2 transition-colors"
+                  <div className="form-group">
+                    <label className="form-label">Numéro fiscal</label>
+                    <input
+                      type="text"
+                      name="tax_number"
+                      value={formData.tax_number}
+                      onChange={handleInputChange}
+                      className="form-input"
+                      placeholder="Ex: M012345678901X"
+                    />
+                  </div>
+
+                  <div className="form-group">
+                    <label className="form-label">Capital social</label>
+                    <input
+                      type="text"
+                      name="capital_share"
+                      value={formData.capital_share}
+                      onChange={handleInputChange}
+                      className="form-input"
+                      placeholder="Ex: 5000000 XAF"
+                    />
+                  </div>
+
+                  <div className="form-group">
+                    <label className="form-label">Date d'enregistrement</label>
+                    <input
+                      type="datetime-local"
+                      name="registration_date"
+                      value={formData.registration_date}
+                      onChange={handleInputChange}
+                      className="form-input"
+                    />
+                  </div>
+
+                  <div className="form-group">
+                    <label className="form-label">Date de création</label>
+                    <input
+                      type="datetime-local"
+                      name="year_founded"
+                      value={formData.year_founded}
+                      onChange={handleInputChange}
+                      className="form-input"
+                    />
+                  </div>
+                </div>
+              </div>
+
+              {/* Informations opérationnelles */}
+              <div className="form-section">
+                <div className="form-section-header">
+                  <Users />
+                  <h3>Informations opérationnelles</h3>
+                </div>
+                <div className="form-section-content">
+                  <div className="form-group">
+                    <label className="form-label">Nombre d'employés</label>
+                    <input
+                      type="number"
+                      name="number_of_employees"
+                      value={formData.number_of_employees}
+                      onChange={handleInputChange}
+                      className="form-input"
+                      placeholder="Ex: 50"
+                      min="0"
+                    />
+                  </div>
+
+                  <div className="form-group">
+                    <label className="form-label">Site web</label>
+                    <input
+                      type="text"
+                      name="web_site_url"
+                      value={formData.web_site_url}
+                      onChange={handleInputChange}
+                      className="form-input"
+                      placeholder="exemple.com"
+                    />
+                  </div>
+
+                  <div className="form-group">
+                    <label className="form-label">URL du logo</label>
+                    <input
+                      type="url"
+                      name="logo_url"
+                      value={formData.logo_url}
+                      onChange={handleInputChange}
+                      className="form-input"
+                      placeholder="https://exemple.com/logo.png"
+                    />
+                  </div>
+                </div>
+              </div>
+
+              {/* Mots-clés */}
+              <div className="form-section">
+                <div className="form-section-header">
+                  <Tag />
+                  <h3>Mots-clés</h3>
+                </div>
+                <div
+                  className="form-section-content"
+                  style={{ gridColumn: "1 / -1" }}
                 >
-                  <img
-                    src="/images/user-icon.png"
-                    alt="Profile"
-                    className="w-8.5 h-8.5 rounded-full object-cover"
-                  />
-                  <span className="font-medium text-gray-900 hidden md:block">
-                    {user_data?.username}
-                  </span>
-                  <ChevronDown className="w-4 h-4 text-gray-600" />
-                </button>
-
-                {show_profile_menu && (
-                  <div className="absolute right-0 mt-2 w-48 bg-white rounded-lg shadow-lg border border-gray-200 py-2">
-                    <button
-                      onClick={() => {
-                        setShowProfileMenu(false);
-                        router.push("/user/organization/settings");
-                      }}
-                      className="w-full flex items-center space-x-3 px-4 py-2 hover:bg-gray-100 transition-colors"
-                    >
-                      <Settings className="w-4 h-4 text-gray-600" />
-                      <span className="text-gray-700">Paramètres</span>
-                    </button>
-                    <button
-                      onClick={handleLogout}
-                      className="w-full flex items-center space-x-3 px-4 py-2 hover:bg-gray-100 transition-colors text-red-600"
-                    >
-                      <LogOut className="w-4 h-4" />
-                      <span>Se déconnecter</span>
-                    </button>
-                  </div>
-                )}
-              </div>
-            </div>
-          </div>
-        </header>
-
-        {/* Content */}
-        <main className="p-6">
-          <div className="max-w-7xl mx-auto">
-            {/* Carte fusionnée : formulaire + image */}
-            <div className="bg-white rounded-2xl shadow-lg border border-gray-200 overflow-hidden">
-              {/* Image de fond en haut de la carte */}
-              <div className="relative h-64">
-                <img
-                  src="/images/orga.jpg"
-                  alt="Organisation"
-                  className="w-full h-full object-cover"
-                  onError={(e) => {
-                    e.currentTarget.src =
-                      "https://images.unsplash.com/photo-1486406146926-c627a92ad1ab?w=1200&h=400&fit=crop";
-                  }}
-                />
-                <div className="absolute inset-0 bg-linear-to-r from-black/70 via-black/50 to-transparent"></div>
-                <div className="absolute inset-0 flex flex-col justify-center px-8">
-                  <h2 className="text-4xl font-bold text-white mb-3 drop-shadow-lg">
-                    Nouvelle organisation
-                  </h2>
-                  <p className="text-xl text-white/90 drop-shadow-md">
-                    Créez votre organisation de voyage
-                  </p>
-                </div>
-              </div>
-              <form onSubmit={handleSubmit} className="p-8">
-                {/* Section 1 : Informations générales */}
-                <div className="mb-8">
-                  <h3 className="text-xl font-bold text-gray-900 mb-6 flex items-center space-x-2">
-                    <Building className="w-6 h-6 text-[#6149CD]" />
-                    <span>Informations générales</span>
-                  </h3>
-
-                  <div className="space-y-4">
-                    <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
-                      <div>
-                        <label className="block text-sm font-semibold text-gray-700 mb-2">
-                          Nom complet *
-                        </label>
-                        <input
-                          type="text"
-                          name="long_name"
-                          value={form_data.long_name}
-                          onChange={handleInputChange}
-                          placeholder="Ex: BusStation Travel & Tours"
-                          required
-                          className="w-full px-4 py-3 border-2 border-gray-200 text-gray-800 placeholder:text-gray-400 rounded-xl focus:outline-none focus:ring-2 focus:ring-[#6149CD] focus:border-transparent transition-all"
-                        />
-                      </div>
-
-                      <div>
-                        <label className="block text-sm font-semibold text-gray-700 mb-2">
-                          Abréviation *
-                        </label>
-                        <input
-                          type="text"
-                          name="short_name"
-                          value={form_data.short_name}
-                          onChange={handleInputChange}
-                          placeholder="Ex: SPT"
-                          required
-                          className="w-full px-4 py-3 border-2 border-gray-200 text-gray-800 placeholder:text-gray-400 rounded-xl focus:outline-none focus:ring-2 focus:ring-[#6149CD] focus:border-transparent transition-all"
-                        />
-                      </div>
-                    </div>
-
-                    <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
-                      <div>
-                        <label className="block text-sm font-semibold text-gray-700 mb-2">
-                          Email *
-                        </label>
-                        <div className="flex items-center space-x-2">
-                          <Mail className="w-5 h-5 text-gray-400" />
-                          <input
-                            type="email"
-                            name="email"
-                            value={form_data.email}
-                            onChange={handleInputChange}
-                            placeholder="contact@organisation.com"
-                            required
-                            className="flex-1 px-4 py-3 border-2 border-gray-200 text-gray-800 placeholder:text-gray-400 rounded-xl focus:outline-none focus:ring-2 focus:ring-[#6149CD] focus:border-transparent transition-all"
-                          />
-                        </div>
-                      </div>
-
-                      <div>
-                        <label className="block text-sm font-semibold text-gray-700 mb-2">
-                          Nom du dirigeant *
-                        </label>
-                        <div className="flex items-center space-x-2">
-                          <User className="w-5 h-5 text-gray-400" />
-                          <input
-                            type="text"
-                            name="ceo_name"
-                            value={form_data.ceo_name}
-                            onChange={handleInputChange}
-                            placeholder="Ex: Jean Dupont"
-                            required
-                            disabled
-                            className="flex-1 px-4 py-3 border-2 border-gray-200 text-gray-800 placeholder:text-gray-400 rounded-xl focus:outline-none focus:ring-2 focus:ring-[#6149CD] focus:border-transparent transition-all bg-gray-100 cursor-not-allowed"
-                          />
-                        </div>
-                      </div>
-                    </div>
-
-                    <div>
-                      <label className="block text-sm font-semibold text-gray-700 mb-2">
-                        Description
-                      </label>
-                      <div className="flex items-start space-x-2">
-                        <FileText className="w-5 h-5 text-gray-400 mt-3" />
-                        <textarea
-                          name="description"
-                          value={form_data.description}
-                          onChange={handleInputChange}
-                          placeholder="Description de l'organisation..."
-                          rows={4}
-                          className="flex-1 px-4 py-3 border-2 border-gray-200 text-gray-800 placeholder:text-gray-400 rounded-xl focus:outline-none focus:ring-2 focus:ring-[#6149CD] focus:border-transparent transition-all resize-none"
-                        />
-                      </div>
-                    </div>
-                  </div>
-                </div>
-
-                {/* Section 2 : Informations légales */}
-                <div className="mb-8 pt-8 border-t border-gray-200">
-                  <h3 className="text-xl font-bold text-gray-900 mb-6 flex items-center space-x-2">
-                    <FileText className="w-6 h-6 text-[#6149CD]" />
-                    <span>Informations légales</span>
-                  </h3>
-
-                  <div className="space-y-4">
-                    <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
-                      <div>
-                        <label className="block text-sm font-semibold text-gray-700 mb-2">
-                          Forme juridique
-                        </label>
-                        <select
-                          name="legal_form"
-                          value={form_data.legal_form}
-                          onChange={handleInputChange}
-                          className="w-full px-4 py-3 border-2 border-gray-200 text-gray-800 rounded-xl focus:outline-none focus:ring-2 focus:ring-[#6149CD] focus:border-transparent transition-all"
-                        >
-                          <option value="">Sélectionner une forme</option>
-                          {LEGAL_FORMS.map((form) => (
-                            <option key={form} value={form}>
-                              {form}
-                            </option>
-                          ))}
-                        </select>
-                      </div>
-
-                      <div>
-                        <label className="block text-sm font-semibold text-gray-700 mb-2">
-                          N° de registre de commerce
-                        </label>
-                        <input
-                          type="text"
-                          name="business_registration_number"
-                          value={form_data.business_registration_number}
-                          onChange={handleInputChange}
-                          placeholder="Ex: RC/YAO/2024/B/1234"
-                          className="w-full px-4 py-3 border-2 border-gray-200 text-gray-800 placeholder:text-gray-400 rounded-xl focus:outline-none focus:ring-2 focus:ring-[#6149CD] focus:border-transparent transition-all"
-                        />
-                      </div>
-                    </div>
-
-                    <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
-                      <div>
-                        <label className="block text-sm font-semibold text-gray-700 mb-2">
-                          Numéro fiscal
-                        </label>
-                        <input
-                          type="text"
-                          name="tax_number"
-                          value={form_data.tax_number}
-                          onChange={handleInputChange}
-                          placeholder="Ex: M012345678901X"
-                          className="w-full px-4 py-3 border-2 border-gray-200 text-gray-800 placeholder:text-gray-400 rounded-xl focus:outline-none focus:ring-2 focus:ring-[#6149CD] focus:border-transparent transition-all"
-                        />
-                      </div>
-
-                      <div>
-                        <label className="block text-sm font-semibold text-gray-700 mb-2">
-                          Capital social
-                        </label>
-                        <div className="flex items-center space-x-2">
-                          <DollarSign className="w-5 h-5 text-gray-400" />
-                          <input
-                            type="text"
-                            name="capital_share"
-                            value={form_data.capital_share}
-                            onChange={handleInputChange}
-                            placeholder="Ex: 5000000 XAF"
-                            className="flex-1 px-4 py-3 border-2 border-gray-200 text-gray-800 placeholder:text-gray-400 rounded-xl focus:outline-none focus:ring-2 focus:ring-[#6149CD] focus:border-transparent transition-all"
-                          />
-                        </div>
-                      </div>
-                    </div>
-
-                    <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
-                      <div>
-                        <label className="block text-sm font-semibold text-gray-700 mb-2">
-                          Date d'enregistrement
-                        </label>
-                        <div className="flex items-center space-x-2">
-                          <Calendar className="w-5 h-5 text-gray-400" />
-                          <input
-                            type="datetime-local"
-                            name="registration_date"
-                            value={form_data.registration_date}
-                            onChange={handleInputChange}
-                            className="flex-1 px-4 py-3 border-2 border-gray-200 text-gray-800 rounded-xl focus:outline-none focus:ring-2 focus:ring-[#6149CD] focus:border-transparent transition-all"
-                          />
-                        </div>
-                      </div>
-
-                      <div>
-                        <label className="block text-sm font-semibold text-gray-700 mb-2">
-                          Date de création
-                        </label>
-                        <input
-                          type="datetime-local"
-                          name="year_founded"
-                          value={form_data.year_founded}
-                          onChange={handleInputChange}
-                          className="w-full px-4 py-3 border-2 border-gray-200 text-gray-800 placeholder:text-gray-400 rounded-xl focus:outline-none focus:ring-2 focus:ring-[#6149CD] focus:border-transparent transition-all"
-                        />
-                      </div>
-                    </div>
-                  </div>
-                </div>
-
-                {/* Section 3 : Informations opérationnelles */}
-                <div className="mb-8 pt-8 border-t border-gray-200">
-                  <h3 className="text-xl font-bold text-gray-900 mb-6 flex items-center space-x-2">
-                    <Users className="w-6 h-6 text-[#6149CD]" />
-                    <span>Informations opérationnelles</span>
-                  </h3>
-
-                  <div className="space-y-4">
-                    <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
-                      <div>
-                        <label className="block text-sm font-semibold text-gray-700 mb-2">
-                          Nombre d'employés
-                        </label>
-                        <input
-                          type="number"
-                          name="number_of_employees"
-                          value={form_data.number_of_employees}
-                          onChange={handleInputChange}
-                          placeholder="Ex: 50"
-                          min="0"
-                          className="w-full px-4 py-3 border-2 border-gray-200 text-gray-800 placeholder:text-gray-400 rounded-xl focus:outline-none focus:ring-2 focus:ring-[#6149CD] focus:border-transparent transition-all"
-                        />
-                      </div>
-
-                      <div>
-                        <label className="block text-sm font-semibold text-gray-700 mb-2">
-                          Site web
-                        </label>
-                        <div className="flex items-center space-x-2">
-                          <Globe className="w-5 h-5 text-gray-400" />
-                          <input
-                            type="text"
-                            name="web_site_url"
-                            value={form_data.web_site_url}
-                            onChange={handleInputChange}
-                            placeholder="exemple.com"
-                            className="flex-1 px-4 py-3 border-2 border-gray-200 text-gray-800 placeholder:text-gray-400 rounded-xl focus:outline-none focus:ring-2 focus:ring-[#6149CD] focus:border-transparent transition-all"
-                          />
-                        </div>
-                      </div>
-                    </div>
-
-                    <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
-                      <div>
-                        <label className="block text-sm font-semibold text-gray-700 mb-2">
-                          URL du logo
-                        </label>
-                        <div className="flex items-center space-x-2">
-                          <Globe className="w-5 h-5 text-gray-400" />
-                          <input
-                            type="url"
-                            name="logo_url"
-                            value={form_data.logo_url}
-                            onChange={handleInputChange}
-                            placeholder="https://exemple.com/logo.png"
-                            className="flex-1 px-4 py-3 border-2 border-gray-200 text-gray-800 placeholder:text-gray-400 rounded-xl focus:outline-none focus:ring-2 focus:ring-[#6149CD] focus:border-transparent transition-all"
-                          />
-                        </div>
-                      </div>
-                    </div>
-                  </div>
-                </div>
-
-                {/* Section 4 : Domaines d'activité */}
-                <div className="mb-8 pt-8 border-t border-gray-200">
-                  <h3 className="text-xl font-bold text-gray-900 mb-6 flex items-center space-x-2">
-                    <Briefcase className="w-6 h-6 text-[#6149CD]" />
-                    <span>Domaines d'activité</span>
-                  </h3>
-
-                  <div>
-                    <label className="block text-sm font-semibold text-gray-700 mb-2">
-                      Ajouter un domaine
-                    </label>
-                    <div className="flex items-center space-x-2 mb-3">
-                      <input
-                        type="text"
-                        value={business_domains_input}
-                        onChange={(e) =>
-                          setBusinessDomainsInput(e.target.value)
+                  <div className="tag-input-container">
+                    <input
+                      type="text"
+                      value={keywordsInput}
+                      onChange={(e) => setKeywordsInput(e.target.value)}
+                      onKeyPress={(e) => {
+                        if (e.key === "Enter") {
+                          e.preventDefault();
+                          handleAddKeyword();
                         }
-                        onKeyPress={(e) => {
-                          if (e.key === "Enter") {
-                            e.preventDefault();
-                            handleAddBusinessDomain();
-                          }
-                        }}
-                        placeholder="Ex: Transport interurbain"
-                        className="flex-1 px-4 py-3 border-2 border-gray-200 text-gray-800 placeholder:text-gray-400 rounded-xl focus:outline-none focus:ring-2 focus:ring-[#6149CD] focus:border-transparent transition-all"
-                      />
-                      <button
-                        type="button"
-                        onClick={handleAddBusinessDomain}
-                        style={{ backgroundColor: BUTTON_COLOR }}
-                        className="px-6 py-3 text-white rounded-xl font-semibold hover:opacity-90 transition-opacity"
-                      >
-                        Ajouter
-                      </button>
-                    </div>
-
-                    {form_data.business_domains.length > 0 && (
-                      <div className="flex flex-wrap gap-2">
-                        {form_data.business_domains.map((domain, index) => (
-                          <span
-                            key={index}
-                            className="inline-flex items-center space-x-2 px-3 py-2 bg-[#6149CD] bg-opacity-10 text-white rounded-lg"
-                          >
-                            <span>{domain}</span>
-                            <button
-                              type="button"
-                              onClick={() => handleRemoveBusinessDomain(domain)}
-                              className="hover:text-red-600 transition-colors"
-                            >
-                              <X className="w-4 h-4" />
-                            </button>
-                          </span>
-                        ))}
-                      </div>
-                    )}
+                      }}
+                      className="form-input"
+                      placeholder="Ex: voyage, tourisme"
+                      style={{ width: "fit-content" }}
+                    />
+                    <button
+                      type="button"
+                      onClick={handleAddKeyword}
+                      className="btn btn-secondary"
+                    >
+                      Ajouter
+                    </button>
                   </div>
-                </div>
 
-                {/* Section 5 : Mots-clés */}
-                <div className="pt-8 border-t border-gray-200">
-                  <h3 className="text-xl font-bold text-gray-900 mb-6 flex items-center space-x-2">
-                    <Tag className="w-6 h-6 text-[#6149CD]" />
-                    <span>Mots-clés</span>
-                  </h3>
-
-                  <div>
-                    <label className="block text-sm font-semibold text-gray-700 mb-2">
-                      Ajouter un mot-clé
-                    </label>
-                    <div className="flex items-center space-x-2 mb-3">
-                      <input
-                        type="text"
-                        value={keywords_input}
-                        onChange={(e) => setKeywordsInput(e.target.value)}
-                        onKeyPress={(e) => {
-                          if (e.key === "Enter") {
-                            e.preventDefault();
-                            handleAddKeyword();
-                          }
-                        }}
-                        placeholder="Ex: voyage, transport, tourisme"
-                        className="flex-1 px-4 py-3 border-2 border-gray-200 text-gray-800 placeholder:text-gray-400 rounded-xl focus:outline-none focus:ring-2 focus:ring-[#6149CD] focus:border-transparent transition-all"
-                      />
-                      <button
-                        type="button"
-                        onClick={handleAddKeyword}
-                        style={{ backgroundColor: BUTTON_COLOR }}
-                        className="px-6 py-3 text-white rounded-xl font-semibold hover:opacity-90 transition-opacity"
-                      >
-                        Ajouter
-                      </button>
-                    </div>
-
-                    {form_data.keywords.length > 0 && (
-                      <div className="flex flex-wrap gap-2">
-                        {form_data.keywords.map((keyword, index) => (
-                          <span
-                            key={index}
-                            className="inline-flex items-center space-x-2 px-3 py-2 bg-gray-100 text-gray-700 rounded-lg"
+                  {formData.keywords.length > 0 && (
+                    <div
+                      className="tags-display"
+                      style={{ marginLeft: "auto", display: "flex" }}
+                    >
+                      {formData.keywords.map((keyword, index) => (
+                        <span key={index} className="tag-item tag-item-keyword">
+                          <Hash style={{ width: "14px", height: "14px" }} />
+                          <span>{keyword}</span>
+                          <button
+                            type="button"
+                            onClick={() => handleRemoveKeyword(keyword)}
+                            className="tag-remove"
                           >
-                            <Hash className="w-4 h-4" />
-                            <span>{keyword}</span>
-                            <button
-                              type="button"
-                              onClick={() => handleRemoveKeyword(keyword)}
-                              className="hover:text-red-600 transition-colors"
-                            >
-                              <X className="w-4 h-4" />
-                            </button>
-                          </span>
-                        ))}
-                      </div>
-                    )}
-                  </div>
+                            <X style={{ width: "14px", height: "14px" }} />
+                          </button>
+                        </span>
+                      ))}
+                    </div>
+                  )}
                 </div>
+              </div>
 
-                {/* Buttons */}
-                <div className="flex items-center justify-between mt-8 pt-8 border-t border-gray-200">
-                  <button
-                    type="button"
-                    onClick={() => router.push("/user/organization/dashboard")}
-                    className="px-6 py-3 border-2 border-gray-300 text-gray-700 rounded-xl font-semibold hover:bg-gray-100 active:bg-gray-200 transition-colors"
-                  >
-                    Annuler
-                  </button>
-
-                  <button
-                    type="submit"
-                    disabled={is_loading}
-                    style={{ backgroundColor: BUTTON_COLOR }}
-                    className="px-8 py-3 text-white rounded-xl font-semibold hover:opacity-90 active:opacity-80 transition-all flex items-center space-x-2 disabled:opacity-50 disabled:cursor-not-allowed shadow-lg"
-                  >
-                    {is_loading ? (
-                      <>
-                        <div className="w-5 h-5 border-2 border-white border-t-transparent rounded-full animate-spin"></div>
-                        <span>Création en cours...</span>
-                      </>
-                    ) : (
-                      <>
-                        <Building className="w-5 h-5" />
-                        <span>Créer l'organisation</span>
-                      </>
-                    )}
-                  </button>
-                </div>
-              </form>
-            </div>
+              {/* Actions */}
+              <div className="form-actions">
+                <button
+                  type="button"
+                  onClick={() => router.push("/user/organization/dashboard")}
+                  className="btn btn-secondary"
+                >
+                  Annuler
+                </button>
+                <button
+                  type="submit"
+                  disabled={isSubmitting || !isFormValid()}
+                  className="btn btn-primary"
+                >
+                  {isSubmitting ? (
+                    <>
+                      <RefreshCw className="spin" />
+                      <span>Création en cours...</span>
+                    </>
+                  ) : (
+                    <>
+                      <Building />
+                      <span>Créer l'organisation</span>
+                    </>
+                  )}
+                </button>
+              </div>
+            </form>
           </div>
         </main>
       </div>
 
-      {/* Success Modal */}
-      {show_success_modal && (
-        <div className="fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center z-50 p-4">
-          <div className="bg-white rounded-2xl shadow-2xl max-w-md w-full p-6 sm:p-8">
-            <div className="text-center">
-              <div className="w-16 h-16 sm:w-20 sm:h-20 bg-green-100 rounded-full flex items-center justify-center mx-auto mb-4">
-                <svg
-                  className="w-10 h-10 sm:w-12 sm:h-12 text-green-600"
-                  fill="none"
-                  stroke="currentColor"
-                  viewBox="0 0 24 24"
-                >
-                  <path
-                    strokeLinecap="round"
-                    strokeLinejoin="round"
-                    strokeWidth={2}
-                    d="M5 13l4 4L19 7"
-                  />
-                </svg>
-              </div>
-              <h2 className="text-xl sm:text-2xl font-bold text-gray-900 mb-2">
-                Succès !
-              </h2>
-              <p className="text-gray-600 mb-6 text-sm sm:text-base">
-                Organisation créée avec succès
-              </p>
-              <button
-                onClick={() => {
-                  setShowSuccessModal(false);
-                  router.push("/user/organization/dashboard");
-                }}
-                className="w-full py-2.5 sm:py-3 bg-green-600 text-white rounded-xl font-semibold hover:bg-green-700 transition-colors text-sm sm:text-base"
-              >
-                Fermer
-              </button>
-            </div>
-          </div>
-        </div>
-      )}
+      <SuccessModal
+        show={showSuccessModal}
+        onClose={() => {
+          setShowSuccessModal(false);
+          router.push("/user/organization/dashboard");
+        }}
+        title="Organisation créée !"
+        message="Organisation créée avec succès"
+        buttonText="Retour au dashboard"
+      />
 
-      {/* Error Modal */}
-      {show_error_modal && (
-        <div className="fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center z-50 p-4">
-          <div className="bg-white rounded-2xl shadow-2xl max-w-md w-full p-6 sm:p-8">
-            <div className="text-center">
-              <div className="w-16 h-16 sm:w-20 sm:h-20 bg-red-100 rounded-full flex items-center justify-center mx-auto mb-4">
-                <AlertCircle className="w-10 h-10 sm:w-12 sm:h-12 text-red-600" />
-              </div>
-              <h2 className="text-xl sm:text-2xl font-bold text-gray-900 mb-2">
-                Erreur
-              </h2>
-              <div className="bg-red-50 rounded-xl p-4 mb-6">
-                <p className="text-sm sm:text-base text-red-800">
-                  {error_message}
-                </p>
-              </div>
-              <button
-                onClick={() => {
-                  setShowErrorModal(false);
-                }}
-                className="w-full py-2.5 sm:py-3 bg-red-600 text-white rounded-xl font-semibold hover:bg-red-700 transition-colors text-sm sm:text-base"
-              >
-                Fermer
-              </button>
-            </div>
-          </div>
-        </div>
-      )}
+      <ErrorModal
+        show={showErrorModal}
+        onClose={() => setShowErrorModal(false)}
+        message={errorMessage}
+      />
     </div>
   );
 }

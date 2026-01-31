@@ -1,40 +1,37 @@
 "use client";
 
 import React, { useState, useEffect } from "react";
-import { Eye, EyeOff } from "lucide-react";
 import Image from "next/image";
 import { useRouter } from "next/navigation";
 
 /**
- * Login Page Component
+ * BusStation Login Page
+ * Clean authentication page matching landing page design
  *
- * A responsive login page with username/password authentication
- * Features an image carousel on the right side
- *
- * @author Thomas Djotio Ndié
- * @date 2025-12-16
+ * @author Félix DJOTIO NDIE
+ * @date 2025-01-29
  */
 
 export default function LoginPage() {
+  const router = useRouter();
   const [username, setUsername] = useState("");
   const [password, setPassword] = useState("");
-  const [show_password, setShowPassword] = useState(false);
-  const [remember_me, setRememberMe] = useState(false);
-  const [current_slide, setCurrentSlide] = useState(0);
-  const [is_loading, setIsLoading] = useState(false);
-  const [error_message, setErrorMessage] = useState("");
-  const router = useRouter();
+  const [showPassword, setShowPassword] = useState(false);
+  const [rememberMe, setRememberMe] = useState(false);
+  const [currentSlide, setCurrentSlide] = useState(0);
+  const [isLoading, setIsLoading] = useState(false);
+  const [errorMessage, setErrorMessage] = useState("");
 
-  const CAROUSEL_IMAGES = [
-    "/images/siege3.jpg",
-    "/images/cameroun3___.jpg",
-    "/images/siege8.jpg",
-  ];
-  const BUTTON_COLOR = "#6149CD";
-  const TOTAL_SLIDES = CAROUSEL_IMAGES.length;
   const API_BASE_URL = process.env.NEXT_PUBLIC_API_BASE_URL;
 
-  const handleSubmit = async () => {
+  const CAROUSEL_IMAGES = [
+    "/images/landing3.jpg",
+    "/images/siege3.jpg",
+    "/images/landing2.jpg",
+  ];
+
+  const handleSubmit = async (e?: React.FormEvent) => {
+    if (e) e.preventDefault();
     setErrorMessage("");
 
     if (!username || !password) {
@@ -67,7 +64,7 @@ export default function LoginPage() {
 
       const data = await response.json();
 
-      if (remember_me) {
+      if (rememberMe) {
         localStorage.setItem("auth_token", data.token);
         localStorage.setItem("user_data", JSON.stringify(data));
       } else {
@@ -75,17 +72,17 @@ export default function LoginPage() {
         sessionStorage.setItem("user_data", JSON.stringify(data));
       }
 
-      const user_role = data.role[0];
+      const userRole = data.role[0];
 
-      if (user_role == "BSM") {
+      if (userRole === "BSM") {
         throw new Error("Une erreur est survenue lors de la connexion");
       }
 
-      if (user_role === "USAGER") {
+      if (userRole === "USAGER") {
         router.push("/user/client/home");
-      } else if (user_role === "AGENCE_VOYAGE") {
+      } else if (userRole === "AGENCE_VOYAGE") {
         router.push("/user/agency/dashboard");
-      } else if (user_role === "ORGANISATION") {
+      } else if (userRole === "ORGANISATION") {
         router.push("/user/organization/dashboard");
       } else {
         router.push("/");
@@ -97,176 +94,151 @@ export default function LoginPage() {
       setIsLoading(false);
     }
   };
-  const togglePasswordVisibility = () => {
-    setShowPassword(!show_password);
-  };
-
-  const goToSlide = (index: number) => {
-    setCurrentSlide(index);
-  };
 
   useEffect(() => {
     const interval = setInterval(() => {
-      setCurrentSlide((prevSlide) =>
-        prevSlide === TOTAL_SLIDES - 1 ? 0 : prevSlide + 1,
+      setCurrentSlide((prev) =>
+        prev === CAROUSEL_IMAGES.length - 1 ? 0 : prev + 1,
       );
     }, 5000);
 
     return () => clearInterval(interval);
-  }, [TOTAL_SLIDES]);
+  }, []);
 
   return (
-    <div className="min-h-screen flex">
-      {/* Left Section - Login Form */}
-      <div className="w-full lg:w-1/2 flex items-center justify-center p-8 lg:p-16 bg-white">
-        <div className="w-full max-w-lg">
+    <div className="auth-page">
+      {/* Form Section */}
+      <div className="auth-form-section">
+        <div className="auth-form-container">
           {/* Logo */}
-          <div className="mb-16 lg:mb-20">
-            <img
-              src="/images/busstation.png"
-              alt="BusStation Logo"
-              className="h-15 w-auto"
-            />
+          <div className="auth-logo">
+            <img src="/images/busstation.png" alt="BusStation" />
           </div>
 
           {/* Title */}
-          <h1 className="text-4xl lg:text-5xl font-normal text-gray-900 mb-3">
-            Se connecter
-          </h1>
-          <p className="text-gray-600 mb-10 text-base">
-            Accédez à votre espace personnel en toute sécurité
-          </p>
+          <h1 className="auth-title">Connexion</h1>
+          <p className="auth-subtitle">Accédez à votre espace personnel</p>
 
-          {/* Login Form */}
-          <div className="space-y-5">
-            {/* Error Message */}
-            {error_message && (
-              <div className="mb-4 p-4 bg-red-50 border border-red-200 rounded-lg">
-                <p className="text-sm text-red-600">{error_message}</p>
-              </div>
-            )}
+          {/* Error Message */}
+          {errorMessage && <p className="error-text">{errorMessage}</p>}
 
-            {/* username Field */}
-            <fieldset className="h-15 border border-gray-500 rounded-lg px-4 pt-1 pb-3 hover:border-[#6149CD] focus-within:border-[#6149CD] transition-colors">
-              <legend className="text-sm text-gray-700 px-2">
-                Nom d'utilisateur *
-              </legend>
+          {/* Form */}
+          <form onSubmit={handleSubmit} className="auth-form">
+            {/* Username */}
+            <fieldset className="auth-fieldset">
+              <legend>Nom d'utilisateur *</legend>
               <input
-                type="username"
+                type="text"
                 value={username}
                 onChange={(e) => setUsername(e.target.value)}
-                className="w-full outline-none text-base text-black"
+                className="auth-input"
               />
             </fieldset>
 
-            {/* Password Field */}
-            <fieldset className="h-15 border border-gray-500 rounded-lg px-4 pt-1 pb-3 relative hover:border-[#6149CD] focus-within:border-[#6149CD] transition-colors">
-              <legend className="text-sm text-gray-700 px-2">
-                Mot de passe *
-              </legend>
-              <div className="flex items-center">
+            {/* Password */}
+            <fieldset className="auth-fieldset">
+              <legend>Mot de passe *</legend>
+              <div className="auth-password-wrapper">
                 <input
-                  type={show_password ? "text" : "password"}
+                  type={showPassword ? "text" : "password"}
                   value={password}
                   onChange={(e) => setPassword(e.target.value)}
-                  className="w-full outline-none text-base pr-10 text-black"
+                  className="auth-input"
                 />
                 <button
                   type="button"
-                  onClick={togglePasswordVisibility}
-                  className="text-gray-600 hover:text-gray-800 focus:outline-none"
+                  onClick={() => setShowPassword(!showPassword)}
+                  className="auth-password-toggle"
                 >
-                  {show_password ? (
-                    <EyeOff className="w-6 h-6" />
+                  {showPassword ? (
+                    <svg
+                      width="20"
+                      height="20"
+                      viewBox="0 0 24 24"
+                      fill="none"
+                      stroke="currentColor"
+                      strokeWidth="2"
+                    >
+                      <path d="M17.94 17.94A10.07 10.07 0 0 1 12 20c-7 0-11-8-11-8a18.45 18.45 0 0 1 5.06-5.94M9.9 4.24A9.12 9.12 0 0 1 12 4c7 0 11 8 11 8a18.5 18.5 0 0 1-2.16 3.19m-6.72-1.07a3 3 0 1 1-4.24-4.24" />
+                      <line x1="1" y1="1" x2="23" y2="23" />
+                    </svg>
                   ) : (
-                    <Eye className="w-6 h-6" />
+                    <svg
+                      width="20"
+                      height="20"
+                      viewBox="0 0 24 24"
+                      fill="none"
+                      stroke="currentColor"
+                      strokeWidth="2"
+                    >
+                      <path d="M1 12s4-8 11-8 11 8 11 8-4 8-11 8-11-8-11-8z" />
+                      <circle cx="12" cy="12" r="3" />
+                    </svg>
                   )}
                 </button>
               </div>
             </fieldset>
 
-            {/* Remember Me Checkbox */}
-            <div className="flex items-center pt-1">
+            {/* Remember Me */}
+            <div className="auth-checkbox-wrapper">
               <input
-                id="remember_me"
+                id="remember"
                 type="checkbox"
-                checked={remember_me}
+                checked={rememberMe}
                 onChange={(e) => setRememberMe(e.target.checked)}
-                className="appearance-none w-4 h-4 border border-gray-400 rounded focus:ring-[#6149CD] cursor-pointer checked:border-gray-400 checked:bg-[#6149CD]"
+                className="auth-checkbox"
               />
-              <label
-                htmlFor="remember_me"
-                className="ml-2.5 text-sm text-gray-900 cursor-pointer select-none"
-              >
+              <label htmlFor="remember" className="auth-checkbox-label">
                 Se souvenir de moi
               </label>
             </div>
 
-            {/* Submit Button */}
+            {/* Submit */}
             <button
-              onClick={handleSubmit}
-              disabled={is_loading}
-              style={{ backgroundColor: BUTTON_COLOR }}
-              onKeyDown={(e) => e.key === "Enter" && handleSubmit()}
-              className="h-12 w-full text-black rounded-md font-bold hover:opacity-95 transition-opacity focus:outline-none focus:ring-2 focus:ring-purple-500 focus:ring-offset-2 mt-3 disabled:opacity-50 disabled:cursor-not-allowed"
+              type="submit"
+              disabled={isLoading}
+              className="auth-submit-btn"
             >
-              {is_loading ? "Connexion en cours..." : "Se connecter"}
+              {isLoading ? "Connexion..." : "Se connecter"}
             </button>
 
-            {/* Sign Up Link */}
-            <div className="text-center text-sm text-gray-600 pt-2">
-              Vous n'avez pas de compte?{" "}
-              <a
-                href="/signup"
-                className="font-semibold text-gray-900 hover:underline"
-              >
-                S'inscrire
-              </a>
-            </div>
-          </div>
+            {/* Sign up link */}
+            <p className="auth-link-text">
+              Pas encore de compte ? <a href="/signup">S'inscrire</a>
+            </p>
+          </form>
         </div>
       </div>
 
-      {/* Right Section - Image Carousel */}
-      <div className="hidden lg:block lg:w-1/2 bg-white">
-        <div className="h-screen flex items-center justify-center p-8">
-          <div className="relative w-full h-175 max-w-5xl overflow-hidden rounded-xl">
-            {/* Carousel Images Container */}
-            <div
-              className="flex h-full transition-transform duration-700 ease-in-out"
-              style={{ transform: `translateX(-${current_slide * 100}%)` }}
-            >
-              {CAROUSEL_IMAGES.map((image_path, index) => (
-                <div key={index} className="min-w-full h-full relative">
-                  <Image
-                    src={image_path}
-                    alt={`Slide ${index + 1}`}
-                    fill
-                    style={{ objectFit: "cover" }}
-                    quality={75}
-                  />
-                </div>
-              ))}
-            </div>
-
-            {/* Carousel Indicators */}
-            <div className="absolute bottom-6 left-1/2 transform -translate-x-1/2 flex space-x-2">
-              {CAROUSEL_IMAGES.map((_, index) => (
-                <button
-                  key={index}
-                  onClick={() => goToSlide(index)}
-                  style={{
-                    backgroundColor:
-                      current_slide === index
-                        ? BUTTON_COLOR
-                        : "rgba(255, 255, 255, 255)",
-                    width: current_slide === index ? "32px" : "8px",
-                  }}
-                  className="h-2 rounded-full transition-all duration-300"
-                  aria-label={`Go to slide ${index + 1}`}
+      {/* Image Carousel Section */}
+      <div className="auth-image-section">
+        <div className="auth-carousel">
+          <div
+            className="auth-carousel-track"
+            style={{ transform: `translateX(-${currentSlide * 100}%)` }}
+          >
+            {CAROUSEL_IMAGES.map((image, index) => (
+              <div key={index} className="auth-carousel-slide">
+                <Image
+                  src={image}
+                  alt={`Slide ${index + 1}`}
+                  fill
+                  style={{ objectFit: "cover" }}
+                  quality={75}
                 />
-              ))}
-            </div>
+              </div>
+            ))}
+          </div>
+
+          <div className="auth-carousel-dots">
+            {CAROUSEL_IMAGES.map((_, index) => (
+              <button
+                key={index}
+                onClick={() => setCurrentSlide(index)}
+                className={`auth-carousel-dot ${currentSlide === index ? "active" : ""}`}
+                aria-label={`Slide ${index + 1}`}
+              />
+            ))}
           </div>
         </div>
       </div>

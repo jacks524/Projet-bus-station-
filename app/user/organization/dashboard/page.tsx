@@ -1,27 +1,26 @@
 "use client";
 
 import React, { useState, useEffect } from "react";
+import { useRouter } from "next/navigation";
 import {
   Home,
   Building2,
   Settings,
-  ChevronDown,
-  LogOut,
-  Menu,
-  X,
   Briefcase,
   Users,
   Car,
-  MapPin,
+  Bus,
   TrendingUp,
   RefreshCw,
+  ChevronDown,
+  BarChart3,
+  MapPin,
+  Trash2,
   Search,
   ChevronLeft,
   ChevronRight,
-  Award,
-  Eye,
-  Trash2,
-  AlertCircle,
+  X,
+  Calendar,
 } from "lucide-react";
 import {
   LineChart,
@@ -38,17 +37,12 @@ import {
   Legend,
   ResponsiveContainer,
 } from "recharts";
-import { useRouter } from "next/navigation";
-
-/**
- * Login Page Component
- *
- * A responsive login page with username/password authentication
- * Features an image carousel on the right side
- *
- * @author Thomas Djotio Ndié
- * @date 2025-12-16
- */
+import Sidebar from "@/app/components/Sidebar";
+import MobileSidebar from "@/app/components/Mobilesidebar";
+import Header from "@/app/components/Header";
+import SuccessModal from "@/app/components/SuccessModal";
+import ErrorModal from "@/app/components/ErrorModal";
+import ConfirmModal from "@/app/components/ConfirmModal";
 
 interface GeneralStatistics {
   organization_id: string;
@@ -125,10 +119,10 @@ interface UserData {
   email: string;
   userId: string;
   role: string[];
-  token: string;
 }
 
-export default function DGDashboardPage() {
+export default function OrganizationDashboardPage() {
+  const router = useRouter();
   const [general_stats, setGeneralStats] = useState<GeneralStatistics | null>(
     null,
   );
@@ -142,17 +136,19 @@ export default function DGDashboardPage() {
   const [is_loading_orgs, setIsLoadingOrgs] = useState(true);
   const [error_message, setErrorMessage] = useState("");
 
-  const [show_profile_menu, setShowProfileMenu] = useState(false);
   const [show_mobile_menu, setShowMobileMenu] = useState(false);
   const [user_data, setUserData] = useState<UserData | null>(null);
 
+  const [showSuccessModal, setShowSuccessModal] = useState(false);
+  const [showErrorModal, setShowErrorModal] = useState(false);
+
   const [agencies_search, setAgenciesSearch] = useState("");
   const [agencies_page, setAgenciesPage] = useState(1);
-  const agencies_per_page = 5;
+  const agencies_per_page = 6;
 
   const [orgs_search, setOrgsSearch] = useState("");
   const [orgs_page, setOrgsPage] = useState(1);
-  const orgs_per_page = 5;
+  const orgs_per_page = 6;
 
   const [show_delete_org_modal, setShowDeleteOrgModal] = useState(false);
   const [show_delete_agency_modal, setShowDeleteAgencyModal] = useState(false);
@@ -162,24 +158,10 @@ export default function DGDashboardPage() {
 
   const [show_org_selector, setShowOrgSelector] = useState(false);
 
-  const [show_success_modal, setShowSuccessModal] = useState(false);
-  const [show_error_modal, setShowErrorModal] = useState(false);
-  const [success_message, setSuccessMessage] = useState("");
-  const [error_modal_message, setErrorModalMessage] = useState("");
-  const router = useRouter();
-
   const API_BASE_URL = process.env.NEXT_PUBLIC_API_BASE_URL;
-  const BUTTON_COLOR = "#6149CD";
-  const CHART_COLORS = {
-    primary: "#6149CD",
-    secondary: "#8B7BE8",
-    success: "#10B981",
-    warning: "#F59E0B",
-    danger: "#EF4444",
-    info: "#3B82F6",
-  };
+  const PIE_COLORS = ["#10B981", "#F59E0B", "#EF4444", "#6366F1", "#8B5CF6"];
 
-  const MENU_ITEMS = [
+  const menuItems = [
     {
       icon: Home,
       label: "Dashboard",
@@ -210,7 +192,6 @@ export default function DGDashboardPage() {
     const auth_token =
       localStorage.getItem("auth_token") ||
       sessionStorage.getItem("auth_token");
-
     if (!auth_token) {
       router.push("/login");
       return;
@@ -218,10 +199,8 @@ export default function DGDashboardPage() {
 
     const stored_user_data =
       localStorage.getItem("user_data") || sessionStorage.getItem("user_data");
-
     if (stored_user_data) {
-      const parsed_user = JSON.parse(stored_user_data);
-      setUserData(parsed_user);
+      setUserData(JSON.parse(stored_user_data));
     } else {
       router.push("/login");
     }
@@ -265,12 +244,10 @@ export default function DGDashboardPage() {
         },
       );
 
-      if (!response.ok) {
+      if (!response.ok)
         throw new Error("Erreur lors du chargement des organisations");
-      }
 
       const data = await response.json();
-
       const my_orgs = data.filter(
         (org: Organization) =>
           org.created_by === user_data?.userId && org.status !== "DELETED",
@@ -284,10 +261,8 @@ export default function DGDashboardPage() {
 
       if (my_orgs.length === 0) {
         setIsLoadingStats(false);
-        setErrorMessage("Vous n'avez pas encore créé d'organisation");
       }
     } catch (error: any) {
-      console.error("Fetch Organizations Error:", error);
       setErrorMessage("Impossible de charger vos organisations");
       setIsLoadingStats(false);
     } finally {
@@ -312,14 +287,11 @@ export default function DGDashboardPage() {
         },
       );
 
-      if (!response.ok) {
+      if (!response.ok)
         throw new Error("Erreur lors du chargement des statistiques");
-      }
-
       const data = await response.json();
       setGeneralStats(data);
     } catch (error: any) {
-      console.error("Fetch General Stats Error:", error);
       setErrorMessage("Impossible de charger les statistiques générales");
     } finally {
       setIsLoadingStats(false);
@@ -340,12 +312,9 @@ export default function DGDashboardPage() {
         },
       );
 
-      if (!response.ok) {
+      if (!response.ok)
         throw new Error("Erreur lors du chargement des agences");
-      }
-
       const data = await response.json();
-
       setAgenciesStats(data);
     } catch (error: any) {
       console.error("Fetch Agencies Stats Error:", error);
@@ -385,14 +354,10 @@ export default function DGDashboardPage() {
         );
       }
 
-      fetchOrganizations();
-
-      setSuccessMessage("Organisation supprimée avec succès !");
       setShowSuccessModal(true);
+      fetchOrganizations();
     } catch (error: any) {
-      setErrorModalMessage(
-        "Erreur lors de la suppression de l'organisation, vérifiez qu'elle ne contient pas d'agences actives.",
-      );
+      setErrorMessage("Erreur lors de la suppression de l'organisation");
       setShowErrorModal(true);
       console.error("Delete Organization Error:", error);
     } finally {
@@ -421,24 +386,14 @@ export default function DGDashboardPage() {
       if (selected_organization?.id) {
         fetchAgenciesStatistics(selected_organization.id);
       }
-
-      setSuccessMessage("Agence supprimée avec succès !");
       setShowSuccessModal(true);
     } catch (error: any) {
-      setErrorModalMessage("Erreur lors de la suppression de l'agence");
+      setErrorMessage("Erreur lors de la suppression de l'agence");
       setShowErrorModal(true);
       console.error("Delete Agency Error:", error);
     } finally {
       setIsDeleting(false);
     }
-  };
-
-  const handleLogout = () => {
-    localStorage.removeItem("auth_token");
-    localStorage.removeItem("user_data");
-    sessionStorage.removeItem("auth_token");
-    sessionStorage.removeItem("user_data");
-    router.push("/login");
   };
 
   const handleRefresh = () => {
@@ -465,13 +420,34 @@ export default function DGDashboardPage() {
     });
   };
 
-  const getStatusBadge = (status: string) => {
-    const styles = {
-      VALIDEE: "bg-green-100 text-green-800",
-      EN_ATTENTE: "bg-orange-100 text-orange-800",
-      REJETEE: "bg-red-100 text-red-800",
-    };
-    return styles[status as keyof typeof styles] || "bg-gray-100 text-gray-800";
+  const prepareMonthlyData = (data: { [key: string]: number }) => {
+    return Object.entries(data)
+      .sort((a, b) => a[0].localeCompare(b[0]))
+      .map(([month, value]) => ({
+        month,
+        value,
+      }));
+  };
+
+  const prepareBarChartData = (data: { [key: string]: number }) => {
+    return Object.entries(data)
+      .sort((a, b) => b[1] - a[1])
+      .slice(0, 10)
+      .map(([name, value]) => ({
+        name: name.length > 15 ? name.substring(0, 15) + "..." : name,
+        value,
+      }));
+  };
+
+  const getStatusData = () => {
+    if (!general_stats?.agencies_by_status) return [];
+    return Object.entries(general_stats.agencies_by_status).map(
+      ([name, value], index) => ({
+        name,
+        value,
+        color: PIE_COLORS[index % PIE_COLORS.length],
+      }),
+    );
   };
 
   const filtered_agencies =
@@ -503,831 +479,645 @@ export default function DGDashboardPage() {
     orgs_page * orgs_per_page,
   );
 
-  const prepareMonthlyData = (data: { [key: string]: number }) => {
-    return Object.entries(data).map(([month, value]) => ({
-      month,
-      value,
-    }));
-  };
-
-  const prepareStatusData = (data: { [key: string]: number }) => {
-    return Object.entries(data).map(([status, value]) => ({
-      name: status,
-      value,
-    }));
-  };
-
-  const prepareAgencyData = (data: { [key: string]: number }) => {
-    return Object.entries(data).map(([agency, value]) => ({
-      agency,
-      value,
-    }));
-  };
-
-  const getStatusColor = (status: string) => {
-    const colors: { [key: string]: string } = {
-      VALIDEE: CHART_COLORS.success,
-      EN_ATTENTE: CHART_COLORS.warning,
-      REJETEE: CHART_COLORS.danger,
-      CONFIRMEE: CHART_COLORS.info,
-      ANNULEE: CHART_COLORS.danger,
-      EN_COURS: CHART_COLORS.warning,
-      TERMINEE: CHART_COLORS.success,
-    };
-    return colors[status] || CHART_COLORS.primary;
-  };
-
   return (
-    <div className="min-h-screen bg-gray-50 flex">
-      {/* Sidebar */}
-      <>
-        <aside className="hidden lg:flex lg:flex-col w-64 bg-white border-r border-gray-200 fixed h-full">
-          <div className="p-6">
-            <div className="mb-8">
-              <button
-                onClick={() => router.push("/user/organization/dashboard")}
-                className="group relative transition-all duration-300 hover:scale-105 active:scale-95"
-              >
-                <div className="absolute inset-0 bg-linear-to-r from-[#6149CD] to-[#8B7BE8] rounded-lg opacity-0 group-hover:opacity-10 blur-xl transition-opacity duration-300"></div>
-                <img
-                  src="/images/busstation.png"
-                  alt="BusStation Logo"
-                  className="h-12 w-auto relative z-10 drop-shadow-md group-hover:drop-shadow-xl transition-all duration-300"
-                />
-              </button>
-            </div>
+    <div className="dashboard-layout">
+      <Sidebar
+        menuItems={menuItems}
+        activePath="/user/organization/dashboard"
+      />
+      <MobileSidebar
+        isOpen={show_mobile_menu}
+        onClose={() => setShowMobileMenu(false)}
+        menuItems={menuItems}
+        activePath="/user/organization/dashboard"
+      />
 
-            <nav className="space-y-1">
-              {MENU_ITEMS.map((item, index) => (
-                <button
-                  key={index}
-                  onClick={() =>
-                    item.active
-                      ? window.location.reload()
-                      : router.push(item.path)
-                  }
-                  className={`w-full flex items-center space-x-3 px-4 py-3 rounded-lg transition-colors ${
-                    item.active
-                      ? "bg-[#6149CD] text-white"
-                      : "text-gray-600 hover:bg-gray-100"
-                  }`}
-                >
-                  <item.icon className="w-5 h-5" />
-                  <span className="font-medium">{item.label}</span>
-                </button>
-              ))}
-            </nav>
-          </div>
-        </aside>
+      <div className="dashboard-main">
+        <Header
+          title="Dashboard"
+          userData={user_data}
+          onMenuClick={() => setShowMobileMenu(true)}
+          showSettingsButton={true}
+          userType="organization"
+        />
 
-        {show_mobile_menu && (
-          <>
-            <div
-              className="fixed inset-0 bg-black/50 z-40 lg:hidden"
-              onClick={() => setShowMobileMenu(false)}
-            ></div>
-
-            <aside className="fixed left-0 top-0 h-full w-64 bg-white shadow-2xl z-50 lg:hidden transform transition-transform duration-300">
-              <div className="p-6">
-                <div className="flex items-center justify-between mb-8">
-                  <button
-                    onClick={() => {
-                      setShowMobileMenu(false);
-                      router.push("/user/organization/dashboard");
-                    }}
-                    className="group relative transition-all duration-300 hover:scale-105 active:scale-95"
-                  >
-                    <img
-                      src="/images/busstation.png"
-                      alt="BusStation Logo"
-                      className="h-9.5 w-auto"
-                    />
-                  </button>
-                  <button
-                    onClick={() => setShowMobileMenu(false)}
-                    className="p-2 hover:bg-gray-100 rounded-lg transition-colors"
-                  >
-                    <X className="w-6 h-6 text-gray-900" />
-                  </button>
-                </div>
-
-                <nav className="space-y-1">
-                  {MENU_ITEMS.map((item, index) => (
-                    <button
-                      key={index}
-                      onClick={() => {
-                        setShowMobileMenu(false);
-                        router.push(item.path);
-                      }}
-                      className={`w-full flex items-center space-x-3 px-4 py-3 rounded-lg transition-colors ${
-                        item.active
-                          ? "bg-[#6149CD] text-white"
-                          : "text-gray-600 hover:bg-gray-100"
-                      }`}
-                    >
-                      <item.icon className="w-5 h-5" />
-                      <span className="font-medium">{item.label}</span>
-                    </button>
-                  ))}
-                </nav>
-              </div>
-            </aside>
-          </>
-        )}
-      </>
-
-      {/* Main Content */}
-      <div className="flex-1 lg:ml-64 min-w-0">
-        {/* Header */}
-        <header className="bg-white border-b border-gray-200 sticky top-0 z-10">
-          <div className="px-4 sm:px-6 py-3 sm:py-4 flex items-center justify-between">
-            <div className="flex items-center space-x-2 sm:space-x-3">
-              <button
-                onClick={() => setShowMobileMenu(true)}
-                className="lg:hidden p-2 hover:bg-gray-100 rounded-lg transition-colors"
-              >
-                <Menu className="w-5 h-5 sm:w-6 sm:h-6 text-gray-900" />
-              </button>
-              <h1 className="text-lg sm:text-2xl font-semibold text-gray-900">
-                Dashboard
-              </h1>
-            </div>
-
-            <div className="flex items-center space-x-2 sm:space-x-4">
-              <button
-                onClick={handleRefresh}
-                className="p-1.5 sm:p-2 hover:bg-gray-100 rounded-lg transition-colors"
-                title="Actualiser"
-              >
-                <RefreshCw className="w-5 h-5 sm:w-6 sm:h-6 text-gray-600" />
-              </button>
-
-              <button
-                onClick={() => router.push("/user/organization/settings")}
-                className="hidden sm:block p-2 hover:bg-gray-100 rounded-lg transition-colors"
-              >
-                <Settings className="w-6 h-6 text-gray-600" />
-              </button>
-
-              {/* Profile Menu */}
-              <div className="relative">
-                <button
-                  onClick={() => setShowProfileMenu(!show_profile_menu)}
-                  className="flex items-center space-x-2 sm:space-x-3 hover:bg-gray-100 rounded-lg px-2 sm:px-3 py-1.5 sm:py-2 transition-colors"
-                >
-                  <img
-                    src="/images/user-icon.png"
-                    alt="Profile"
-                    className="w-7 h-7 sm:w-8.5 sm:h-8.5 rounded-full object-cover"
-                  />
-                  <span className="font-medium text-gray-900 hidden md:block text-sm sm:text-base">
-                    {user_data?.username}
-                  </span>
-                  <ChevronDown className="w-4 h-4 text-gray-600 hidden sm:block" />
-                </button>
-
-                {show_profile_menu && (
-                  <>
-                    <div
-                      className="fixed inset-0 z-10"
-                      onClick={() => setShowProfileMenu(false)}
-                    ></div>
-                    <div className="absolute right-0 mt-2 w-48 bg-white rounded-lg shadow-lg border border-gray-200 py-2 z-20">
-                      <button
-                        onClick={() => {
-                          setShowProfileMenu(false);
-                          router.push("/user/organization/settings");
-                        }}
-                        className="w-full flex items-center space-x-3 px-4 py-2 hover:bg-gray-100 transition-colors"
-                      >
-                        <Settings className="w-4 h-4 text-gray-600" />
-                        <span className="text-gray-700">Paramètres</span>
-                      </button>
-                      <button
-                        onClick={handleLogout}
-                        className="w-full flex items-center space-x-3 px-4 py-2 hover:bg-gray-100 transition-colors text-red-600"
-                      >
-                        <LogOut className="w-4 h-4" />
-                        <span>Se déconnecter</span>
-                      </button>
-                    </div>
-                  </>
-                )}
-              </div>
-            </div>
-          </div>
-        </header>
-
-        {/* Content */}
-        <main className="p-3 sm:p-4 md:p-6">
-          {/* Loading State */}
+        <main className="dashboard-content">
           {(is_loading_orgs || is_loading_stats) &&
             organizations.length === 0 && (
-              <div className="flex items-center justify-center py-20">
-                <div className="text-center">
-                  <RefreshCw className="w-8 h-8 text-[#6149CD] animate-spin mx-auto mb-4" />
-                  <p className="text-gray-600">Chargement en cours...</p>
-                </div>
+              <div className="loading-state">
+                <RefreshCw className="spin" />
+                <p>Chargement en cours...</p>
               </div>
             )}
 
-          {/* No Organizations State */}
-          {!is_loading_orgs && organizations.length === 0 && (
-            <div className="bg-white rounded-xl shadow-sm border border-gray-200 p-6 sm:p-12 text-center">
-              <Briefcase className="w-12 h-12 sm:w-16 sm:h-16 text-gray-400 mx-auto mb-4" />
-              <h3 className="text-lg sm:text-xl font-semibold text-gray-900 mb-2">
-                Aucune organisation
-              </h3>
-              <p className="text-sm sm:text-base text-gray-600 mb-6">
-                Vous n'avez pas encore créé d'organisation
-              </p>
-              <button
-                onClick={() => router.push("/user/organization/organisation")}
-                style={{ backgroundColor: BUTTON_COLOR }}
-                className="px-4 sm:px-6 py-2.5 sm:py-3 text-white rounded-lg hover:opacity-90 transition-opacity text-sm sm:text-base"
-              >
-                Créer une organisation
-              </button>
-            </div>
+          {!is_loading_orgs && error_message && (
+            <>
+              <div className="error-state">
+                <X className="error-state-icon" />
+                <p className="error-text">{error_message}</p>
+                <button
+                  onClick={() => window.location.reload()}
+                  className="btn btn-primary"
+                >
+                  Réessayer
+                </button>
+              </div>
+            </>
           )}
 
-          {/* Main Dashboard Content */}
+          {!is_loading_orgs && organizations.length === 0 && !error_message && (
+            <>
+              <div className="empty-state">
+                <Briefcase className="empty-icon" />
+                <h3 className="empty-title">Aucune organisation</h3>
+                <p className="empty-description">
+                  Vous n'avez pas encore créé d'organisation
+                </p>
+                <button
+                  onClick={() => router.push("/user/organization/organization")}
+                  className="btn btn-primary"
+                >
+                  Créer une organisation
+                </button>
+              </div>
+            </>
+          )}
+
           {!is_loading_orgs && organizations.length > 0 && (
-            <div className="space-y-4 sm:space-y-6">
-              {/* Organization Selector */}
-              <div className="bg-white rounded-xl shadow-sm border border-gray-200 p-3 sm:p-4">
-                <div className="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-3">
-                  <div className="flex items-center space-x-3">
-                    <div className="p-2 sm:p-3 bg-linear-to-br from-[#6149CD] to-[#8B7BE8] rounded-lg sm:rounded-xl">
-                      <Briefcase className="w-5 h-5 sm:w-6 sm:h-6 text-white" />
-                    </div>
-                    <div className="min-w-0 flex-1">
-                      <p className="text-xs sm:text-sm text-gray-600">
-                        Organisation sélectionnée
-                      </p>
-                      <h2 className="text-base sm:text-xl font-bold text-gray-900 truncate">
-                        {selected_organization?.long_name || "Aucune"}
-                      </h2>
-                    </div>
-                  </div>
-
-                  {organizations.length > 1 && (
-                    <div className="relative">
-                      <button
-                        onClick={() => setShowOrgSelector(!show_org_selector)}
-                        className="w-full sm:w-auto flex items-center justify-center space-x-2 px-4 py-2 border border-gray-300 rounded-lg hover:bg-gray-50 transition-colors"
-                      >
-                        <span className="text-gray-700 text-sm sm:text-base">
-                          Changer
-                        </span>
-                        <ChevronDown className="w-4 h-4 text-gray-600" />
-                      </button>
-
-                      {show_org_selector && (
-                        <>
-                          <div
-                            className="fixed inset-0 z-10"
-                            onClick={() => setShowOrgSelector(false)}
-                          ></div>
-                          <div className="absolute right-0 sm:right-0 left-0 sm:left-auto mt-2 w-full sm:w-64 bg-white rounded-lg shadow-lg border border-gray-200 py-2 z-20 max-h-60 overflow-y-auto">
-                            {organizations.map((org) => (
-                              <button
-                                key={org.id}
-                                onClick={() => handleSelectOrganization(org)}
-                                className={`w-full text-left px-4 py-3 hover:bg-gray-50 transition-colors ${
-                                  selected_organization?.id === org.id
-                                    ? "bg-purple-50 border-l-4 border-[#6149CD]"
-                                    : ""
-                                }`}
-                              >
-                                <p className="font-medium text-gray-900 text-sm sm:text-base truncate">
-                                  {org.long_name}
-                                </p>
-                                <p className="text-xs sm:text-sm text-gray-600">
-                                  {org.short_name}
-                                </p>
-                              </button>
-                            ))}
-                          </div>
-                        </>
-                      )}
-                    </div>
-                  )}
-                </div>
+            <>
+              <div
+                className="section-header"
+                style={{ marginBottom: "var(--spacing-2xl)" }}
+              >
+                <h2 className="section-title">Votre tableau de bord</h2>
+                <p className="section-description">
+                  Examinez les statistiques générales de votre organisation et
+                  gérez votre organisation en quelques clics
+                </p>
               </div>
 
-              {/* Loading Stats */}
+              <div className="agency-header-card">
+                <div className="agency-info">
+                  <h2 className="agency-name">
+                    Nom de votre organisation :{" "}
+                    {selected_organization?.long_name}
+                  </h2>
+                  <p className="agency-location">
+                    Abréviation du nom de votre organisation :{" "}
+                    {selected_organization?.short_name}
+                  </p>
+                </div>
+
+                {organizations.length > 1 && (
+                  <div className="agency-selector">
+                    <button
+                      onClick={() => setShowOrgSelector(!show_org_selector)}
+                      className="btn btn-secondary"
+                    >
+                      Changer
+                      <ChevronDown />
+                    </button>
+
+                    {show_org_selector && (
+                      <>
+                        <div
+                          className="selector-overlay"
+                          onClick={() => setShowOrgSelector(false)}
+                        ></div>
+                        <div className="selector-dropdown">
+                          {organizations.map((org) => (
+                            <button
+                              key={org.id}
+                              onClick={() => handleSelectOrganization(org)}
+                              className={`selector-item ${selected_organization?.id === org.id ? "active" : ""}`}
+                            >
+                              <div>
+                                <p className="selector-item-name">
+                                  {org.long_name}
+                                </p>
+                                <p className="selector-item-city">
+                                  {org.short_name}
+                                </p>
+                              </div>
+                            </button>
+                          ))}
+                        </div>
+                      </>
+                    )}
+                  </div>
+                )}
+
+                <button
+                  onClick={handleRefresh}
+                  className="btn-icon"
+                  title="Actualiser"
+                >
+                  <RefreshCw />
+                </button>
+              </div>
+
               {is_loading_stats && (
-                <div className="flex items-center justify-center py-10">
-                  <RefreshCw className="w-8 h-8 text-[#6149CD] animate-spin" />
+                <div className="loading-state">
+                  <RefreshCw className="spin" />
+                  <p>Chargement des statistiques...</p>
                 </div>
               )}
 
-              {/* Error Message */}
-              {error_message && !is_loading_stats && (
-                <div className="bg-red-50 border border-red-200 rounded-lg p-4 sm:p-6 text-center">
-                  <AlertCircle className="w-10 h-10 sm:w-12 sm:h-12 text-red-500 mx-auto mb-4" />
-                  <p className="text-red-600 text-sm sm:text-base">
-                    {error_message}
-                  </p>
+              {!is_loading_stats && error_message && (
+                <div className="error-state">
+                  <p className="error-text">{error_message}</p>
                   <button
-                    onClick={handleRefresh}
-                    className="mt-4 px-4 py-2 bg-red-600 text-white rounded-lg hover:bg-red-700 transition-colors text-sm sm:text-base"
+                    onClick={fetchOrganizations}
+                    className="btn btn-primary"
                   >
                     Réessayer
                   </button>
                 </div>
               )}
 
-              {/* Stats Content */}
               {!is_loading_stats && !error_message && general_stats && (
                 <>
-                  {/* Top Stats Grid */}
-                  <div className="grid grid-cols-2 lg:grid-cols-4 gap-3 sm:gap-4 md:gap-6">
-                    <div className="bg-white rounded-xl shadow-sm border border-gray-200 p-3 sm:p-4 md:p-6">
-                      <div className="flex items-center justify-between mb-2 sm:mb-4">
-                        <div className="p-2 sm:p-3 bg-blue-100 rounded-lg">
-                          <Building2 className="w-4 h-4 sm:w-6 sm:h-6 text-blue-600" />
+                  <div className="stats-card">
+                    <div className="stats-header">
+                      <h3>Statistiques principales</h3>
+                    </div>
+                    <div className="stats-grid-main">
+                      <div className="stat-item">
+                        <div className="stat-content">
+                          <p className="stat-label">Total agences</p>
+                          <p className="stat-value">
+                            {general_stats.total_agencies}
+                          </p>
                         </div>
                       </div>
-                      <h3 className="text-xl sm:text-2xl md:text-3xl font-bold text-gray-900">
-                        {general_stats.total_agencies}
-                      </h3>
-                      <p className="text-xs sm:text-sm md:text-base text-gray-600 mt-1">
-                        Total des agences
-                      </p>
+
+                      <div className="stat-item">
+                        <div className="stat-content">
+                          <p className="stat-label">Total employés</p>
+                          <p className="stat-value">
+                            {general_stats.total_employees}
+                          </p>
+                        </div>
+                      </div>
+
+                      <div className="stat-item">
+                        <div className="stat-content">
+                          <p className="stat-label">Conducteurs</p>
+                          <p className="stat-value">
+                            {general_stats.total_drivers}
+                          </p>
+                        </div>
+                      </div>
+
+                      <div className="stat-item">
+                        <div className="stat-content">
+                          <p className="stat-label">Véhicules</p>
+                          <p className="stat-value">
+                            {general_stats.total_vehicles}
+                          </p>
+                        </div>
+                      </div>
+
+                      <div className="stat-item">
+                        <div className="stat-content">
+                          <p className="stat-label">Total voyages</p>
+                          <p className="stat-value">
+                            {general_stats.total_trips}
+                          </p>
+                        </div>
+                      </div>
+
+                      <div className="stat-item">
+                        <div className="stat-content">
+                          <p className="stat-label">Revenus totaux</p>
+                          <p className="stat-value revenue">
+                            {formatRevenue(general_stats.total_revenue)}
+                          </p>
+                        </div>
+                      </div>
                     </div>
 
-                    <div className="bg-white rounded-xl shadow-sm border border-gray-200 p-3 sm:p-4 md:p-6">
-                      <div className="flex items-center justify-between mb-2 sm:mb-4">
-                        <div className="p-2 sm:p-3 bg-green-100 rounded-lg">
-                          <Users className="w-4 h-4 sm:w-6 sm:h-6 text-green-600" />
-                        </div>
-                      </div>
-                      <h3 className="text-xl sm:text-2xl md:text-3xl font-bold text-gray-900">
-                        {general_stats.total_employees}
-                      </h3>
-                      <p className="text-xs sm:text-sm md:text-base text-gray-600 mt-1">
-                        Total des employés
+                    <div className="occupation-rate">
+                      <p className="occupation-label">
+                        Taux d'occupation moyen
                       </p>
-                    </div>
-
-                    <div className="bg-white rounded-xl shadow-sm border border-gray-200 p-3 sm:p-4 md:p-6">
-                      <div className="flex items-center justify-between mb-2 sm:mb-4">
-                        <div className="p-2 sm:p-3 bg-purple-100 rounded-lg">
-                          <TrendingUp className="w-4 h-4 sm:w-6 sm:h-6 text-purple-600" />
+                      <div className="occupation-bar-wrapper">
+                        <div className="occupation-bar">
+                          <div
+                            className="occupation-fill"
+                            style={{
+                              width: `${general_stats.average_occupancy_rate}%`,
+                            }}
+                          ></div>
                         </div>
+                        <span className="occupation-value">
+                          {general_stats.average_occupancy_rate.toFixed(1)}%
+                        </span>
                       </div>
-                      <h3 className="text-xl sm:text-2xl md:text-3xl font-bold text-gray-900">
-                        {general_stats.total_trips}
-                      </h3>
-                      <p className="text-xs sm:text-sm md:text-base text-gray-600 mt-1">
-                        Total des voyages
-                      </p>
-                    </div>
-
-                    <div className="bg-white rounded-xl shadow-sm border border-gray-200 p-3 sm:p-4 md:p-6">
-                      <div className="flex items-center justify-between mb-2 sm:mb-4">
-                        <div className="p-2 sm:p-3 bg-orange-100 rounded-lg">
-                          <Car className="w-4 h-4 sm:w-6 sm:h-6 text-orange-600" />
-                        </div>
-                      </div>
-                      <h3 className="text-xl sm:text-2xl md:text-3xl font-bold text-gray-900">
-                        {general_stats.total_vehicles}
-                      </h3>
-                      <p className="text-xs sm:text-sm md:text-base text-gray-600 mt-1">
-                        Total des véhicules
-                      </p>
                     </div>
                   </div>
 
-                  {/* Additional Stats */}
-                  <div className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 gap-3 sm:gap-4 md:gap-6">
-                    <div className="bg-linear-to-br from-green-400 to-green-600 rounded-xl shadow-lg p-4 sm:p-6 text-white">
-                      <div className="flex items-center justify-between mb-2 sm:mb-4">
-                        <h3 className="text-sm sm:text-lg font-semibold">
-                          Revenu total potentiel
-                        </h3>
-                        <TrendingUp className="w-5 h-5 sm:w-6 sm:h-6" />
-                      </div>
-                      <p className="text-lg sm:text-2xl md:text-3xl font-bold break-all">
-                        {formatRevenue(general_stats.total_revenue)}
-                      </p>
-                    </div>
-
-                    <div className="bg-white rounded-xl shadow-sm border border-gray-200 p-4 sm:p-6">
-                      <h3 className="text-gray-600 mb-2 text-xs sm:text-base">
-                        Total réservations
-                      </h3>
-                      <p className="text-xl sm:text-2xl md:text-3xl font-bold text-gray-900">
-                        {general_stats.total_reservations}
-                      </p>
-                    </div>
-
-                    <div className="bg-white rounded-xl shadow-sm border border-gray-200 p-4 sm:p-6 sm:col-span-2 md:col-span-1">
-                      <h3 className="text-gray-600 mb-2 text-xs sm:text-base">
-                        Villes couvertes
-                      </h3>
-                      <p className="text-xl sm:text-2xl md:text-3xl font-bold text-gray-900">
-                        {general_stats.cities_covered}
-                      </p>
-                    </div>
-                  </div>
-
-                  {/* Overview Card */}
-                  <div className="bg-white rounded-xl shadow-sm border border-gray-200 p-4 sm:p-6">
-                    <h3 className="text-lg sm:text-xl font-bold text-gray-900 mb-4 sm:mb-6">
-                      Aperçu général
-                    </h3>
-                    <div className="grid grid-cols-1 sm:grid-cols-2 gap-4 sm:gap-6">
-                      <div>
-                        <p className="text-gray-600 mb-2 text-sm sm:text-base">
-                          Conducteurs actifs
-                        </p>
-                        <p className="text-xl sm:text-2xl font-bold text-gray-900">
-                          {general_stats.total_drivers}
-                        </p>
-                      </div>
-                      <div>
-                        <p className="text-gray-600 mb-2 text-sm sm:text-base">
-                          Taux d'occupation moyen
-                        </p>
-                        <div className="flex items-center space-x-3 sm:space-x-4">
-                          <div className="flex-1">
-                            <div className="w-full bg-gray-200 rounded-full h-2 sm:h-3">
-                              <div
-                                className="bg-[#6149CD] h-2 sm:h-3 rounded-full transition-all duration-300"
-                                style={{
-                                  width: `${general_stats.average_occupancy_rate}%`,
-                                }}
-                              ></div>
-                            </div>
+                  <div className="charts-row">
+                    {general_stats.reservations_per_month &&
+                      Object.keys(general_stats.reservations_per_month).length >
+                        0 && (
+                        <div className="chart-card-small">
+                          <div className="chart-header">
+                            <h3>Réservations par mois</h3>
                           </div>
-                          <span className="text-lg sm:text-2xl font-bold text-gray-900">
-                            {general_stats.average_occupancy_rate.toFixed(3)}%
-                          </span>
+                          <div className="chart-container-small">
+                            <ResponsiveContainer width="100%" height="100%">
+                              <LineChart
+                                data={prepareMonthlyData(
+                                  general_stats.reservations_per_month,
+                                )}
+                              >
+                                <CartesianGrid
+                                  strokeDasharray="3 3"
+                                  stroke="#E5E7EB"
+                                />
+                                <XAxis
+                                  dataKey="month"
+                                  stroke="#6B7280"
+                                  fontSize={12}
+                                />
+                                <YAxis stroke="#6B7280" fontSize={12} />
+                                <Tooltip />
+                                <Line
+                                  type="monotone"
+                                  dataKey="value"
+                                  stroke="#7cab1b"
+                                  strokeWidth={2}
+                                  dot={{ fill: "#7cab1b", r: 4 }}
+                                />
+                              </LineChart>
+                            </ResponsiveContainer>
+                          </div>
+                        </div>
+                      )}
+
+                    {general_stats.revenue_per_month &&
+                      Object.keys(general_stats.revenue_per_month).length >
+                        0 && (
+                        <div className="chart-card-small">
+                          <div className="chart-header">
+                            <h3>Revenus par mois</h3>
+                          </div>
+                          <div className="chart-container-small">
+                            <ResponsiveContainer width="100%" height="100%">
+                              <BarChart
+                                data={prepareMonthlyData(
+                                  general_stats.revenue_per_month,
+                                )}
+                              >
+                                <CartesianGrid
+                                  strokeDasharray="3 3"
+                                  stroke="#E5E7EB"
+                                />
+                                <XAxis
+                                  dataKey="month"
+                                  stroke="#6B7280"
+                                  fontSize={12}
+                                />
+                                <YAxis stroke="#6B7280" fontSize={12} />
+                                <Tooltip
+                                  formatter={(value) =>
+                                    formatRevenue(value as number)
+                                  }
+                                />
+                                <Bar
+                                  dataKey="value"
+                                  fill="#7cab1b"
+                                  radius={[8, 8, 0, 0]}
+                                />
+                              </BarChart>
+                            </ResponsiveContainer>
+                          </div>
+                        </div>
+                      )}
+                  </div>
+
+                  <div className="charts-row">
+                    {getStatusData().length > 0 && (
+                      <div className="chart-card-small">
+                        <div className="chart-header">
+                          <h3>Agences par statut</h3>
+                        </div>
+                        <div className="chart-container-small">
+                          <ResponsiveContainer width="100%" height="100%">
+                            <PieChart>
+                              <Pie
+                                data={getStatusData()}
+                                cx="50%"
+                                cy="50%"
+                                innerRadius={40}
+                                outerRadius={80}
+                                paddingAngle={5}
+                                dataKey="value"
+                              >
+                                {getStatusData().map((entry, index) => (
+                                  <Cell
+                                    key={`cell-${index}`}
+                                    fill={entry.color}
+                                  />
+                                ))}
+                              </Pie>
+                              <Tooltip />
+                              <Legend verticalAlign="bottom" height={36} />
+                            </PieChart>
+                          </ResponsiveContainer>
                         </div>
                       </div>
-                    </div>
+                    )}
+
+                    {general_stats.revenue_by_agency &&
+                      Object.keys(general_stats.revenue_by_agency).length >
+                        0 && (
+                        <div className="chart-card-small">
+                          <div className="chart-header">
+                            <h3>Top 10 revenus par agence</h3>
+                          </div>
+                          <div className="chart-container-small">
+                            <ResponsiveContainer width="100%" height="100%">
+                              <BarChart
+                                data={prepareBarChartData(
+                                  general_stats.revenue_by_agency,
+                                )}
+                                layout="vertical"
+                              >
+                                <CartesianGrid
+                                  strokeDasharray="3 3"
+                                  stroke="#E5E7EB"
+                                />
+                                <XAxis
+                                  type="number"
+                                  stroke="#6B7280"
+                                  fontSize={12}
+                                />
+                                <YAxis
+                                  dataKey="name"
+                                  type="category"
+                                  width={100}
+                                  stroke="#6B7280"
+                                  fontSize={12}
+                                />
+                                <Tooltip
+                                  formatter={(value) =>
+                                    formatRevenue(value as number)
+                                  }
+                                />
+                                <Bar
+                                  dataKey="value"
+                                  fill="#7cab1b"
+                                  radius={[0, 8, 8, 0]}
+                                />
+                              </BarChart>
+                            </ResponsiveContainer>
+                          </div>
+                        </div>
+                      )}
                   </div>
 
-                  {/* Best Performing Agency */}
-                  {agencies_stats?.best_performing_agency_name && (
-                    <div className="bg-linear-to-r from-yellow-400 to-orange-500 rounded-xl shadow-lg p-4 sm:p-6 text-white">
-                      <div className="flex items-center space-x-2 sm:space-x-3 mb-2">
-                        <Award className="w-5 h-5 sm:w-6 sm:h-6" />
-                        <h3 className="text-sm sm:text-lg font-semibold">
-                          Meilleure agence performante
-                        </h3>
-                      </div>
-                      <p className="text-lg sm:text-2xl font-bold">
-                        {agencies_stats.best_performing_agency_name}
-                      </p>
-                    </div>
-                  )}
+                  {/* Réservations et Voyages par statut */}
+                  <div className="charts-row">
+                    {general_stats.reservations_by_status &&
+                      Object.keys(general_stats.reservations_by_status).length >
+                        0 && (
+                        <div className="chart-card-small">
+                          <div className="chart-header">
+                            <h3>Réservations par statut</h3>
+                          </div>
+                          <div className="chart-container-small">
+                            <ResponsiveContainer width="100%" height="100%">
+                              <PieChart>
+                                <Pie
+                                  data={Object.entries(
+                                    general_stats.reservations_by_status,
+                                  ).map(([name, value], index) => ({
+                                    name,
+                                    value,
+                                    color:
+                                      PIE_COLORS[index % PIE_COLORS.length],
+                                  }))}
+                                  cx="50%"
+                                  cy="50%"
+                                  innerRadius={40}
+                                  outerRadius={80}
+                                  paddingAngle={5}
+                                  dataKey="value"
+                                >
+                                  {Object.entries(
+                                    general_stats.reservations_by_status,
+                                  ).map((entry, index) => (
+                                    <Cell
+                                      key={`cell-${index}`}
+                                      fill={
+                                        PIE_COLORS[index % PIE_COLORS.length]
+                                      }
+                                    />
+                                  ))}
+                                </Pie>
+                                <Tooltip />
+                                <Legend verticalAlign="bottom" height={36} />
+                              </PieChart>
+                            </ResponsiveContainer>
+                          </div>
+                        </div>
+                      )}
 
-                  {/* Charts Section */}
-                  <div className="grid grid-cols-1 lg:grid-cols-2 gap-4 sm:gap-6">
-                    {/* Réservations par mois */}
-                    {general_stats.reservations_per_month && (
-                      <div className="bg-white rounded-xl shadow-sm border border-gray-200 p-4 sm:p-6">
-                        <h3 className="text-lg font-bold text-gray-900 mb-4">
-                          Réservations par mois
-                        </h3>
-                        <ResponsiveContainer width="100%" height={300}>
-                          <LineChart
-                            data={prepareMonthlyData(
-                              general_stats.reservations_per_month,
-                            )}
-                          >
-                            <CartesianGrid strokeDasharray="3 3" />
-                            <XAxis dataKey="month" />
-                            <YAxis />
-                            <Tooltip />
-                            <Legend />
-                            <Line
-                              type="monotone"
-                              dataKey="value"
-                              stroke={CHART_COLORS.primary}
-                              strokeWidth={2}
-                              name="Réservations"
-                            />
-                          </LineChart>
-                        </ResponsiveContainer>
-                      </div>
-                    )}
-
-                    {/* Monthly Revenue */}
-                    {general_stats.revenue_per_month && (
-                      <div className="bg-white rounded-xl shadow-sm border border-gray-200 p-4 sm:p-6">
-                        <h3 className="text-lg font-bold text-gray-900 mb-4">
-                          Revenu par mois
-                        </h3>
-                        <ResponsiveContainer width="100%" height={300}>
-                          <BarChart
-                            data={prepareMonthlyData(
-                              general_stats.revenue_per_month,
-                            )}
-                          >
-                            <CartesianGrid strokeDasharray="3 3" />
-                            <XAxis dataKey="month" />
-                            <YAxis />
-                            <Tooltip
-                              formatter={(value: number | undefined) =>
-                                value !== undefined
-                                  ? formatRevenue(value)
-                                  : "0 XAF"
-                              }
-                            />
-                            <Legend />
-                            <Bar
-                              dataKey="value"
-                              fill={CHART_COLORS.success}
-                              name="Revenu"
-                            />
-                          </BarChart>
-                        </ResponsiveContainer>
-                      </div>
-                    )}
-
-                    {/* Reservations by Status
-                    {general_stats.reservations_by_status && (
-                      <div className="bg-white rounded-xl shadow-sm border border-gray-200 p-4 sm:p-6">
-                        <h3 className="text-lg font-bold text-gray-900 mb-4">
-                          Réservations par statut
-                        </h3>
-                        <ResponsiveContainer width="100%" height={300}>
-                          <PieChart>
-                            <Pie
-                              data={prepareStatusData(
-                                general_stats.reservations_by_status
-                              )}
-                              cx="50%"
-                              cy="50%"
-                              labelLine={false}
-                              label={(entry) => `${entry.name}: ${entry.value}`}
-                              outerRadius={80}
-                              fill="#8884d8"
-                              dataKey="value"
-                            >
-                              {prepareStatusData(
-                                general_stats.reservations_by_status
-                              ).map((entry, index) => (
-                                <Cell
-                                  key={`cell-${index}`}
-                                  fill={getStatusColor(entry.name)}
-                                />
-                              ))}
-                            </Pie>
-                            <Tooltip />
-                            <Legend />
-                          </PieChart>
-                        </ResponsiveContainer>
-                      </div>
-                    )} */}
-
-                    {/* Voyages par statut
-                    {general_stats.trips_by_status && (
-                      <div className="bg-white rounded-xl shadow-sm border border-gray-200 p-4 sm:p-6">
-                        <h3 className="text-lg font-bold text-gray-900 mb-4">
-                          Voyages par statut
-                        </h3>
-                        <ResponsiveContainer width="100%" height={300}>
-                          <PieChart>
-                            <Pie
-                              data={prepareStatusData(
-                                general_stats.trips_by_status
-                              )}
-                              cx="50%"
-                              cy="50%"
-                              labelLine={false}
-                              label={(entry) => `${entry.name}: ${entry.value}`}
-                              outerRadius={80}
-                              fill="#8884d8"
-                              dataKey="value"
-                            >
-                              {prepareStatusData(
-                                general_stats.trips_by_status
-                              ).map((entry, index) => (
-                                <Cell
-                                  key={`cell-${index}`}
-                                  fill={getStatusColor(entry.name)}
-                                />
-                              ))}
-                            </Pie>
-                            <Tooltip />
-                            <Legend />
-                          </PieChart>
-                        </ResponsiveContainer>
-                      </div>
-                    )} */}
-
-                    {/* Revenue by Agency */}
-                    {general_stats.revenue_by_agency && (
-                      <div className="bg-white rounded-xl shadow-sm border border-gray-200 p-4 sm:p-6">
-                        <h3 className="text-lg font-bold text-gray-900 mb-4">
-                          Revenu par agence
-                        </h3>
-                        <ResponsiveContainer width="100%" height={300}>
-                          <BarChart
-                            data={prepareAgencyData(
-                              general_stats.revenue_by_agency,
-                            )}
-                            layout="vertical"
-                          >
-                            <CartesianGrid strokeDasharray="3 3" />
-                            <XAxis type="number" />
-                            <YAxis
-                              dataKey="agency"
-                              type="category"
-                              width={100}
-                            />
-                            <Tooltip
-                              formatter={(value: number | undefined) =>
-                                value !== undefined
-                                  ? formatRevenue(value)
-                                  : "0 XAF"
-                              }
-                            />
-                            <Legend />
-                            <Bar
-                              dataKey="value"
-                              fill={CHART_COLORS.primary}
-                              name="Revenu"
-                            />
-                          </BarChart>
-                        </ResponsiveContainer>
-                      </div>
-                    )}
-
-                    {/* Reservations by Agency */}
-                    {general_stats.reservations_by_agency && (
-                      <div className="bg-white rounded-xl shadow-sm border border-gray-200 p-4 sm:p-6">
-                        <h3 className="text-lg font-bold text-gray-900 mb-4">
-                          Réservations par agence
-                        </h3>
-                        <ResponsiveContainer width="100%" height={300}>
-                          <BarChart
-                            data={prepareAgencyData(
-                              general_stats.reservations_by_agency,
-                            )}
-                            layout="vertical"
-                          >
-                            <CartesianGrid strokeDasharray="3 3" />
-                            <XAxis type="number" />
-                            <YAxis
-                              dataKey="agency"
-                              type="category"
-                              width={100}
-                            />
-                            <Tooltip />
-                            <Legend />
-                            <Bar
-                              dataKey="value"
-                              fill={CHART_COLORS.secondary}
-                              name="Réservations"
-                            />
-                          </BarChart>
-                        </ResponsiveContainer>
-                      </div>
-                    )}
+                    {general_stats.trips_by_status &&
+                      Object.keys(general_stats.trips_by_status).length > 0 && (
+                        <div className="chart-card-small">
+                          <div className="chart-header">
+                            <h3>Voyages par statut</h3>
+                          </div>
+                          <div className="chart-container-small">
+                            <ResponsiveContainer width="100%" height="100%">
+                              <PieChart>
+                                <Pie
+                                  data={Object.entries(
+                                    general_stats.trips_by_status,
+                                  ).map(([name, value], index) => ({
+                                    name,
+                                    value,
+                                    color:
+                                      PIE_COLORS[index % PIE_COLORS.length],
+                                  }))}
+                                  cx="50%"
+                                  cy="50%"
+                                  innerRadius={40}
+                                  outerRadius={80}
+                                  paddingAngle={5}
+                                  dataKey="value"
+                                >
+                                  {Object.entries(
+                                    general_stats.trips_by_status,
+                                  ).map((entry, index) => (
+                                    <Cell
+                                      key={`cell-${index}`}
+                                      fill={
+                                        PIE_COLORS[index % PIE_COLORS.length]
+                                      }
+                                    />
+                                  ))}
+                                </Pie>
+                                <Tooltip />
+                                <Legend verticalAlign="bottom" height={36} />
+                              </PieChart>
+                            </ResponsiveContainer>
+                          </div>
+                        </div>
+                      )}
                   </div>
 
-                  {/* Agencies List */}
+                  {/* Réservations par agence */}
+                  {general_stats.reservations_by_agency &&
+                    Object.keys(general_stats.reservations_by_agency).length >
+                      0 && (
+                      <div className="charts-row">
+                        <div className="chart-card-small">
+                          <div className="chart-header">
+                            <h3>Top 10 réservations par agence</h3>
+                          </div>
+                          <div className="chart-container-small">
+                            <ResponsiveContainer width="100%" height="100%">
+                              <BarChart
+                                data={prepareBarChartData(
+                                  general_stats.reservations_by_agency,
+                                )}
+                                layout="vertical"
+                              >
+                                <CartesianGrid
+                                  strokeDasharray="3 3"
+                                  stroke="#E5E7EB"
+                                />
+                                <XAxis
+                                  type="number"
+                                  stroke="#6B7280"
+                                  fontSize={12}
+                                />
+                                <YAxis
+                                  dataKey="name"
+                                  type="category"
+                                  width={100}
+                                  stroke="#6B7280"
+                                  fontSize={12}
+                                />
+                                <Tooltip />
+                                <Bar
+                                  dataKey="value"
+                                  fill="#7cab1b"
+                                  radius={[0, 8, 8, 0]}
+                                />
+                              </BarChart>
+                            </ResponsiveContainer>
+                          </div>
+                        </div>
+                      </div>
+                    )}
+
                   {agencies_stats && agencies_stats.agencies.length > 0 && (
-                    <div className="bg-white rounded-xl shadow-sm border border-gray-200 p-4 sm:p-6">
-                      <div className="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-3 mb-4 sm:mb-6">
-                        <h3 className="text-lg sm:text-xl font-bold text-gray-900">
-                          Nos agences
+                    <div className="org-agencies-section">
+                      <div className="content-header">
+                        <h3 className="content-title">
+                          Nos agences ({agencies_stats.total_agencies})
                         </h3>
-                        <div className="relative w-full sm:w-auto">
-                          <Search className="absolute left-3 top-1/2 transform -translate-y-1/2 w-4 h-4 sm:w-5 sm:h-5 text-gray-400" />
+                        <div className="search-input-wrapper">
+                          <Search />
                           <input
                             type="text"
-                            placeholder="Rechercher..."
+                            placeholder="Rechercher une agence..."
                             value={agencies_search}
                             onChange={(e) => {
                               setAgenciesSearch(e.target.value);
                               setAgenciesPage(1);
                             }}
-                            className="w-full sm:w-auto pl-9 sm:pl-10 pr-4 py-2 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-[#6149CD] focus:border-transparent text-gray-800 placeholder:text-gray-400 text-sm sm:text-base"
                           />
                         </div>
                       </div>
 
-                      <div className="space-y-3 sm:space-y-4">
+                      <div className="org-agencies-grid">
                         {paginated_agencies.map((agency) => (
                           <div
                             key={agency.agency_id}
-                            className="border border-gray-200 rounded-lg p-3 sm:p-4 hover:shadow-md transition-shadow"
+                            className="org-agency-card"
+                            onClick={() =>
+                              router.push(
+                                `/user/organization/detail_agency?id=${agency.agency_id}`,
+                              )
+                            }
                           >
-                            <div className="flex flex-col sm:flex-row sm:items-start sm:justify-between gap-2 sm:gap-0 mb-3">
-                              <div className="flex-1 min-w-0">
-                                <div className="flex flex-wrap items-center gap-2 mb-2">
-                                  <h4 className="text-base sm:text-lg font-bold text-gray-900 truncate">
-                                    {agency.agency_name}
-                                  </h4>
-                                  <span className="text-xs sm:text-sm text-gray-600">
-                                    ({agency.short_name})
-                                  </span>
-                                </div>
-                                <div className="flex items-center space-x-2 text-gray-600">
-                                  <MapPin className="w-3 h-3 sm:w-4 sm:h-4 shrink-0" />
-                                  <span className="text-sm sm:text-base truncate">
-                                    {agency.ville}
-                                  </span>
-                                </div>
-                              </div>
-                              <div className="flex items-center">
-                                <span
-                                  className={`px-2 sm:px-3 py-1 rounded-full text-xs sm:text-sm font-semibold ${getStatusBadge(
-                                    agency.statut_validation,
-                                  )}`}
-                                >
-                                  {agency.statut_validation}
-                                </span>
-                              </div>
-                            </div>
-
-                            <div className="grid grid-cols-2 sm:grid-cols-4 gap-2 sm:gap-4 mb-3">
-                              <div>
-                                <p className="text-xs text-gray-600">
-                                  Employés
-                                </p>
-                                <p className="text-base sm:text-lg font-semibold text-gray-900">
-                                  {agency.number_of_employees}
+                            <div className="org-agency-header">
+                              <div className="org-agency-info">
+                                <h4 className="org-agency-name">
+                                  {agency.agency_name}
+                                </h4>
+                                <p className="org-agency-short">
+                                  {agency.short_name}
                                 </p>
                               </div>
-                              <div>
-                                <p className="text-xs text-gray-600">
-                                  Véhicules
-                                </p>
-                                <p className="text-base sm:text-lg font-semibold text-gray-900">
-                                  {agency.number_of_vehicles}
-                                </p>
-                              </div>
-                              <div>
-                                <p className="text-xs text-gray-600">Voyages</p>
-                                <p className="text-base sm:text-lg font-semibold text-gray-900">
-                                  {agency.number_of_trips}
-                                </p>
-                              </div>
-                              <div>
-                                <p className="text-xs text-gray-600">Revenu</p>
-                                <p className="text-sm sm:text-lg font-semibold text-gray-900 break-all">
-                                  {formatRevenue(agency.total_revenue)}
-                                </p>
-                              </div>
-                            </div>
-
-                            {/* Action Buttons */}
-                            <div className="flex items-center space-x-2 pt-3 border-t border-gray-200">
                               <button
-                                onClick={() =>
-                                  router.push(
-                                    `/user/organization/detail_agency?id=${agency.agency_id}`,
-                                  )
-                                }
-                                style={{ backgroundColor: BUTTON_COLOR }}
-                                className="p-2 text-white rounded-lg hover:opacity-90 transition-opacity"
-                                title="Voir détails"
-                              >
-                                <Eye className="w-4 h-4" />
-                              </button>
-                              <button
-                                onClick={() => {
+                                onClick={(e) => {
+                                  e.stopPropagation();
                                   setDeleteTargetId(agency.agency_id);
                                   setDeleteTargetName(agency.agency_name);
                                   setShowDeleteAgencyModal(true);
                                 }}
-                                className="p-2 bg-red-600 text-white rounded-lg hover:bg-red-700 transition-colors"
-                                title="Supprimer"
+                                className="btn-icon-danger"
                               >
-                                <Trash2 className="w-4 h-4" />
+                                <Trash2 />
                               </button>
+                            </div>
+
+                            <div className="org-agency-location">
+                              <MapPin />
+                              <span>{agency.ville}</span>
+                            </div>
+
+                            <div className="org-agency-stats">
+                              <div className="org-agency-stat">
+                                <span className="org-agency-stat-label">
+                                  Employés
+                                </span>
+                                <span className="org-agency-stat-value">
+                                  {agency.number_of_employees}
+                                </span>
+                              </div>
+                              <div className="org-agency-stat">
+                                <span className="org-agency-stat-label">
+                                  Voyages
+                                </span>
+                                <span className="org-agency-stat-value">
+                                  {agency.number_of_trips}
+                                </span>
+                              </div>
+                              <div className="org-agency-stat">
+                                <span className="org-agency-stat-label">
+                                  Revenu
+                                </span>
+                                <span className="org-agency-stat-value">
+                                  {formatRevenue(agency.total_revenue)}
+                                </span>
+                              </div>
                             </div>
                           </div>
                         ))}
                       </div>
 
-                      {/* Pagination */}
                       {total_agencies_pages > 1 && (
-                        <div className="flex flex-col sm:flex-row items-center justify-between gap-3 mt-4 sm:mt-6">
+                        <div className="widget-pagination">
                           <button
                             onClick={() =>
                               setAgenciesPage((p) => Math.max(1, p - 1))
                             }
                             disabled={agencies_page === 1}
-                            className="w-full sm:w-auto flex items-center justify-center space-x-2 px-3 sm:px-4 py-2 border border-gray-300 rounded-lg hover:bg-gray-100 disabled:opacity-50 disabled:cursor-not-allowed transition-colors text-sm sm:text-base"
+                            className="btn-icon"
                           >
-                            <ChevronLeft className="w-4 h-4 sm:w-5 sm:h-5" />
-                            <span>Précédent</span>
+                            <ChevronLeft />
                           </button>
-
-                          <span className="text-gray-600 text-sm sm:text-base order-first sm:order-0">
+                          <span>
                             Page {agencies_page} sur {total_agencies_pages}
                           </span>
-
                           <button
                             onClick={() =>
                               setAgenciesPage((p) =>
@@ -1335,370 +1125,165 @@ export default function DGDashboardPage() {
                               )
                             }
                             disabled={agencies_page === total_agencies_pages}
-                            className="w-full sm:w-auto flex items-center justify-center space-x-2 px-3 sm:px-4 py-2 border border-gray-300 rounded-lg hover:bg-gray-100 disabled:opacity-50 disabled:cursor-not-allowed transition-colors text-sm sm:text-base"
+                            className="btn-icon"
                           >
-                            <span>Suivant</span>
-                            <ChevronRight className="w-4 h-4 sm:w-5 sm:h-5" />
+                            <ChevronRight />
                           </button>
                         </div>
                       )}
                     </div>
                   )}
-                </>
-              )}
 
-              {/* Organizations List */}
-              {organizations.length > 0 && (
-                <div className="bg-white rounded-xl shadow-sm border border-gray-200 p-4 sm:p-6">
-                  <div className="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-3 mb-4 sm:mb-6">
-                    <h3 className="text-lg sm:text-xl font-bold text-gray-900">
-                      Mes organisations ({organizations.length})
-                    </h3>
-                    <div className="relative w-full sm:w-auto">
-                      <Search className="absolute left-3 top-1/2 transform -translate-y-1/2 w-4 h-4 sm:w-5 sm:h-5 text-gray-400" />
-                      <input
-                        type="text"
-                        placeholder="Rechercher..."
-                        value={orgs_search}
-                        onChange={(e) => {
-                          setOrgsSearch(e.target.value);
-                          setOrgsPage(1);
-                        }}
-                        className="w-full sm:w-auto pl-9 sm:pl-10 pr-4 py-2 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-[#6149CD] focus:border-transparent text-gray-800 placeholder:text-gray-400 text-sm sm:text-base"
-                      />
+                  <div className="org-list-section">
+                    <div className="content-header">
+                      <h3 className="content-title">
+                        Mes organisations ({organizations.length})
+                      </h3>
+                      <div className="search-input-wrapper">
+                        <Search />
+                        <input
+                          type="text"
+                          placeholder="Rechercher une organisation..."
+                          value={orgs_search}
+                          onChange={(e) => {
+                            setOrgsSearch(e.target.value);
+                            setOrgsPage(1);
+                          }}
+                        />
+                      </div>
                     </div>
-                  </div>
 
-                  {/* Desktop Table View */}
-                  <div className="hidden md:block overflow-x-auto">
-                    <table className="w-full">
-                      <thead>
-                        <tr className="border-b border-gray-200">
-                          <th className="text-left py-3 px-4 text-gray-600 font-semibold text-sm">
-                            Nom complet
-                          </th>
-                          <th className="text-left py-3 px-4 text-gray-600 font-semibold text-sm">
-                            Abréviation
-                          </th>
-                          <th className="text-left py-3 px-4 text-gray-600 font-semibold text-sm">
-                            Email
-                          </th>
-                          <th className="text-left py-3 px-4 text-gray-600 font-semibold text-sm">
-                            Dirigeant
-                          </th>
-                          <th className="text-left py-3 px-4 text-gray-600 font-semibold text-sm">
-                            Date création
-                          </th>
-                          <th className="text-left py-3 px-4 text-gray-600 font-semibold text-sm">
-                            Actions
-                          </th>
-                        </tr>
-                      </thead>
-                      <tbody>
-                        {paginated_orgs.map((org) => (
-                          <tr
-                            key={org.id}
-                            className={`border-b border-gray-100 hover:bg-gray-50 ${
-                              selected_organization?.id === org.id
-                                ? "bg-purple-50"
-                                : ""
-                            }`}
-                          >
-                            <td className="py-3 px-4 text-gray-900 font-medium text-sm">
-                              <span className="truncate block max-w-50">
-                                {org.long_name}
+                    <div className="org-cards-grid">
+                      {paginated_orgs.map((org) => (
+                        <div
+                          key={org.id}
+                          className="org-list-card"
+                          onClick={() =>
+                            router.push(
+                              `/user/organization/detail_organization?id=${org.id}`,
+                            )
+                          }
+                        >
+                          <div className="org-list-header">
+                            <div className="org-list-info">
+                              <h4 className="org-list-name">{org.long_name}</h4>
+                              <p className="org-list-short">{org.short_name}</p>
+                            </div>
+                            <button
+                              onClick={(e) => {
+                                e.stopPropagation();
+                                setDeleteTargetId(org.id);
+                                setDeleteTargetName(org.long_name);
+                                setShowDeleteOrgModal(true);
+                              }}
+                              className="btn-icon-danger"
+                            >
+                              <Trash2 />
+                            </button>
+                          </div>
+
+                          <div className="org-list-details">
+                            <div className="org-list-detail">
+                              <span className="org-list-detail-label">
+                                Email
                               </span>
-                              {selected_organization?.id === org.id && (
-                                <span className="ml-2 px-2 py-1 bg-[#6149CD] text-white text-xs rounded-full">
-                                  Sélectionnée
-                                </span>
-                              )}
-                            </td>
-                            <td className="py-3 px-4 text-gray-600 text-sm">
-                              {org.short_name}
-                            </td>
-                            <td className="py-3 px-4 text-gray-600 text-sm">
-                              <span className="truncate block max-w-37.5">
+                              <span className="org-list-detail-value">
                                 {org.email}
                               </span>
-                            </td>
-                            <td className="py-3 px-4 text-gray-600 text-sm">
-                              {org.ceo_name}
-                            </td>
-                            <td className="py-3 px-4 text-gray-600 text-sm whitespace-nowrap">
-                              {formatDate(org.created_at)}
-                            </td>
-                            <td className="py-3 px-4">
-                              <div className="flex items-center space-x-2">
-                                <button
-                                  onClick={() =>
-                                    router.push(
-                                      `/user/organization/detail_organization?id=${org.id}`,
-                                    )
-                                  }
-                                  style={{ backgroundColor: BUTTON_COLOR }}
-                                  className="p-2 text-white rounded-lg hover:opacity-90 transition-opacity"
-                                  title="Voir détails"
-                                >
-                                  <Eye className="w-4 h-4" />
-                                </button>
-                                <button
-                                  onClick={() => {
-                                    setDeleteTargetId(org.id);
-                                    setDeleteTargetName(org.long_name);
-                                    setShowDeleteOrgModal(true);
-                                  }}
-                                  className="p-2 bg-red-600 text-white rounded-lg hover:bg-red-700 transition-colors"
-                                  title="Supprimer"
-                                >
-                                  <Trash2 className="w-4 h-4" />
-                                </button>
-                              </div>
-                            </td>
-                          </tr>
-                        ))}
-                      </tbody>
-                    </table>
-                  </div>
-
-                  {/* Mobile Card View */}
-                  <div className="md:hidden space-y-3">
-                    {paginated_orgs.map((org) => (
-                      <div
-                        key={org.id}
-                        className={`border border-gray-200 rounded-lg p-3 ${
-                          selected_organization?.id === org.id
-                            ? "bg-purple-50 border-purple-200"
-                            : ""
-                        }`}
-                      >
-                        <div className="flex items-start justify-between mb-2">
-                          <div className="flex-1 min-w-0">
-                            <h4 className="font-bold text-gray-900 text-sm truncate">
-                              {org.long_name}
-                            </h4>
-                            <p className="text-xs text-gray-600">
-                              {org.short_name}
-                            </p>
+                            </div>
+                            <div className="org-list-detail">
+                              <span className="org-list-detail-label">
+                                Dirigeant
+                              </span>
+                              <span className="org-list-detail-value">
+                                {org.ceo_name}
+                              </span>
+                            </div>
+                            <div className="org-list-detail">
+                              <span className="org-list-detail-label">
+                                Créée le
+                              </span>
+                              <span className="org-list-detail-value">
+                                {formatDate(org.created_at)}
+                              </span>
+                            </div>
                           </div>
-                          {selected_organization?.id === org.id && (
-                            <span className="px-2 py-1 bg-[#6149CD] text-white text-xs rounded-full shrink-0 ml-2">
-                              Sélectionnée
-                            </span>
-                          )}
                         </div>
-
-                        <div className="space-y-1 mb-3 text-xs">
-                          <p className="text-gray-600 truncate">
-                            <span className="font-medium">Email:</span>{" "}
-                            {org.email}
-                          </p>
-                          <p className="text-gray-600">
-                            <span className="font-medium">Dirigeant:</span>{" "}
-                            {org.ceo_name}
-                          </p>
-                          <p className="text-gray-600">
-                            <span className="font-medium">Créée le:</span>{" "}
-                            {formatDate(org.created_at)}
-                          </p>
-                        </div>
-
-                        <div className="flex items-center space-x-2 pt-2 border-t border-gray-200">
-                          <button
-                            onClick={() =>
-                              router.push(
-                                `/user/organization/detail_organization?id=${org.id}`,
-                              )
-                            }
-                            style={{ backgroundColor: BUTTON_COLOR }}
-                            className="flex-1 flex items-center justify-center space-x-1 p-2 text-white rounded-lg hover:opacity-90 transition-opacity text-xs"
-                          >
-                            <Eye className="w-3 h-3" />
-                            <span>Détails</span>
-                          </button>
-                          <button
-                            onClick={() => {
-                              setDeleteTargetId(org.organization_id);
-                              setDeleteTargetName(org.long_name);
-                              setShowDeleteOrgModal(true);
-                            }}
-                            className="p-2 bg-red-600 text-white rounded-lg hover:bg-red-700 transition-colors"
-                          >
-                            <Trash2 className="w-4 h-4" />
-                          </button>
-                        </div>
-                      </div>
-                    ))}
-                  </div>
-
-                  {/* Pagination */}
-                  {total_orgs_pages > 1 && (
-                    <div className="flex flex-col sm:flex-row items-center justify-between gap-3 mt-4 sm:mt-6">
-                      <button
-                        onClick={() => setOrgsPage((p) => Math.max(1, p - 1))}
-                        disabled={orgs_page === 1}
-                        className="w-full sm:w-auto flex items-center justify-center space-x-2 px-3 sm:px-4 py-2 border border-gray-300 rounded-lg hover:bg-gray-100 disabled:opacity-50 disabled:cursor-not-allowed transition-colors text-sm sm:text-base"
-                      >
-                        <ChevronLeft className="w-4 h-4 sm:w-5 sm:h-5" />
-                        <span>Précédent</span>
-                      </button>
-
-                      <span className="text-gray-600 text-sm sm:text-base order-first sm:order-0">
-                        Page {orgs_page} sur {total_orgs_pages}
-                      </span>
-
-                      <button
-                        onClick={() =>
-                          setOrgsPage((p) => Math.min(total_orgs_pages, p + 1))
-                        }
-                        disabled={orgs_page === total_orgs_pages}
-                        className="w-full sm:w-auto flex items-center justify-center space-x-2 px-3 sm:px-4 py-2 border border-gray-300 rounded-lg hover:bg-gray-100 disabled:opacity-50 disabled:cursor-not-allowed transition-colors text-sm sm:text-base"
-                      >
-                        <span>Suivant</span>
-                        <ChevronRight className="w-4 h-4 sm:w-5 sm:h-5" />
-                      </button>
+                      ))}
                     </div>
-                  )}
-                </div>
+
+                    {total_orgs_pages > 1 && (
+                      <div className="widget-pagination">
+                        <button
+                          onClick={() => setOrgsPage((p) => Math.max(1, p - 1))}
+                          disabled={orgs_page === 1}
+                          className="btn-icon"
+                        >
+                          <ChevronLeft />
+                        </button>
+                        <span>
+                          Page {orgs_page} sur {total_orgs_pages}
+                        </span>
+                        <button
+                          onClick={() =>
+                            setOrgsPage((p) =>
+                              Math.min(total_orgs_pages, p + 1),
+                            )
+                          }
+                          disabled={orgs_page === total_orgs_pages}
+                          className="btn-icon"
+                        >
+                          <ChevronRight />
+                        </button>
+                      </div>
+                    )}
+                  </div>
+                </>
               )}
-            </div>
+            </>
           )}
         </main>
       </div>
 
-      {/* Delete Organization Modal */}
-      {show_delete_org_modal && (
-        <div className="fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center z-50 p-4">
-          <div className="bg-white rounded-2xl shadow-2xl max-w-md w-full p-6 sm:p-8">
-            <div className="w-16 h-16 sm:w-20 sm:h-20 bg-red-100 rounded-full flex items-center justify-center mx-auto mb-4">
-              <AlertCircle className="w-10 h-10 sm:w-12 sm:h-12 text-red-600" />
-            </div>
+      <ConfirmModal
+        show={show_delete_org_modal}
+        onClose={() => {
+          setShowDeleteOrgModal(false);
+        }}
+        onConfirm={handleDeleteOrganization}
+        title="Supprimer l'organisation"
+        message="Êtes-vous sûr de vouloir supprimer cette voyage ? Cette action est irréversible."
+        confirmText="Supprimer"
+        cancelText="Annuler"
+        isLoading={is_deleting}
+      />
 
-            <p className="text-gray-700 mb-6 text-sm sm:text-base text-center">
-              Êtes-vous sûr de vouloir supprimer l'organisation{" "}
-              <span className="font-bold">{delete_target_name}</span> ?
-            </p>
+      <ConfirmModal
+        show={show_delete_agency_modal}
+        onClose={() => {
+          setShowDeleteAgencyModal(false);
+        }}
+        onConfirm={handleDeleteAgency}
+        title="Supprimer l'agence"
+        message="Êtes-vous sûr de vouloir supprimer cette agence ? Cette action est irréversible."
+        confirmText="Supprimer"
+        cancelText="Annuler"
+        isLoading={is_deleting}
+      />
 
-            <div className="flex flex-col sm:flex-row items-center gap-3">
-              <button
-                onClick={() => setShowDeleteOrgModal(false)}
-                disabled={is_deleting}
-                className="w-full sm:flex-1 py-2.5 sm:py-3 border-2 border-gray-300 text-gray-700 rounded-xl font-semibold hover:bg-gray-100 transition-colors disabled:opacity-50 text-sm sm:text-base"
-              >
-                Annuler
-              </button>
-              <button
-                onClick={handleDeleteOrganization}
-                disabled={is_deleting}
-                className="w-full sm:flex-1 py-2.5 sm:py-3 bg-red-600 text-white rounded-xl font-semibold hover:bg-red-700 transition-colors disabled:opacity-50 text-sm sm:text-base"
-              >
-                {is_deleting ? "Suppression..." : "Supprimer"}
-              </button>
-            </div>
-          </div>
-        </div>
-      )}
+      <SuccessModal
+        show={showSuccessModal}
+        onClose={() => window.location.reload()}
+        title="Génial"
+        message="Le suppression a réussie avec succès."
+        buttonText="OK"
+      />
 
-      {/* Delete Agency Modal */}
-      {show_delete_agency_modal && (
-        <div className="fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center z-50 p-4">
-          <div className="bg-white rounded-2xl shadow-2xl max-w-md w-full p-6 sm:p-8">
-            <div className="w-16 h-16 sm:w-20 sm:h-20 bg-red-100 rounded-full flex items-center justify-center mx-auto mb-4">
-              <AlertCircle className="w-10 h-10 sm:w-12 sm:h-12 text-red-600" />
-            </div>
-
-            <p className="text-gray-700 mb-6 text-sm sm:text-base text-center">
-              Êtes-vous sûr de vouloir supprimer l'agence{" "}
-              <span className="font-bold">{delete_target_name}</span> ?
-            </p>
-
-            <div className="flex flex-col sm:flex-row items-center gap-3">
-              <button
-                onClick={() => setShowDeleteAgencyModal(false)}
-                disabled={is_deleting}
-                className="w-full sm:flex-1 py-2.5 sm:py-3 border-2 border-gray-300 text-gray-700 rounded-xl font-semibold hover:bg-gray-100 transition-colors disabled:opacity-50 text-sm sm:text-base"
-              >
-                Annuler
-              </button>
-              <button
-                onClick={handleDeleteAgency}
-                disabled={is_deleting}
-                className="w-full sm:flex-1 py-2.5 sm:py-3 bg-red-600 text-white rounded-xl font-semibold hover:bg-red-700 transition-colors disabled:opacity-50 text-sm sm:text-base"
-              >
-                {is_deleting ? "Suppression..." : "Supprimer"}
-              </button>
-            </div>
-          </div>
-        </div>
-      )}
-      
-      {/* Success Modal */}
-      {show_success_modal && (
-        <div className="fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center z-50 p-4">
-          <div className="bg-white rounded-2xl shadow-2xl max-w-md w-full p-6 sm:p-8">
-            <div className="text-center">
-              <div className="w-16 h-16 sm:w-20 sm:h-20 bg-green-100 rounded-full flex items-center justify-center mx-auto mb-4">
-                <svg
-                  className="w-10 h-10 sm:w-12 sm:h-12 text-green-600"
-                  fill="none"
-                  stroke="currentColor"
-                  viewBox="0 0 24 24"
-                >
-                  <path
-                    strokeLinecap="round"
-                    strokeLinejoin="round"
-                    strokeWidth={2}
-                    d="M5 13l4 4L19 7"
-                  />
-                </svg>
-              </div>
-              <h2 className="text-xl sm:text-2xl font-bold text-gray-900 mb-2">
-                Succès !
-              </h2>
-              <p className="text-gray-600 mb-6 text-sm sm:text-base">
-                {success_message}
-              </p>
-              <button
-                onClick={() => setShowSuccessModal(false)}
-                className="w-full py-2.5 sm:py-3 bg-green-600 text-white rounded-xl font-semibold hover:bg-green-700 transition-colors text-sm sm:text-base"
-              >
-                Fermer
-              </button>
-            </div>
-          </div>
-        </div>
-      )}
-
-      {/* Error Modal */}
-      {show_error_modal && (
-        <div className="fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center z-50 p-4">
-          <div className="bg-white rounded-2xl shadow-2xl max-w-md w-full p-6 sm:p-8">
-            <div className="text-center">
-              <div className="w-16 h-16 sm:w-20 sm:h-20 bg-red-100 rounded-full flex items-center justify-center mx-auto mb-4">
-                <AlertCircle className="w-10 h-10 sm:w-12 sm:h-12 text-red-600" />
-              </div>
-              <h2 className="text-xl sm:text-2xl font-bold text-gray-900 mb-2">
-                Erreur
-              </h2>
-              <div className="bg-red-50 rounded-xl p-4 mb-6">
-                <p className="text-sm sm:text-base text-red-800">
-                  {error_modal_message}
-                </p>
-              </div>
-              <button
-                onClick={() => {
-                  setShowErrorModal(false);
-                  setShowDeleteAgencyModal(false);
-                  setShowDeleteOrgModal(false);
-                }}
-                className="w-full py-2.5 sm:py-3 bg-red-600 text-white rounded-xl font-semibold hover:bg-red-700 transition-colors text-sm sm:text-base"
-              >
-                Fermer
-              </button>
-            </div>
-          </div>
-        </div>
-      )}
+      <ErrorModal
+        show={showErrorModal}
+        onClose={() => setShowErrorModal(false)}
+        message={error_message}
+      />
     </div>
   );
 }

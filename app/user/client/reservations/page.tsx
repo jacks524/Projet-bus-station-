@@ -9,19 +9,22 @@ import {
   Gift,
   History,
   Settings,
-  ChevronDown,
-  LogOut,
-  Menu,
-  X,
-  CreditCard,
   MapPin,
   Clock,
   Users,
   Compass,
   ChevronLeft,
   ChevronRight,
+  CreditCard,
+  X,
+  RefreshCw,
 } from "lucide-react";
 import { useRouter } from "next/navigation";
+import Sidebar from "@/app/components/Sidebar";
+import MobileSidebar from "@/app/components/Mobilesidebar";
+import Header from "@/app/components/Header";
+import SuccessModal from "@/app/components/SuccessModal";
+import ErrorModal from "@/app/components/ErrorModal";
 
 interface Voyage {
   idVoyage: string;
@@ -70,37 +73,33 @@ interface UserData {
  * Client Reservations Page Component
  *
  * Display user's pending reservations with payment option
- * Shows only reservations with status "RESERVER"
  *
- * @author Thomas Djotio Ndié
- * @date 2025-12-20
+ * @author Félix DJOTIO NDIE
+ * @date 2025-01-29
  */
 export default function ClientReservationsPage() {
   const [reservations, setReservations] = useState<ReservationData[]>([]);
   const [is_loading, setIsLoading] = useState(true);
   const [error_message, setErrorMessage] = useState("");
-
-  const [show_profile_menu, setShowProfileMenu] = useState(false);
   const [show_mobile_menu, setShowMobileMenu] = useState(false);
   const [user_data, setUserData] = useState<UserData | null>(null);
-
   const [show_paiement_modal, setShowPaiementModal] = useState(false);
   const [selected_reservation, setSelectedReservation] =
     useState<ReservationData | null>(null);
   const [is_loading_paiement, setIsLoadingPaiement] = useState(false);
-
   const [mobile_phone, setMobilePhone] = useState("");
   const [mobile_phone_name, setMobilePhoneName] = useState("");
-
   const [current_page, setCurrentPage] = useState(0);
   const [total_pages, setTotalPages] = useState(0);
   const [total_elements, setTotalElements] = useState(0);
 
+  const [showSuccessModal, setShowSuccessModal] = useState(false);
+  const [showErrorModal, setShowErrorModal] = useState(false);
+
   const router = useRouter();
 
   const API_BASE_URL = process.env.NEXT_PUBLIC_API_BASE_URL;
-  const BUTTON_COLOR = "#6149CD";
-  const RESERVATIONS_PER_PAGE = 3;
+  const RESERVATIONS_PER_PAGE = 6;
 
   const MENU_ITEMS = [
     { icon: Home, label: "Accueil", path: "/user/client/home", active: false },
@@ -192,9 +191,7 @@ export default function ClientReservationsPage() {
       }
 
       const data = await response.json();
-
       const all_reservations = data.content || [];
-
       const now = new Date();
 
       const pending_reservations = all_reservations.filter(
@@ -202,7 +199,6 @@ export default function ClientReservationsPage() {
           const is_pending = item.reservation.statutReservation === "RESERVER";
           const departure_date = new Date(item.voyage.dateDepartPrev);
           const is_future = departure_date > now;
-
           return is_pending && is_future;
         },
       );
@@ -216,14 +212,6 @@ export default function ClientReservationsPage() {
     } finally {
       setIsLoading(false);
     }
-  };
-
-  const handleLogout = () => {
-    localStorage.removeItem("auth_token");
-    localStorage.removeItem("user_data");
-    sessionStorage.removeItem("auth_token");
-    sessionStorage.removeItem("user_data");
-    router.push("/login");
   };
 
   const ouvrirModalPaiement = (reservation: ReservationData) => {
@@ -271,9 +259,12 @@ export default function ClientReservationsPage() {
       if (user_data?.userId) {
         fetchReservations(user_data.userId);
       }
-      router.push("/user/client/tickets");
+      setShowSuccessModal(true);
     } catch (error: any) {
-      alert("Une erreur est survenue lors du paiement. Veuillez réessayer.");
+      setErrorMessage(
+        "Une erreur est survenue lors du paiement. Veuillez réessayer.",
+      );
+      setShowErrorModal(true);
       console.error("Payment Error:", error);
     } finally {
       setIsLoadingPaiement(false);
@@ -299,508 +290,369 @@ export default function ClientReservationsPage() {
   };
 
   return (
-    <div className="min-h-screen bg-gray-50 flex">
-      {/* Sidebar */}
-      <>
-        <aside className="hidden lg:flex lg:flex-col w-64 bg-white border-r border-gray-200 fixed h-full">
-          <div className="p-6">
-            <div className="mb-8">
-              <button
-                onClick={() => router.push("/user/client/home")}
-                className="group relative transition-all duration-300 hover:scale-105 active:scale-95"
-              >
-                <div className="absolute inset-0 bg-linear-to-r from-[#6149CD] to-[#8B7BE8] rounded-lg opacity-0 group-hover:opacity-10 blur-xl transition-opacity duration-300"></div>
-                <img
-                  src="/images/busstation.png"
-                  alt="BusStation Logo"
-                  className="h-12 w-auto relative z-10 drop-shadow-md group-hover:drop-shadow-xl transition-all duration-300"
-                />
-              </button>
+    <div className="dashboard-layout">
+      <Sidebar menuItems={MENU_ITEMS} activePath="/user/client/reservations" />
+      <MobileSidebar
+        isOpen={show_mobile_menu}
+        onClose={() => setShowMobileMenu(false)}
+        menuItems={MENU_ITEMS}
+        activePath="/user/client/reservations"
+      />
+
+      <div className="dashboard-main">
+        <Header
+          title="Mes réservations"
+          userData={user_data}
+          onMenuClick={() => setShowMobileMenu(true)}
+        />
+
+        <main className="dashboard-content">
+          <div className="container" style={{ maxWidth: "1200px" }}>
+            {/* Section Header */}
+            <div
+              className="section-header"
+              style={{ marginBottom: "var(--spacing-2xl)" }}
+            >
+              <h2 className="section-title">Vos réservations en attente</h2>
+              <p className="section-description">
+                Gérez et payez vos réservations pour obtenir vos billets
+              </p>
             </div>
 
-            <nav className="space-y-1">
-              {MENU_ITEMS.map((item, index) => (
+            {/* Loading State */}
+            {is_loading && (
+              <div className="loading-state">
+                <RefreshCw className="spin" />
+                <p>Chargement de vos réservations...</p>
+              </div>
+            )}
+
+            {/* Error State */}
+            {!is_loading && error_message && (
+              <div className="error-state">
+                <X className="error-state-icon" />
+                <p className="error-text">{error_message}</p>
                 <button
-                  key={index}
-                  onClick={() =>
-                    item.active
-                      ? window.location.reload()
-                      : router.push(item.path)
-                  }
-                  className={`w-full flex items-center space-x-3 px-4 py-3 rounded-lg transition-colors ${
-                    item.active
-                      ? "bg-[#6149CD] text-white"
-                      : "text-gray-600 hover:bg-gray-100"
-                  }`}
+                  onClick={() => window.location.reload()}
+                  className="btn modal-button modal-button-error"
                 >
-                  <item.icon className="w-5 h-5" />
-                  <span className="font-medium">{item.label}</span>
+                  Réessayer
                 </button>
-              ))}
-            </nav>
-          </div>
-        </aside>
+              </div>
+            )}
 
-        {show_mobile_menu && (
-          <>
-            <div
-              className="fixed inset-0 z-40 lg:hidden"
-              onClick={() => setShowMobileMenu(false)}
-            ></div>
+            {/* Empty State */}
+            {!is_loading && !error_message && reservations.length === 0 && (
+              <div className="empty-state">
+                <FileText className="empty-icon" />
+                <h3 className="empty-title">Aucune réservation en attente</h3>
+                <p className="empty-description">
+                  Toutes vos réservations ont été traitées
+                </p>
+                <button
+                  onClick={() => router.push("/user/client/book")}
+                  className="btn btn-primary"
+                  style={{ marginTop: "var(--spacing-lg)" }}
+                >
+                  Réserver un voyage
+                </button>
+              </div>
+            )}
 
-            <aside className="fixed left-0 top-0 h-full w-64 bg-white shadow-2xl z-50 lg:hidden transform transition-transform duration-300">
-              <div className="p-6">
-                <div className="flex items-center justify-between mb-8">
-                  <button
-                    onClick={() => {
-                      setShowMobileMenu(false);
-                      router.push("/user/client/home");
-                    }}
-                    className="group relative transition-all duration-300 hover:scale-105 active:scale-95"
-                  >
-                    <img
-                      src="/images/busstation.png"
-                      alt="BusStation Logo"
-                      className="h-9.5 w-auto"
-                    />
-                  </button>
-                  <button
-                    onClick={() => setShowMobileMenu(false)}
-                    className="p-2 hover:bg-gray-100 rounded-lg transition-colors"
-                  >
-                    <X className="w-6 h-6 text-gray-900" />
-                  </button>
+            {/* Reservations List */}
+            {!is_loading && !error_message && reservations.length > 0 && (
+              <>
+                <div className="voyage-results-list">
+                  {reservations.map((data) => (
+                    <div
+                      key={data.reservation.idReservation}
+                      className="voyage-result-item"
+                    >
+                      <div className="voyage-result-header">
+                        <div className="voyage-result-agency">
+                          <span className="voyage-result-label">
+                            Nom de l'agence de voyage choisie
+                          </span>
+                          <h3 className="voyage-result-agency-name">
+                            {data.agence.longName}
+                          </h3>
+                        </div>
+                        <div
+                          style={{
+                            display: "flex",
+                            alignItems: "center",
+                            gap: "var(--spacing-md)",
+                          }}
+                        >
+                          <span className="voyage-result-id">
+                            #{data.reservation.idReservation.slice(0, 13)}
+                          </span>
+                          <span
+                            style={{
+                              padding: "4px 12px",
+                              background: "#fef3c7",
+                              color: "#92400e",
+                              borderRadius: "var(--radius-full)",
+                              fontSize: "var(--font-size-xs)",
+                              fontWeight: "var(--font-weight-semibold)",
+                            }}
+                          >
+                            En attente
+                          </span>
+                        </div>
+                      </div>
+
+                      <div className="voyage-result-content">
+                        <div className="voyage-result-route">
+                          <div className="voyage-result-location">
+                            <MapPin />
+                            <div>
+                              <span className="voyage-result-location-label">
+                                Départ
+                              </span>
+                              <span className="voyage-result-location-value">
+                                {data.voyage.lieuDepart} -{" "}
+                                {data.voyage.pointDeDepart}
+                              </span>
+                            </div>
+                          </div>
+
+                          <div className="voyage-result-location">
+                            <MapPin />
+                            <div>
+                              <span className="voyage-result-location-label">
+                                Destination
+                              </span>
+                              <span className="voyage-result-location-value">
+                                {data.voyage.lieuArrive} -{" "}
+                                {data.voyage.pointArrivee}
+                              </span>
+                            </div>
+                          </div>
+                        </div>
+
+                        <div className="voyage-result-details">
+                          <div className="voyage-result-detail">
+                            <Clock />
+                            <span>
+                              {formatDate(data.voyage.dateDepartPrev)}
+                            </span>
+                          </div>
+
+                          <div className="voyage-result-detail">
+                            <Users />
+                            <span>
+                              {data.reservation.nbrPassager} passager
+                              {data.reservation.nbrPassager > 1 ? "s" : ""}
+                            </span>
+                          </div>
+
+                          <div className="voyage-result-detail">
+                            <Calendar />
+                            <span>
+                              Réservé le{" "}
+                              {formatDate(data.reservation.dateReservation)}
+                            </span>
+                          </div>
+                        </div>
+                      </div>
+
+                      <div className="voyage-result-footer">
+                        <div className="voyage-result-price">
+                          <span className="voyage-result-price-label">
+                            Montant total
+                          </span>
+                          <span className="voyage-result-price-value">
+                            {data.reservation.prixTotal} FCFA
+                          </span>
+                        </div>
+                        <button
+                          onClick={() => ouvrirModalPaiement(data)}
+                          className="btn btn-primary"
+                          style={{
+                            display: "flex",
+                            alignItems: "center",
+                            gap: "var(--spacing-xs)",
+                          }}
+                        >
+                          <span>Payer maintenant</span>
+                        </button>
+                      </div>
+                    </div>
+                  ))}
                 </div>
 
-                <nav className="space-y-1">
-                  {MENU_ITEMS.map((item, index) => (
+                {/* Pagination */}
+                {total_pages > 1 && (
+                  <div
+                    className="widget-pagination"
+                    style={{
+                      justifyContent: "center",
+                      marginTop: "var(--spacing-2xl)",
+                    }}
+                  >
                     <button
-                      key={index}
-                      onClick={() => {
-                        setShowMobileMenu(false);
-                        router.push(item.path);
-                      }}
-                      className={`w-full flex items-center space-x-3 px-4 py-3 rounded-lg transition-colors ${
-                        item.active
-                          ? "bg-[#6149CD] text-white"
-                          : "text-gray-600 hover:bg-gray-100"
-                      }`}
+                      onClick={() =>
+                        setCurrentPage(Math.max(0, current_page - 1))
+                      }
+                      disabled={current_page === 0}
+                      className="btn-icon"
                     >
-                      <item.icon className="w-5 h-5" />
-                      <span className="font-medium">{item.label}</span>
+                      <ChevronLeft />
                     </button>
-                  ))}
-                </nav>
-              </div>
-            </aside>
-          </>
-        )}
-      </>
-
-      {/* Main Content */}
-      <div className="flex-1 lg:ml-64">
-        {/* Header */}
-        <header className="bg-white border-b border-gray-200 sticky top-0 z-10">
-          <div className="px-6 py-4 flex items-center justify-between">
-            <div className="flex items-center space-x-3">
-              <button
-                onClick={() => setShowMobileMenu(true)}
-                className="lg:hidden p-2 hover:bg-gray-100 rounded-lg transition-colors"
-              >
-                <Menu className="w-6 h-6 text-gray-900" />
-              </button>
-              <h1 className="text-2xl font-semibold text-gray-900">
-                Mes réservations
-              </h1>
-            </div>
-
-            <div className="flex items-center space-x-4">
-              <button
-                onClick={() => router.push("/user/client/settings")}
-                className="p-2 hover:bg-gray-100 rounded-lg transition-colors"
-              >
-                <Settings className="w-6 h-6 text-gray-600" />
-              </button>
-
-              {/* Profile Menu */}
-              <div className="relative">
-                <button
-                  onClick={() => setShowProfileMenu(!show_profile_menu)}
-                  className="flex items-center space-x-3 hover:bg-gray-100 rounded-lg px-3 py-2 transition-colors"
-                >
-                  <img
-                    src="/images/user-icon.png"
-                    alt="Profile"
-                    className="w-8.5 h-8.5 rounded-full object-cover"
-                  />
-                  <span className="font-medium text-gray-900 hidden md:block">
-                    {user_data?.username}
-                  </span>
-                  <ChevronDown className="w-4 h-4 text-gray-600" />
-                </button>
-
-                {show_profile_menu && (
-                  <div className="absolute right-0 mt-2 w-48 bg-white rounded-lg shadow-lg border border-gray-200 py-2">
+                    <span>
+                      Page {current_page + 1} / {total_pages}
+                    </span>
                     <button
-                      onClick={() => {
-                        setShowProfileMenu(false);
-                        router.push("/user/client/settings");
-                      }}
-                      className="w-full flex items-center space-x-3 px-4 py-2 hover:bg-gray-100 transition-colors"
+                      onClick={() =>
+                        setCurrentPage(
+                          Math.min(total_pages - 1, current_page + 1),
+                        )
+                      }
+                      disabled={current_page === total_pages - 1}
+                      className="btn-icon"
                     >
-                      <Settings className="w-4 h-4 text-gray-600" />
-                      <span className="text-gray-700">Paramètres</span>
-                    </button>
-                    <button
-                      onClick={handleLogout}
-                      className="w-full flex items-center space-x-3 px-4 py-2 hover:bg-gray-100 transition-colors text-red-600"
-                    >
-                      <LogOut className="w-4 h-4" />
-                      <span>Se déconnecter</span>
+                      <ChevronRight />
                     </button>
                   </div>
                 )}
-              </div>
-            </div>
-          </div>
-        </header>
-
-        {/* Content */}
-        <main className="p-6">
-          <div className="max-w-7xl mx-auto">
-            {/* Carte fusionnée : Image à gauche + Réservations à droite */}
-            <div className="bg-white rounded-2xl shadow-lg border border-gray-200 overflow-hidden">
-              <div className="grid grid-cols-1 lg:grid-cols-3">
-                {/* Partie gauche - Image avec overlay */}
-                <div className="lg:col-span-1 relative min-h-125">
-                  <img
-                    src="/images/cameroun5.jpg"
-                    alt="Réservations"
-                    className="absolute inset-0 w-full h-full object-cover"
-                    onError={(e) => {
-                      e.currentTarget.src =
-                        "https://images.unsplash.com/photo-1436491865332-7a61a109cc05?w=600&h=800&fit=crop";
-                    }}
-                  />
-                  <div className="absolute inset-0 bg-linear-to-b from-black/70 via-black/50 to-black/70"></div>
-                  <div className="absolute inset-0 flex flex-col justify-between p-8">
-                    <div>
-                      <h2 className="text-3xl md:text-4xl font-bold text-white mb-4 drop-shadow-lg">
-                        Vos réservations
-                      </h2>
-                      <p className="text-white/90 text-lg mb-6 drop-shadow-md">
-                        Gérez et payez vos réservations en attente
-                      </p>
-                    </div>
-
-                    <div className="space-y-4">
-                      <div className="bg-white/20 backdrop-blur-sm rounded-xl p-4">
-                        <div className="flex items-center space-x-3 mb-2">
-                          <FileText className="w-6 h-6 text-white" />
-                          <span className="text-white font-semibold">
-                            Réservations en attente
-                          </span>
-                        </div>
-                        <p className="text-3xl font-bold text-white">
-                          Nombre par page : {total_elements}
-                        </p>
-                      </div>
-
-                      <div className="bg-white/20 backdrop-blur-sm rounded-xl p-4">
-                        <p className="text-sm text-white/90">
-                          Payez vos réservations pour obtenir vos billets
-                        </p>
-                      </div>
-                    </div>
-                  </div>
-                </div>
-
-                {/* Partie droite - Liste des réservations */}
-                <div className="lg:col-span-2 p-8 bg-linear-to-br from-white to-purple-50">
-                  {is_loading ? (
-                    <div className="flex items-center justify-center py-20">
-                      <div className="text-center">
-                        <FileText className="w-16 h-16 text-[#6149CD] animate-spin mx-auto mb-4" />
-                        <p className="text-gray-600">
-                          Chargement de vos réservations...
-                        </p>
-                      </div>
-                    </div>
-                  ) : error_message ? (
-                    <div
-                      onClick={() => window.location.reload()}
-                      className="bg-red-50 border border-red-200 rounded-lg p-6 text-center"
-                    >
-                      <X className="w-12 h-12 text-red-500 mx-auto mb-4" />
-                      <p className="text-red-600">{error_message}</p>
-                    </div>
-                  ) : reservations.length === 0 ? (
-                    <div className="bg-white rounded-xl p-12 text-center">
-                      <FileText
-                        onClick={() => window.location.reload()}
-                        className="w-16 h-16 text-gray-400 mx-auto mb-4 hover:scale-105 active:scale-95 transition-transform cursor-pointer"
-                      />
-                      <h3 className="text-xl font-semibold text-gray-900 mb-2">
-                        Aucune réservation en attente
-                      </h3>
-                      <p className="text-gray-600 mb-6">
-                        Toutes vos réservations ont été traitées
-                      </p>
-                      <button
-                        onClick={() => router.push("/user/client/book")}
-                        style={{ backgroundColor: BUTTON_COLOR }}
-                        className="px-6 py-3 text-white rounded-lg hover:opacity-90 transition-opacity"
-                      >
-                        Réserver un voyage
-                      </button>
-                    </div>
-                  ) : (
-                    <>
-                      <div className="flex items-center space-x-3 mb-6">
-                        <div
-                          className="w-12 h-12 rounded-xl flex items-center justify-center text-white shadow-lg"
-                          style={{ backgroundColor: BUTTON_COLOR }}
-                        >
-                          <FileText className="w-6 h-6" />
-                        </div>
-                        <div>
-                          <h3 className="text-2xl font-bold text-gray-900">
-                            Liste de vos réservations
-                          </h3>
-                          <p className="text-sm text-gray-600">
-                            {reservations.length} réservation
-                            {reservations.length > 1 ? "s" : ""} sur cette page
-                          </p>
-                        </div>
-                      </div>
-
-                      <div className="space-y-4 mb-6">
-                        {reservations.map((data) => (
-                          <div
-                            key={data.reservation.idReservation}
-                            className="bg-white rounded-xl shadow-sm border border-gray-200 p-6 hover:shadow-md transition-shadow"
-                          >
-                            <div className="flex items-start justify-between mb-4">
-                              <div>
-                                <h3 className="text-lg font-bold text-gray-900 mb-1">
-                                  {data.agence.longName}
-                                </h3>
-                                <p className="text-sm text-gray-400 mb-2">
-                                  ID: {data.reservation.idReservation}
-                                </p>
-                                <p className="text-sm text-gray-500">
-                                  Réservé le{" "}
-                                  {formatDate(data.reservation.dateReservation)}
-                                </p>
-                              </div>
-                              <span className="px-3 py-1 bg-orange-100 text-orange-800 rounded-full text-xs font-semibold">
-                                En attente
-                              </span>
-                            </div>
-
-                            <div className="grid grid-cols-1 md:grid-cols-2 gap-4 mb-4">
-                              <div className="space-y-3">
-                                <div className="flex items-center space-x-2 text-sm">
-                                  <MapPin className="w-4 h-4 text-gray-500" />
-                                  <span className="text-gray-700">
-                                    <span className="font-semibold">
-                                      De {data.voyage.lieuDepart} vers{" "}
-                                      {data.voyage.lieuArrive}
-                                    </span>
-                                  </span>
-                                </div>
-                                <div className="flex items-center space-x-2 text-xs text-gray-600">
-                                  <Compass className="w-3.5 h-3.5 text-gray-400" />
-                                  <span>
-                                    Itinéraire : De {data.voyage.pointDeDepart}{" "}
-                                    vers {data.voyage.pointArrivee}
-                                  </span>
-                                </div>
-                              </div>
-
-                              <div className="space-y-3">
-                                <div className="flex items-center space-x-2 text-sm">
-                                  <Clock className="w-4 h-4 text-gray-500" />
-                                  <span className="text-gray-700">
-                                    Départ :{" "}
-                                    {formatDate(data.voyage.dateDepartPrev)}
-                                  </span>
-                                </div>
-                                <div className="flex items-center space-x-2 text-sm">
-                                  <Users className="w-4 h-4 text-gray-500" />
-                                  <span className="text-gray-700">
-                                    {data.reservation.nbrPassager} passager
-                                    {data.reservation.nbrPassager > 1
-                                      ? "s"
-                                      : ""}
-                                  </span>
-                                </div>
-                              </div>
-                            </div>
-
-                            <div className="flex items-center justify-between pt-4 border-t border-gray-200">
-                              <div>
-                                <p className="text-sm text-gray-600 mb-1">
-                                  Montant total
-                                </p>
-                                <p className="text-2xl font-bold text-[#6149CD]">
-                                  {data.reservation.prixTotal} FCFA
-                                </p>
-                              </div>
-                              <button
-                                onClick={() => ouvrirModalPaiement(data)}
-                                className="px-6 py-3 bg-green-500 text-white rounded-lg hover:bg-green-600 active:bg-green-700 transition-colors font-semibold flex items-center space-x-2"
-                              >
-                                <CreditCard className="w-5 h-5" />
-                                <span>Payer maintenant</span>
-                              </button>
-                            </div>
-                          </div>
-                        ))}
-                      </div>
-
-                      {/* Pagination */}
-                      {total_pages > 1 && (
-                        <div className="flex items-center justify-center space-x-4">
-                          <button
-                            onClick={() =>
-                              setCurrentPage(Math.max(0, current_page - 1))
-                            }
-                            disabled={current_page === 0}
-                            className="flex items-center space-x-2 px-4 py-2 border border-gray-300 rounded-lg text-gray-700 hover:bg-gray-50 disabled:opacity-50 disabled:cursor-not-allowed transition-colors"
-                          >
-                            <ChevronLeft className="w-4 h-4" />
-                            <span>Précédent</span>
-                          </button>
-
-                          <span className="text-sm text-gray-600">
-                            Page {current_page + 1} sur {total_pages}
-                          </span>
-
-                          <button
-                            onClick={() =>
-                              setCurrentPage(
-                                Math.min(total_pages - 1, current_page + 1),
-                              )
-                            }
-                            disabled={current_page === total_pages - 1}
-                            className="flex items-center space-x-2 px-4 py-2 border border-gray-300 rounded-lg text-gray-700 hover:bg-gray-50 disabled:opacity-50 disabled:cursor-not-allowed transition-colors"
-                          >
-                            <span>Suivant</span>
-                            <ChevronRight className="w-4 h-4" />
-                          </button>
-                        </div>
-                      )}
-                    </>
-                  )}
-                </div>
-              </div>
-            </div>
+              </>
+            )}
           </div>
         </main>
       </div>
 
       {/* Modal Paiement */}
       {show_paiement_modal && selected_reservation && (
-        <div className="fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center z-50 p-4">
-          <div className="bg-white rounded-2xl shadow-2xl max-w-md w-full overflow-hidden">
-            <div className="flex items-center justify-between p-6 border-b border-gray-200">
-              <h2 className="text-2xl font-bold text-gray-900">Paiement</h2>
+        <div className="modal-overlay">
+          <div className="payment-modal-content">
+            <div className="payment-modal-header">
+              <h2 className="payment-modal-title">
+                Paiement de la réservation
+              </h2>
               <button
                 onClick={() => setShowPaiementModal(false)}
-                className="p-2 hover:bg-gray-100 rounded-lg transition-colors"
+                className="payment-modal-close"
               >
-                <X className="w-6 h-6 text-gray-600" />
+                <X />
               </button>
             </div>
 
-            <div className="p-6">
-              <div className="bg-gray-50 rounded-xl p-4 mb-6">
-                <h3 className="font-bold text-gray-900 mb-2">
-                  Résumé du paiement
+            <div className="payment-modal-body">
+              {/* Résumé */}
+              <div className="payment-summary">
+                <h3 className="payment-summary-title">
+                  Résumé de la réservation
                 </h3>
-                <p className="text-sm text-gray-700 mb-2">
-                  Agence : {selected_reservation.agence.longName}
-                </p>
-                <p className="text-sm text-gray-600 mb-2">
-                  De {selected_reservation.voyage.lieuDepart} vers{" "}
-                  {selected_reservation.voyage.lieuArrive}
-                </p>
-                <p className="text-sm text-gray-600 mb-2">
-                  Itinéraire : {selected_reservation.voyage.pointDeDepart} vers{" "}
-                  {selected_reservation.voyage.pointArrivee}
-                </p>
-                <p className="text-sm text-gray-600 mb-3">
-                  Date :{" "}
-                  {formatDate(selected_reservation.voyage.dateDepartPrev)}
-                </p>
-                <div className="flex items-center justify-between pt-3 border-t border-gray-200">
-                  <span className="text-sm font-semibold text-gray-700">
-                    Montant à payer
+                <div className="payment-summary-item">
+                  <span className="payment-summary-label">Agence</span>
+                  <span className="payment-summary-value">
+                    {selected_reservation.agence.longName}
                   </span>
-                  <span className="text-xl font-bold text-[#6149CD]">
+                </div>
+                <div className="payment-summary-item">
+                  <span className="payment-summary-label">Départ</span>
+                  <span className="payment-summary-value">
+                    {selected_reservation.voyage.lieuDepart} -{" "}
+                    {selected_reservation.voyage.pointDeDepart}
+                  </span>
+                </div>
+                <div className="payment-summary-item">
+                  <span className="payment-summary-label">Destination</span>
+                  <span className="payment-summary-value">
+                    {selected_reservation.voyage.lieuArrive} -{" "}
+                    {selected_reservation.voyage.pointArrivee}
+                  </span>
+                </div>
+                <div className="payment-summary-item">
+                  <span className="payment-summary-label">Date de départ</span>
+                  <span className="payment-summary-value">
+                    {formatDate(selected_reservation.voyage.dateDepartPrev)}
+                  </span>
+                </div>
+                <div className="payment-summary-item-end payment-summary-item">
+                  <span className="payment-summary-label">Passagers</span>
+                  <span className="payment-summary-value">
+                    {selected_reservation.reservation.nbrPassager}
+                  </span>
+                </div>
+                <div className="payment-summary-total">
+                  <span className="payment-summary-label">Montant à payer</span>
+                  <span className="payment-summary-total-value">
                     {selected_reservation.reservation.prixTotal} FCFA
                   </span>
                 </div>
               </div>
 
-              <div className="space-y-4 mb-6">
-                <div>
-                  <label className="block text-sm font-semibold text-gray-700 mb-2">
-                    Numéro de téléphone *
-                  </label>
+              {/* Formulaire */}
+              <div className="payment-form">
+                <div className="form-group">
+                  <label className="form-label">Numéro de téléphone *</label>
                   <input
                     type="tel"
                     value={mobile_phone}
                     onChange={(e) => setMobilePhone(e.target.value)}
-                    placeholder="+237 🇨🇲"
-                    className="w-full px-4 py-3 border-2 text-gray-700 placeholder:text-gray-400 border-gray-200 rounded-xl focus:outline-none focus:ring-2 focus:ring-[#6149CD] focus:border-transparent"
+                    placeholder="(+237) 6XX XXX XXX"
+                    className="form-input"
+                    maxLength={9}
                   />
                 </div>
 
-                <div>
-                  <label className="block text-sm font-semibold text-gray-700 mb-2">
-                    Nom du propriétaire *
-                  </label>
+                <div className="form-group">
+                  <label className="form-label">Nom du propriétaire *</label>
                   <input
                     type="text"
                     value={mobile_phone_name}
                     onChange={(e) => setMobilePhoneName(e.target.value)}
                     placeholder="Nom complet"
-                    className="w-full px-4 py-3 border-2 text-gray-700 placeholder:text-gray-400 border-gray-200 rounded-xl focus:outline-none focus:ring-2 focus:ring-[#6149CD] focus:border-transparent"
+                    className="form-input"
                   />
                 </div>
-              </div>
 
-              <div className="bg-blue-50 rounded-xl p-4 mb-6">
-                <p className="text-sm text-blue-800">
+                <div className="payment-info">
                   Une demande de paiement sera envoyée sur ce numéro pour
-                  valider le paiement
-                </p>
-              </div>
+                  valider la transaction.
+                </div>
 
-              <button
-                onClick={effectuerPaiement}
-                disabled={is_loading_paiement || !isPaymentFormValid()}
-                style={{ backgroundColor: BUTTON_COLOR }}
-                className="w-full py-4 text-white rounded-xl font-bold text-lg hover:opacity-90 active:opacity-80 transition-all flex items-center justify-center space-x-2 disabled:opacity-50 disabled:cursor-not-allowed shadow-lg"
-              >
-                {is_loading_paiement ? (
-                  <>
-                    <div className="w-6 h-6 border-3 border-white border-t-transparent rounded-full animate-spin"></div>
-                    <span>Paiement en cours...</span>
-                  </>
-                ) : (
-                  <>
-                    <CreditCard className="w-6 h-6" />
-                    <span>Confirmer le paiement</span>
-                  </>
-                )}
-              </button>
+                <button
+                  onClick={effectuerPaiement}
+                  disabled={is_loading_paiement || !isPaymentFormValid()}
+                  className="btn btn-primary btn-full-width"
+                >
+                  {is_loading_paiement ? (
+                    <>
+                      <RefreshCw className="spin" />
+                      <span>Paiement en cours...</span>
+                    </>
+                  ) : (
+                    <>
+                      <CreditCard />
+                      <span>Confirmer le paiement</span>
+                    </>
+                  )}
+                </button>
+              </div>
             </div>
           </div>
         </div>
       )}
+
+      <SuccessModal
+        show={showSuccessModal}
+        onClose={() => {
+          setShowSuccessModal(false);
+          router.push("/user/client/tickets");
+        }}
+        title="Réservation payée"
+        message="Votre réservation a été confirmée."
+        buttonText="OK"
+      />
+
+      <ErrorModal
+        show={showErrorModal}
+        onClose={() => setShowErrorModal(false)}
+        message={error_message}
+      />
     </div>
   );
 }

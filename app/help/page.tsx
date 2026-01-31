@@ -1,228 +1,198 @@
 "use client";
 
 import React, { useState } from "react";
-import {
-  Menu,
-  X,
-  HelpCircle,
-  Search,
-  User,
-  CreditCard,
-  Bus,
-  Building2,
-  Phone,
-  Mail,
-  MessageCircle,
-  Calendar,
-  ArrowLeft,
-  ChevronDown,
-} from "lucide-react";
 import { useRouter } from "next/navigation";
 
-interface FAQItem {
-  id: string;
-  question: string;
-  answer: string;
-  category: string;
-}
-
 /**
- * Client Help/FAQ Page Component
+ * BusStation Help/FAQ Page - Redesigned
+ * Professional help center matching landing page aesthetics
+ * Uses system fonts configured in layout.tsx
  *
- * Displays frequently asked questions organized by category
- * Features accordion-style questions with expandable answers
- *
- * @author Thomas Djotio Ndié
- * @date 2025-01-27
+ * @author Redesigned to match landing page
+ * @date 2025-01-29
  */
+
 export default function ClientHelpPage() {
-  const [show_mobile_menu, setShowMobileMenu] = useState(false);
-  const [search_query, setSearchQuery] = useState("");
-  const [expanded_items, setExpandedItems] = useState<string[]>([]);
-  const [selected_category, setSelectedCategory] = useState<string>("all");
-
   const router = useRouter();
+  const [mobileMenuOpen, setMobileMenuOpen] = useState(false);
+  const [activeQuestion, setActiveQuestion] = useState<number | null>(null);
+  const [selectedCategory, setSelectedCategory] = useState<string>("all");
+  const [searchQuery, setSearchQuery] = useState("");
+  
 
-  const BUTTON_COLOR = "#6149CD";
-
-  const FAQ_CATEGORIES = [
-    { value: "all", label: "Toutes les questions", icon: HelpCircle },
-    { value: "account", label: "Compte et connexion", icon: User },
-    { value: "reservation", label: "Réservations", icon: Calendar },
-    { value: "payment", label: "Paiements", icon: CreditCard },
-    { value: "travel", label: "Voyages", icon: Bus },
-    { value: "agency", label: "Agences", icon: Building2 },
-    { value: "support", label: "Support", icon: Phone },
+  const categories = [
+    { id: "all", name: "Toutes", icon: "grid" },
+    { id: "account", name: "Compte", icon: "user" },
+    { id: "reservation", name: "Réservations", icon: "calendar" },
+    { id: "payment", name: "Paiements", icon: "credit-card" },
+    { id: "travel", name: "Voyages", icon: "bus" },
+    { id: "agency", name: "Agences", icon: "building" },
+    { id: "support", name: "Support", icon: "help" },
   ];
 
-  const FAQ_DATA: FAQItem[] = [
+  const faqs = [
     // Compte et connexion
     {
-      id: "1",
+      id: 1,
       question: "Comment créer un compte sur BusStation ?",
       answer:
         "Pour créer un compte, cliquez sur le bouton 'S'inscrire' en haut de la page d'accueil. Remplissez le formulaire avec vos informations personnelles (nom, prénom, email, numéro de téléphone). Vous recevrez un email de confirmation pour activer votre compte.",
       category: "account",
     },
     {
-      id: "2",
+      id: 2,
       question: "J'ai oublié mon mot de passe, que faire ?",
       answer:
         "Cliquez sur 'Mot de passe oublié' sur la page de connexion. Entrez votre adresse email et nous vous enverrons un lien pour réinitialiser votre mot de passe. Suivez les instructions dans l'email pour créer un nouveau mot de passe.",
       category: "account",
     },
     {
-      id: "3",
+      id: 3,
       question: "Comment modifier mes informations personnelles ?",
       answer:
         "Connectez-vous à votre compte, puis accédez à 'Mes paramètres' dans le menu. Vous pouvez modifier votre nom, prénom, email, numéro de téléphone et adresse. N'oubliez pas de sauvegarder vos modifications.",
       category: "account",
     },
     {
-      id: "4",
+      id: 4,
       question: "Est-ce que mes données personnelles sont sécurisées ?",
       answer:
         "Oui, nous utilisons les dernières technologies de cryptage pour protéger vos données personnelles. Vos informations sont stockées de manière sécurisée et ne sont jamais partagées avec des tiers sans votre consentement.",
       category: "account",
     },
-
     // Réservations
     {
-      id: "5",
+      id: 5,
       question: "Comment réserver un billet de voyage ?",
       answer:
         "Allez dans la section 'Réserver', sélectionnez votre ville de départ et d'arrivée, choisissez la date de voyage. Parcourez les voyages disponibles, sélectionnez celui qui vous convient, choisissez vos places et remplissez les informations des passagers. Confirmez votre réservation et procédez au paiement.",
       category: "reservation",
     },
     {
-      id: "6",
+      id: 6,
       question: "Puis-je choisir ma place dans le bus ?",
       answer:
         "Oui, lors de la réservation, vous aurez accès à un plan des places du bus. Les places disponibles sont affichées en blanc, les places déjà réservées en rouge, et vos sélections en vert. Cliquez sur les places que vous souhaitez réserver.",
       category: "reservation",
     },
     {
-      id: "7",
+      id: 7,
       question: "Comment annuler ou modifier ma réservation ?",
       answer:
         "Pour annuler ou modifier une réservation, allez dans 'Mes réservations', sélectionnez la réservation concernée et cliquez sur 'Annuler' ou 'Modifier'. Notez que des frais d'annulation peuvent s'appliquer selon les conditions de l'agence et le délai d'annulation.",
       category: "reservation",
     },
     {
-      id: "8",
+      id: 8,
       question: "Quel est le délai maximum pour annuler une réservation ?",
       answer:
         "Le délai d'annulation varie selon l'agence et la classe de voyage. Généralement, vous pouvez annuler jusqu'à 24-48 heures avant le départ. Consultez les conditions d'annulation spécifiques à votre réservation dans la section 'Mes réservations'.",
       category: "reservation",
     },
     {
-      id: "9",
+      id: 9,
       question: "Puis-je réserver pour plusieurs passagers ?",
       answer:
         "Oui, lors de la sélection des places, vous pouvez choisir plusieurs sièges. Vous devrez ensuite renseigner les informations de chaque passager (nom, prénom, numéro de pièce d'identité, âge).",
       category: "reservation",
     },
-
     // Paiements
     {
-      id: "10",
+      id: 10,
       question: "Quels sont les moyens de paiement acceptés ?",
       answer:
         "Nous acceptons les paiements par Mobile Money (MTN Mobile Money, Orange Money), ainsi que les cartes bancaires Visa et Mastercard. Le paiement est sécurisé et vos informations bancaires sont protégées.",
       category: "payment",
     },
     {
-      id: "11",
+      id: 11,
       question: "Mon paiement a échoué, que faire ?",
       answer:
         "Si votre paiement échoue, vérifiez d'abord que vous avez suffisamment de fonds. Assurez-vous que vos informations de paiement sont correctes. Si le problème persiste, contactez notre support client ou essayez avec un autre moyen de paiement.",
       category: "payment",
     },
     {
-      id: "12",
+      id: 12,
       question: "Puis-je obtenir un remboursement ?",
       answer:
         "Les remboursements sont possibles selon les conditions d'annulation de chaque agence. Si vous annulez dans les délais autorisés, vous serez remboursé selon le taux d'annulation applicable. Le remboursement est généralement effectué sous 5-10 jours ouvrables.",
       category: "payment",
     },
     {
-      id: "13",
+      id: 13,
       question: "Où puis-je trouver ma facture ?",
       answer:
         "Après avoir effectué un paiement, vous pouvez télécharger votre facture depuis la section 'Mes billets' ou 'Historique'. Cliquez sur le voyage concerné et sélectionnez 'Télécharger la facture'.",
       category: "payment",
     },
-
     // Voyages
     {
-      id: "14",
+      id: 14,
       question: "Comment puis-je suivre mon voyage en temps réel ?",
       answer:
         "Une fois votre billet confirmé, vous recevrez des notifications sur l'état de votre voyage. Vous pouvez également consulter les détails dans 'Mes billets' pour voir l'heure de départ prévue et toute mise à jour en temps réel.",
       category: "travel",
     },
     {
-      id: "15",
+      id: 15,
       question: "Que dois-je faire le jour du voyage ?",
       answer:
         "Présentez-vous au point de départ au moins 30 minutes avant l'heure de départ. Munissez-vous de votre billet (version numérique ou imprimée) et d'une pièce d'identité valide. Le chauffeur vérifiera votre billet avant l'embarquement.",
       category: "travel",
     },
     {
-      id: "16",
+      id: 16,
       question: "Puis-je emporter des bagages ?",
       answer:
         "Oui, chaque passager peut emporter des bagages. Le nombre et le poids autorisés dépendent de la classe de voyage et de l'agence. Généralement, 1 à 2 bagages de 20-25 kg sont autorisés. Consultez les détails lors de la réservation.",
       category: "travel",
     },
     {
-      id: "17",
+      id: 17,
       question: "Que se passe-t-il si j'arrive en retard ?",
       answer:
         "Si vous arrivez après l'heure de départ, le bus ne vous attendra pas et votre billet sera considéré comme non utilisé. Nous vous recommandons d'arriver au moins 30 minutes à l'avance pour éviter tout problème.",
       category: "travel",
     },
-
     // Agences
     {
-      id: "18",
+      id: 18,
       question: "Comment choisir une agence de confiance ?",
       answer:
         "Toutes les agences sur BusStation sont validées par notre équipe. Vous pouvez consulter les avis et notes laissés par d'autres voyageurs. Vérifiez également les équipements proposés (WiFi, climatisation, toilettes) et les conditions d'annulation avant de réserver.",
       category: "agency",
     },
     {
-      id: "19",
+      id: 19,
       question: "Comment contacter une agence de voyage ?",
       answer:
         "Les coordonnées de chaque agence (téléphone, email, réseaux sociaux) sont disponibles dans la fiche détaillée du voyage. Vous pouvez les contacter directement pour toute question spécifique concernant votre réservation.",
       category: "agency",
     },
     {
-      id: "20",
+      id: 20,
       question: "Puis-je créer ma propre agence sur BusStation ?",
       answer:
         "Oui, si vous êtes un professionnel du transport, vous pouvez créer un compte Chef d'Agence et enregistrer votre agence. Votre demande sera examinée par notre équipe de validation avant d'être approuvée. Contactez-nous pour plus d'informations.",
       category: "agency",
     },
-
     // Support
     {
-      id: "21",
+      id: 21,
       question: "Comment contacter le support client ?",
       answer:
         "Vous pouvez nous contacter par email à bryanngoupeyou9@gmail.com, par téléphone au +237 655 12 10 10, ou via notre chat en direct disponible du lundi au vendredi de 8h à 18h. Nous nous engageons à répondre dans les 24 heures.",
       category: "support",
     },
     {
-      id: "22",
+      id: 22,
       question: "J'ai un problème technique, qui contacter ?",
       answer:
-        "Pour tout problème technique (erreur de chargement, bug, paiement bloqué), contactez immédiatement notre support technique à bryanngoupeyou9@gmail.com.com ou appelez notre hotline. Décrivez précisément le problème rencontré pour une résolution rapide.",
+        "Pour tout problème technique (erreur de chargement, bug, paiement bloqué), contactez immédiatement notre support technique à bryanngoupeyou9@gmail.com ou appelez notre hotline. Décrivez précisément le problème rencontré pour une résolution rapide.",
       category: "support",
     },
     {
-      id: "23",
+      id: 23,
       question: "Proposez-vous une assistance en cas de litige ?",
       answer:
         "Oui, en cas de litige avec une agence, notre service client peut intervenir comme médiateur. Contactez-nous avec les détails de votre réservation et du problème rencontré. Nous ferons de notre mieux pour trouver une solution satisfaisante.",
@@ -230,290 +200,505 @@ export default function ClientHelpPage() {
     },
   ];
 
-  const toggleItem = (id: string) => {
-    setExpandedItems((prev) =>
-      prev.includes(id) ? prev.filter((item) => item !== id) : [...prev, id],
-    );
-  };
-
-  const filteredFAQs = FAQ_DATA.filter((faq) => {
+  const filteredFAQs = faqs.filter((faq) => {
     const matchesCategory =
-      selected_category === "all" || faq.category === selected_category;
+      selectedCategory === "all" || faq.category === selectedCategory;
     const matchesSearch =
-      faq.question.toLowerCase().includes(search_query.toLowerCase()) ||
-      faq.answer.toLowerCase().includes(search_query.toLowerCase());
+      faq.question.toLowerCase().includes(searchQuery.toLowerCase()) ||
+      faq.answer.toLowerCase().includes(searchQuery.toLowerCase());
     return matchesCategory && matchesSearch;
   });
 
-  const getCategoryIcon = (category: string) => {
-    const cat = FAQ_CATEGORIES.find((c) => c.value === category);
-    return cat?.icon || HelpCircle;
+  const getIcon = (iconName: string) => {
+    const icons: { [key: string]: React.ReactElement } = {
+      grid: (
+        <svg
+          width="20"
+          height="20"
+          viewBox="0 0 24 24"
+          fill="none"
+          stroke="currentColor"
+          strokeWidth="2"
+        >
+          <rect x="3" y="3" width="7" height="7" />
+          <rect x="14" y="3" width="7" height="7" />
+          <rect x="14" y="14" width="7" height="7" />
+          <rect x="3" y="14" width="7" height="7" />
+        </svg>
+      ),
+      user: (
+        <svg
+          width="20"
+          height="20"
+          viewBox="0 0 24 24"
+          fill="none"
+          stroke="currentColor"
+          strokeWidth="2"
+        >
+          <path d="M20 21v-2a4 4 0 0 0-4-4H8a4 4 0 0 0-4 4v2" />
+          <circle cx="12" cy="7" r="4" />
+        </svg>
+      ),
+      calendar: (
+        <svg
+          width="20"
+          height="20"
+          viewBox="0 0 24 24"
+          fill="none"
+          stroke="currentColor"
+          strokeWidth="2"
+        >
+          <rect x="3" y="4" width="18" height="18" rx="2" ry="2" />
+          <line x1="16" y1="2" x2="16" y2="6" />
+          <line x1="8" y1="2" x2="8" y2="6" />
+          <line x1="3" y1="10" x2="21" y2="10" />
+        </svg>
+      ),
+      "credit-card": (
+        <svg
+          width="20"
+          height="20"
+          viewBox="0 0 24 24"
+          fill="none"
+          stroke="currentColor"
+          strokeWidth="2"
+        >
+          <rect x="1" y="4" width="22" height="16" rx="2" ry="2" />
+          <line x1="1" y1="10" x2="23" y2="10" />
+        </svg>
+      ),
+      bus: (
+        <svg
+          width="20"
+          height="20"
+          viewBox="0 0 24 24"
+          fill="none"
+          stroke="currentColor"
+          strokeWidth="2"
+        >
+          <path d="M5 11a2 2 0 0 0-2 2v4a2 2 0 0 0 2 2h14a2 2 0 0 0 2-2v-4a2 2 0 0 0-2-2" />
+          <path d="M6 11V7a1 1 0 0 1 1-1h10a1 1 0 0 1 1 1v4" />
+          <circle cx="8.5" cy="16.5" r="1.5" />
+          <circle cx="15.5" cy="16.5" r="1.5" />
+        </svg>
+      ),
+      building: (
+        <svg
+          width="20"
+          height="20"
+          viewBox="0 0 24 24"
+          fill="none"
+          stroke="currentColor"
+          strokeWidth="2"
+        >
+          <rect x="4" y="2" width="16" height="20" rx="2" ry="2" />
+          <path d="M9 22v-4h6v4" />
+          <path d="M8 6h.01" />
+          <path d="M16 6h.01" />
+          <path d="M12 6h.01" />
+          <path d="M12 10h.01" />
+          <path d="M12 14h.01" />
+          <path d="M16 10h.01" />
+          <path d="M16 14h.01" />
+          <path d="M8 10h.01" />
+          <path d="M8 14h.01" />
+        </svg>
+      ),
+      help: (
+        <svg
+          width="20"
+          height="20"
+          viewBox="0 0 24 24"
+          fill="none"
+          stroke="currentColor"
+          strokeWidth="2"
+        >
+          <circle cx="12" cy="12" r="10" />
+          <path d="M9.09 9a3 3 0 0 1 5.83 1c0 2-3 3-3 3" />
+          <line x1="12" y1="17" x2="12.01" y2="17" />
+        </svg>
+      ),
+      search: (
+        <svg
+          width="20"
+          height="20"
+          viewBox="0 0 24 24"
+          fill="none"
+          stroke="currentColor"
+          strokeWidth="2"
+        >
+          <circle cx="11" cy="11" r="8" />
+          <path d="m21 21-4.35-4.35" />
+        </svg>
+      ),
+      menu: (
+        <svg
+          width="24"
+          height="24"
+          viewBox="0 0 24 24"
+          fill="none"
+          stroke="currentColor"
+          strokeWidth="2"
+        >
+          <path d="M3 12h18M3 6h18M3 18h18" />
+        </svg>
+      ),
+      x: (
+        <svg
+          width="24"
+          height="24"
+          viewBox="0 0 24 24"
+          fill="none"
+          stroke="currentColor"
+          strokeWidth="2"
+        >
+          <path d="M18 6L6 18M6 6l12 12" />
+        </svg>
+      ),
+      mail: (
+        <svg
+          width="24"
+          height="24"
+          viewBox="0 0 24 24"
+          fill="none"
+          stroke="currentColor"
+          strokeWidth="2"
+        >
+          <rect x="2" y="4" width="20" height="16" rx="2" />
+          <path d="m22 7-8.97 5.7a1.94 1.94 0 0 1-2.06 0L2 7" />
+        </svg>
+      ),
+      phone: (
+        <svg
+          width="24"
+          height="24"
+          viewBox="0 0 24 24"
+          fill="none"
+          stroke="currentColor"
+          strokeWidth="2"
+        >
+          <path d="M22 16.92v3a2 2 0 0 1-2.18 2 19.79 19.79 0 0 1-8.63-3.07 19.5 19.5 0 0 1-6-6 19.79 19.79 0 0 1-3.07-8.67A2 2 0 0 1 4.11 2h3a2 2 0 0 1 2 1.72 12.84 12.84 0 0 0 .7 2.81 2 2 0 0 1-.45 2.11L8.09 9.91a16 16 0 0 0 6 6l1.27-1.27a2 2 0 0 1 2.11-.45 12.84 12.84 0 0 0 2.81.7A2 2 0 0 1 22 16.92z" />
+        </svg>
+      ),
+      message: (
+        <svg
+          width="24"
+          height="24"
+          viewBox="0 0 24 24"
+          fill="none"
+          stroke="currentColor"
+          strokeWidth="2"
+        >
+          <path d="M21 15a2 2 0 0 1-2 2H7l-4 4V5a2 2 0 0 1 2-2h14a2 2 0 0 1 2 2z" />
+        </svg>
+      ),
+    };
+    return icons[iconName] || icons.help;
   };
 
   return (
-    <div className="min-h-screen bg-gray-50">
-      {/* Mobile Menu */}
-      {show_mobile_menu && (
-        <>
-          <div
-            className="fixed inset-0 z-40 bg-black/50"
-            onClick={() => setShowMobileMenu(false)}
-          ></div>
-
-          <div className="fixed left-0 top-0 h-full w-64 bg-white shadow-2xl z-50 transform transition-transform duration-300">
-            <div className="p-6">
-              <div className="flex items-center justify-between mb-8">
-                <button
-                  onClick={() => {
-                    setShowMobileMenu(false);
-                  }}
-                >
-                  <img
-                    src="/images/busstation.png"
-                    alt="BusStation Logo"
-                    className="h-9.5 w-auto"
-                  />
-                </button>
-                <button
-                  onClick={() => setShowMobileMenu(false)}
-                  className="p-2 hover:bg-gray-100 rounded-lg transition-colors"
-                >
-                  <X className="w-6 h-6 text-gray-900" />
-                </button>
-              </div>
-
-              <nav className="space-y-2">
-                <button
-                  onClick={() => router.push("/landing")}
-                  className="w-full flex items-center space-x-3 px-4 py-3 rounded-lg text-gray-600 hover:bg-gray-100 transition-colors"
-                >
-                  <ArrowLeft className="w-5 h-5" />
-                  <span className="font-medium">Accueil</span>
-                </button>
-                <button
-                  onClick={() => router.push("/contact")}
-                  className="w-full flex items-center space-x-3 px-4 py-3 rounded-lg text-gray-600 hover:bg-gray-100 transition-colors"
-                >
-                  <MessageCircle className="w-5 h-5" />
-                  <span className="font-medium">Nous contacter</span>
-                </button>
-                <button
-                  onClick={() => router.push("/login")}
-                  className="w-full flex items-center space-x-3 px-4 py-3 rounded-lg text-gray-600 hover:bg-gray-100 transition-colors"
-                >
-                  <User className="w-5 h-5" />
-                  <span className="font-medium">Se connecter</span>
-                </button>
-              </nav>
-            </div>
-          </div>
-        </>
-      )}
-
-      {/* Header */}
-      <header className="bg-white border-b border-gray-200 sticky top-0 z-10">
-        <div className="max-w-7xl mx-auto px-4 sm:px-6 py-4 flex items-center justify-between">
-          <div className="flex items-center space-x-3">
-            <button
-              onClick={() => setShowMobileMenu(true)}
-              className="lg:hidden p-2 hover:bg-gray-100 rounded-lg transition-colors"
-            >
-              <Menu className="w-6 h-6 text-gray-900" />
-            </button>
-
-            <button onClick={() => router.push("/landing")}>
+    <>
+      <div className="page">
+        {/* Header */}
+        <header className="header">
+          <div className="container">
+            <div className="header-content">
               <img
                 src="/images/busstation.png"
-                alt="BusStation Logo"
-                className="h-10 w-auto transition-transform duration-300 hover:scale-105"
+                alt="BusStation"
+                className="logo"
               />
-            </button>
 
-            <h1 className="text-xl sm:text-2xl font-semibold text-gray-900 hidden sm:block">
-              Centre d'aide
-            </h1>
-          </div>
+              <nav className="nav-desktop">
+                <a href="/landing" className="nav-link">
+                  Accueil
+                </a>
+                <a href="/contact" className="nav-link">
+                  Contact
+                </a>
+                <button
+                  onClick={() => router.push("/login")}
+                  className="nav-link"
+                  style={{ background: "none", padding: 0 }}
+                >
+                  Connexion
+                </button>
+                <button
+                  onClick={() => router.push("/signup")}
+                  className="btn btn-primary"
+                >
+                  S'inscrire
+                </button>
+              </nav>
 
-          <div className="hidden md:flex items-center space-x-4">
-            <button
-              onClick={() => router.push("/contact")}
-              className="flex items-center space-x-2 px-4 py-2 text-gray-700 hover:bg-gray-100 rounded-lg transition-colors"
-            >
-              <MessageCircle className="w-5 h-5" />
-              <span>Nous contacter</span>
-            </button>
-            <button
-              onClick={() => router.push("/login")}
-              style={{ backgroundColor: BUTTON_COLOR }}
-              className="flex items-center space-x-2 px-4 py-2 text-white rounded-lg hover:opacity-90 transition-opacity"
-            >
-              <User className="w-5 h-5" />
-              <span>Se connecter</span>
-            </button>
-          </div>
-        </div>
-      </header>
+              <button
+                className="mobile-menu-btn"
+                onClick={() => setMobileMenuOpen(!mobileMenuOpen)}
+                aria-label="Menu"
+              >
+                {mobileMenuOpen ? getIcon("x") : getIcon("menu")}
+              </button>
+            </div>
 
-      {/* Content */}
-      <main className="p-4 sm:p-6">
-        <div className="max-w-5xl mx-auto">
-          {/* Category Filter */}
-          <div className="bg-white rounded-xl shadow-sm border border-gray-200 p-4 mb-6">
-            <div className="flex flex-wrap gap-2">
-              {FAQ_CATEGORIES.map((category) => {
-                const Icon = category.icon;
-                return (
+            {mobileMenuOpen && (
+              <div className="mobile-menu">
+                <a href="/landing" className="mobile-menu-link">
+                  Accueil
+                </a>
+                <a href="/contact" className="mobile-menu-link">
+                  Contact
+                </a>
+                <div className="mobile-menu-buttons">
                   <button
-                    key={category.value}
-                    onClick={() => setSelectedCategory(category.value)}
-                    className={`flex items-center space-x-2 px-3 sm:px-4 py-2 rounded-lg font-medium transition-all text-sm ${
-                      selected_category === category.value
-                        ? "bg-[#6149CD] text-white shadow-md"
-                        : "bg-gray-100 text-gray-700 hover:bg-gray-200"
-                    }`}
+                    onClick={() => router.push("/login")}
+                    className="btn btn-secondary"
+                    style={{ width: "100%" }}
                   >
-                    <Icon className="w-4 h-4" />
-                    <span className="hidden sm:inline">{category.label}</span>
+                    Connexion
                   </button>
-                );
-              })}
+                  <button
+                    onClick={() => router.push("/signup")}
+                    className="btn btn-primary"
+                    style={{ width: "100%" }}
+                  >
+                    S'inscrire
+                  </button>
+                </div>
+              </div>
+            )}
+          </div>
+        </header>
+
+        {/* Hero Contact */}
+        <section className="hero-help">
+          <div className="container">
+            <div className="hero-help-content">
+              <h1 className="hero-help-title">Centre d'aide</h1>
+              <p className="hero-help-description">
+                Trouvez des réponses à vos questions fréquentes
+              </p>
             </div>
           </div>
+        </section>
 
-          {/* FAQ List */}
-          <div className="space-y-4">
+        {/* Categories */}
+        <section className="categories-section">
+          <div className="container">
+            <div className="categories-wrapper">
+              <div className="categories-list">
+                {categories.map((category) => (
+                  <button
+                    key={category.id}
+                    onClick={() => setSelectedCategory(category.id)}
+                    className={`category-btn ${selectedCategory === category.id ? "active" : ""}`}
+                  >
+                    <span className="category-icon">
+                      {getIcon(category.icon)}
+                    </span>
+                    <span>{category.name}</span>
+                  </button>
+                ))}
+              </div>
+            </div>
+          </div>
+        </section>
+
+        {/* FAQ */}
+        <section className="faq-section">
+          <div className="container">
             {filteredFAQs.length === 0 ? (
-              <div className="bg-white rounded-xl shadow-sm border border-gray-200 p-12 text-center">
-                <Search className="w-16 h-16 text-gray-400 mx-auto mb-4" />
-                <h3 className="text-xl font-semibold text-gray-900 mb-2">
-                  Aucun résultat trouvé
-                </h3>
-                <p className="text-gray-600">
-                  Essayez avec d'autres mots-clés ou une autre catégorie
+              <div className="empty-state">
+                <div className="empty-icon">{getIcon("search")}</div>
+                <h3 className="empty-title">Aucun résultat trouvé</h3>
+                <p className="empty-description">
+                  Essayez avec d'autres mots-clés ou sélectionnez une autre
+                  catégorie
                 </p>
               </div>
             ) : (
-              filteredFAQs.map((faq) => {
-                const is_expanded = expanded_items.includes(faq.id);
-                const CategoryIcon = getCategoryIcon(faq.category);
-
-                return (
-                  <div
-                    key={faq.id}
-                    className="bg-white rounded-xl shadow-sm border border-gray-200 overflow-hidden hover:shadow-md transition-shadow"
-                  >
+              <div className="faq-list">
+                {filteredFAQs.map((faq, index) => (
+                  <div key={faq.id} className="faq-item">
                     <button
-                      onClick={() => toggleItem(faq.id)}
-                      className="w-full flex items-center justify-between p-4 sm:p-6 text-left hover:bg-gray-50 transition-colors"
+                      className="faq-question"
+                      onClick={() =>
+                        setActiveQuestion(
+                          activeQuestion === index ? null : index,
+                        )
+                      }
                     >
-                      <div className="flex items-start space-x-3 sm:space-x-4 flex-1">
-                        <div
-                          className="w-10 h-10 rounded-lg flex items-center justify-center shrink-0"
-                          style={{ backgroundColor: `${BUTTON_COLOR}15` }}
-                        >
-                          <CategoryIcon
-                            className="w-5 h-5"
-                            style={{ color: BUTTON_COLOR }}
-                          />
-                        </div>
-                        <div className="flex-1">
-                          <h3 className="text-base sm:text-lg font-semibold text-gray-900 mb-1">
-                            {faq.question}
-                          </h3>
-                          <span className="text-xs text-gray-500 font-medium uppercase">
-                            {
-                              FAQ_CATEGORIES.find(
-                                (c) => c.value === faq.category,
-                              )?.label
-                            }
-                          </span>
-                        </div>
-                      </div>
-                      <ChevronDown
-                        className={`w-5 h-5 sm:w-6 sm:h-6 text-gray-400 shrink-0 transition-transform duration-300 ${
-                          is_expanded ? "transform rotate-180" : ""
+                      <span>{faq.question}</span>
+                      <svg
+                        className={`faq-icon ${
+                          activeQuestion === index ? "open" : ""
                         }`}
-                      />
+                        viewBox="0 0 20 20"
+                        fill="currentColor"
+                      >
+                        <path
+                          fillRule="evenodd"
+                          d="M5.293 7.293a1 1 0 011.414 0L10 10.586l3.293-3.293a1 1 0 111.414 1.414l-4 4a1 1 0 01-1.414 0l-4-4a1 1 0 010-1.414z"
+                          clipRule="evenodd"
+                        />
+                      </svg>
                     </button>
-
-                    {is_expanded && (
-                      <div className="px-4 sm:px-6 pb-4 sm:pb-6 animate-fadeIn">
-                        <div className="ml-0 sm:ml-14 p-4 bg-gray-50 rounded-lg border-l-4 border-[#6149CD]">
-                          <p className="text-gray-700 leading-relaxed text-sm sm:text-base">
-                            {faq.answer}
-                          </p>
-                        </div>
-                      </div>
+                    {activeQuestion === index && (
+                      <div className="faq-answer">{faq.answer}</div>
                     )}
                   </div>
-                );
-              })
+                ))}
+              </div>
             )}
           </div>
+        </section>
 
-          {/* Contact Support Card */}
-          <div className="mt-8 bg-white rounded-xl shadow-sm border border-gray-200 p-6 sm:p-8">
-            <div className="text-center mb-6">
-              <h3 className="text-xl sm:text-2xl font-bold text-gray-900 mb-2">
-                Vous ne trouvez pas ce que vous cherchez ?
-              </h3>
-              <p className="text-gray-600">
-                Notre équipe est là pour vous aider
-              </p>
-            </div>
-
-            <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
-              <div className="bg-gray-50 rounded-xl p-6 text-center">
-                <div
-                  className="w-12 h-12 rounded-full flex items-center justify-center mx-auto mb-4"
-                  style={{ backgroundColor: `${BUTTON_COLOR}15` }}
-                >
-                  <Mail className="w-6 h-6" style={{ color: BUTTON_COLOR }} />
-                </div>
-                <h4 className="font-semibold text-gray-900 mb-2">Email</h4>
-                <p className="text-sm text-gray-600 mb-3">
-                  bryanngoupeyou9@gmail.com
+        {/* Contact */}
+        <section className="contact-section">
+          <div className="container">
+            <div className="contact-content">
+              <div className="section-header">
+                <h2 className="section-title">
+                  Besoin d'une aide personnalisée ?
+                </h2>
+                <p className="section-description">
+                  Notre équipe est là pour vous accompagner
                 </p>
-                <p className="text-xs text-gray-500">Réponse sous 24h</p>
               </div>
 
-              <div className="bg-gray-50 rounded-xl p-6 text-center">
-                <div
-                  className="w-12 h-12 rounded-full flex items-center justify-center mx-auto mb-4"
-                  style={{ backgroundColor: `${BUTTON_COLOR}15` }}
-                >
-                  <Phone className="w-6 h-6" style={{ color: BUTTON_COLOR }} />
+              <div className="contact-info">
+                <div className="contact-item">
+                  <div className="contact-item-icon">{getIcon("mail")}</div>
+                  <div className="contact-item-content">
+                    <div className="contact-item-label">Support</div>
+                    <div className="contact-item-value">
+                      bryanngoupeyou9@gmail.com
+                    </div>
+                    <div className="contact-item-note">Réponse sous 24h</div>
+                  </div>
                 </div>
-                <h4 className="font-semibold text-gray-900 mb-2">Téléphone</h4>
-                <p className="text-sm text-gray-600 mb-3">+237 655 12 10 10</p>
-                <p className="text-xs text-gray-500">Lun-Ven 8h-18h</p>
-              </div>
 
-              <div className="bg-gray-50 rounded-xl p-6 text-center">
-                <div
-                  className="w-12 h-12 rounded-full flex items-center justify-center mx-auto mb-4"
-                  style={{ backgroundColor: `${BUTTON_COLOR}15` }}
-                >
-                  <MessageCircle
-                    className="w-6 h-6"
-                    style={{ color: BUTTON_COLOR }}
-                  />
+                <div className="contact-item">
+                  <div className="contact-item-icon">{getIcon("phone")}</div>
+                  <div className="contact-item-content">
+                    <div className="contact-item-label">Contact</div>
+                    <div className="contact-item-value">
+                      (+237) 655 12 10 10
+                    </div>
+                    <div className="contact-item-note">
+                      De Lundi à Vendredi 8h-18h
+                    </div>
+                  </div>
                 </div>
-                <h4 className="font-semibold text-gray-900 mb-2">
-                  Nous contacter
-                </h4>
-                <button
-                  onClick={() => router.push("/contact")}
-                  style={{ backgroundColor: BUTTON_COLOR }}
-                  className="text-white px-4 py-2 rounded-lg text-sm hover:opacity-90 transition-opacity"
-                >
-                  Envoyer un message
-                </button>
+
+                <div className="contact-cta">
+                  <p className="contact-cta-text">
+                    Pour toute demande spécifique ou question détaillée
+                  </p>
+                  <button
+                    onClick={() => router.push("/contact")}
+                    className="btn btn-primary"
+                  >
+                    Contactez le service client
+                  </button>
+                </div>
               </div>
             </div>
           </div>
-        </div>
-      </main>
-    </div>
+        </section>
+
+        {/* Footer */}
+        <footer className="footer">
+          <div className="container">
+            <div className="footer-grid">
+              <div>
+                <img
+                  src="/images/busstation.png"
+                  alt="BusStation"
+                  className="footer-logo"
+                />
+                <p className="footer-description">
+                  La plateforme de réservation de voyages la plus simple du
+                  Cameroun. Voyagez en toute sérénité.
+                </p>
+              </div>
+              <div>
+                <h4 className="footer-title">Produit</h4>
+                <ul className="footer-links">
+                  <li>
+                    <a href="/landing#features" className="footer-link">
+                      Fonctionnalités
+                    </a>
+                  </li>
+                  <li>
+                    <a href="/landing#process" className="footer-link">
+                      Comment ça marche
+                    </a>
+                  </li>
+                  <li>
+                    <a href="/landing#stats" className="footer-link">
+                      Nos chiffres
+                    </a>
+                  </li>
+                </ul>
+              </div>
+              <div>
+                <h4 className="footer-title">Entreprise</h4>
+                <ul className="footer-links">
+                  <li>
+                    <a href="#" className="footer-link">
+                      À propos
+                    </a>
+                  </li>
+                  <li>
+                    <a href="#" className="footer-link">
+                      Agences
+                    </a>
+                  </li>
+                  <li>
+                    <a href="#" className="footer-link">
+                      Blog
+                    </a>
+                  </li>
+                </ul>
+              </div>
+              <div>
+                <h4 className="footer-title">Support</h4>
+                <ul className="footer-links">
+                  <li>
+                    <a href="/help" className="footer-link">
+                      Centre d'aide
+                    </a>
+                  </li>
+                  <li>
+                    <a href="/contact" className="footer-link">
+                      Contact
+                    </a>
+                  </li>
+                  <li>
+                    <a href="/landing#faq" className="footer-link">
+                      FAQ
+                    </a>
+                  </li>
+                </ul>
+              </div>
+            </div>
+            <div className="footer-bottom">
+              <div>© 2025 BusStation. Tous droits réservés.</div>
+              <div className="footer-legal">
+                <a href="#" className="footer-link">
+                  Mentions légales
+                </a>
+                <a href="#" className="footer-link">
+                  Confidentialité
+                </a>
+                <a href="#" className="footer-link">
+                  CGU
+                </a>
+              </div>
+            </div>
+          </div>
+        </footer>
+      </div>
+    </>
   );
 }

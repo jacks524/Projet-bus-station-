@@ -5,10 +5,6 @@ import {
   Home,
   Eye,
   Settings,
-  ChevronDown,
-  LogOut,
-  Menu,
-  X,
   Building2,
   MapPin,
   ChevronLeft,
@@ -18,9 +14,14 @@ import {
   Globe,
   MessageSquare,
   CheckCircle,
+  RefreshCw,
+  X,
   AlertCircle,
 } from "lucide-react";
 import { useRouter } from "next/navigation";
+import Sidebar from "@/app/components/Sidebar";
+import MobileSidebar from "@/app/components/Mobilesidebar";
+import Header from "@/app/components/Header";
 
 interface Agence {
   agency_id: string;
@@ -48,39 +49,31 @@ interface UserData {
 /**
  * BSM Monitoring Page Component
  *
- * Display pending agencies for validation with detailed view and approval/rejection actions
- * Features modal for agency details, validation and rejection with required reason
+ * Display pending agencies for validation
  *
- * @author Thomas Djotio Ndié
- * @date 2025-12-21
+ * @author Félix DJOTIO NDIE
+ * @date 2025-01-29
  */
 export default function BSMMonitoringPage() {
   const [agences, setAgences] = useState<Agence[]>([]);
-  const [is_loading, setIsLoading] = useState(true);
-  const [error_message, setErrorMessage] = useState("");
-  const [success_message, setSuccessMessage] = useState("");
-  const [validation_error, setValidationError] = useState("");
-
-  const [show_profile_menu, setShowProfileMenu] = useState(false);
-  const [show_mobile_menu, setShowMobileMenu] = useState(false);
-  const [bsm_data, setUserData] = useState<UserData | null>(null);
-
-  const [show_detail_modal, setShowDetailModal] = useState(false);
-  const [selected_agence, setSelectedAgence] = useState<Agence | null>(null);
-  const [is_loading_validation, setIsLoadingValidation] = useState(false);
-  const [motif_rejet, setMotifRejet] = useState("");
-
-  const [current_page, setCurrentPage] = useState(0);
-  const [total_pages, setTotalPages] = useState(0);
-  const [total_elements, setTotalElements] = useState(0);
+  const [isLoading, setIsLoading] = useState(true);
+  const [errorMessage, setErrorMessage] = useState("");
+  const [successMessage, setSuccessMessage] = useState("");
+  const [validationError, setValidationError] = useState("");
+  const [showMobileMenu, setShowMobileMenu] = useState(false);
+  const [userData, setUserData] = useState<UserData | null>(null);
+  const [showDetailModal, setShowDetailModal] = useState(false);
+  const [selectedAgence, setSelectedAgence] = useState<Agence | null>(null);
+  const [isLoadingValidation, setIsLoadingValidation] = useState(false);
+  const [motifRejet, setMotifRejet] = useState("");
+  const [currentPage, setCurrentPage] = useState(0);
+  const [totalPages, setTotalPages] = useState(0);
 
   const router = useRouter();
-
   const API_BASE_URL = process.env.NEXT_PUBLIC_API_BASE_URL;
-  const BUTTON_COLOR = "#6149CD";
-  const AGENCES_PER_PAGE = 5;
+  const AGENCES_PER_PAGE = 6;
 
-  const MENU_ITEMS = [
+  const menuItems = [
     {
       icon: Home,
       label: "Dashboard",
@@ -102,89 +95,67 @@ export default function BSMMonitoringPage() {
   ];
 
   useEffect(() => {
-    const bsm_token = sessionStorage.getItem("bsm_token");
-
-    if (!bsm_token) {
+    const bsmToken = sessionStorage.getItem("bsm_token");
+    if (!bsmToken) {
       router.push("/bsm/login");
       return;
     }
 
-    const stored_bsm_data = sessionStorage.getItem("bsm_data");
-    if (stored_bsm_data) {
-      const parsed_user = JSON.parse(stored_bsm_data);
-      setUserData(parsed_user);
+    const storedBsmData = sessionStorage.getItem("bsm_data");
+    if (storedBsmData) {
+      setUserData(JSON.parse(storedBsmData));
     }
     fetchAgences();
-  }, []);
+  }, [router]);
 
   useEffect(() => {
     fetchAgences();
-  }, [current_page]);
+  }, [currentPage]);
 
   useEffect(() => {
-    if (success_message) {
-      const timer = setTimeout(() => {
-        setSuccessMessage("");
-      }, 5000);
+    if (successMessage) {
+      const timer = setTimeout(() => setSuccessMessage(""), 5000);
       return () => clearTimeout(timer);
     }
-  }, [success_message]);
-
-  useEffect(() => {
-    if (validation_error) {
-      const timer = setTimeout(() => {
-        setValidationError("");
-      }, 5000);
-      return () => clearTimeout(timer);
-    }
-  }, [validation_error]);
+  }, [successMessage]);
 
   const fetchAgences = async () => {
     setIsLoading(true);
     setErrorMessage("");
 
     try {
-      const bsm_token = sessionStorage.getItem("bsm_token");
-
+      const bsmToken = sessionStorage.getItem("bsm_token");
       const response = await fetch(
-        `${API_BASE_URL}/agence/pending-validation?page=${current_page}&size=${AGENCES_PER_PAGE}`,
+        `${API_BASE_URL}/agence/pending-validation?page=${currentPage}&size=${AGENCES_PER_PAGE}`,
         {
           method: "GET",
           headers: {
             "Content-Type": "application/json",
-            Authorization: `Bearer ${bsm_token}`,
+            Authorization: `Bearer ${bsmToken}`,
           },
         },
       );
 
-      if (!response.ok) {
+      if (!response.ok)
         throw new Error("Erreur lors du chargement des agences");
-      }
 
       const data = await response.json();
+      let filteredAgences = data.content || [];
 
-      let filtered_agences = data.content || [];
-      if (bsm_data?.address) {
-        filtered_agences = filtered_agences.filter(
-          (agence: Agence) => agence.ville === bsm_data.address,
+      if (userData?.address) {
+        filteredAgences = filteredAgences.filter(
+          (agence: Agence) => agence.ville === userData.address,
         );
       }
 
-      setAgences(filtered_agences);
+      setAgences(filteredAgences);
       setTotalPages(data.page?.totalPages || 0);
-      setTotalElements(filtered_agences.length);
     } catch (error: any) {
       setErrorMessage("Impossible de charger les agences en attente");
       console.error("Fetch Agences Error:", error);
     } finally {
       setIsLoading(false);
     }
-  };
-
-  const handleLogout = () => {
-    sessionStorage.removeItem("bsm_token");
-    sessionStorage.removeItem("bsm_data");
-    router.push("/bsm/login");
   };
 
   const ouvrirModalDetail = (agence: Agence) => {
@@ -195,14 +166,14 @@ export default function BSMMonitoringPage() {
   };
 
   const handleValidation = async (action: "approve" | "reject") => {
-    if (!selected_agence) return;
+    if (!selectedAgence) return;
 
-    if (action === "reject" && !motif_rejet.trim()) {
+    if (action === "reject" && !motifRejet.trim()) {
       setValidationError("Veuillez renseigner le motif de rejet");
       return;
     }
 
-    if (action === "reject" && motif_rejet.trim().length < 10) {
+    if (action === "reject" && motifRejet.trim().length < 10) {
       setValidationError(
         "Le motif de rejet doit contenir au moins 10 caractères",
       );
@@ -213,34 +184,30 @@ export default function BSMMonitoringPage() {
     setValidationError("");
 
     try {
-      const bsm_token = sessionStorage.getItem("bsm_token");
-
+      const bsmToken = sessionStorage.getItem("bsm_token");
       const endpoint =
         action === "approve"
-          ? `${API_BASE_URL}/agence/${selected_agence.agency_id}/validate`
-          : `${API_BASE_URL}/agence/${selected_agence.agency_id}/reject`;
+          ? `${API_BASE_URL}/agence/${selectedAgence.agency_id}/validate`
+          : `${API_BASE_URL}/agence/${selectedAgence.agency_id}/reject`;
 
       const body =
         action === "approve"
-          ? { bsm_id: bsm_data?.userId }
-          : { bsm_id: bsm_data?.userId, motif_rejet: motif_rejet.trim() };
+          ? { bsm_id: userData?.userId }
+          : { bsm_id: userData?.userId, motif_rejet: motifRejet.trim() };
 
       const response = await fetch(endpoint, {
         method: "POST",
         headers: {
           "Content-Type": "application/json",
-          Authorization: `Bearer ${bsm_token}`,
+          Authorization: `Bearer ${bsmToken}`,
         },
         body: JSON.stringify(body),
       });
 
-      if (!response.ok) {
+      if (!response.ok)
         throw new Error(
-          `Erreur lors de la ${
-            action === "approve" ? "validation" : "rejection"
-          }`,
+          `Erreur lors de la ${action === "approve" ? "validation" : "rejection"}`,
         );
-      }
 
       setShowDetailModal(false);
       setMotifRejet("");
@@ -249,20 +216,16 @@ export default function BSMMonitoringPage() {
         `Agence ${action === "approve" ? "validée" : "rejetée"} avec succès!`,
       );
     } catch (error: any) {
-      setValidationError(
-        `Une erreur est survenue lors de la ${
-          action === "approve" ? "validation" : "rejection"
-        }. Veuillez réessayer.`,
-      );
+      setValidationError(`Une erreur est survenue. Veuillez réessayer.`);
       console.error("Validation Error:", error);
     } finally {
       setIsLoadingValidation(false);
     }
   };
 
-  const formatDate = (date_string: string) => {
-    if (!date_string) return "N/A";
-    const date = new Date(date_string);
+  const formatDate = (dateString: string) => {
+    if (!dateString) return "N/A";
+    const date = new Date(dateString);
     return date.toLocaleDateString("fr-FR", {
       day: "2-digit",
       month: "long",
@@ -273,585 +236,514 @@ export default function BSMMonitoringPage() {
   };
 
   return (
-    <div className="min-h-screen bg-gray-50 flex">
-      {/* Sidebar */}
-      <>
-        <aside className="hidden lg:flex lg:flex-col w-64 bg-white border-r border-gray-200 fixed h-full">
-          <div className="p-6">
-            <div className="mb-8">
-              <button
-                onClick={() => router.push("/user/bsm/dashboard")}
-                className="group relative transition-all duration-300 hover:scale-105 active:scale-95"
-              >
-                <div className="absolute inset-0 bg-linear-to-r from-[#6149CD] to-[#8B7BE8] rounded-lg opacity-0 group-hover:opacity-10 blur-xl transition-opacity duration-300"></div>
-                <img
-                  src="/images/busstation.png"
-                  alt="BusStation Logo"
-                  className="h-12 w-auto relative z-10 drop-shadow-md group-hover:drop-shadow-xl transition-all duration-300"
-                />
-              </button>
-            </div>
+    <div className="dashboard-layout">
+      <Sidebar menuItems={menuItems} activePath="/user/bsm/monitoring" />
+      <MobileSidebar
+        isOpen={showMobileMenu}
+        onClose={() => setShowMobileMenu(false)}
+        menuItems={menuItems}
+        activePath="/user/bsm/monitoring"
+      />
 
-            <nav className="space-y-1">
-              {MENU_ITEMS.map((item, index) => (
-                <button
-                  key={index}
-                  onClick={() =>
-                    item.active
-                      ? window.location.reload()
-                      : router.push(item.path)
-                  }
-                  className={`w-full flex items-center space-x-3 px-4 py-3 rounded-lg transition-colors ${
-                    item.active
-                      ? "bg-[#6149CD] text-white"
-                      : "text-gray-600 hover:bg-gray-100"
-                  }`}
-                >
-                  <item.icon className="w-5 h-5" />
-                  <span className="font-medium">{item.label}</span>
-                </button>
-              ))}
-            </nav>
-          </div>
-        </aside>
+      <div className="dashboard-main">
+        <Header
+          title="Surveillance des agences"
+          userData={userData}
+          onMenuClick={() => setShowMobileMenu(true)}
+          userType="bsm"
+        />
 
-        {show_mobile_menu && (
-          <>
-            <div
-              className="fixed inset-0 z-40 lg:hidden"
-              onClick={() => setShowMobileMenu(false)}
-            ></div>
-
-            <aside className="fixed left-0 top-0 h-full w-64 bg-white shadow-2xl z-50 lg:hidden transform transition-transform duration-300">
-              <div className="p-6">
-                <div className="flex items-center justify-between mb-8">
-                  <button
-                    onClick={() => {
-                      setShowMobileMenu(false);
-                      router.push("/user/bsm/dashboard");
-                    }}
-                    className="group relative transition-all duration-300 hover:scale-105 active:scale-95"
-                  >
-                    <img
-                      src="/images/busstation.png"
-                      alt="BusStation Logo"
-                      className="h-9.5 w-auto"
-                    />
-                  </button>
-                  <button
-                    onClick={() => setShowMobileMenu(false)}
-                    className="p-2 hover:bg-gray-100 rounded-lg transition-colors"
-                  >
-                    <X className="w-6 h-6 text-gray-900" />
-                  </button>
-                </div>
-
-                <nav className="space-y-1">
-                  {MENU_ITEMS.map((item, index) => (
-                    <button
-                      key={index}
-                      onClick={() => {
-                        setShowMobileMenu(false);
-                        router.push(item.path);
-                      }}
-                      className={`w-full flex items-center space-x-3 px-4 py-3 rounded-lg transition-colors ${
-                        item.active
-                          ? "bg-[#6149CD] text-white"
-                          : "text-gray-600 hover:bg-gray-100"
-                      }`}
-                    >
-                      <item.icon className="w-5 h-5" />
-                      <span className="font-medium">{item.label}</span>
-                    </button>
-                  ))}
-                </nav>
-              </div>
-            </aside>
-          </>
-        )}
-      </>
-
-      {/* Main Content */}
-      <div className="flex-1 lg:ml-64">
-        {/* Header */}
-        <header className="bg-white border-b border-gray-200 sticky top-0 z-10">
-          <div className="px-6 py-4 flex items-center justify-between">
-            <div className="flex items-center space-x-3">
-              <button
-                onClick={() => setShowMobileMenu(true)}
-                className="lg:hidden p-2 hover:bg-gray-100 rounded-lg transition-colors"
-              >
-                <Menu className="w-6 h-6 text-gray-900" />
-              </button>
-              <h1 className="text-2xl font-semibold text-gray-900">
-                Surveillance des agences
-              </h1>
-            </div>
-
-            <div className="flex items-center space-x-4">
-              <button
-                onClick={() => router.push("/user/bsm/settings")}
-                className="p-2 hover:bg-gray-100 rounded-lg transition-colors"
-              >
-                <Settings className="w-6 h-6 text-gray-600" />
-              </button>
-
-              {/* Profile Menu */}
-              <div className="relative">
-                <button
-                  onClick={() => setShowProfileMenu(!show_profile_menu)}
-                  className="flex items-center space-x-3 hover:bg-gray-100 rounded-lg px-3 py-2 transition-colors"
-                >
-                  <img
-                    src="/images/user-icon.png"
-                    alt="Profile"
-                    className="w-8.5 h-8.5 rounded-full object-cover"
-                  />
-                  <span className="font-medium text-gray-900 hidden md:block">
-                    {bsm_data?.username}
-                  </span>
-                  <ChevronDown className="w-4 h-4 text-gray-600" />
-                </button>
-
-                {show_profile_menu && (
-                  <div className="absolute right-0 mt-2 w-48 bg-white rounded-lg shadow-lg border border-gray-200 py-2">
-                    <button
-                      onClick={() => {
-                        setShowProfileMenu(false);
-                        router.push("/user/bsm/settings");
-                      }}
-                      className="w-full flex items-center space-x-3 px-4 py-2 hover:bg-gray-100 transition-colors"
-                    >
-                      <Settings className="w-4 h-4 text-gray-600" />
-                      <span className="text-gray-700">Paramètres</span>
-                    </button>
-                    <button
-                      onClick={handleLogout}
-                      className="w-full flex items-center space-x-3 px-4 py-2 hover:bg-gray-100 transition-colors text-red-600"
-                    >
-                      <LogOut className="w-4 h-4" />
-                      <span>Se déconnecter</span>
-                    </button>
-                  </div>
-                )}
-              </div>
-            </div>
-          </div>
-        </header>
-
-        {/* Content */}
-        <main className="p-6">
-          <div className="max-w-7xl mx-auto">
+        <main className="dashboard-content">
+          <div className="container" style={{ maxWidth: "1200px" }}>
             {/* Success Message */}
-            {success_message && (
-              <div className="mb-6 bg-green-50 border border-green-200 rounded-lg p-4 flex items-center space-x-3">
-                <CheckCircle className="w-6 h-6 text-green-600 shrink-0" />
-                <p className="text-green-800 font-medium">{success_message}</p>
+            {successMessage && (
+              <div
+                style={{
+                  marginBottom: "var(--spacing-xl)",
+                  background: "#d1fae5",
+                  border: "1px solid #a7f3d0",
+                  borderRadius: "var(--radius-lg)",
+                  padding: "var(--spacing-md)",
+                  display: "flex",
+                  alignItems: "center",
+                  gap: "var(--spacing-sm)",
+                }}
+              >
+                <CheckCircle
+                  style={{
+                    width: "24px",
+                    height: "24px",
+                    color: "#065f46",
+                    flexShrink: 0,
+                  }}
+                />
+                <p
+                  style={{
+                    color: "#065f46",
+                    fontWeight: "var(--font-weight-medium)",
+                    flex: 1,
+                  }}
+                >
+                  {successMessage}
+                </p>
                 <button
                   onClick={() => setSuccessMessage("")}
-                  className="ml-auto p-1 hover:bg-green-100 rounded transition-colors"
+                  style={{
+                    padding: "var(--spacing-xs)",
+                    background: "transparent",
+                    border: "none",
+                    borderRadius: "var(--radius-sm)",
+                    cursor: "pointer",
+                  }}
                 >
-                  <X className="w-4 h-4 text-green-600" />
+                  <X
+                    style={{ width: "16px", height: "16px", color: "#065f46" }}
+                  />
                 </button>
               </div>
             )}
 
-            {/* Carte fusionnée */}
-            <div className="bg-white rounded-2xl shadow-lg border border-gray-200 overflow-hidden">
-              <div className="grid grid-cols-1 lg:grid-cols-3">
-                {/* Partie gauche - Image avec overlay */}
-                <div className="lg:col-span-1 relative min-h-125">
-                  <img
-                    src="/images/monitoring.jpg"
-                    alt="Surveillance"
-                    className="absolute inset-0 w-full h-full object-cover"
-                    onError={(e) => {
-                      e.currentTarget.src =
-                        "https://images.unsplash.com/photo-1454165804606-c3d57bc86b40?w=600&h=800&fit=crop";
-                    }}
-                  />
-                  <div className="absolute inset-0 bg-linear-to-b from-black/70 via-black/50 to-black/70"></div>
-                  <div className="absolute inset-0 flex flex-col justify-between p-8">
-                    <div>
-                      <h2 className="text-3xl md:text-4xl font-bold text-white mb-4 drop-shadow-lg">
-                        Surveillance
-                      </h2>
-                      <p className="text-white/90 text-lg mb-6 drop-shadow-md">
-                        Validez ou rejetez les agences en attente
-                      </p>
-                    </div>
+            {/* Section Header */}
+            <div
+              className="section-header"
+              style={{ marginBottom: "var(--spacing-2xl)" }}
+            >
+              <h2 className="section-title">
+                Agences en attente de validation
+              </h2>
+              <p className="section-description">
+                Examinez et validez les demandes de création d'agence
+              </p>
+            </div>
 
-                    <div className="space-y-4">
-                      <div className="bg-white/20 backdrop-blur-sm rounded-xl p-4">
-                        <div className="flex items-center space-x-3 mb-2">
-                          <Building2 className="w-6 h-6 text-white" />
-                          <span className="text-white font-semibold">
-                            Nombre d'agences en attente
+            {/* Loading State */}
+            {isLoading && (
+              <div className="loading-state">
+                <RefreshCw className="spin" />
+                <p>Chargement des agences...</p>
+              </div>
+            )}
+
+            {/* Error State */}
+            {!isLoading && errorMessage && (
+              <>
+                <div className="error-state">
+                  <X className="error-state-icon" />
+                  <p className="error-text">{errorMessage}</p>
+                  <button
+                    type="button"
+                    onClick={() => window.location.reload()}
+                    className="btn modal-button modal-button-error"
+                  >
+                    Réessayer
+                  </button>
+                </div>
+              </>
+            )}
+
+            {/* Empty State */}
+            {!isLoading && !errorMessage && agences.length === 0 && (
+              <>
+                <div className="empty-state">
+                  <Building2 className="empty-icon" />
+                  <h3 className="empty-title">Aucune agence en attente</h3>
+                  <p className="empty-description">
+                    Toutes les agences ont été traitées
+                  </p>
+                  <button
+                    className="btn btn-primary"
+                    style={{ marginTop: "20px" }}
+                    onClick={fetchAgences}
+                  >
+                    Actualiser la liste
+                  </button>
+                </div>
+              </>
+            )}
+
+            {/* Agences List */}
+            {!isLoading && !errorMessage && agences.length > 0 && (
+              <>
+                <div className="voyage-results-list">
+                  {agences.map((agence) => (
+                    <div key={agence.agency_id} className="voyage-result-item">
+                      <div className="voyage-result-header">
+                        <div className="voyage-result-agency">
+                          <span className="voyage-result-label">
+                            Nom de l'agence de voyage
+                          </span>
+                          <h3 className="voyage-result-agency-name">
+                            {agence.long_name}
+                          </h3>
+                        </div>
+                        <div
+                          style={{
+                            display: "flex",
+                            alignItems: "center",
+                            gap: "var(--spacing-md)",
+                          }}
+                        >
+                          <span className="voyage-result-id">
+                            #{agence.agency_id.slice(0, 13)}
+                          </span>
+                          <span
+                            style={{
+                              padding: "4px 12px",
+                              background: "#fef3c7",
+                              color: "#92400e",
+                              borderRadius: "var(--radius-full)",
+                              fontSize: "var(--font-size-xs)",
+                              fontWeight: "var(--font-weight-semibold)",
+                            }}
+                          >
+                            En attente
                           </span>
                         </div>
-                        <p className="text-3xl font-bold text-white">
-                          Nombre par page : {total_elements}
-                        </p>
                       </div>
 
-                      <div className="bg-white/20 backdrop-blur-sm rounded-xl p-4">
-                        <p className="text-sm text-white/90">
-                          Examinez chaque agence avant validation
-                        </p>
-                      </div>
-                    </div>
-                  </div>
-                </div>
-
-                {/* Partie droite - Liste des agences */}
-                <div className="lg:col-span-2 p-8 bg-linear-to-br from-white to-blue-50">
-                  {is_loading ? (
-                    <div className="flex items-center justify-center py-20">
-                      <div className="text-center">
-                        <Building2 className="w-16 h-16 text-[#6149CD] animate-pulse mx-auto mb-4" />
-                        <p className="text-gray-600">
-                          Chargement des agences...
-                        </p>
-                      </div>
-                    </div>
-                  ) : error_message ? (
-                    <div
-                      onClick={() => window.location.reload()}
-                      className="bg-red-50 border border-red-200 rounded-lg p-6 text-center cursor-pointer hover:bg-red-100 transition-colors"
-                    >
-                      <X className="w-12 h-12 text-red-500 mx-auto mb-4" />
-                      <p className="text-red-600">{error_message}</p>
-                    </div>
-                  ) : agences.length === 0 ? (
-                    <div className="bg-white rounded-xl p-12 text-center">
-                      <Building2
-                        onClick={() => window.location.reload()}
-                        className="w-16 h-16 text-gray-400 mx-auto mb-4 hover:scale-105 active:scale-95 transition-transform cursor-pointer"
-                      />
-                      <h3 className="text-xl font-semibold text-gray-900 mb-2">
-                        Aucune agence en attente
-                      </h3>
-                      <p className="text-gray-600 mb-6">
-                        Toutes les agences ont été traitées
-                      </p>
-                    </div>
-                  ) : (
-                    <>
-                      <div className="flex items-center space-x-3 mb-6">
-                        <div
-                          className="w-12 h-12 rounded-xl flex items-center justify-center text-white shadow-lg"
-                          style={{ backgroundColor: BUTTON_COLOR }}
-                        >
-                          <Building2 className="w-6 h-6" />
-                        </div>
-                        <div>
-                          <h3 className="text-2xl font-bold text-gray-900">
-                            Agences à valider
-                          </h3>
-                          <p className="text-sm text-gray-600">
-                            {agences.length} agence
-                            {agences.length > 1 ? "s" : ""} sur cette page
-                          </p>
-                        </div>
-                      </div>
-
-                      <div className="space-y-4 mb-6">
-                        {agences.map((agence) => (
-                          <div
-                            key={agence.agency_id}
-                            className="bg-white rounded-xl shadow-sm border border-gray-200 p-6 hover:shadow-md transition-shadow"
-                          >
-                            <div className="flex items-start justify-between mb-4">
-                              <div className="flex-1">
-                                <h3 className="text-lg font-bold text-gray-900 mb-1">
-                                  {agence.long_name}
-                                </h3>
-                                <p className="text-sm text-gray-400  mb-2">
-                                  ID: {agence.agency_id}
-                                </p>
-                                <p className="text-sm text-gray-600">
-                                  {agence.short_name}
-                                </p>
-                              </div>
-                              <span className="px-3 py-1 bg-orange-100 text-orange-800 rounded-full text-xs font-semibold">
-                                En attente
+                      <div className="voyage-result-content">
+                        <div className="voyage-result-route">
+                          <div className="voyage-result-location">
+                            <Building2 />
+                            <div>
+                              <span className="voyage-result-location-label">
+                                Nom court
+                              </span>
+                              <span className="voyage-result-location-value">
+                                {agence.short_name}
                               </span>
                             </div>
+                          </div>
 
-                            <div className="grid grid-cols-1 md:grid-cols-2 gap-4 mb-4">
-                              <div className="space-y-2">
-                                <div className="flex items-center space-x-2 text-sm">
-                                  <MapPin className="w-4 h-4 text-gray-500" />
-                                  <span className="text-gray-700">
-                                    <span className="font-semibold">
-                                      Ville : {agence.ville}
-                                    </span>
-                                  </span>
-                                </div>
-                                <div className="flex items-center space-x-2 text-xs text-gray-600">
-                                  <MapPin className="w-3.5 h-3.5 text-gray-400" />
-                                  <span>Zone : {agence.location}</span>
-                                </div>
-                              </div>
-
-                              <div className="space-y-2">
-                                <div className="flex items-center space-x-2 text-xs text-gray-600">
-                                  <Globe className="w-3.5 h-3.5 text-gray-400" />
-                                  <span className="truncate">
-                                    {agence.social_network ||
-                                      "Réseau social non renseigné"}
-                                  </span>
-                                </div>
-                                <div className="flex items-center space-x-2 text-xs text-gray-600">
-                                  <MessageSquare className="w-3.5 h-3.5 text-gray-400" />
-                                  <span className="line-clamp-1">
-                                    {agence.greeting_message ||
-                                      "Greeting non renseigné"}
-                                  </span>
-                                </div>
-                              </div>
-                            </div>
-
-                            <div className="flex items-center justify-end pt-4 border-t border-gray-200">
-                              <button
-                                onClick={() => ouvrirModalDetail(agence)}
-                                style={{ backgroundColor: BUTTON_COLOR }}
-                                className="px-6 py-3 text-white rounded-lg hover:opacity-90 active:opacity-80 transition-all font-semibold flex items-center space-x-2"
-                              >
-                                <Eye className="w-5 h-5" />
-                                <span>Voir les détails</span>
-                              </button>
+                          <div className="voyage-result-location">
+                            <MapPin />
+                            <div>
+                              <span className="voyage-result-location-label">
+                                Localisation
+                              </span>
+                              <span className="voyage-result-location-value">
+                                {agence.ville} - {agence.location}
+                              </span>
                             </div>
                           </div>
-                        ))}
+                        </div>
+
+                        <div className="voyage-result-details">
+                          <div className="voyage-result-detail">
+                            <Globe />
+                            <span>
+                              {agence.social_network ||
+                                "Réseau social non renseigné"}
+                            </span>
+                          </div>
+
+                          <div className="voyage-result-detail">
+                            <MessageSquare />
+                            <span>
+                              {agence.greeting_message ||
+                                "Message non renseigné"}
+                            </span>
+                          </div>
+                        </div>
                       </div>
 
-                      {/* Pagination */}
-                      {total_pages > 1 && (
-                        <div className="flex items-center justify-center space-x-4">
-                          <button
-                            onClick={() =>
-                              setCurrentPage(Math.max(0, current_page - 1))
-                            }
-                            disabled={current_page === 0}
-                            className="flex items-center space-x-2 px-4 py-2 border border-gray-300 rounded-lg text-gray-700 hover:bg-gray-50 disabled:opacity-50 disabled:cursor-not-allowed transition-colors"
-                          >
-                            <ChevronLeft className="w-4 h-4" />
-                            <span>Précédent</span>
-                          </button>
-
-                          <span className="text-sm text-gray-600">
-                            Page {current_page + 1} sur {total_pages}
+                      <div className="voyage-result-footer">
+                        <div className="voyage-result-price">
+                          <span className="voyage-result-price-label">
+                            Organisation
                           </span>
-
-                          <button
-                            onClick={() =>
-                              setCurrentPage(
-                                Math.min(total_pages - 1, current_page + 1),
-                              )
-                            }
-                            disabled={current_page === total_pages - 1}
-                            className="flex items-center space-x-2 px-4 py-2 border border-gray-300 rounded-lg text-gray-700 hover:bg-gray-50 disabled:opacity-50 disabled:cursor-not-allowed transition-colors"
+                          <span
+                            className="voyage-result-price-value"
+                            style={{ fontSize: "var(--font-size-sm)" }}
                           >
-                            <span>Suivant</span>
-                            <ChevronRight className="w-4 h-4" />
-                          </button>
+                            {agence.organisation_id}
+                          </span>
                         </div>
-                      )}
-                    </>
-                  )}
+                        <button
+                          onClick={() => ouvrirModalDetail(agence)}
+                          className="btn btn-primary"
+                          style={{
+                            display: "flex",
+                            alignItems: "center",
+                            gap: "var(--spacing-xs)",
+                          }}
+                        >
+                          <span>Voir détails</span>
+                        </button>
+                      </div>
+                    </div>
+                  ))}
                 </div>
-              </div>
-            </div>
+
+                {/* Pagination */}
+                {totalPages > 1 && (
+                  <div
+                    className="widget-pagination"
+                    style={{
+                      justifyContent: "center",
+                      marginTop: "var(--spacing-2xl)",
+                    }}
+                  >
+                    <button
+                      onClick={() =>
+                        setCurrentPage(Math.max(0, currentPage - 1))
+                      }
+                      disabled={currentPage === 0}
+                      className="btn-icon"
+                    >
+                      <ChevronLeft />
+                    </button>
+                    <span>
+                      Page {currentPage + 1} / {totalPages}
+                    </span>
+                    <button
+                      onClick={() =>
+                        setCurrentPage(
+                          Math.min(totalPages - 1, currentPage + 1),
+                        )
+                      }
+                      disabled={currentPage === totalPages - 1}
+                      className="btn-icon"
+                    >
+                      <ChevronRight />
+                    </button>
+                  </div>
+                )}
+              </>
+            )}
           </div>
         </main>
       </div>
 
       {/* Modal Détails */}
-      {show_detail_modal && selected_agence && (
-        <div className="fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center z-50 p-4">
-          <div className="bg-white rounded-2xl shadow-2xl max-w-2xl w-full overflow-hidden">
-            <div className="flex items-center justify-between p-6 border-b border-gray-200">
-              <h2 className="text-2xl font-bold text-gray-900">
-                Détails de l'agence
-              </h2>
+      {showDetailModal && selectedAgence && (
+        <div className="modal-overlay">
+          <div className="payment-modal-content">
+            <div className="payment-modal-header">
+              <h2 className="payment-modal-title">Détails de l'agence</h2>
               <button
                 onClick={() => {
                   setShowDetailModal(false);
                   setMotifRejet("");
                   setValidationError("");
                 }}
-                className="p-2 hover:bg-gray-100 rounded-lg transition-colors"
+                className="payment-modal-close"
               >
-                <X className="w-6 h-6 text-gray-600" />
+                <X />
               </button>
             </div>
 
-            <div className="p-6 max-h-[50vh] overflow-y-auto">
-              <div className="space-y-4">
-                {/* Informations générales */}
-                <div className="bg-gray-50 rounded-xl p-4">
-                  <h3 className="font-bold text-gray-900 mb-3">
-                    Informations générales
-                  </h3>
-                  <div className="space-y-2">
-                    <div className="flex justify-between">
-                      <span className="text-sm font-semibold text-gray-700">
-                        Nom complet :
-                      </span>
-                      <span className="text-sm text-gray-600">
-                        {selected_agence.long_name}
-                      </span>
-                    </div>
-                    <div className="flex justify-between">
-                      <span className="text-sm font-semibold text-gray-700">
-                        Abréviation :
-                      </span>
-                      <span className="text-sm text-gray-600">
-                        {selected_agence.short_name}
-                      </span>
-                    </div>
-                    <div className="flex justify-between">
-                      <span className="text-sm font-semibold text-gray-700">
-                        ID Agence :
-                      </span>
-                      <span className="text-sm text-gray-500">
-                        {selected_agence.agency_id}
-                      </span>
-                    </div>
-                    <div className="flex justify-between">
-                      <span className="text-sm font-semibold text-gray-700">
-                        ID Organisation :
-                      </span>
-                      <span className="text-sm text-gray-500">
-                        {selected_agence.organisation_id}
-                      </span>
-                    </div>
-                  </div>
+            <div className="payment-modal-body">
+              {/* Informations */}
+              <div className="payment-summary">
+                <h3 className="payment-summary-title">
+                  Informations générales
+                </h3>
+                <div className="payment-summary-item">
+                  <span className="payment-summary-label">Nom complet</span>
+                  <span className="payment-summary-value">
+                    {selectedAgence.long_name}
+                  </span>
                 </div>
-
-                {/* Localisation */}
-                <div className="bg-gray-50 rounded-xl p-4">
-                  <h3 className="font-bold text-gray-900 mb-3">Localisation</h3>
-                  <div className="space-y-2">
-                    <div className="flex items-start space-x-2">
-                      <MapPin className="w-4 h-4 text-gray-500 mt-0.5" />
-                      <div className="flex-1">
-                        <p className="text-sm font-semibold text-gray-700">
-                          Ville : {selected_agence.ville}
-                        </p>
-                        <p className="text-sm text-gray-600">
-                          Zone : {selected_agence.location}
-                        </p>
-                      </div>
-                    </div>
-                  </div>
+                <div className="payment-summary-item">
+                  <span className="payment-summary-label">Abréviation</span>
+                  <span className="payment-summary-value">
+                    {selectedAgence.short_name}
+                  </span>
                 </div>
-
-                {/* Contact et communication */}
-                <div className="bg-gray-50 rounded-xl p-4">
-                  <h3 className="font-bold text-gray-900 mb-3">
-                    Contact et communication
-                  </h3>
-                  <div className="space-y-2">
-                    <div className="flex items-start space-x-2">
-                      <Globe className="w-4 h-4 text-gray-500 mt-0.5" />
-                      <div className="flex-1">
-                        <p className="text-sm font-semibold text-gray-700">
-                          Réseau social
-                        </p>
-                        <p className="text-sm text-gray-600 break-all">
-                          {selected_agence.social_network || "Non renseigné"}
-                        </p>
-                      </div>
-                    </div>
-                    <div className="flex items-start space-x-2">
-                      <MessageSquare className="w-4 h-4 text-gray-500 mt-0.5" />
-                      <div className="flex-1">
-                        <p className="text-sm font-semibold text-gray-700">
-                          Message d'accueil
-                        </p>
-                        <p className="text-sm text-gray-600">
-                          {selected_agence.greeting_message || "Non renseigné"}
-                        </p>
-                      </div>
-                    </div>
-                  </div>
+                <div className="payment-summary-item">
+                  <span className="payment-summary-label">ID Agence</span>
+                  <span
+                    className="payment-summary-value"
+                    style={{
+                      fontSize: "var(--font-size-xs)",
+                      fontFamily: "monospace",
+                    }}
+                  >
+                    {selectedAgence.agency_id}
+                  </span>
                 </div>
+                <div className="payment-summary-item">
+                  <span className="payment-summary-label">ID Organisation</span>
+                  <span
+                    className="payment-summary-value"
+                    style={{
+                      fontSize: "var(--font-size-xs)",
+                      fontFamily: "monospace",
+                    }}
+                  >
+                    {selectedAgence.organisation_id}
+                  </span>
+                </div>
+              </div>
 
-                {/* Description */}
-                {selected_agence.description && (
-                  <div className="bg-gray-50 rounded-xl p-4">
-                    <h3 className="font-bold text-gray-900 mb-3">
-                      Description
-                    </h3>
-                    <p className="text-sm text-gray-600">
-                      {selected_agence.description}
-                    </p>
+              <div
+                className="payment-summary"
+                style={{ marginTop: "var(--spacing-lg)" }}
+              >
+                <h3 className="payment-summary-title">Localisation</h3>
+                <div className="payment-summary-item">
+                  <span className="payment-summary-label">Ville</span>
+                  <span className="payment-summary-value">
+                    {selectedAgence.ville}
+                  </span>
+                </div>
+                <div className="payment-summary-item">
+                  <span className="payment-summary-label">Zone</span>
+                  <span className="payment-summary-value">
+                    {selectedAgence.location}
+                  </span>
+                </div>
+              </div>
+
+              <div
+                className="payment-summary"
+                style={{ marginTop: "var(--spacing-lg)" }}
+              >
+                <h3 className="payment-summary-title">
+                  Contact et communication
+                </h3>
+                <div className="payment-summary-item">
+                  <span className="payment-summary-label">Réseau social</span>
+                  <span
+                    className="payment-summary-value"
+                    style={{
+                      fontSize: "var(--font-size-sm)",
+                      wordBreak: "break-all",
+                    }}
+                  >
+                    {selectedAgence.social_network || "Non renseigné"}
+                  </span>
+                </div>
+                <div className="payment-summary-item">
+                  <span className="payment-summary-label">
+                    Message d'accueil
+                  </span>
+                  <span
+                    className="payment-summary-value"
+                    style={{ fontSize: "var(--font-size-sm)" }}
+                  >
+                    {selectedAgence.greeting_message || "Non renseigné"}
+                  </span>
+                </div>
+              </div>
+
+              {selectedAgence.description && (
+                <div
+                  className="payment-summary"
+                  style={{ marginTop: "var(--spacing-lg)" }}
+                >
+                  <h3 className="payment-summary-title">Description</h3>
+                  <p
+                    style={{
+                      fontSize: "var(--font-size-sm)",
+                      color: "var(--gray-600)",
+                      lineHeight: "var(--line-height-relaxed)",
+                    }}
+                  >
+                    {selectedAgence.description}
+                  </p>
+                </div>
+              )}
+
+              {/* Motif de rejet */}
+              <div
+                className="form-group"
+                style={{ marginTop: "var(--spacing-xl)" }}
+              >
+                <label className="form-label">
+                  Motif de rejet (obligatoire pour rejeter)
+                </label>
+                <textarea
+                  value={motifRejet}
+                  onChange={(e) => {
+                    setMotifRejet(e.target.value);
+                    setValidationError("");
+                  }}
+                  placeholder="Entrez le motif de rejet (minimum 10 caractères)..."
+                  className="form-textarea"
+                  style={{ minHeight: "100px" }}
+                />
+                {validationError && (
+                  <div
+                    style={{
+                      marginTop: "var(--spacing-sm)",
+                      display: "flex",
+                      alignItems: "center",
+                      gap: "var(--spacing-xs)",
+                      color: "#dc2626",
+                    }}
+                  >
+                    <AlertCircle style={{ width: "16px", height: "16px" }} />
+                    <span style={{ fontSize: "var(--font-size-sm)" }}>
+                      {validationError}
+                    </span>
                   </div>
                 )}
               </div>
-            </div>
 
-            {/* Champ motif de rejet */}
-            <div className="px-6 pb-4">
-              <label className="block text-sm font-semibold text-gray-700 mb-2">
-                Motif de rejet (obligatoire pour rejeter)
-              </label>
-              <textarea
-                value={motif_rejet}
-                onChange={(e) => {
-                  setMotifRejet(e.target.value);
-                  setValidationError("");
+              {/* Action Buttons */}
+              <div
+                style={{
+                  display: "flex",
+                  gap: "var(--spacing-md)",
+                  marginTop: "var(--spacing-xl)",
                 }}
-                placeholder="Entrez le motif de rejet de l'agence (minimum 10 caractères)..."
-                rows={3}
-                className="w-full px-4 py-3 border-2 text-gray-700 placeholder:text-gray-400 border-gray-200 rounded-xl focus:outline-none focus:ring-2 focus:ring-[#6149CD] focus:border-transparent resize-none"
-              />
-              {validation_error && (
-                <div className="mt-2 flex items-center space-x-2 text-red-600">
-                  <AlertCircle className="w-4 h-4" />
-                  <p className="text-sm">{validation_error}</p>
-                </div>
-              )}
-            </div>
-
-            {/* Action Buttons */}
-            <div className="p-6 border-t border-gray-200 flex items-center justify-between space-x-4">
-              <button
-                onClick={() => handleValidation("reject")}
-                disabled={is_loading_validation || !motif_rejet.trim()}
-                className="flex-1 py-3 bg-red-500 text-white rounded-lg hover:bg-red-600 active:bg-red-700 transition-colors font-semibold flex items-center justify-center space-x-2 disabled:opacity-50 disabled:cursor-not-allowed"
               >
-                {is_loading_validation ? (
-                  <>
-                    <div className="w-5 h-5 border-2 border-white border-t-transparent rounded-full animate-spin"></div>
-                    <span>Traitement...</span>
-                  </>
-                ) : (
-                  <>
-                    <XCircle className="w-5 h-5" />
-                    <span>Rejeter</span>
-                  </>
-                )}
-              </button>
+                <button
+                  onClick={() => handleValidation("reject")}
+                  disabled={isLoadingValidation || !motifRejet.trim()}
+                  className="btn btn-full-width"
+                  style={{
+                    background: "#dc2626",
+                    color: "white",
+                    display: "flex",
+                    alignItems: "center",
+                    justifyContent: "center",
+                    gap: "var(--spacing-xs)",
+                  }}
+                >
+                  {isLoadingValidation ? (
+                    <>
+                      <RefreshCw
+                        className="spin"
+                        style={{ width: "20px", height: "20px" }}
+                      />
+                      <span>Traitement...</span>
+                    </>
+                  ) : (
+                    <>
+                      <span>Rejeter</span>
+                    </>
+                  )}
+                </button>
 
-              <button
-                onClick={() => handleValidation("approve")}
-                disabled={is_loading_validation}
-                className="flex-1 py-3 bg-green-500 text-white rounded-lg hover:bg-green-600 active:bg-green-700 transition-colors font-semibold flex items-center justify-center space-x-2 disabled:opacity-50 disabled:cursor-not-allowed"
-              >
-                {is_loading_validation ? (
-                  <>
-                    <div className="w-5 h-5 border-2 border-white border-t-transparent rounded-full animate-spin"></div>
-                    <span>Traitement...</span>
-                  </>
-                ) : (
-                  <>
-                    <span>Valider</span>
-                  </>
-                )}
-              </button>
+                <button
+                  onClick={() => handleValidation("approve")}
+                  disabled={isLoadingValidation}
+                  className="btn btn-primary btn-full-width"
+                  style={{
+                    display: "flex",
+                    alignItems: "center",
+                    justifyContent: "center",
+                    gap: "var(--spacing-xs)",
+                  }}
+                >
+                  {isLoadingValidation ? (
+                    <>
+                      <RefreshCw
+                        className="spin"
+                        style={{ width: "20px", height: "20px" }}
+                      />
+                      <span>Traitement...</span>
+                    </>
+                  ) : (
+                    <>
+                      <span>Valider</span>
+                    </>
+                  )}
+                </button>
+              </div>
             </div>
           </div>
         </div>

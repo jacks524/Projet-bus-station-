@@ -1,38 +1,27 @@
 "use client";
 
 import React, { useState, useEffect } from "react";
+import { useRouter } from "next/navigation";
 import {
   Home,
-  Building2,
-  Settings,
-  ChevronDown,
-  LogOut,
-  Menu,
-  X,
-  Users,
-  Car,
   Bus,
   Calendar,
+  Users,
+  Settings,
   MapPin,
   Clock,
   Trash2,
   Plus,
-  AlertCircle,
-  CheckCircle,
+  RefreshCw,
+  ChevronDown,
   ChevronLeft,
   ChevronRight,
-  TrendingUp,
-  Ticket,
-  UserPlus,
   BarChart3,
-  PieChart as PieChartIcon,
-  Compass,
-  Wifi,
-  Coffee,
-  Package,
-  Music,
+  CheckCircle,
+  AlertCircle,
+  Building2,
+  X,
 } from "lucide-react";
-import { useRouter } from "next/navigation";
 import {
   LineChart,
   Line,
@@ -48,6 +37,12 @@ import {
   Cell,
   Legend,
 } from "recharts";
+import Sidebar from "@/app/components/Sidebar";
+import MobileSidebar from "@/app/components/Mobilesidebar";
+import Header from "@/app/components/Header";
+import SuccessModal from "@/app/components/SuccessModal";
+import ErrorModal from "@/app/components/ErrorModal";
+import ConfirmModal from "@/app/components/ConfirmModal";
 
 interface Voyage {
   idVoyage: string;
@@ -59,30 +54,21 @@ interface Voyage {
   nbrPlaceRestante: number;
   nbrPlaceReservable: number;
   nbrPlaceConfirm: number;
-  nbrPlaceReserve: number;
   dateDepartPrev: string;
   nomClasseVoyage: string;
   prix: number;
-  smallImage: string;
-  bigImage: string;
-  amenities: string[];
   statusVoyage: string;
 }
 
 interface VoyageStatistics {
   titre: string;
-  description: string;
-  prix: number;
   voyage_id: string;
   lieu_depart: string;
   lieu_arrive: string;
   point_depart: string;
   point_arrivee: string;
   date_depart_prev: string;
-  date_depart_effectif: string;
   statut_voyage: string;
-  nom_agence: string;
-  nom_classe_voyage: string;
   nom_chauffeur: string;
   vehicule_nom: string;
   vehicule_plaque: string;
@@ -97,11 +83,6 @@ interface VoyageStatistics {
   revenus_confirmes: number;
   reservations_by_status: { [key: string]: number };
   passengers_by_gender: { [key: string]: number };
-  passengers_by_age_group: { [key: string]: number };
-  reservations_per_day: { [key: string]: number };
-  revenue_per_day: { [key: string]: number };
-  baggage_distribution: { [key: string]: number };
-  passengers_origin_city: { [key: string]: number };
 }
 
 interface AgenceValidee {
@@ -114,47 +95,49 @@ interface AgenceValidee {
 
 interface UserData {
   username: string;
+  first_name: string;
+  last_name: string;
+  email: string;
   userId: string;
 }
 
 export default function AgencyTravelsPage() {
-  const [voyages, setVoyages] = useState<Voyage[]>([]);
-  const [agences, setAgences] = useState<AgenceValidee[]>([]);
-  const [selected_agence, setSelectedAgence] = useState<AgenceValidee | null>(
-    null,
-  );
-
-  const [is_loading, setIsLoading] = useState(true);
-  const [is_loading_agences, setIsLoadingAgences] = useState(true);
-  const [error_message, setErrorMessage] = useState("");
-
-  const [show_profile_menu, setShowProfileMenu] = useState(false);
-  const [show_mobile_menu, setShowMobileMenu] = useState(false);
-  const [show_agence_selector, setShowAgenceSelector] = useState(false);
-  const [user_data, setUserData] = useState<UserData | null>(null);
-
-  const [show_delete_modal, setShowDeleteModal] = useState(false);
-  const [selected_voyage_to_delete, setSelectedVoyageToDelete] = useState<
-    string | null
-  >(null);
-  const [is_deleting, setIsDeleting] = useState(false);
-
-  const [show_stats_modal, setShowStatsModal] = useState(false);
-  const [selected_voyage_stats, setSelectedVoyageStats] =
-    useState<VoyageStatistics | null>(null);
-  const [is_loading_stats, setIsLoadingStats] = useState(false);
-
-  const [current_page, setCurrentPage] = useState(0);
-  const [total_pages, setTotalPages] = useState(0);
-
-  const [show_success_modal, setShowSuccessModal] = useState(false);
-  const [show_error_modal, setShowErrorModal] = useState(false);
-
   const router = useRouter();
 
+  const [voyages, setVoyages] = useState<Voyage[]>([]);
+  const [agences, setAgences] = useState<AgenceValidee[]>([]);
+  const [selectedAgence, setSelectedAgence] = useState<AgenceValidee | null>(
+    null,
+  );
+  const [userData, setUserData] = useState<UserData | null>(null);
+
+  const [isLoading, setIsLoading] = useState(true);
+  const [isLoadingAgences, setIsLoadingAgences] = useState(true);
+  const [errorMessage, setErrorMessage] = useState("");
+
+  const [showMobileMenu, setShowMobileMenu] = useState(false);
+  const [showAgenceSelector, setShowAgenceSelector] = useState(false);
+
+  const [showDeleteModal, setShowDeleteModal] = useState(false);
+  const [selectedVoyageToDelete, setSelectedVoyageToDelete] = useState<
+    string | null
+  >(null);
+  const [isDeleting, setIsDeleting] = useState(false);
+
+  const [showStatsModal, setShowStatsModal] = useState(false);
+  const [selectedVoyageStats, setSelectedVoyageStats] =
+    useState<VoyageStatistics | null>(null);
+  const [isLoadingStats, setIsLoadingStats] = useState(false);
+
+  const [currentPage, setCurrentPage] = useState(0);
+  const [totalPages, setTotalPages] = useState(0);
+
+  const [showSuccessModal, setShowSuccessModal] = useState(false);
+  const [showErrorModal, setShowErrorModal] = useState(false);
+
   const API_BASE_URL = process.env.NEXT_PUBLIC_API_BASE_URL;
-  const BUTTON_COLOR = "#6149CD";
   const VOYAGES_PER_PAGE = 6;
+  const PIE_COLORS = ["#10B981", "#F59E0B", "#EF4444", "#6366F1", "#8B5CF6"];
 
   const MENU_ITEMS = [
     {
@@ -184,50 +167,40 @@ export default function AgencyTravelsPage() {
     },
   ];
 
-  const AMENITIES_ICONS: { [key: string]: any } = {
-    WIFI: Wifi,
-    CAFE: Coffee,
-    BAGAGE: Package,
-    MUSIQUE: Music,
-  };
-
-  const PIE_COLORS = ["#10B981", "#F59E0B", "#EF4444", "#6366F1", "#8B5CF6"];
-
   useEffect(() => {
-    const auth_token =
+    const authToken =
       localStorage.getItem("auth_token") ||
       sessionStorage.getItem("auth_token");
-    if (!auth_token) {
+    if (!authToken) {
       router.push("/login");
       return;
     }
 
-    const stored_user_data =
+    const storedUserData =
       localStorage.getItem("user_data") || sessionStorage.getItem("user_data");
-    if (stored_user_data) {
-      const parsed_user = JSON.parse(stored_user_data);
-      setUserData(parsed_user);
+    if (storedUserData) {
+      setUserData(JSON.parse(storedUserData));
     } else {
       router.push("/login");
     }
   }, [router]);
 
   useEffect(() => {
-    if (user_data?.userId) {
+    if (userData?.userId) {
       fetchAgences();
     }
-  }, [user_data?.userId]);
+  }, [userData?.userId]);
 
   useEffect(() => {
-    if (selected_agence?.agency_id) {
-      fetchVoyages(selected_agence.agency_id);
+    if (selectedAgence?.agency_id) {
+      fetchVoyages(selectedAgence.agency_id);
     }
-  }, [selected_agence?.agency_id, current_page]);
+  }, [selectedAgence?.agency_id, currentPage]);
 
   const fetchAgences = async () => {
     setIsLoadingAgences(true);
     try {
-      const auth_token =
+      const authToken =
         localStorage.getItem("auth_token") ||
         sessionStorage.getItem("auth_token");
       const response = await fetch(
@@ -236,7 +209,7 @@ export default function AgencyTravelsPage() {
           method: "GET",
           headers: {
             "Content-Type": "application/json",
-            Authorization: `Bearer ${auth_token}`,
+            Authorization: `Bearer ${authToken}`,
           },
         },
       );
@@ -245,41 +218,39 @@ export default function AgencyTravelsPage() {
         throw new Error("Erreur lors du chargement des agences");
 
       const data = await response.json();
-      const all_agences = data.content || data || [];
-      const my_agences = all_agences.filter(
-        (agence: AgenceValidee) => agence.user_id === user_data?.userId,
+      const allAgences = data.content || data || [];
+      const myAgences = allAgences.filter(
+        (agence: AgenceValidee) => agence.user_id === userData?.userId,
       );
 
-      setAgences(my_agences);
-      if (my_agences.length > 0 && !selected_agence) {
-        setSelectedAgence(my_agences[0]);
+      setAgences(myAgences);
+      if (myAgences.length > 0 && !selectedAgence) {
+        setSelectedAgence(myAgences[0]);
       }
-
-      if (my_agences.length === 0) {
+      if (myAgences.length === 0) {
         setIsLoading(false);
       }
     } catch (error: any) {
-      console.error("Fetch Agences Error:", error);
       setErrorMessage("Impossible de charger vos agences");
     } finally {
       setIsLoadingAgences(false);
     }
   };
 
-  const fetchVoyages = async (agence_id: string) => {
+  const fetchVoyages = async (agenceId: string) => {
     setIsLoading(true);
     setErrorMessage("");
     try {
-      const auth_token =
+      const authToken =
         localStorage.getItem("auth_token") ||
         sessionStorage.getItem("auth_token");
       const response = await fetch(
-        `${API_BASE_URL}/voyage/agence/${agence_id}?page=${current_page}&size=${VOYAGES_PER_PAGE}`,
+        `${API_BASE_URL}/voyage/agence/${agenceId}?page=${currentPage}&size=${VOYAGES_PER_PAGE}`,
         {
           method: "GET",
           headers: {
             "Content-Type": "application/json",
-            Authorization: `Bearer ${auth_token}`,
+            Authorization: `Bearer ${authToken}`,
           },
         },
       );
@@ -291,26 +262,25 @@ export default function AgencyTravelsPage() {
       setVoyages(data.content || []);
       setTotalPages(data.totalPages || 0);
     } catch (error: any) {
-      console.error("Fetch Voyages Error:", error);
       setErrorMessage("Impossible de charger les voyages");
     } finally {
       setIsLoading(false);
     }
   };
 
-  const fetchVoyageStatistics = async (voyage_id: string) => {
+  const fetchVoyageStatistics = async (voyageId: string) => {
     setIsLoadingStats(true);
     try {
-      const auth_token =
+      const authToken =
         localStorage.getItem("auth_token") ||
         sessionStorage.getItem("auth_token");
       const response = await fetch(
-        `${API_BASE_URL}/statistics/voyage/${voyage_id}`,
+        `${API_BASE_URL}/statistics/voyage/${voyageId}`,
         {
           method: "GET",
           headers: {
             "Content-Type": "application/json",
-            Authorization: `Bearer ${auth_token}`,
+            Authorization: `Bearer ${authToken}`,
           },
         },
       );
@@ -322,27 +292,27 @@ export default function AgencyTravelsPage() {
       setSelectedVoyageStats(data);
       setShowStatsModal(true);
     } catch (error: any) {
-      console.error("Fetch Stats Error:", error);
-      alert("Impossible de charger les statistiques du voyage");
+      setErrorMessage("Impossible de charger les statistiques");
+      setShowErrorModal(true);
     } finally {
       setIsLoadingStats(false);
     }
   };
 
   const handleDeleteVoyage = async () => {
-    if (!selected_voyage_to_delete) return;
+    if (!selectedVoyageToDelete) return;
 
     setIsDeleting(true);
     try {
-      const auth_token =
+      const authToken =
         localStorage.getItem("auth_token") ||
         sessionStorage.getItem("auth_token");
       const response = await fetch(
-        `${API_BASE_URL}/voyage/${selected_voyage_to_delete}`,
+        `${API_BASE_URL}/voyage/${selectedVoyageToDelete}`,
         {
           method: "DELETE",
           headers: {
-            Authorization: `Bearer ${auth_token}`,
+            Authorization: `Bearer ${authToken}`,
           },
         },
       );
@@ -351,25 +321,16 @@ export default function AgencyTravelsPage() {
 
       setShowDeleteModal(false);
       setSelectedVoyageToDelete(null);
-      setShowSuccessModal(true)
-      if (selected_agence?.agency_id) {
-        fetchVoyages(selected_agence.agency_id);
+      setShowSuccessModal(true);
+      if (selectedAgence?.agency_id) {
+        fetchVoyages(selectedAgence.agency_id);
       }
     } catch (error: any) {
-      console.error("Delete Voyage Error:", error);
       setErrorMessage("Erreur lors de la suppression du voyage");
       setShowErrorModal(true);
     } finally {
       setIsDeleting(false);
     }
-  };
-
-  const handleLogout = () => {
-    localStorage.removeItem("auth_token");
-    localStorage.removeItem("user_data");
-    sessionStorage.removeItem("auth_token");
-    sessionStorage.removeItem("user_data");
-    router.push("/login");
   };
 
   const handleSelectAgence = (agence: AgenceValidee) => {
@@ -378,21 +339,13 @@ export default function AgencyTravelsPage() {
     setCurrentPage(0);
   };
 
-  const formatDate = (date_string: string) => {
-    return new Date(date_string).toLocaleDateString("fr-FR", {
+  const formatDate = (dateString: string) => {
+    return new Date(dateString).toLocaleDateString("fr-FR", {
       day: "numeric",
       month: "long",
       year: "numeric",
       hour: "2-digit",
       minute: "2-digit",
-    });
-  };
-
-  const formatDateShort = (date_string: string) => {
-    return new Date(date_string).toLocaleDateString("fr-FR", {
-      day: "numeric",
-      month: "short",
-      year: "numeric",
     });
   };
 
@@ -404,428 +357,229 @@ export default function AgencyTravelsPage() {
     }).format(amount);
   };
 
-  const isVoyageEffectue = (date_depart: string) => {
-    return new Date(date_depart) < new Date();
+  const isVoyageEffectue = (dateDepart: string) => {
+    return new Date(dateDepart) < new Date();
   };
 
-  const prepareBarChartData = (data: { [key: string]: number }) => {
-    return Object.entries(data)
-      .sort((a, b) => b[1] - a[1])
-      .slice(0, 10)
-      .map(([name, value]) => ({
-        name: name.length > 15 ? name.substring(0, 15) + "..." : name,
-        value,
-      }));
-  };
-
-  const preparePieChartData = (data: { [key: string]: number }) => {
-    return Object.entries(data).map(([name, value], index) => ({
-      name,
-      value,
-      color: PIE_COLORS[index % PIE_COLORS.length],
-    }));
-  };
-
-  const voyages_effectues = voyages.filter((v) =>
+  const voyagesEffectues = voyages.filter((v) =>
     isVoyageEffectue(v.dateDepartPrev),
   );
-  const voyages_a_venir = voyages.filter(
+  const voyagesAVenir = voyages.filter(
     (v) => !isVoyageEffectue(v.dateDepartPrev),
   );
 
   return (
-    <div className="min-h-screen bg-gray-50 flex">
-      {/* Sidebar navigation */}
-      <aside className="hidden lg:flex lg:flex-col w-64 bg-white border-r border-gray-200 fixed h-full">
-        <div className="p-6">
-          <div className="mb-8">
-            <button
-              onClick={() => router.push("/user/agency/dashboard")}
-              className="group relative transition-all duration-300 hover:scale-105 active:scale-95"
-            >
-              <img
-                src="/images/busstation.png"
-                alt="BusStation Logo"
-                className="h-12 w-auto"
-              />
-            </button>
-          </div>
+    <div className="dashboard-layout">
+      <Sidebar menuItems={MENU_ITEMS} activePath="/user/agency/travels" />
+      <MobileSidebar
+        isOpen={showMobileMenu}
+        onClose={() => setShowMobileMenu(false)}
+        menuItems={MENU_ITEMS}
+        activePath="/user/agency/travels"
+      />
 
-          <nav className="space-y-1">
-            {MENU_ITEMS.map((item, index) => (
-              <button
-                key={index}
-                onClick={() =>
-                  item.active
-                    ? window.location.reload()
-                    : router.push(item.path)
-                }
-                className={`w-full flex items-center space-x-3 px-4 py-3 rounded-lg transition-colors ${
-                  item.active
-                    ? "bg-[#6149CD] text-white"
-                    : "text-gray-600 hover:bg-gray-100"
-                }`}
-              >
-                <item.icon className="w-5 h-5" />
-                <span className="font-medium">{item.label}</span>
-              </button>
-            ))}
-          </nav>
-        </div>
-      </aside>
+      <div className="dashboard-main">
+        <Header
+          title="Voyages"
+          userData={userData}
+          onMenuClick={() => setShowMobileMenu(true)}
+          userType="agency"
+        />
 
-      {/* Mobile menu */}
-      {show_mobile_menu && (
-        <>
-          <div
-            className="fixed inset-0 bg-black/50 z-40 lg:hidden"
-            onClick={() => setShowMobileMenu(false)}
-          ></div>
-          <aside className="fixed left-0 top-0 h-full w-64 bg-white shadow-2xl z-50 lg:hidden">
-            <div className="p-6">
-              <div className="flex items-center justify-between mb-8">
-                <button onClick={() => router.push("/user/agency/dashboard")}>
-                  <img
-                    src="/images/busstation.png"
-                    alt="Logo"
-                    className="h-9.5 w-auto"
-                  />
-                </button>
+        <main className="dashboard-content">
+          {isLoadingAgences && agences.length === 0 && (
+            <div className="loading-state">
+              <RefreshCw className="spin" />
+              <p>Chargement en cours...</p>
+            </div>
+          )}
+
+          {!isLoadingAgences && errorMessage && (
+            <>
+              <div className="error-state">
+                <X className="error-state-icon" />
+                <p className="error-text">{errorMessage}</p>
                 <button
-                  onClick={() => setShowMobileMenu(false)}
-                  className="p-2 hover:bg-gray-100 rounded-lg"
+                  onClick={() => window.location.reload()}
+                  className="btn btn-primary"
                 >
-                  <X className="w-6 h-6 text-gray-900" />
+                  Réessayer
                 </button>
               </div>
-              <nav className="space-y-1">
-                {MENU_ITEMS.map((item, index) => (
-                  <button
-                    key={index}
-                    onClick={() => {
-                      setShowMobileMenu(false);
-                      router.push(item.path);
-                    }}
-                    className={`w-full flex items-center space-x-3 px-4 py-3 rounded-lg transition-colors ${
-                      item.active
-                        ? "bg-[#6149CD] text-white"
-                        : "text-gray-600 hover:bg-gray-100"
-                    }`}
-                  >
-                    <item.icon className="w-5 h-5" />
-                    <span className="font-medium">{item.label}</span>
-                  </button>
-                ))}
-              </nav>
-            </div>
-          </aside>
-        </>
-      )}
-
-      {/* Main content area */}
-      <div className="flex-1 lg:ml-64 min-w-0">
-        {/* Page header */}
-        <header className="bg-white border-b border-gray-200 sticky top-0 z-10">
-          <div className="px-4 sm:px-6 py-3 sm:py-4 flex items-center justify-between">
-            <div className="flex items-center space-x-2 sm:space-x-3">
-              <button
-                onClick={() => setShowMobileMenu(true)}
-                className="lg:hidden p-2 hover:bg-gray-100 rounded-lg"
-              >
-                <Menu className="w-5 h-5 sm:w-6 sm:h-6 text-gray-900" />
-              </button>
-              <h1 className="text-lg sm:text-2xl font-semibold text-gray-900">
-                Gestion des voyages
-              </h1>
-            </div>
-
-            <div className="flex items-center space-x-2 sm:space-x-4">
-              <button
-                onClick={() => router.push("/user/agency/travel")}
-                style={{ backgroundColor: BUTTON_COLOR }}
-                className="flex items-center space-x-2 px-3 sm:px-4 py-2 text-white rounded-lg hover:opacity-90 transition-opacity text-sm sm:text-base"
-              >
-                <Plus className="w-4 h-4 sm:w-5 sm:h-5" />
-                <span className="hidden sm:inline">Créer un voyage</span>
-                <span className="sm:hidden">Créer</span>
-              </button>
-
-              <div className="relative">
-                <button
-                  onClick={() => setShowProfileMenu(!show_profile_menu)}
-                  className="flex items-center space-x-2 sm:space-x-3 hover:bg-gray-100 rounded-lg px-2 sm:px-3 py-1.5 sm:py-2 transition-colors"
-                >
-                  <img
-                    src="/images/user-icon.png"
-                    alt="Profile"
-                    className="w-7 h-7 sm:w-8.5 sm:h-8.5 rounded-full"
-                  />
-                  <span className="font-medium text-gray-900 hidden md:block text-sm sm:text-base">
-                    {user_data?.username}
-                  </span>
-                  <ChevronDown className="w-4 h-4 text-gray-600 hidden sm:block" />
-                </button>
-
-                {show_profile_menu && (
-                  <>
-                    <div
-                      className="fixed inset-0 z-10"
-                      onClick={() => setShowProfileMenu(false)}
-                    ></div>
-                    <div className="absolute right-0 mt-2 w-48 bg-white rounded-lg shadow-lg border border-gray-200 py-2 z-20">
-                      <button
-                        onClick={() => {
-                          setShowProfileMenu(false);
-                          router.push("/user/agency/settings");
-                        }}
-                        className="w-full flex items-center space-x-3 px-4 py-2 hover:bg-gray-100 transition-colors"
-                      >
-                        <Settings className="w-4 h-4 text-gray-600" />
-                        <span className="text-gray-700">Paramètres</span>
-                      </button>
-                      <button
-                        onClick={handleLogout}
-                        className="w-full flex items-center space-x-3 px-4 py-2 hover:bg-gray-100 transition-colors text-red-600"
-                      >
-                        <LogOut className="w-4 h-4" />
-                        <span>Se déconnecter</span>
-                      </button>
-                    </div>
-                  </>
-                )}
-              </div>
-            </div>
-          </div>
-        </header>
-
-        {/* Main content */}
-        <main className="p-3 sm:p-4 md:p-6">
-          {/* Loading agencies */}
-          {is_loading_agences && agences.length === 0 && (
-            <div className="flex items-center justify-center py-20">
-              <div className="text-center">
-                <Bus className="w-8 h-8 text-[#6149CD] animate-spin mx-auto mb-4" />
-                <p className="text-gray-600">Chargement en cours...</p>
-              </div>
-            </div>
+            </>
           )}
 
-          {/* Error Message */}
-          {!is_loading_agences && error_message && (
-            <div className="bg-red-50 border border-red-200 rounded-xl shadow-sm p-6 sm:p-12 text-center">
-              <p className="text-sm sm:text-base text-red-600 mb-6">
-                {error_message}
-              </p>
-              <button
-                onClick={() => window.location.reload()}
-                className="px-4 sm:px-6 py-2.5 sm:py-3 bg-[#6149CD] text-white rounded-lg hover:opacity-75 transition-colors text-sm sm:text-base"
+          {!isLoadingAgences && agences.length === 0 && !errorMessage && (
+            <>
+              <div className="empty-state">
+                <Building2 className="empty-icon" />
+                <h3 className="empty-title">Aucune agence validée</h3>
+                <p className="empty-description">
+                  Vous devez avoir une agence pour créer des voyages
+                </p>
+              </div>
+            </>
+          )}
+
+          {!isLoadingAgences && agences.length > 0 && (
+            <>
+              <div
+                className="section-header"
+                style={{ marginBottom: "var(--spacing-2xl)" }}
               >
-                Réessayer
-              </button>
-            </div>
-          )}
-
-          {/* No agencies available */}
-          {!is_loading_agences && agences.length === 0 && !error_message && (
-            <div className="bg-white rounded-xl shadow-sm border border-gray-200 p-6 sm:p-12 text-center">
-              <Building2 className="w-12 h-12 sm:w-16 sm:h-16 text-gray-400 mx-auto mb-4" />
-              <h3 className="text-lg sm:text-xl font-semibold text-gray-900 mb-2">
-                Aucune agence validée
-              </h3>
-              <p className="text-sm sm:text-base text-gray-600">
-                Vous devez avoir une agence pour créer des voyages
-              </p>
-            </div>
-          )}
-
-          {/* Main content */}
-          {!is_loading_agences && agences.length > 0 && (
-            <div className="space-y-4 sm:space-y-6">
-              {/* Agency selector */}
-              <div className="bg-white rounded-xl shadow-sm border border-gray-200 p-3 sm:p-4">
-                <div className="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-3">
-                  <div className="flex items-center space-x-3">
-                    <div className="p-2 sm:p-3 bg-linear-to-br from-[#6149CD] to-[#8B7BE8] rounded-lg sm:rounded-xl">
-                      <Building2 className="w-5 h-5 sm:w-6 sm:h-6 text-white" />
-                    </div>
-                    <div className="min-w-0 flex-1">
-                      <p className="text-xs sm:text-sm text-gray-600">
-                        Agence sélectionnée
-                      </p>
-                      <h2 className="text-base sm:text-xl font-bold text-gray-900 truncate">
-                        {selected_agence?.long_name || "Aucune"}
-                      </h2>
-                    </div>
-                  </div>
-
-                  {agences.length > 1 && (
-                    <div className="relative">
-                      <button
-                        onClick={() =>
-                          setShowAgenceSelector(!show_agence_selector)
-                        }
-                        className="w-full sm:w-auto flex items-center justify-center space-x-2 px-4 py-2 border border-gray-300 rounded-lg hover:bg-gray-50 transition-colors"
-                      >
-                        <span className="text-gray-700 text-sm sm:text-base">
-                          Changer
-                        </span>
-                        <ChevronDown className="w-4 h-4 text-gray-600" />
-                      </button>
-
-                      {show_agence_selector && (
-                        <>
-                          <div
-                            className="fixed inset-0 z-10"
-                            onClick={() => setShowAgenceSelector(false)}
-                          ></div>
-                          <div className="absolute right-0 left-0 sm:left-auto mt-2 w-full sm:w-72 bg-white rounded-lg shadow-lg border border-gray-200 py-2 z-20 max-h-60 overflow-y-auto">
-                            {agences.map((agence) => (
-                              <button
-                                key={agence.agency_id}
-                                onClick={() => handleSelectAgence(agence)}
-                                className={`w-full text-left px-4 py-3 hover:bg-gray-50 transition-colors ${
-                                  selected_agence?.agency_id ===
-                                  agence.agency_id
-                                    ? "bg-purple-50 border-l-4 border-[#6149CD]"
-                                    : ""
-                                }`}
-                              >
-                                <p className="font-medium text-gray-900 text-sm sm:text-base truncate">
-                                  {agence.long_name}
-                                </p>
-                                <p className="text-xs sm:text-sm text-gray-600">
-                                  {agence.ville}
-                                </p>
-                              </button>
-                            ))}
-                          </div>
-                        </>
-                      )}
-                    </div>
-                  )}
-                </div>
+                <h2 className="section-title">Gestion de voyages</h2>
+                <p className="section-description">
+                  Gérez vos voyages et examinez les statistiques générales des
+                  voyages effectués
+                </p>
               </div>
 
-              {/* Loading travels */}
-              {is_loading && (
-                <div className="flex items-center justify-center py-10">
-                  <Bus className="w-8 h-8 text-[#6149CD] animate-spin" />
-                </div>
-              )}
-
-              {/* Error message */}
-              {error_message && !is_loading && (
-                <div className="bg-red-50 border border-red-200 rounded-lg p-4 sm:p-6 text-center">
-                  <AlertCircle className="w-10 h-10 sm:w-12 sm:h-12 text-red-500 mx-auto mb-4" />
-                  <p className="text-red-600 text-sm sm:text-base">
-                    {error_message}
+              <div className="agency-header-card">
+                <div className="agency-info">
+                  <h2 className="agency-name">
+                    Nom de votre agence de voyage : {selectedAgence?.long_name}
+                  </h2>
+                  <p className="agency-location">
+                    Adresse de votre agence de voyage : {selectedAgence?.ville}{" "}
+                    - {selectedAgence?.short_name}
                   </p>
                 </div>
+
+                {agences.length > 1 && (
+                  <div className="agency-selector">
+                    <button
+                      onClick={() => setShowAgenceSelector(!showAgenceSelector)}
+                      className="btn btn-secondary"
+                    >
+                      Changer
+                      <ChevronDown />
+                    </button>
+
+                    {showAgenceSelector && (
+                      <>
+                        <div
+                          className="selector-overlay"
+                          onClick={() => setShowAgenceSelector(false)}
+                        ></div>
+                        <div className="selector-dropdown">
+                          {agences.map((agence) => (
+                            <button
+                              key={agence.agency_id}
+                              onClick={() => handleSelectAgence(agence)}
+                              className={`selector-item ${selectedAgence?.agency_id === agence.agency_id ? "active" : ""}`}
+                            >
+                              <div>
+                                <p className="selector-item-name">
+                                  {agence.long_name}
+                                </p>
+                                <p className="selector-item-city">
+                                  {agence.ville}
+                                </p>
+                              </div>
+                            </button>
+                          ))}
+                        </div>
+                      </>
+                    )}
+                  </div>
+                )}
+
+                <button
+                  onClick={() => router.push("/user/agency/travel")}
+                  className="btn btn-primary"
+                >
+                  <Plus />
+                  Créer un voyage
+                </button>
+              </div>
+
+              {isLoading && (
+                <div className="loading-state">
+                  <RefreshCw className="spin" />
+                  <p>Chargement des voyages...</p>
+                </div>
               )}
 
-              {/* Travels content */}
-              {!is_loading && !error_message && (
+              {!isLoading && !errorMessage && (
                 <>
-                  {/* Upcoming travels */}
-                  {voyages_a_venir.length > 0 && (
-                    <div className="space-y-4">
-                      <h2 className="text-xl sm:text-2xl font-bold text-gray-900 flex items-center space-x-2">
-                        <Clock className="w-6 h-6 text-[#6149CD]" />
-                        <span>Voyages à venir ({voyages_a_venir.length})</span>
+                  {voyagesAVenir.length > 0 && (
+                    <div style={{ marginBottom: "var(--spacing-2xl)" }}>
+                      <h2
+                        className="content-title"
+                        style={{ marginBottom: "var(--spacing-lg)" }}
+                      >
+                        <Clock
+                          style={{
+                            width: "24px",
+                            height: "24px",
+                            color: "var(--color-primary)",
+                            display: "inline",
+                            marginRight: "var(--spacing-xs)",
+                          }}
+                        />
+                        Voyages à venir ({voyagesAVenir.length})
                       </h2>
 
-                      <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4 sm:gap-6">
-                        {voyages_a_venir.map((voyage) => (
-                          <div
-                            key={voyage.idVoyage}
-                            className="bg-white rounded-xl shadow-sm border border-gray-200 overflow-hidden hover:shadow-md transition-shadow"
-                          >
-                            <div className="relative h-48">
-                              <img
-                                src={
-                                  voyage.smallImage ||
-                                  "https://images.unsplash.com/photo-1544620347-c4fd4a3d5957?w=800"
-                                }
-                                alt={voyage.lieuDepart}
-                                className="w-full h-full object-cover"
-                              />
-                              <div className="absolute top-3 right-3">
-                                <span className="px-3 py-1 bg-blue-500 text-white text-xs font-semibold rounded-full">
-                                  {voyage.statusVoyage}
-                                </span>
-                              </div>
-                            </div>
-
-                            <div className="p-4">
-                              <div className="flex items-center justify-between mb-3">
-                                <h3 className="text-lg font-bold text-gray-900">
-                                  De {voyage.lieuDepart} vers{" "}
-                                  {voyage.lieuArrive}
+                      <div className="voyages-grid">
+                        {voyagesAVenir.map((voyage) => (
+                          <div key={voyage.idVoyage} className="voyage-card">
+                            <div className="voyage-content">
+                              <div className="voyage-info">
+                                <MapPin />
+                                <h3>
+                                  {voyage.lieuDepart} vers {voyage.lieuArrive}
                                 </h3>
                               </div>
-
-                              <div className="space-y-2 mb-4">
-                                <div className="flex items-center space-x-2 text-sm text-gray-600">
-                                  <Compass className="w-4 h-4" />
-                                  <span>
-                                    De {voyage.pointDeDepart} vers{" "}
-                                    {voyage.pointArrivee}
-                                  </span>
-                                </div>
-                                <div className="flex items-center space-x-2 text-sm text-gray-600">
-                                  <Clock className="w-4 h-4" />
-                                  <span>
-                                    {formatDate(voyage.dateDepartPrev)}
-                                  </span>
-                                </div>
-                                <div className="flex items-center space-x-2 text-sm text-gray-600">
-                                  <Users className="w-4 h-4" />
-                                  <span>
-                                    {voyage.nbrPlaceReservable} /{" "}
-                                    {voyage.nbrPlaceRestante +
-                                      voyage.nbrPlaceConfirm}{" "}
-                                    places restantes
-                                  </span>
-                                </div>
-                              </div>
-
-                              {voyage.amenities &&
-                                voyage.amenities.length > 0 && (
-                                  <div className="flex items-center space-x-2 mb-4">
-                                    {voyage.amenities.map((amenity, idx) => {
-                                      const Icon =
-                                        AMENITIES_ICONS[amenity] || Package;
-                                      return (
-                                        <div
-                                          key={idx}
-                                          className="p-2 bg-gray-100 rounded-lg"
-                                          title={amenity}
-                                        >
-                                          <Icon className="w-4 h-4 text-gray-600" />
-                                        </div>
-                                      );
-                                    })}
-                                  </div>
-                                )}
-
-                              <div className="flex items-center justify-between pt-4 border-t border-gray-200">
-                                <div>
-                                  <p className="text-xs text-gray-600">Prix</p>
-                                  <p className="text-lg font-bold text-[#6149CD]">
-                                    {formatRevenue(voyage.prix)}
-                                  </p>
-                                </div>
-                                <button
-                                  onClick={() => {
-                                    setSelectedVoyageToDelete(voyage.idVoyage);
-                                    setShowDeleteModal(true);
-                                  }}
-                                  className="flex items-center space-x-2 px-4 py-2 bg-red-600 text-white rounded-lg hover:bg-red-700 transition-colors"
+                              <div className="voyage-info">
+                                <MapPin
+                                  style={{ width: "14px", height: "14px" }}
+                                />
+                                <span
+                                  style={{ fontSize: "var(--font-size-sm)" }}
                                 >
-                                  <Trash2 className="w-4 h-4" />
-                                  <span>Supprimer</span>
-                                </button>
+                                  {voyage.pointDeDepart} vers{" "}
+                                  {voyage.pointArrivee}
+                                </span>
                               </div>
+                              <div className="voyage-info">
+                                <Clock />
+                                <span>{formatDate(voyage.dateDepartPrev)}</span>
+                              </div>
+                              <div className="voyage-info">
+                                <Users />
+                                <span>
+                                  {voyage.nbrPlaceReservable} /{" "}
+                                  {voyage.nbrPlaceRestante +
+                                    voyage.nbrPlaceConfirm}{" "}
+                                  places restantes
+                                </span>
+                              </div>
+                              <div
+                                className="voyage-price"
+                                style={{ fontWeight: "bold" }}
+                              >
+                                <span>Classe: {voyage.nomClasseVoyage}</span>
+                                <span className="price">
+                                  {formatRevenue(voyage.prix)}
+                                </span>
+                              </div>
+                              <button
+                                onClick={() => {
+                                  setSelectedVoyageToDelete(voyage.idVoyage);
+                                  setShowDeleteModal(true);
+                                }}
+                                className="btn btn-secondary"
+                                style={{
+                                  width: "fit-content",
+                                  marginTop: "var(--spacing-sm)",
+                                  color: "#dc2626",
+                                  display: "flex",
+                                  marginLeft: "auto",
+                                }}
+                              >
+                                <Trash2 />
+                                Supprimer
+                              </button>
                             </div>
                           </div>
                         ))}
@@ -833,89 +587,78 @@ export default function AgencyTravelsPage() {
                     </div>
                   )}
 
-                  {/* Completed travels */}
-                  {voyages_effectues.length > 0 && (
-                    <div className="space-y-4 mt-8">
-                      <h2 className="text-xl sm:text-2xl font-bold text-gray-900 flex items-center space-x-2">
-                        <CheckCircle className="w-6 h-6 text-green-600" />
-                        <span>
-                          Voyages effectués ({voyages_effectues.length})
-                        </span>
+                  {voyagesEffectues.length > 0 && (
+                    <div>
+                      <h2
+                        className="content-title"
+                        style={{ marginBottom: "var(--spacing-lg)" }}
+                      >
+                        <CheckCircle
+                          style={{
+                            width: "24px",
+                            height: "24px",
+                            color: "var(--color-success)",
+                            display: "inline",
+                            marginRight: "var(--spacing-xs)",
+                          }}
+                        />
+                        Voyages effectués ({voyagesEffectues.length})
                       </h2>
 
-                      <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4 sm:gap-6">
-                        {voyages_effectues.map((voyage) => (
-                          <div
-                            key={voyage.idVoyage}
-                            className="bg-white rounded-xl shadow-sm border border-gray-200 overflow-hidden hover:shadow-md transition-shadow"
-                          >
-                            <div className="relative h-48">
-                              <img
-                                src={
-                                  voyage.smallImage ||
-                                  "https://images.unsplash.com/photo-1544620347-c4fd4a3d5957?w=800"
-                                }
-                                alt={voyage.lieuDepart}
-                                className="w-full h-full object-cover"
-                              />
-                              <div className="absolute top-3 right-3">
-                                <span className="px-3 py-1 bg-green-500 text-white text-xs font-semibold rounded-full">
-                                  Effectué
-                                </span>
-                              </div>
-                            </div>
-
-                            <div className="p-4">
-                              <div className="flex items-center justify-between mb-3">
-                                <h3 className="text-lg font-bold text-gray-900">
-                                  De {voyage.lieuDepart} vers{" "}
-                                  {voyage.lieuArrive}
+                      <div className="voyages-grid">
+                        {voyagesEffectues.map((voyage) => (
+                          <div key={voyage.idVoyage} className="voyage-card">
+                            <div className="voyage-content">
+                              <div className="voyage-info">
+                                <MapPin />
+                                <h3>
+                                  {voyage.lieuDepart} vers {voyage.lieuArrive}
                                 </h3>
                               </div>
-
-                              <div className="space-y-2 mb-4">
-                                <div className="flex items-center space-x-2 text-sm text-gray-600">
-                                  <Compass className="w-4 h-4" />
-                                  <span>
-                                    De {voyage.pointDeDepart} vers{" "}
-                                    {voyage.pointArrivee}
-                                  </span>
-                                </div>
-                                <div className="flex items-center space-x-2 text-sm text-gray-600">
-                                  <Clock className="w-4 h-4" />
-                                  <span>
-                                    {formatDate(voyage.dateDepartPrev)}
-                                  </span>
-                                </div>
-                                <div className="flex items-center space-x-2 text-sm text-gray-600">
-                                  <Users className="w-4 h-4" />
-                                  <span>
-                                    {voyage.nbrPlaceConfirm} passager(s)
-                                  </span>
-                                </div>
-                              </div>
-
-                              <div className="flex items-center justify-between pt-4 border-t border-gray-200">
-                                <div>
-                                  <p className="text-xs text-gray-600">
-                                    Prix unitaire
-                                  </p>
-                                  <p className="text-lg font-bold text-[#6149CD]">
-                                    {formatRevenue(voyage.prix)}
-                                  </p>
-                                </div>
-                                <button
-                                  onClick={() =>
-                                    fetchVoyageStatistics(voyage.idVoyage)
-                                  }
-                                  disabled={is_loading_stats}
-                                  style={{ backgroundColor: BUTTON_COLOR }}
-                                  className="flex items-center space-x-2 px-4 py-2 text-white rounded-lg hover:opacity-90 transition-opacity disabled:opacity-50"
+                              <div className="voyage-info">
+                                <MapPin
+                                  style={{ width: "14px", height: "14px" }}
+                                />
+                                <span
+                                  style={{ fontSize: "var(--font-size-sm)" }}
                                 >
-                                  <BarChart3 className="w-4 h-4" />
-                                  <span>Stats</span>
-                                </button>
+                                  {voyage.pointDeDepart} vers{" "}
+                                  {voyage.pointArrivee}
+                                </span>
                               </div>
+                              <div className="voyage-info">
+                                <Clock />
+                                <span>{formatDate(voyage.dateDepartPrev)}</span>
+                              </div>
+                              <div className="voyage-info">
+                                <Users />
+                                <span>{voyage.nbrPlaceConfirm} passagers</span>
+                              </div>
+                              <div
+                                className="voyage-price"
+                                style={{ fontWeight: "bold" }}
+                              >
+                                <span>Classe: {voyage.nomClasseVoyage}</span>
+                                <span className="price">
+                                  {formatRevenue(voyage.prix)}
+                                </span>
+                              </div>
+                              <button
+                                onClick={() =>
+                                  fetchVoyageStatistics(voyage.idVoyage)
+                                }
+                                disabled={isLoadingStats}
+                                className="btn btn-primary"
+                                style={{
+                                  width: "fit-content",
+                                  marginTop: "var(--spacing-sm)",
+                                  justifyContent: "center",
+                                  display: "flex",
+                                  marginLeft: "auto",
+                                }}
+                              >
+                                Voir les stats
+                              </button>
                             </div>
                           </div>
                         ))}
@@ -923,227 +666,459 @@ export default function AgencyTravelsPage() {
                     </div>
                   )}
 
-                  {/* No travels available */}
                   {voyages.length === 0 && (
-                    <div className="bg-white rounded-xl shadow-sm border border-gray-200 p-12 text-center">
-                      <Bus className="w-16 h-16 text-gray-400 mx-auto mb-4" />
-                      <h3 className="text-xl font-semibold text-gray-900 mb-2">
-                        Aucun voyage
-                      </h3>
-                      <p className="text-gray-600 mb-6">
+                    <div className="empty-state">
+                      <Bus className="empty-icon" />
+                      <h3 className="empty-title">Aucun voyage</h3>
+                      <p className="empty-description">
                         Créez votre premier voyage pour commencer
                       </p>
                       <button
                         onClick={() => router.push("/user/agency/travel")}
-                        style={{ backgroundColor: BUTTON_COLOR }}
-                        className="px-6 py-3 text-white rounded-lg hover:opacity-90 transition-opacity"
+                        className="btn btn-primary"
                       >
                         Créer un voyage
                       </button>
                     </div>
                   )}
 
-                  {/* Pagination controls */}
-                  {total_pages > 1 && (
-                    <div className="flex items-center justify-center space-x-4 mt-8">
+                  {totalPages > 1 && (
+                    <div
+                      className="widget-pagination"
+                      style={{
+                        marginTop: "var(--spacing-2xl)",
+                        justifyContent: "center",
+                      }}
+                    >
                       <button
                         onClick={() =>
-                          setCurrentPage(Math.max(0, current_page - 1))
+                          setCurrentPage(Math.max(0, currentPage - 1))
                         }
-                        disabled={current_page === 0}
-                        className="flex items-center space-x-2 px-4 py-2 border border-gray-300 rounded-lg text-gray-700 hover:bg-gray-50 disabled:opacity-50 disabled:cursor-not-allowed transition-colors"
+                        disabled={currentPage === 0}
+                        className="btn-icon"
                       >
-                        <ChevronLeft className="w-4 h-4" />
-                        <span>Précédent</span>
+                        <ChevronLeft />
                       </button>
-
-                      <span className="text-sm text-gray-600">
-                        Page {current_page + 1} sur {total_pages}
+                      <span>
+                        Page {currentPage + 1} / {totalPages}
                       </span>
-
                       <button
                         onClick={() =>
                           setCurrentPage(
-                            Math.min(total_pages - 1, current_page + 1),
+                            Math.min(totalPages - 1, currentPage + 1),
                           )
                         }
-                        disabled={current_page === total_pages - 1}
-                        className="flex items-center space-x-2 px-4 py-2 border border-gray-300 rounded-lg text-gray-700 hover:bg-gray-50 disabled:opacity-50 disabled:cursor-not-allowed transition-colors"
+                        disabled={currentPage === totalPages - 1}
+                        className="btn-icon"
                       >
-                        <span>Suivant</span>
-                        <ChevronRight className="w-4 h-4" />
+                        <ChevronRight />
                       </button>
                     </div>
                   )}
                 </>
               )}
-            </div>
+            </>
           )}
         </main>
+      </div>
 
-        {/* Statistics modal */}
-        {show_stats_modal && selected_voyage_stats && (
-          <div className="fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center z-50 p-4 overflow-y-auto">
-            <div className="bg-white rounded-2xl shadow-2xl max-w-6xl w-full my-8">
-              {/* Modal header */}
-              <div className="flex items-center justify-between p-6 border-b border-gray-200 sticky top-0 bg-white rounded-t-2xl z-10">
-                <div>
-                  <h2 className="text-2xl font-bold text-gray-900">
-                    Statistiques du voyage
-                  </h2>
-                  <p className="text-sm text-gray-600 mt-1">
-                    De {selected_voyage_stats.lieu_depart} vers{" "}
-                    {selected_voyage_stats.lieu_arrive}
-                  </p>
+      {/* Stats Modal */}
+      {showStatsModal && selectedVoyageStats && (
+        <div className="modal-overlay">
+          <div className="stats-modal-content">
+            <div className="stats-modal-header">
+              <div>
+                <h2 className="stats-modal-title">Statistiques du voyage</h2>
+                <p className="stats-modal-subtitle">
+                  {selectedVoyageStats.lieu_depart} vers{" "}
+                  {selectedVoyageStats.lieu_arrive}
+                </p>
+              </div>
+              <button
+                onClick={() => {
+                  setShowStatsModal(false);
+                  setSelectedVoyageStats(null);
+                }}
+                className="payment-modal-close"
+              >
+                <X />
+              </button>
+            </div>
+
+            <div className="stats-modal-body">
+              {/* Info principale */}
+              <div className="stats-info-card">
+                <h3 className="stats-info-title">
+                  {selectedVoyageStats.titre}
+                </h3>
+                <div className="stats-info-grid">
+                  <div className="stats-info-item">
+                    <span className="stats-info-label">Chauffeur</span>
+                    <span className="stats-info-value">
+                      {selectedVoyageStats.nom_chauffeur}
+                    </span>
+                  </div>
+                  <div className="stats-info-item">
+                    <span className="stats-info-label">Véhicule</span>
+                    <span className="stats-info-value">
+                      {selectedVoyageStats.vehicule_nom}
+                    </span>
+                  </div>
+                  <div className="stats-info-item">
+                    <span className="stats-info-label">Plaque</span>
+                    <span className="stats-info-value">
+                      {selectedVoyageStats.vehicule_plaque}
+                    </span>
+                  </div>
+                  <div className="stats-info-item">
+                    <span className="stats-info-label">Statut</span>
+                    <span className="stats-info-value">
+                      {selectedVoyageStats.statut_voyage}
+                    </span>
+                  </div>
                 </div>
-                <button
-                  onClick={() => {
-                    setShowStatsModal(false);
-                    setSelectedVoyageStats(null);
-                  }}
-                  className="p-2 hover:bg-gray-100 rounded-lg transition-colors"
-                >
-                  <X className="w-6 h-6 text-gray-600" />
-                </button>
               </div>
 
-              {/* Modal content */}
-              <div className="p-6 space-y-6 max-h-[80vh] overflow-y-auto">
-                {/* Principal information */}
-                <div className="bg-linear-to-br from-[#6149CD] to-[#8B7BE8] rounded-xl p-6 text-white">
-                  <h3 className="text-xl font-bold mb-4">
-                    {selected_voyage_stats.titre}
-                  </h3>
-                  <div className="grid grid-cols-2 md:grid-cols-4 gap-4">
-                    <div>
-                      <p className="text-white/80 text-sm">Chauffeur</p>
-                      <p className="font-semibold">
-                        {selected_voyage_stats.nom_chauffeur}
-                      </p>
-                    </div>
-                    <div>
-                      <p className="text-white/80 text-sm">Véhicule</p>
-                      <p className="font-semibold">
-                        {selected_voyage_stats.vehicule_nom}
-                      </p>
-                    </div>
-                    <div>
-                      <p className="text-white/80 text-sm">Plaque</p>
-                      <p className="font-semibold">
-                        {selected_voyage_stats.vehicule_plaque}
-                      </p>
-                    </div>
-                    <div>
-                      <p className="text-white/80 text-sm">Classe</p>
-                      <p className="font-semibold">
-                        {selected_voyage_stats.nom_classe_voyage}
-                      </p>
-                    </div>
+              {/* Statistiques principales */}
+              <div className="stats-grid">
+                <div className="stat-card">
+                  <Users className="stat-card-icon" />
+                  <div className="stat-card-value">
+                    {selectedVoyageStats.total_passagers}
+                  </div>
+                  <div className="stat-card-label">Passagers</div>
+                </div>
+                <div className="stat-card">
+                  <Calendar className="stat-card-icon" />
+                  <div className="stat-card-value">
+                    {selectedVoyageStats.total_reservations}
+                  </div>
+                  <div className="stat-card-label">Réservations</div>
+                </div>
+                <div className="stat-card">
+                  <CheckCircle
+                    className="stat-card-icon"
+                    style={{ color: "var(--color-success)" }}
+                  />
+                  <div className="stat-card-value">
+                    {selectedVoyageStats.places_confirmees}
+                  </div>
+                  <div className="stat-card-label">Places confirmées</div>
+                </div>
+                <div className="stat-card">
+                  <BarChart3
+                    className="stat-card-icon"
+                    style={{ color: "var(--color-primary)" }}
+                  />
+                  <div className="stat-card-value">
+                    {selectedVoyageStats.taux_occupation.toFixed(1)}%
+                  </div>
+                  <div className="stat-card-label">Taux d'occupation</div>
+                </div>
+                <div className="stat-card">
+                  <Calendar className="stat-card-icon" />
+                  <div className="stat-card-value">
+                    {selectedVoyageStats.places_restantes}
+                  </div>
+                  <div className="stat-card-label">Places restantes</div>
+                </div>
+                <div className="stat-card">
+                  <Calendar className="stat-card-icon" />
+                  <div className="stat-card-value">
+                    {selectedVoyageStats.total_places}
+                  </div>
+                  <div className="stat-card-label">Places totales</div>
+                </div>
+              </div>
+
+              {/* Revenus */}
+              <div className="stats-revenue-grid">
+                <div className="stats-revenue-card">
+                  <div className="stats-revenue-label">Revenus potentiels</div>
+                  <div className="stats-revenue-value">
+                    {formatRevenue(selectedVoyageStats.revenus_totaux)}
                   </div>
                 </div>
-
-                {/* Main statistics */}
-                <div className="grid grid-cols-2 md:grid-cols-4 gap-4">
-                  <div className="bg-white rounded-xl shadow-sm border border-gray-200 p-4">
-                    <div className="flex items-center justify-between mb-2">
-                      <Users className="w-5 h-5 text-blue-600" />
-                    </div>
-                    <h3 className="text-2xl font-bold text-gray-900">
-                      {selected_voyage_stats.total_passagers}
-                    </h3>
-                    <p className="text-sm text-gray-600">Passagers</p>
-                  </div>
-
-                  <div className="bg-white rounded-xl shadow-sm border border-gray-200 p-4">
-                    <div className="flex items-center justify-between mb-2">
-                      <Ticket className="w-5 h-5 text-green-600" />
-                    </div>
-                    <h3 className="text-2xl font-bold text-gray-900">
-                      {selected_voyage_stats.total_reservations}
-                    </h3>
-                    <p className="text-sm text-gray-600">Réservations</p>
-                  </div>
-
-                  <div className="bg-white rounded-xl shadow-sm border border-gray-200 p-4">
-                    <div className="flex items-center justify-between mb-2">
-                      <Ticket className="w-5 h-5 text-orange-600" />
-                    </div>
-                    <h3 className="text-2xl font-bold text-gray-900">
-                      {selected_voyage_stats.places_confirmees}
-                    </h3>
-                    <p className="text-sm text-gray-600">tickets payés</p>
-                  </div>
-
-                  <div className="bg-white rounded-xl shadow-sm border border-gray-200 p-4">
-                    <div className="flex items-center justify-between mb-2">
-                      <TrendingUp className="w-5 h-5 text-purple-600" />
-                    </div>
-                    <h3 className="text-2xl font-bold text-gray-900">
-                      {selected_voyage_stats.taux_occupation.toFixed(5)}%
-                    </h3>
-                    <p className="text-sm text-gray-600">Occupation</p>
-                  </div>
-
-                  <div className="bg-white rounded-xl shadow-sm border border-gray-200 p-4">
-                    <div className="flex items-center justify-between mb-2">
-                      <Calendar className="w-5 h-5 text-orange-600" />
-                    </div>
-                    <h3 className="text-2xl font-bold text-gray-900">
-                      {selected_voyage_stats.places_restantes}
-                    </h3>
-                    <p className="text-sm text-gray-600">Places restantes</p>
-                  </div>
-
-                  <div className="bg-white rounded-xl shadow-sm border border-gray-200 p-4">
-                    <div className="flex items-center justify-between mb-2">
-                      <Calendar className="w-5 h-5 text-orange-900" />
-                    </div>
-                    <h3 className="text-2xl font-bold text-gray-900">
-                      {selected_voyage_stats.total_places}
-                    </h3>
-                    <p className="text-sm text-gray-600">Places totales</p>
+                <div className="stats-revenue-card">
+                  <div className="stats-revenue-label">Revenus confirmés</div>
+                  <div className="stats-revenue-value">
+                    {formatRevenue(selectedVoyageStats.revenus_confirmes)}
                   </div>
                 </div>
+              </div>
 
-                {/* Revenue section */}
-                <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
-                  <div className="bg-linear-to-br from-green-400 to-green-600 rounded-xl p-6 text-white">
-                    <h3 className="text-sm font-semibold mb-2">
-                      Revenus potentiels
-                    </h3>
-                    <p className="text-3xl font-bold">
-                      {formatRevenue(selected_voyage_stats.revenus_totaux)}
-                    </p>
-                  </div>
+              {/* Graphiques en grille */}
+              <div className="charts-row">
+                {/* Réservations par statut */}
+                {selectedVoyageStats.reservations_by_status &&
+                  Object.keys(selectedVoyageStats.reservations_by_status)
+                    .length > 0 &&
+                  Object.values(
+                    selectedVoyageStats.reservations_by_status,
+                  ).some((v) => (v as number) > 0) && (
+                    <div className="chart-card-small">
+                      <div className="chart-header">
+                        <h3>Réservations par statut</h3>
+                      </div>
+                      <div className="chart-container-small">
+                        <ResponsiveContainer width="100%" height="100%">
+                          <PieChart>
+                            <Pie
+                              data={Object.entries(
+                                selectedVoyageStats.reservations_by_status,
+                              )
+                                .filter(([_, value]) => (value as number) > 0)
+                                .map(([name, value], index) => ({
+                                  name,
+                                  value,
+                                  color: PIE_COLORS[index % PIE_COLORS.length],
+                                }))}
+                              cx="50%"
+                              cy="50%"
+                              innerRadius={40}
+                              outerRadius={80}
+                              paddingAngle={5}
+                              dataKey="value"
+                            >
+                              {Object.entries(
+                                selectedVoyageStats.reservations_by_status,
+                              )
+                                .filter(([_, value]) => (value as number) > 0)
+                                .map((entry, index) => (
+                                  <Cell
+                                    key={`cell-${index}`}
+                                    fill={PIE_COLORS[index % PIE_COLORS.length]}
+                                  />
+                                ))}
+                            </Pie>
+                            <Tooltip />
+                            <Legend verticalAlign="bottom" height={36} />
+                          </PieChart>
+                        </ResponsiveContainer>
+                      </div>
+                    </div>
+                  )}
 
-                  <div className="bg-linear-to-br from-blue-400 to-blue-600 rounded-xl p-6 text-white">
-                    <h3 className="text-sm font-semibold mb-2">
-                      Revenus confirmés
-                    </h3>
-                    <p className="text-3xl font-bold">
-                      {formatRevenue(selected_voyage_stats.revenus_confirmes)}
-                    </p>
-                  </div>
-                </div>
+                {/* Passagers par genre */}
+                {selectedVoyageStats.passengers_by_gender &&
+                  Object.keys(selectedVoyageStats.passengers_by_gender).length >
+                    0 &&
+                  Object.values(selectedVoyageStats.passengers_by_gender).some(
+                    (v) => (v as number) > 0,
+                  ) && (
+                    <div className="chart-card-small">
+                      <div className="chart-header">
+                        <h3>Passagers par genre</h3>
+                      </div>
+                      <div className="chart-container-small">
+                        <ResponsiveContainer width="100%" height="100%">
+                          <PieChart>
+                            <Pie
+                              data={Object.entries(
+                                selectedVoyageStats.passengers_by_gender,
+                              )
+                                .filter(([_, value]) => (value as number) > 0)
+                                .map(([name, value], index) => ({
+                                  name,
+                                  value,
+                                  color: PIE_COLORS[index % PIE_COLORS.length],
+                                }))}
+                              cx="50%"
+                              cy="50%"
+                              innerRadius={40}
+                              outerRadius={80}
+                              paddingAngle={5}
+                              dataKey="value"
+                            >
+                              {Object.entries(
+                                selectedVoyageStats.passengers_by_gender,
+                              )
+                                .filter(([_, value]) => (value as number) > 0)
+                                .map((entry, index) => (
+                                  <Cell
+                                    key={`cell-${index}`}
+                                    fill={PIE_COLORS[index % PIE_COLORS.length]}
+                                  />
+                                ))}
+                            </Pie>
+                            <Tooltip />
+                            <Legend verticalAlign="bottom" height={36} />
+                          </PieChart>
+                        </ResponsiveContainer>
+                      </div>
+                    </div>
+                  )}
 
-                {/* Charts section */}
-                <div className="grid grid-cols-1 lg:grid-cols-2 gap-6">
-                  {/* Revenus par jour */}
-                  {Object.keys(selected_voyage_stats.revenue_per_day || {})
+                {/* Passagers par tranche d'âge */}
+                {(selectedVoyageStats as any).passengers_by_age_group &&
+                  Object.keys(
+                    (selectedVoyageStats as any).passengers_by_age_group,
+                  ).length > 0 &&
+                  Object.values(
+                    (selectedVoyageStats as any).passengers_by_age_group,
+                  ).some((v) => (v as number) > 0) && (
+                    <div className="chart-card-small">
+                      <div className="chart-header">
+                        <h3>Passagers par tranche d'âge</h3>
+                      </div>
+                      <div className="chart-container-small">
+                        <ResponsiveContainer width="100%" height="100%">
+                          <BarChart
+                            data={Object.entries(
+                              (selectedVoyageStats as any)
+                                .passengers_by_age_group,
+                            )
+                              .filter(([_, value]) => (value as number) > 0)
+                              .map(([name, value]) => ({
+                                name,
+                                value,
+                              }))}
+                          >
+                            <CartesianGrid
+                              strokeDasharray="3 3"
+                              stroke="#E5E7EB"
+                            />
+                            <XAxis
+                              dataKey="name"
+                              stroke="#6B7280"
+                              fontSize={12}
+                            />
+                            <YAxis stroke="#6B7280" fontSize={12} />
+                            <Tooltip />
+                            <Bar
+                              dataKey="value"
+                              fill="#7cab1b"
+                              radius={[8, 8, 0, 0]}
+                            />
+                          </BarChart>
+                        </ResponsiveContainer>
+                      </div>
+                    </div>
+                  )}
+
+                {/* Distribution des bagages */}
+                {(selectedVoyageStats as any).baggage_distribution &&
+                  Object.keys((selectedVoyageStats as any).baggage_distribution)
+                    .length > 0 &&
+                  Object.values(
+                    (selectedVoyageStats as any).baggage_distribution,
+                  ).some((v) => (v as number) > 0) && (
+                    <div className="chart-card-small">
+                      <div className="chart-header">
+                        <h3>Distribution des bagages</h3>
+                      </div>
+                      <div className="chart-container-small">
+                        <ResponsiveContainer width="100%" height="100%">
+                          <BarChart
+                            data={Object.entries(
+                              (selectedVoyageStats as any).baggage_distribution,
+                            )
+                              .filter(([_, value]) => (value as number) > 0)
+                              .map(([name, value]) => ({
+                                name,
+                                value,
+                              }))}
+                          >
+                            <CartesianGrid
+                              strokeDasharray="3 3"
+                              stroke="#E5E7EB"
+                            />
+                            <XAxis
+                              dataKey="name"
+                              stroke="#6B7280"
+                              fontSize={12}
+                            />
+                            <YAxis stroke="#6B7280" fontSize={12} />
+                            <Tooltip />
+                            <Bar
+                              dataKey="value"
+                              fill="#7cab1b"
+                              radius={[8, 8, 0, 0]}
+                            />
+                          </BarChart>
+                        </ResponsiveContainer>
+                      </div>
+                    </div>
+                  )}
+
+                {/* Réservations par jour */}
+                {(selectedVoyageStats as any).reservations_per_day &&
+                  Object.keys((selectedVoyageStats as any).reservations_per_day)
                     .length > 0 && (
-                    <div className="bg-white rounded-xl shadow-sm border border-gray-200 p-6 lg:col-span-2">
-                      <h3 className="text-lg font-bold text-gray-900 mb-4">
-                        Revenus par jour
-                      </h3>
-                      <div className="h-64">
+                    <div
+                      className="chart-card-small"
+                      style={{ gridColumn: "1 / -1" }}
+                    >
+                      <div className="chart-header">
+                        <h3>Réservations par jour</h3>
+                      </div>
+                      <div className="chart-container-small">
+                        <ResponsiveContainer width="100%" height="100%">
+                          <BarChart
+                            data={Object.entries(
+                              (selectedVoyageStats as any).reservations_per_day,
+                            )
+                              .sort((a, b) => a[0].localeCompare(b[0]))
+                              .map(([date, value]) => ({
+                                date: new Date(date).toLocaleDateString(
+                                  "fr-FR",
+                                  {
+                                    day: "numeric",
+                                    month: "short",
+                                  },
+                                ),
+                                value,
+                              }))}
+                          >
+                            <CartesianGrid
+                              strokeDasharray="3 3"
+                              stroke="#E5E7EB"
+                            />
+                            <XAxis
+                              dataKey="date"
+                              stroke="#6B7280"
+                              fontSize={12}
+                            />
+                            <YAxis stroke="#6B7280" fontSize={12} />
+                            <Tooltip />
+                            <Bar
+                              dataKey="value"
+                              fill="#7cab1b"
+                              radius={[8, 8, 0, 0]}
+                              name="Réservations"
+                            />
+                          </BarChart>
+                        </ResponsiveContainer>
+                      </div>
+                    </div>
+                  )}
+
+                {/* Revenus par jour */}
+                {(selectedVoyageStats as any).revenue_per_day &&
+                  Object.keys((selectedVoyageStats as any).revenue_per_day)
+                    .length > 0 && (
+                    <div
+                      className="chart-card-small"
+                      style={{ gridColumn: "1 / -1" }}
+                    >
+                      <div className="chart-header">
+                        <h3>Revenus par jour</h3>
+                      </div>
+                      <div className="chart-container-small">
                         <ResponsiveContainer width="100%" height="100%">
                           <LineChart
                             data={Object.entries(
-                              selected_voyage_stats.revenue_per_day,
+                              (selectedVoyageStats as any).revenue_per_day,
                             )
                               .sort((a, b) => a[0].localeCompare(b[0]))
                               .map(([date, revenue]) => ({
-                                date: formatDateShort(date),
+                                date: new Date(date).toLocaleDateString(
+                                  "fr-FR",
+                                  {
+                                    day: "numeric",
+                                    month: "short",
+                                  },
+                                ),
                                 revenue,
                               }))}
                           >
@@ -1161,25 +1136,13 @@ export default function AgencyTravelsPage() {
                               formatter={(value) =>
                                 formatRevenue(value as number)
                               }
-                              contentStyle={{
-                                backgroundColor: "#fff",
-                                border: "1px solid #E5E7EB",
-                                borderRadius: "8px",
-                              }}
                             />
-                            <Legend />
                             <Line
                               type="monotone"
                               dataKey="revenue"
-                              stroke="#10B981"
-                              strokeWidth={3}
-                              dot={{ fill: "#10B981", strokeWidth: 2, r: 4 }}
-                              activeDot={{
-                                r: 6,
-                                fill: "#10B981",
-                                stroke: "#fff",
-                                strokeWidth: 2,
-                              }}
+                              stroke="#7cab1b"
+                              strokeWidth={2}
+                              dot={{ fill: "#7cab1b", r: 4 }}
                               name="Revenu"
                             />
                           </LineChart>
@@ -1187,268 +1150,39 @@ export default function AgencyTravelsPage() {
                       </div>
                     </div>
                   )}
-
-                  {/* Passengers by gender */}
-                  {Object.keys(selected_voyage_stats.passengers_by_gender || {})
-                    .length > 0 && (
-                    <div className="bg-white rounded-xl shadow-sm border border-gray-200 p-6">
-                      <h3 className="text-lg font-bold text-gray-900 mb-4">
-                        Passagers par genre
-                      </h3>
-                      <div className="h-64">
-                        <ResponsiveContainer width="100%" height="100%">
-                          <BarChart
-                            data={prepareBarChartData(
-                              selected_voyage_stats.passengers_by_gender,
-                            )}
-                          >
-                            <CartesianGrid
-                              strokeDasharray="3 3"
-                              stroke="#E5E7EB"
-                            />
-                            <XAxis
-                              dataKey="name"
-                              stroke="#6B7280"
-                              fontSize={12}
-                            />
-                            <YAxis stroke="#6B7280" fontSize={12} />
-                            <Tooltip />
-                            <Bar
-                              dataKey="value"
-                              fill="#6149CD"
-                              radius={[8, 8, 0, 0]}
-                            />
-                          </BarChart>
-                        </ResponsiveContainer>
-                      </div>
-                    </div>
-                  )}
-
-                  {/* Passengers by age group */}
-                  {Object.keys(
-                    selected_voyage_stats.passengers_by_age_group || {},
-                  ).length > 0 && (
-                    <div className="bg-white rounded-xl shadow-sm border border-gray-200 p-6">
-                      <h3 className="text-lg font-bold text-gray-900 mb-4">
-                        Passagers par âge
-                      </h3>
-                      <div className="h-64">
-                        <ResponsiveContainer width="100%" height="100%">
-                          <BarChart
-                            data={prepareBarChartData(
-                              selected_voyage_stats.passengers_by_age_group,
-                            )}
-                          >
-                            <CartesianGrid
-                              strokeDasharray="3 3"
-                              stroke="#E5E7EB"
-                            />
-                            <XAxis
-                              dataKey="name"
-                              stroke="#6B7280"
-                              fontSize={12}
-                            />
-                            <YAxis stroke="#6B7280" fontSize={12} />
-                            <Tooltip />
-                            <Bar
-                              dataKey="value"
-                              fill="#10B981"
-                              radius={[8, 8, 0, 0]}
-                            />
-                          </BarChart>
-                        </ResponsiveContainer>
-                      </div>
-                    </div>
-                  )}
-
-                  {/* Baggage distribution */}
-                  {Object.keys(selected_voyage_stats.baggage_distribution || {})
-                    .length > 0 && (
-                    <div className="bg-white rounded-xl shadow-sm border border-gray-200 p-6">
-                      <h3 className="text-lg font-bold text-gray-900 mb-4">
-                        Distribution des bagages
-                      </h3>
-                      <div className="h-64">
-                        <ResponsiveContainer width="100%" height="100%">
-                          <BarChart
-                            data={prepareBarChartData(
-                              selected_voyage_stats.baggage_distribution,
-                            )}
-                          >
-                            <CartesianGrid
-                              strokeDasharray="3 3"
-                              stroke="#E5E7EB"
-                            />
-                            <XAxis
-                              dataKey="name"
-                              stroke="#6B7280"
-                              fontSize={12}
-                            />
-                            <YAxis stroke="#6B7280" fontSize={12} />
-                            <Tooltip />
-                            <Bar
-                              dataKey="value"
-                              fill="#F59E0B"
-                              radius={[8, 8, 0, 0]}
-                            />
-                          </BarChart>
-                        </ResponsiveContainer>
-                      </div>
-                    </div>
-                  )}
-
-                  {/* Passengers origin cities */}
-                  {Object.keys(
-                    selected_voyage_stats.passengers_origin_city || {},
-                  ).length > 0 && (
-                    <div className="bg-white rounded-xl shadow-sm border border-gray-200 p-6 lg:col-span-2">
-                      <h3 className="text-lg font-bold text-gray-900 mb-4">
-                        Villes d'origine des passagers
-                      </h3>
-                      <div className="h-64">
-                        <ResponsiveContainer width="100%" height="100%">
-                          <BarChart
-                            data={prepareBarChartData(
-                              selected_voyage_stats.passengers_origin_city,
-                            )}
-                            layout="vertical"
-                          >
-                            <CartesianGrid
-                              strokeDasharray="3 3"
-                              stroke="#E5E7EB"
-                            />
-                            <XAxis
-                              type="number"
-                              stroke="#6B7280"
-                              fontSize={12}
-                            />
-                            <YAxis
-                              dataKey="name"
-                              type="category"
-                              width={100}
-                              stroke="#6B7280"
-                              fontSize={12}
-                            />
-                            <Tooltip />
-                            <Bar
-                              dataKey="value"
-                              fill="#8B5CF6"
-                              radius={[0, 8, 8, 0]}
-                            />
-                          </BarChart>
-                        </ResponsiveContainer>
-                      </div>
-                    </div>
-                  )}
-                </div>
               </div>
             </div>
           </div>
-        )}
+        </div>
+      )}
 
-        {/* Delete confirmation modal */}
-        {show_delete_modal && (
-          <div className="fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center z-50 p-4">
-            <div className="bg-white rounded-2xl shadow-2xl max-w-md w-full">
-              <div className="p-6">
-                <div className="w-20 h-20 bg-white rounded-full flex items-center justify-center mx-auto mb-4">
-                  <AlertCircle className="w-20 h-20 text-red-600" />
-                </div>
-                <p className="text-gray-700 mb-6 align-center text-center">
-                  Êtes-vous sûr de vouloir supprimer ce voyage ?
-                </p>
+      <ConfirmModal
+        show={showDeleteModal}
+        onClose={() => {
+          setShowDeleteModal(false);
+          setSelectedVoyageToDelete(null);
+        }}
+        onConfirm={handleDeleteVoyage}
+        title="Supprimer le voyage"
+        message="Êtes-vous sûr de vouloir supprimer ce voyage ? Cette action est irréversible."
+        confirmText="Supprimer"
+        cancelText="Annuler"
+        isLoading={isDeleting}
+      />
 
-                <div className="flex items-center space-x-3">
-                  <button
-                    onClick={() => {
-                      setShowDeleteModal(false);
-                      setSelectedVoyageToDelete(null);
-                    }}
-                    disabled={is_deleting}
-                    className="flex-1 py-3 border-2 border-gray-300 text-gray-700 rounded-xl font-semibold hover:bg-gray-100 transition-colors disabled:opacity-50"
-                  >
-                    Annuler
-                  </button>
-                  <button
-                    onClick={handleDeleteVoyage}
-                    disabled={is_deleting}
-                    className="flex-1 py-3 bg-red-600 text-white rounded-xl font-semibold hover:bg-red-700 transition-colors disabled:opacity-50"
-                  >
-                    {is_deleting ? "Suppression..." : "Supprimer"}
-                  </button>
-                </div>
-              </div>
-            </div>
-          </div>
-        )}
+      <SuccessModal
+        show={showSuccessModal}
+        onClose={() => setShowSuccessModal(false)}
+        title="Voyage supprimé"
+        message="Le voyage a été supprimé avec succès."
+        buttonText="OK"
+      />
 
-        {/* Success Modal */}
-        {show_success_modal && (
-          <div className="fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center z-50 p-4">
-            <div className="bg-white rounded-2xl shadow-2xl max-w-md w-full p-6 sm:p-8">
-              <div className="text-center">
-                <div className="w-16 h-16 sm:w-20 sm:h-20 bg-green-100 rounded-full flex items-center justify-center mx-auto mb-4">
-                  <svg
-                    className="w-10 h-10 sm:w-12 sm:h-12 text-green-600"
-                    fill="none"
-                    stroke="currentColor"
-                    viewBox="0 0 24 24"
-                  >
-                    <path
-                      strokeLinecap="round"
-                      strokeLinejoin="round"
-                      strokeWidth={2}
-                      d="M5 13l4 4L19 7"
-                    />
-                  </svg>
-                </div>
-                <h2 className="text-xl sm:text-2xl font-bold text-gray-900 mb-2">
-                  Succès !
-                </h2>
-                <p className="text-gray-600 mb-6 text-sm sm:text-base">
-                  Agence mis à jour avec succès
-                </p>
-                <button
-                  onClick={() => setShowSuccessModal(false)}
-                  className="w-full py-2.5 sm:py-3 bg-green-600 text-white rounded-xl font-semibold hover:bg-green-700 transition-colors text-sm sm:text-base"
-                >
-                  Fermer
-                </button>
-              </div>
-            </div>
-          </div>
-        )}
-
-        {/* Error Modal */}
-        {show_error_modal && (
-          <div className="fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center z-50 p-4">
-            <div className="bg-white rounded-2xl shadow-2xl max-w-md w-full p-6 sm:p-8">
-              <div className="text-center">
-                <div className="w-16 h-16 sm:w-20 sm:h-20 bg-red-100 rounded-full flex items-center justify-center mx-auto mb-4">
-                  <AlertCircle className="w-10 h-10 sm:w-12 sm:h-12 text-red-600" />
-                </div>
-                <h2 className="text-xl sm:text-2xl font-bold text-gray-900 mb-2">
-                  Erreur
-                </h2>
-                <div className="bg-red-50 rounded-xl p-4 mb-6">
-                  <p className="text-sm sm:text-base text-red-800">
-                    {error_message}
-                  </p>
-                </div>
-                <button
-                  onClick={() => {
-                    setShowErrorModal(false);
-                    setShowDeleteModal(false);
-                  }}
-                  className="w-full py-2.5 sm:py-3 bg-red-600 text-white rounded-xl font-semibold hover:bg-red-700 transition-colors text-sm sm:text-base"
-                >
-                  Fermer
-                </button>
-              </div>
-            </div>
-          </div>
-        )}
-      </div>
+      <ErrorModal
+        show={showErrorModal}
+        onClose={() => setShowErrorModal(false)}
+        message={errorMessage}
+      />
     </div>
   );
 }

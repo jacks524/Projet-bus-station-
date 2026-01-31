@@ -1,21 +1,12 @@
 "use client";
 
 import React, { useState, useEffect } from "react";
-import { Eye, EyeOff, Check, X } from "lucide-react";
 import Image from "next/image";
 import { useRouter } from "next/navigation";
 
-/**
- * Signup Page Component
- *
- * A responsive signup page with user registration form
- * Features an image carousel on the left side
- *
- * @author Thomas Djotio Ndié
- * @date 2025-12-16
- */
-
 export default function SignupPage() {
+  const router = useRouter();
+  const [role, setRole] = useState("USAGER");
   const [firstName, setFirstName] = useState("");
   const [lastName, setLastName] = useState("");
   const [email, setEmail] = useState("");
@@ -28,21 +19,20 @@ export default function SignupPage() {
   const [showConfirmPassword, setShowConfirmPassword] = useState(false);
   const [acceptTerms, setAcceptTerms] = useState(false);
   const [currentSlide, setCurrentSlide] = useState(0);
-  const [is_loading, setIsLoading] = useState(false);
-  const [error_message, setErrorMessage] = useState("");
-  const [success_message, setSuccessMessage] = useState("");
-  const router = useRouter();
+  const [isLoading, setIsLoading] = useState(false);
+  const [errorMessage, setErrorMessage] = useState("");
+  const [successMessage, setSuccessMessage] = useState("");
 
-  const CAROUSEL_IMAGES = [
-    "/images/siege1.jpg",
-    "/images/cameroun2___.jpg",
-    "/images/siege4.jpg",
-  ];
-  const BUTTON_COLOR = "#6149CD";
-  const TOTAL_SLIDES = CAROUSEL_IMAGES.length;
   const API_BASE_URL = process.env.NEXT_PUBLIC_API_BASE_URL;
 
-  const handleSubmit = async () => {
+  const CAROUSEL_IMAGES = [
+    "/images/landing2.jpg",
+    "/images/landing3.jpg",
+    "/images/landing.jpg",
+  ];
+
+  const handleSubmit = async (e?: React.FormEvent) => {
+    if (e) e.preventDefault();
     setErrorMessage("");
     setSuccessMessage("");
 
@@ -53,8 +43,7 @@ export default function SignupPage() {
       !phone ||
       !username ||
       !password ||
-      !confirmPassword ||
-      !gender
+      !confirmPassword
     ) {
       setErrorMessage("Veuillez remplir tous les champs");
       return;
@@ -85,362 +74,369 @@ export default function SignupPage() {
           last_name: lastName,
           first_name: firstName,
           phone_number: phone,
-          role: ["USAGER"],
+          role: [role],
           gender: gender,
         }),
       });
 
       if (!response.ok) {
-        const error_data = await response.json();
-        throw new Error(
-          error_data.message || "Une erreur est survenue lors de l'inscription",
-        );
+        const data = await response.json();
+        throw new Error(data.message || "Une erreur est survenue");
       }
 
-      const data = await response.json();
-
-      setSuccessMessage(
-        "Compte créé avec succès ! Redirection dans quelques instants...",
-      );
-
-      setTimeout(() => {
-        router.push("/login");
-      }, 2000);
+      setSuccessMessage("Compte créé avec succès ! Redirection...");
+      setTimeout(() => router.push("/login"), 2000);
     } catch (error: any) {
-      setErrorMessage("Une erreur est survenue lors de l'inscription");
-      console.error("Signup error:", error);
+      setErrorMessage(
+        error.message || "Une erreur est survenue lors de l'inscription",
+      );
     } finally {
       setIsLoading(false);
     }
   };
 
-  const togglePasswordVisibility = () => {
-    setShowPassword(!showPassword);
-  };
-
-  const toggleConfirmPasswordVisibility = () => {
-    setShowConfirmPassword(!showConfirmPassword);
-  };
-
-  const goToSlide = (index: number) => {
-    setCurrentSlide(index);
-  };
-
   useEffect(() => {
     const interval = setInterval(() => {
-      setCurrentSlide((prevSlide) =>
-        prevSlide === TOTAL_SLIDES - 1 ? 0 : prevSlide + 1,
+      setCurrentSlide((prev) =>
+        prev === CAROUSEL_IMAGES.length - 1 ? 0 : prev + 1,
       );
     }, 5000);
-
     return () => clearInterval(interval);
-  }, [TOTAL_SLIDES]);
+  }, []);
+
+  const passwordMatch =
+    password && confirmPassword && password === confirmPassword;
+  const passwordMismatch =
+    password && confirmPassword && password !== confirmPassword;
 
   return (
-    <div className="min-h-screen flex">
-      {/* Left Section - Image Carousel */}
-      <div className="hidden lg:block lg:w-1/2 bg-white">
-        <div className="h-screen flex items-center justify-center p-8">
-          <div className="relative w-full h-175 max-w-5xl overflow-hidden rounded-xl">
-            {/* Carousel Images Container */}
-            <div
-              className="flex h-full transition-transform duration-700 ease-in-out"
-              style={{ transform: `translateX(-${currentSlide * 100}%)` }}
-            >
-              {CAROUSEL_IMAGES.map((image_path, index) => (
-                <div key={index} className="min-w-full h-full relative">
-                  <Image
-                    src={image_path}
-                    alt={`Slide ${index + 1}`}
-                    fill
-                    style={{ objectFit: "cover" }}
-                    quality={75}
-                  />
-                </div>
-              ))}
-            </div>
-
-            {/* Carousel Indicators */}
-            <div className="absolute bottom-6 left-1/2 transform -translate-x-1/2 flex space-x-2">
-              {CAROUSEL_IMAGES.map((_, index) => (
-                <button
-                  key={index}
-                  onClick={() => goToSlide(index)}
-                  style={{
-                    backgroundColor:
-                      currentSlide === index
-                        ? BUTTON_COLOR
-                        : "rgba(255, 255, 255, 255)",
-                    width: currentSlide === index ? "32px" : "8px",
-                  }}
-                  className="h-2 rounded-full transition-all duration-300"
-                  aria-label={`Go to slide ${index + 1}`}
-                />
-              ))}
-            </div>
-          </div>
-        </div>
-      </div>
-
-      {/* Right Section - Signup Form */}
-      <div className="w-full lg:w-1/2 flex items-center justify-center p-8 lg:p-16 bg-white">
-        <div className="w-full max-w-lg">
-          {/* Logo */}
-          <div className="mb-10 lg:mb-12">
-            <img
-              src="/images/busstation.png"
-              alt="BusStation Logo"
-              className="h-15 w-auto"
-            />
+    <div className="auth-page">
+      {/* Form Section */}
+      <div className="auth-form-section">
+        <div className="auth-form-container">
+          <div className="auth-logo">
+            <img src="/images/busstation.png" alt="BusStation" />
           </div>
 
-          {/* Title */}
-          <h1 className="text-4xl lg:text-5xl font-normal text-gray-900 mb-3">
-            S'inscrire
-          </h1>
-          <p className="text-gray-600 mb-8 text-base">
-            Mettons tout en place pour que vous puissiez accéder à votre compte
-            personnel.
+          <h1 className="auth-title">S'inscrire</h1>
+          <p className="auth-subtitle">
+            Créez votre compte pour réserver vos voyages en ligne
           </p>
 
-          {/* Signup Form */}
-          <div className="space-y-5">
-            {/* Error Message */}
-            {error_message && (
-              <div className="mb-4 p-4 bg-red-50 border border-red-200 rounded-lg">
-                <p className="text-sm text-red-600">{error_message}</p>
-              </div>
-            )}
+          {errorMessage && <p className="error-text">{errorMessage}</p>}
+          {successMessage && <p className="success-text">{successMessage}</p>}
 
-            {/* Success Message */}
-            {success_message && (
-              <div className="mb-4 p-4 bg-green-50 border border-green-200 rounded-lg">
-                <p className="text-sm text-green-600">{success_message}</p>
-              </div>
-            )}
+          <form onSubmit={handleSubmit} className="auth-form">
+            {/* Type de compte */}
+            <div className="role-group">
+              <label className="role-label">Type de compte *</label>
+              <div className="role-options">
+                <label className="role-option">
+                  <input
+                    type="radio"
+                    name="role"
+                    value="USAGER"
+                    checked={role === "USAGER"}
+                    onChange={(e) => setRole(e.target.value)}
+                  />
+                  <span>Client</span>
+                </label>
 
-            {/* First Name and Last Name */}
-            <div className="grid grid-cols-2 gap-4">
-              <fieldset className="h-15 border border-gray-500 rounded-lg px-4 pt-1 pb-3 hover:border-[#6149CD] focus-within:border-[#6149CD] transition-colors">
-                <legend className="text-sm text-gray-700 px-2">Nom *</legend>
+                <label className="role-option">
+                  <input
+                    type="radio"
+                    name="role"
+                    value="AGENCE_VOYAGE"
+                    checked={role === "AGENCE_VOYAGE"}
+                    onChange={(e) => setRole(e.target.value)}
+                  />
+                  <span>Agence</span>
+                </label>
+
+                <label className="role-option">
+                  <input
+                    type="radio"
+                    name="role"
+                    value="ORGANISATION"
+                    checked={role === "ORGANISATION"}
+                    onChange={(e) => setRole(e.target.value)}
+                  />
+                  <span>Organisation</span>
+                </label>
+              </div>
+            </div>
+
+            {/* Nom et Prénom */}
+            <div className="form-row-2">
+              <fieldset className="auth-fieldset">
+                <legend>Nom *</legend>
                 <input
                   type="text"
                   value={firstName}
                   onChange={(e) => setFirstName(e.target.value)}
-                  className="w-full outline-none text-base text-black"
+                  className="auth-input"
                 />
               </fieldset>
 
-              <fieldset className="h-15 border border-gray-500 rounded-lg px-4 pt-1 pb-3 hover:border-[#6149CD] focus-within:border-[#6149CD] transition-colors">
-                <legend className="text-sm text-gray-700 px-2">Prénom *</legend>
+              <fieldset className="auth-fieldset">
+                <legend>Prénom *</legend>
                 <input
                   type="text"
                   value={lastName}
                   onChange={(e) => setLastName(e.target.value)}
-                  className="w-full outline-none text-base text-black"
+                  className="auth-input"
                 />
               </fieldset>
             </div>
 
-            {/* Email and Phone */}
-            <div className="grid grid-cols-2 gap-4">
-              <fieldset className="h-15 border border-gray-500 rounded-lg px-4 pt-1 pb-3 hover:border-[#6149CD] focus-within:border-[#6149CD] transition-colors">
-                <legend className="text-sm text-gray-700 px-2">Email *</legend>
+            {/* Email et Téléphone */}
+            <div className="form-row-2">
+              <fieldset className="auth-fieldset">
+                <legend>Email *</legend>
                 <input
                   type="email"
                   value={email}
                   onChange={(e) => setEmail(e.target.value)}
-                  className="w-full outline-none text-base text-black"
+                  className="auth-input"
                 />
               </fieldset>
 
-              <fieldset className="h-15 border border-gray-500 rounded-lg px-4 pt-1 pb-3 hover:border-[#6149CD] focus-within:border-[#6149CD] transition-colors">
-                <legend className="text-sm text-gray-700 px-2">Numéro *</legend>
-                <div className="flex items-center gap-2">
-                  <span className="text-base text-gray-900 font-medium shrink-0">
-                    +237 🇨🇲
-                  </span>
+              <fieldset className="auth-fieldset">
+                <legend>Téléphone *</legend>
+                <div className="phone-input">
+                  <span>+237 🇨🇲</span>
                   <input
                     type="tel"
                     value={phone}
                     onChange={(e) => setPhone(e.target.value)}
                     placeholder="6XX XX XX XX"
                     maxLength={9}
-                    className="w-full outline-none text-base text-black"
+                    className="auth-input"
                   />
                 </div>
               </fieldset>
             </div>
 
             {/* Username */}
-            <fieldset className="h-15 border border-gray-500 rounded-lg px-4 pt-1 pb-3 hover:border-[#6149CD] focus-within:border-[#6149CD] transition-colors">
-              <legend className="text-sm text-gray-700 px-2">
-                Nom d'utilisateur *
-              </legend>
+            <fieldset className="auth-fieldset">
+              <legend>Nom d'utilisateur *</legend>
               <input
                 type="text"
                 value={username}
                 onChange={(e) => setUsername(e.target.value)}
-                className="w-full outline-none text-base text-black"
+                className="auth-input"
               />
             </fieldset>
 
-            {/* Gender */}
-            <div className="space-y-2">
-              <label className="text-sm text-gray-700">Genre *</label>
-              <div className="flex gap-6">
-                <label className="flex items-center space-x-3 cursor-pointer group">
+            {/* Genre */}
+            <div className="gender-group">
+              <label className="gender-label">Genre *</label>
+              <div className="gender-options">
+                <label className="gender-option">
                   <input
                     type="radio"
                     name="gender"
                     value="MALE"
                     checked={gender === "MALE"}
                     onChange={(e) => setGender(e.target.value)}
-                    className="appearance-none w-5 h-5 border-2 border-gray-400 rounded-full cursor-pointer checked:bg-[#6149CD] checked:border-gray-400 outline-none"
+                    className="gender-radio"
                   />
-                  <span className="text-base text-gray-900 group-hover:text-[#6149CD] transition-colors">
-                    Masculin
-                  </span>
+                  <span>Masculin</span>
                 </label>
 
-                <label className="flex items-center space-x-3 cursor-pointer group">
+                <label className="gender-option">
                   <input
                     type="radio"
                     name="gender"
                     value="FEMALE"
                     checked={gender === "FEMALE"}
                     onChange={(e) => setGender(e.target.value)}
-                    className="appearance-none w-5 h-5 border-2 border-gray-400 rounded-full cursor-pointer checked:bg-[#6149CD] checked:border-gray-400 outline-none"
+                    className="gender-radio"
                   />
-                  <span className="text-base text-gray-900 group-hover:text-[#6149CD] transition-colors">
-                    Féminin
-                  </span>
+                  <span>Féminin</span>
                 </label>
               </div>
             </div>
 
-            {/* Password and Confirm Password */}
-            <div className="grid grid-cols-2 gap-4">
-              <fieldset className="h-15 border border-gray-500 rounded-lg px-4 pt-1 pb-3 relative hover:border-[#6149CD] focus-within:border-[#6149CD] transition-colors">
-                <legend className="text-sm text-gray-700 px-2">
-                  Mot de passe *
-                </legend>
-                <div className="flex items-center">
+            {/* Mots de passe */}
+            <div className="form-row-2">
+              <fieldset className="auth-fieldset">
+                <legend>Mot de passe *</legend>
+                <div className="auth-password-wrapper">
                   <input
                     type={showPassword ? "text" : "password"}
                     value={password}
                     onChange={(e) => setPassword(e.target.value)}
-                    className="w-full outline-none text-base pr-10 text-black"
+                    className="auth-input"
                   />
                   <button
                     type="button"
-                    onClick={togglePasswordVisibility}
-                    className="text-gray-600 hover:text-gray-800 focus:outline-none"
+                    onClick={() => setShowPassword(!showPassword)}
+                    className="auth-password-toggle"
                   >
                     {showPassword ? (
-                      <EyeOff className="w-6 h-6" />
+                      <svg
+                        width="20"
+                        height="20"
+                        viewBox="0 0 24 24"
+                        fill="none"
+                        stroke="currentColor"
+                        strokeWidth="2"
+                      >
+                        <path d="M17.94 17.94A10.07 10.07 0 0 1 12 20c-7 0-11-8-11-8a18.45 18.45 0 0 1 5.06-5.94M9.9 4.24A9.12 9.12 0 0 1 12 4c7 0 11 8 11 8a18.5 18.5 0 0 1-2.16 3.19m-6.72-1.07a3 3 0 1 1-4.24-4.24" />
+                        <line x1="1" y1="1" x2="23" y2="23" />
+                      </svg>
                     ) : (
-                      <Eye className="w-6 h-6" />
+                      <svg
+                        width="20"
+                        height="20"
+                        viewBox="0 0 24 24"
+                        fill="none"
+                        stroke="currentColor"
+                        strokeWidth="2"
+                      >
+                        <path d="M1 12s4-8 11-8 11 8 11 8-4 8-11 8-11-8-11-8z" />
+                        <circle cx="12" cy="12" r="3" />
+                      </svg>
                     )}
                   </button>
                 </div>
               </fieldset>
 
-              <fieldset className="h-15 border border-gray-500 rounded-lg px-4 pt-1 pb-3 relative hover:border-[#6149CD] focus-within:border-[#6149CD] transition-colors">
-                <legend className="text-sm text-gray-700 px-2">
-                  Confirmation
-                </legend>
-                <div className="flex items-center">
+              <fieldset className="auth-fieldset">
+                <legend>Confirmation *</legend>
+                <div className="auth-password-wrapper">
                   <input
                     type={showConfirmPassword ? "text" : "password"}
                     value={confirmPassword}
                     onChange={(e) => setConfirmPassword(e.target.value)}
-                    className="w-full outline-none text-base pr-10 text-black"
+                    className="auth-input"
                   />
                   <button
                     type="button"
-                    onClick={toggleConfirmPasswordVisibility}
-                    className="text-gray-600 hover:text-gray-800 focus:outline-none"
+                    onClick={() => setShowConfirmPassword(!showConfirmPassword)}
+                    className="auth-password-toggle"
                   >
                     {showConfirmPassword ? (
-                      <EyeOff className="w-6 h-6" />
+                      <svg
+                        width="20"
+                        height="20"
+                        viewBox="0 0 24 24"
+                        fill="none"
+                        stroke="currentColor"
+                        strokeWidth="2"
+                      >
+                        <path d="M17.94 17.94A10.07 10.07 0 0 1 12 20c-7 0-11-8-11-8a18.45 18.45 0 0 1 5.06-5.94M9.9 4.24A9.12 9.12 0 0 1 12 4c7 0 11 8 11 8a18.5 18.5 0 0 1-2.16 3.19m-6.72-1.07a3 3 0 1 1-4.24-4.24" />
+                        <line x1="1" y1="1" x2="23" y2="23" />
+                      </svg>
                     ) : (
-                      <Eye className="w-6 h-6" />
+                      <svg
+                        width="20"
+                        height="20"
+                        viewBox="0 0 24 24"
+                        fill="none"
+                        stroke="currentColor"
+                        strokeWidth="2"
+                      >
+                        <path d="M1 12s4-8 11-8 11 8 11 8-4 8-11 8-11-8-11-8z" />
+                        <circle cx="12" cy="12" r="3" />
+                      </svg>
                     )}
                   </button>
                 </div>
               </fieldset>
-
-              {/* Password Match Indicator */}
-              {password && confirmPassword && (
-                <div className="flex items-center text-sm">
-                  {password === confirmPassword ? (
-                    <>
-                      <Check className="w-4 h-4 text-green-500 mr-2 shrink-0" />
-                      <span className="text-green-600 whitespace-nowrap">
-                        Les mots de passe correspondent
-                      </span>
-                    </>
-                  ) : (
-                    <>
-                      <X className="w-4 h-4 text-red-500 mr-2 shrink-0" />
-                      <span className="text-red-600 whitespace-nowrap">
-                        Les mots de passe ne correspondent pas
-                      </span>
-                    </>
-                  )}
-                </div>
-              )}
             </div>
 
-            {/* Terms and Conditions */}
-            <div className="flex items-start pt-2">
+            {/* Password match indicator */}
+            {passwordMatch && (
+              <p className="password-match">Les mots de passe correspondent</p>
+            )}
+            {passwordMismatch && (
+              <p className="password-mismatch">
+                Les mots de passe ne correspondent pas
+              </p>
+            )}
+
+            {/* Terms */}
+            <div className="auth-checkbox-wrapper">
               <input
-                id="accept_terms"
+                id="terms"
                 type="checkbox"
                 checked={acceptTerms}
                 onChange={(e) => setAcceptTerms(e.target.checked)}
-                className="appearance-none w-4 h-4 border border-gray-400 rounded focus:ring-[#6149CD] cursor-pointer checked:border-gray-400 checked:bg-[#6149CD] mt-1"
+                className="auth-checkbox"
               />
-              <label
-                htmlFor="accept_terms"
-                className="ml-2.5 text-sm text-gray-900 cursor-pointer select-none"
-              >
-                J'accepte l'ensemble des{" "}
-                <a href="#" className="font-bold text-gray-900 hover:underline">
+              <label htmlFor="terms" className="auth-checkbox-label">
+                J'accepte les{" "}
+                <a
+                  onClick={() =>
+                    window.open(
+                      "https://www.termsfeed.com/live/2b6bd548-23a3-47e6-aee9-0e5dd0edb278",
+                      "_blank",
+                    )
+                  }
+                >
                   Conditions d'utilisation
                 </a>{" "}
-                et des{" "}
-                <a href="#" className="font-bold text-gray-900 hover:underline">
-                  Politiques de confidentialité
+                et la{" "}
+                <a
+                  onClick={() =>
+                    window.open(
+                      "https://www.termsfeed.com/live/2b6bd548-23a3-47e6-aee9-0e5dd0edb278",
+                      "_blank",
+                    )
+                  }
+                >
+                  Politique de confidentialité
                 </a>
               </label>
             </div>
 
-            {/* Submit Button */}
+            {/* Submit */}
             <button
-              onClick={handleSubmit}
-              disabled={!acceptTerms || is_loading}
-              style={{
-                backgroundColor:
-                  acceptTerms && !is_loading ? BUTTON_COLOR : "#D1D5DB",
-                cursor: acceptTerms && !is_loading ? "pointer" : "not-allowed",
-              }}
-              className="h-12 w-full text-black rounded-md font-bold hover:opacity-95 transition-opacity focus:outline-none focus:ring-2 focus:ring-purple-500 focus:ring-offset-2 disabled:opacity-70 disabled:cursor-not-allowed"
+              type="submit"
+              disabled={isLoading || !acceptTerms}
+              className="auth-submit-btn"
             >
-              {is_loading ? "Création du compte..." : "Créer votre compte"}
+              {isLoading ? "Création du compte..." : "Créer votre compte"}
             </button>
 
-            {/* Login Link */}
-            <div className="text-center text-sm text-gray-600 pt-2">
-              Vous avez déjà un compte?{" "}
-              <a
-                href="/login"
-                className="font-bold text-gray-900 hover:underline"
-              >
-                Se connecter
-              </a>
-            </div>
+            <p className="auth-link-text">
+              Vous avez déjà un compte ? <a href="/login">Se connecter</a>
+            </p>
+          </form>
+        </div>
+      </div>
+
+      {/* Image Carousel Section */}
+      <div className="auth-image-section">
+        <div className="auth-carousel">
+          <div
+            className="auth-carousel-track"
+            style={{ transform: `translateX(-${currentSlide * 100}%)` }}
+          >
+            {CAROUSEL_IMAGES.map((image, index) => (
+              <div key={index} className="auth-carousel-slide">
+                <Image
+                  src={image}
+                  alt={`Slide ${index + 1}`}
+                  fill
+                  style={{ objectFit: "cover" }}
+                  quality={75}
+                />
+              </div>
+            ))}
+          </div>
+
+          <div className="auth-carousel-dots">
+            {CAROUSEL_IMAGES.map((_, index) => (
+              <button
+                key={index}
+                onClick={() => setCurrentSlide(index)}
+                className={`auth-carousel-dot ${currentSlide === index ? "active" : ""}`}
+                aria-label={`Slide ${index + 1}`}
+              />
+            ))}
           </div>
         </div>
       </div>

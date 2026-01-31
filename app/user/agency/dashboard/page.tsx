@@ -1,27 +1,21 @@
 "use client";
 
 import React, { useState, useEffect } from "react";
+import { useRouter } from "next/navigation";
 import {
   Home,
   Building2,
   Settings,
-  ChevronDown,
-  LogOut,
-  Menu,
-  X,
   Users,
   Car,
-  TrendingUp,
-  RefreshCw,
-  Calendar,
   Bus,
-  Ticket,
-  AlertCircle,
-  UserPlus,
+  Calendar,
+  RefreshCw,
+  TrendingUp,
   BarChart3,
-  PieChart,
+  ChevronDown,
+  X,
 } from "lucide-react";
-import { useRouter } from "next/navigation";
 import {
   LineChart,
   Line,
@@ -32,21 +26,14 @@ import {
   ResponsiveContainer,
   BarChart,
   Bar,
-  PieChart as RechartsPieChart,
+  PieChart,
   Pie,
   Cell,
   Legend,
 } from "recharts";
-
-/**
- * Agency Dashboard Page Component
- *
- * Dashboard for agency managers (Chef d'agence)
- * Displays agency statistics, evolution charts, and key metrics
- *
- * @author Thomas Djotio Ndié
- * @date 2025-01-16
- */
+import Sidebar from "@/app/components/Sidebar";
+import MobileSidebar from "@/app/components/Mobilesidebar";
+import Header from "@/app/components/Header";
 
 interface GeneralStatistics {
   nombreEmployes: number;
@@ -104,39 +91,33 @@ interface UserData {
   email: string;
   userId: string;
   role: string[];
-  token: string;
 }
 
 export default function AgenceDashboardPage() {
-  const [general_stats, setGeneralStats] = useState<GeneralStatistics | null>(
+  const router = useRouter();
+  const [generalStats, setGeneralStats] = useState<GeneralStatistics | null>(
     null,
   );
-  const [evolution_stats, setEvolutionStats] =
+  const [evolutionStats, setEvolutionStats] =
     useState<EvolutionStatistics | null>(null);
   const [agences, setAgences] = useState<AgenceValidee[]>([]);
-  const [selected_agence, setSelectedAgence] = useState<AgenceValidee | null>(
+  const [selectedAgence, setSelectedAgence] = useState<AgenceValidee | null>(
     null,
   );
-
-  const [is_loading_stats, setIsLoadingStats] = useState(true);
-  const [is_loading_agences, setIsLoadingAgences] = useState(true);
-  const [error_message, setErrorMessage] = useState("");
-
-  const [show_profile_menu, setShowProfileMenu] = useState(false);
-  const [show_mobile_menu, setShowMobileMenu] = useState(false);
-  const [user_data, setUserData] = useState<UserData | null>(null);
-
-  const [show_agence_selector, setShowAgenceSelector] = useState(false);
-  const [active_chart, setActiveChart] = useState<
+  const [isLoadingStats, setIsLoadingStats] = useState(true);
+  const [isLoadingAgences, setIsLoadingAgences] = useState(true);
+  const [errorMessage, setErrorMessage] = useState("");
+  const [showMobileMenu, setShowMobileMenu] = useState(false);
+  const [userData, setUserData] = useState<UserData | null>(null);
+  const [showAgenceSelector, setShowAgenceSelector] = useState(false);
+  const [activeChart, setActiveChart] = useState<
     "reservations" | "voyages" | "revenus" | "utilisateurs"
   >("reservations");
 
-  const router = useRouter();
-
   const API_BASE_URL = process.env.NEXT_PUBLIC_API_BASE_URL;
-  const BUTTON_COLOR = "#6149CD";
+  const PIE_COLORS = ["#10B981", "#F59E0B", "#EF4444", "#6366F1", "#8B5CF6"];
 
-  const MENU_ITEMS = [
+  const menuItems = [
     {
       icon: Home,
       label: "Dashboard",
@@ -169,42 +150,36 @@ export default function AgenceDashboardPage() {
     },
   ];
 
-  const CHART_COLORS = ["#6149CD", "#8B7BE8", "#A594F9", "#C4B5FD", "#E9E3FF"];
-  const PIE_COLORS = ["#10B981", "#F59E0B", "#EF4444", "#6366F1", "#8B5CF6"];
-
   useEffect(() => {
-    const auth_token =
+    const authToken =
       localStorage.getItem("auth_token") ||
       sessionStorage.getItem("auth_token");
-
-    if (!auth_token) {
+    if (!authToken) {
       router.push("/login");
       return;
     }
 
-    const stored_user_data =
+    const storedUserData =
       localStorage.getItem("user_data") || sessionStorage.getItem("user_data");
-
-    if (stored_user_data) {
-      const parsed_user = JSON.parse(stored_user_data);
-      setUserData(parsed_user);
+    if (storedUserData) {
+      setUserData(JSON.parse(storedUserData));
     } else {
       router.push("/login");
     }
   }, [router]);
 
   useEffect(() => {
-    if (user_data?.userId) {
+    if (userData?.userId) {
       fetchAgences();
     }
-  }, [user_data?.userId]);
+  }, [userData?.userId]);
 
   useEffect(() => {
-    if (selected_agence?.agency_id) {
-      fetchGeneralStatistics(selected_agence.agency_id);
-      fetchEvolutionStatistics(selected_agence.agency_id);
+    if (selectedAgence?.agency_id) {
+      fetchGeneralStatistics(selectedAgence.agency_id);
+      fetchEvolutionStatistics(selectedAgence.agency_id);
     }
-  }, [selected_agence?.agency_id]);
+  }, [selectedAgence?.agency_id]);
 
   const getAuthToken = () => {
     return (
@@ -219,40 +194,35 @@ export default function AgenceDashboardPage() {
     setErrorMessage("");
 
     try {
-      const auth_token = getAuthToken();
+      const authToken = getAuthToken();
       const response = await fetch(
         `${API_BASE_URL}/agence/validated?page=0&size=1000`,
         {
           method: "GET",
           headers: {
             "Content-Type": "application/json",
-            Authorization: `Bearer ${auth_token}`,
+            Authorization: `Bearer ${authToken}`,
           },
         },
       );
 
-      if (!response.ok) {
+      if (!response.ok)
         throw new Error("Erreur lors du chargement des agences");
-      }
 
       const data = await response.json();
-      const all_agences = data.content || data || [];
-
-      const my_agences = all_agences.filter(
-        (agence: AgenceValidee) => agence.user_id === user_data?.userId,
+      const allAgences = data.content || data || [];
+      const myAgences = allAgences.filter(
+        (agence: AgenceValidee) => agence.user_id === userData?.userId,
       );
 
-      setAgences(my_agences);
-
-      if (my_agences.length > 0 && !selected_agence) {
-        setSelectedAgence(my_agences[0]);
+      setAgences(myAgences);
+      if (myAgences.length > 0 && !selectedAgence) {
+        setSelectedAgence(myAgences[0]);
       }
-
-      if (my_agences.length === 0) {
+      if (myAgences.length === 0) {
         setIsLoadingStats(false);
       }
     } catch (error: any) {
-      console.error("Fetch Agences Error:", error);
       setErrorMessage("Impossible de charger vos agences");
       setIsLoadingStats(false);
     } finally {
@@ -260,55 +230,50 @@ export default function AgenceDashboardPage() {
     }
   };
 
-  const fetchGeneralStatistics = async (agence_id: string) => {
+  const fetchGeneralStatistics = async (agenceId: string) => {
     setIsLoadingStats(true);
     setErrorMessage("");
 
     try {
-      const auth_token = getAuthToken();
+      const authToken = getAuthToken();
       const response = await fetch(
-        `${API_BASE_URL}/statistics/agence/${agence_id}/general`,
+        `${API_BASE_URL}/statistics/agence/${agenceId}/general`,
         {
           method: "GET",
           headers: {
             "Content-Type": "application/json",
-            Authorization: `Bearer ${auth_token}`,
+            Authorization: `Bearer ${authToken}`,
           },
         },
       );
 
-      if (!response.ok) {
+      if (!response.ok)
         throw new Error("Erreur lors du chargement des statistiques");
-      }
-
       const data = await response.json();
       setGeneralStats(data);
     } catch (error: any) {
-      console.error("Fetch General Stats Error:", error);
       setErrorMessage("Impossible de charger les statistiques générales");
     } finally {
       setIsLoadingStats(false);
     }
   };
 
-  const fetchEvolutionStatistics = async (agence_id: string) => {
+  const fetchEvolutionStatistics = async (agenceId: string) => {
     try {
-      const auth_token = getAuthToken();
+      const authToken = getAuthToken();
       const response = await fetch(
-        `${API_BASE_URL}/statistics/agence/${agence_id}/evolution`,
+        `${API_BASE_URL}/statistics/agence/${agenceId}/evolution`,
         {
           method: "GET",
           headers: {
             "Content-Type": "application/json",
-            Authorization: `Bearer ${auth_token}`,
+            Authorization: `Bearer ${authToken}`,
           },
         },
       );
 
-      if (!response.ok) {
+      if (!response.ok)
         throw new Error("Erreur lors du chargement des évolutions");
-      }
-
       const data = await response.json();
       setEvolutionStats(data);
     } catch (error: any) {
@@ -321,18 +286,10 @@ export default function AgenceDashboardPage() {
     setShowAgenceSelector(false);
   };
 
-  const handleLogout = () => {
-    localStorage.removeItem("auth_token");
-    localStorage.removeItem("user_data");
-    sessionStorage.removeItem("auth_token");
-    sessionStorage.removeItem("user_data");
-    router.push("/login");
-  };
-
   const handleRefresh = () => {
-    if (selected_agence?.agency_id) {
-      fetchGeneralStatistics(selected_agence.agency_id);
-      fetchEvolutionStatistics(selected_agence.agency_id);
+    if (selectedAgence?.agency_id) {
+      fetchGeneralStatistics(selectedAgence.agency_id);
+      fetchEvolutionStatistics(selectedAgence.agency_id);
     }
     fetchAgences();
   };
@@ -360,41 +317,36 @@ export default function AgenceDashboardPage() {
     });
   };
 
-  // Préparer les données pour les graphiques
   const getChartData = () => {
-    if (!evolution_stats) return [];
+    if (!evolutionStats) return [];
 
-    switch (active_chart) {
+    switch (activeChart) {
       case "reservations":
         return (
-          evolution_stats.evolutionReservations?.map((item) => ({
+          evolutionStats.evolutionReservations?.map((item) => ({
             date: formatDate(item.date),
             valeur: item.valeur,
-            montant: item.montant,
           })) || []
         );
       case "voyages":
         return (
-          evolution_stats.evolutionVoyages?.map((item) => ({
+          evolutionStats.evolutionVoyages?.map((item) => ({
             date: formatDate(item.date),
             valeur: item.valeur,
-            montant: item.montant,
           })) || []
         );
       case "revenus":
         return (
-          evolution_stats.evolutionRevenus?.map((item) => ({
+          evolutionStats.evolutionRevenus?.map((item) => ({
             date: formatDate(item.date),
-            valeur: item.valeur,
-            montant: item.montant,
+            valeur: item.montant,
           })) || []
         );
       case "utilisateurs":
         return (
-          evolution_stats.evolutionUtilisateurs?.map((item) => ({
+          evolutionStats.evolutionUtilisateurs?.map((item) => ({
             date: formatDate(item.date),
             valeur: item.valeur,
-            montant: item.montant,
           })) || []
         );
       default:
@@ -402,19 +354,8 @@ export default function AgenceDashboardPage() {
     }
   };
 
-  const getVoyagesStatusData = () => {
-    if (!general_stats?.voyagesParStatut) return [];
-    return Object.entries(general_stats.voyagesParStatut).map(
-      ([name, value], index) => ({
-        name: name,
-        value: value,
-        color: PIE_COLORS[index % PIE_COLORS.length],
-      }),
-    );
-  };
-
   const getChartTitle = () => {
-    switch (active_chart) {
+    switch (activeChart) {
       case "reservations":
         return "Évolution des réservations";
       case "voyages":
@@ -428,10 +369,9 @@ export default function AgenceDashboardPage() {
     }
   };
 
-  // Préparer les données pour le graphique en camembert des réservations par statut
-  const getReservationsStatusData = () => {
-    if (!general_stats?.reservationsParStatut) return [];
-    return Object.entries(general_stats.reservationsParStatut).map(
+  const getVoyagesStatusData = () => {
+    if (!generalStats?.voyagesParStatut) return [];
+    return Object.entries(generalStats.voyagesParStatut).map(
       ([name, value], index) => ({
         name: name,
         value: value,
@@ -440,7 +380,17 @@ export default function AgenceDashboardPage() {
     );
   };
 
-  // Nouvelles fonctions utilitaires
+  const getReservationsStatusData = () => {
+    if (!generalStats?.reservationsParStatut) return [];
+    return Object.entries(generalStats.reservationsParStatut).map(
+      ([name, value], index) => ({
+        name: name,
+        value: value,
+        color: PIE_COLORS[index % PIE_COLORS.length],
+      }),
+    );
+  };
+
   const prepareBarChartData = (data: { [key: string]: number }) => {
     return Object.entries(data)
       .sort((a, b) => b[1] - a[1])
@@ -452,19 +402,30 @@ export default function AgenceDashboardPage() {
   };
 
   const prepareDayOfWeekData = (data: { [key: string]: number }) => {
+    const dayMapping: { [key: string]: string } = {
+      MONDAY: "Lundi",
+      TUESDAY: "Mardi",
+      WEDNESDAY: "Mercredi",
+      THURSDAY: "Jeudi",
+      FRIDAY: "Vendredi",
+      SATURDAY: "Samedi",
+      SUNDAY: "Dimanche",
+    };
+
     const daysOrder = [
-      "Lundi",
-      "Mardi",
-      "Mercredi",
-      "Jeudi",
-      "Vendredi",
-      "Samedi",
-      "Dimanche",
+      "MONDAY",
+      "TUESDAY",
+      "WEDNESDAY",
+      "THURSDAY",
+      "FRIDAY",
+      "SATURDAY",
+      "SUNDAY",
     ];
+
     return daysOrder
-      .map((day) => ({
-        day,
-        value: data[day] || 0,
+      .map((dayKey) => ({
+        day: dayMapping[dayKey],
+        value: data[dayKey] || 0,
       }))
       .filter((item) => item.value > 0);
   };
@@ -479,492 +440,260 @@ export default function AgenceDashboardPage() {
   };
 
   return (
-    <div className="min-h-screen bg-gray-50 flex">
-      {/* Sidebar */}
-      <>
-        <aside className="hidden lg:flex lg:flex-col w-64 bg-white border-r border-gray-200 fixed h-full">
-          <div className="p-6">
-            <div className="mb-8">
-              <button
-                onClick={() => router.push("/user/agency/dashboard")}
-                className="group relative transition-all duration-300 hover:scale-105 active:scale-95"
-              >
-                <div className="absolute inset-0 bg-linear-to-r from-[#6149CD] to-[#8B7BE8] rounded-lg opacity-0 group-hover:opacity-10 blur-xl transition-opacity duration-300"></div>
-                <img
-                  src="/images/busstation.png"
-                  alt="BusStation Logo"
-                  className="h-12 w-auto relative z-10 drop-shadow-md group-hover:drop-shadow-xl transition-all duration-300"
-                />
-              </button>
+    <div className="dashboard-layout">
+      <Sidebar menuItems={menuItems} activePath="/user/agency/dashboard" />
+      <MobileSidebar
+        isOpen={showMobileMenu}
+        onClose={() => setShowMobileMenu(false)}
+        menuItems={menuItems}
+        activePath="/user/agency/dashboard"
+      />
+
+      <div className="dashboard-main">
+        <Header
+          title="Dashboard"
+          userData={userData}
+          onMenuClick={() => setShowMobileMenu(true)}
+          showSettingsButton={true}
+          userType="agency"
+        />
+
+        <main className="dashboard-content">
+          {(isLoadingAgences || isLoadingStats) && agences.length === 0 && (
+            <div className="loading-state">
+              <RefreshCw className="spin" />
+              <p>Chargement en cours...</p>
             </div>
+          )}
 
-            <nav className="space-y-1">
-              {MENU_ITEMS.map((item, index) => (
+          {!isLoadingAgences && errorMessage && (
+            <>
+              <div className="error-state">
+                <X className="error-state-icon" />
+                <p className="error-text">{errorMessage}</p>
                 <button
-                  key={index}
-                  onClick={() =>
-                    item.active
-                      ? window.location.reload()
-                      : router.push(item.path)
-                  }
-                  className={`w-full flex items-center space-x-3 px-4 py-3 rounded-lg transition-colors ${
-                    item.active
-                      ? "bg-[#6149CD] text-white"
-                      : "text-gray-600 hover:bg-gray-100"
-                  }`}
+                  type="button"
+                  onClick={() => window.location.reload()}
+                  className="btn modal-button modal-button-error"
                 >
-                  <item.icon className="w-5 h-5" />
-                  <span className="font-medium">{item.label}</span>
+                  Réessayer
                 </button>
-              ))}
-            </nav>
-          </div>
-        </aside>
+              </div>
+            </>
+          )}
 
-        {show_mobile_menu && (
-          <>
-            <div
-              className="fixed inset-0 bg-black/50 z-40 lg:hidden"
-              onClick={() => setShowMobileMenu(false)}
-            ></div>
+          {!isLoadingAgences && agences.length === 0 && !errorMessage && (
+            <>
+              <div className="empty-state">
+                <Building2 className="empty-icon" />
+                <h3 className="empty-title">Aucune agence validée</h3>
+                <p className="empty-description">
+                  Vous n'avez pas encore d'agence validée
+                </p>
+                <button
+                  onClick={() => router.push("/user/agency/create")}
+                  className="btn btn-primary"
+                >
+                  Créer une agence
+                </button>
+              </div>
+            </>
+          )}
 
-            <aside className="fixed left-0 top-0 h-full w-64 bg-white shadow-2xl z-50 lg:hidden transform transition-transform duration-300">
-              <div className="p-6">
-                <div className="flex items-center justify-between mb-8">
-                  <button
-                    onClick={() => {
-                      setShowMobileMenu(false);
-                      router.push("/user/agency/dashboard");
-                    }}
-                    className="group relative transition-all duration-300 hover:scale-105 active:scale-95"
-                  >
-                    <img
-                      src="/images/busstation.png"
-                      alt="BusStation Logo"
-                      className="h-9.5 w-auto"
-                    />
-                  </button>
-                  <button
-                    onClick={() => setShowMobileMenu(false)}
-                    className="p-2 hover:bg-gray-100 rounded-lg transition-colors"
-                  >
-                    <X className="w-6 h-6 text-gray-900" />
-                  </button>
+          {!isLoadingAgences && agences.length > 0 && (
+            <>
+              <div
+                className="section-header"
+                style={{ marginBottom: "var(--spacing-2xl)" }}
+              >
+                <h2 className="section-title">Votre tableau de bord</h2>
+                <p className="section-description">
+                  Examinez les statistiques générales de votre agence et gérez
+                  votre agence en quelques clics
+                </p>
+              </div>
+
+              <div className="agency-header-card">
+                <div className="agency-info">
+                  <h2 className="agency-name">
+                    Nom de votre agence de voyage : {selectedAgence?.long_name}
+                  </h2>
+                  <p className="agency-location">
+                    Abréviation du nom de votre agence de voyage :{" "}
+                    {selectedAgence?.short_name}
+                  </p>
+                  <p className="agency-location">
+                    Addresse de votre agence de voyage : {selectedAgence?.ville}{" "}
+                    - {selectedAgence?.location}
+                  </p>
                 </div>
 
-                <nav className="space-y-1">
-                  {MENU_ITEMS.map((item, index) => (
+                {agences.length > 1 && (
+                  <div className="agency-selector">
                     <button
-                      key={index}
-                      onClick={() => {
-                        setShowMobileMenu(false);
-                        router.push(item.path);
-                      }}
-                      className={`w-full flex items-center space-x-3 px-4 py-3 rounded-lg transition-colors ${
-                        item.active
-                          ? "bg-[#6149CD] text-white"
-                          : "text-gray-600 hover:bg-gray-100"
-                      }`}
+                      onClick={() => setShowAgenceSelector(!showAgenceSelector)}
+                      className="btn btn-secondary"
                     >
-                      <item.icon className="w-5 h-5" />
-                      <span className="font-medium">{item.label}</span>
+                      Changer
+                      <ChevronDown />
                     </button>
-                  ))}
-                </nav>
-              </div>
-            </aside>
-          </>
-        )}
-      </>
 
-      {/* Main Content */}
-      <div className="flex-1 lg:ml-64 min-w-0">
-        {/* Header */}
-        <header className="bg-white border-b border-gray-200 sticky top-0 z-10">
-          <div className="px-4 sm:px-6 py-3 sm:py-4 flex items-center justify-between">
-            <div className="flex items-center space-x-2 sm:space-x-3">
-              <button
-                onClick={() => setShowMobileMenu(true)}
-                className="lg:hidden p-2 hover:bg-gray-100 rounded-lg transition-colors"
-              >
-                <Menu className="w-5 h-5 sm:w-6 sm:h-6 text-gray-900" />
-              </button>
-              <h1 className="text-lg sm:text-2xl font-semibold text-gray-900">
-                Dashboard Agence
-              </h1>
-            </div>
-
-            <div className="flex items-center space-x-2 sm:space-x-4">
-              <button
-                onClick={handleRefresh}
-                className="p-1.5 sm:p-2 hover:bg-gray-100 rounded-lg transition-colors"
-                title="Actualiser"
-              >
-                <RefreshCw className="w-5 h-5 sm:w-6 sm:h-6 text-gray-600" />
-              </button>
-
-              <button
-                onClick={() => router.push("/user/agency/settings")}
-                className="hidden sm:block p-2 hover:bg-gray-100 rounded-lg transition-colors"
-              >
-                <Settings className="w-6 h-6 text-gray-600" />
-              </button>
-
-              {/* Profile Menu */}
-              <div className="relative">
-                <button
-                  onClick={() => setShowProfileMenu(!show_profile_menu)}
-                  className="flex items-center space-x-2 sm:space-x-3 hover:bg-gray-100 rounded-lg px-2 sm:px-3 py-1.5 sm:py-2 transition-colors"
-                >
-                  <img
-                    src="/images/user-icon.png"
-                    alt="Profile"
-                    className="w-7 h-7 sm:w-8.5 sm:h-8.5 rounded-full object-cover"
-                  />
-                  <span className="font-medium text-gray-900 hidden md:block text-sm sm:text-base">
-                    {user_data?.username}
-                  </span>
-                  <ChevronDown className="w-4 h-4 text-gray-600 hidden sm:block" />
-                </button>
-
-                {show_profile_menu && (
-                  <>
-                    <div
-                      className="fixed inset-0 z-10"
-                      onClick={() => setShowProfileMenu(false)}
-                    ></div>
-                    <div className="absolute right-0 mt-2 w-48 bg-white rounded-lg shadow-lg border border-gray-200 py-2 z-20">
-                      <button
-                        onClick={() => {
-                          setShowProfileMenu(false);
-                          router.push("/user/agency/settings");
-                        }}
-                        className="w-full flex items-center space-x-3 px-4 py-2 hover:bg-gray-100 transition-colors"
-                      >
-                        <Settings className="w-4 h-4 text-gray-600" />
-                        <span className="text-gray-700">Paramètres</span>
-                      </button>
-                      <button
-                        onClick={handleLogout}
-                        className="w-full flex items-center space-x-3 px-4 py-2 hover:bg-gray-100 transition-colors text-red-600"
-                      >
-                        <LogOut className="w-4 h-4" />
-                        <span>Se déconnecter</span>
-                      </button>
-                    </div>
-                  </>
-                )}
-              </div>
-            </div>
-          </div>
-        </header>
-
-        {/* Content */}
-        <main className="p-3 sm:p-4 md:p-6">
-          {/* Loading State */}
-          {(is_loading_agences || is_loading_stats) && agences.length === 0 && (
-            <div className="flex items-center justify-center py-20">
-              <div className="text-center">
-                <RefreshCw className="w-8 h-8 text-[#6149CD] animate-spin mx-auto mb-4" />
-                <p className="text-gray-600">Chargement en cours...</p>
-              </div>
-            </div>
-          )}
-
-          {/* Error Message */}
-          {!is_loading_agences && error_message && (
-            <div className="bg-red-50 border border-red-200 rounded-xl shadow-sm p-6 sm:p-12 text-center">
-              <p className="text-sm sm:text-base text-red-600 mb-6">
-                {error_message}
-              </p>
-              <button
-                onClick={() => window.location.reload()}
-                className="px-4 sm:px-6 py-2.5 sm:py-3 bg-[#6149CD] text-white rounded-lg hover:opacity-75 transition-colors text-sm sm:text-base"
-              >
-                Réessayer
-              </button>
-            </div>
-          )}
-
-          {/* No Agences State */}
-          {!is_loading_agences && agences.length === 0 && !error_message && (
-            <div className="bg-white rounded-xl shadow-sm border border-gray-200 p-6 sm:p-12 text-center">
-              <Building2 className="w-12 h-12 sm:w-16 sm:h-16 text-gray-400 mx-auto mb-4" />
-              <h3 className="text-lg sm:text-xl font-semibold text-gray-900 mb-2">
-                Aucune agence validée
-              </h3>
-              <p className="text-sm sm:text-base text-gray-600 mb-6">
-                Vous n'avez pas encore d'agence validée ou en attente
-              </p>
-              <button
-                onClick={() => router.push("/user/agency/create")}
-                style={{ backgroundColor: BUTTON_COLOR }}
-                className="px-4 sm:px-6 py-2.5 sm:py-3 text-white rounded-lg hover:opacity-90 transition-opacity text-sm sm:text-base"
-              >
-                Créer une agence
-              </button>
-            </div>
-          )}
-
-          {/* Main Dashboard Content */}
-          {!is_loading_agences && agences.length > 0 && (
-            <div className="space-y-4 sm:space-y-6">
-              {/* Agence Selector */}
-              <div className="bg-white rounded-xl shadow-sm border border-gray-200 p-3 sm:p-4">
-                <div className="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-3">
-                  <div className="flex items-center space-x-3">
-                    <div className="p-2 sm:p-3 bg-linear-to-br from-[#6149CD] to-[#8B7BE8] rounded-lg sm:rounded-xl">
-                      <Building2 className="w-5 h-5 sm:w-6 sm:h-6 text-white" />
-                    </div>
-                    <div className="min-w-0 flex-1">
-                      <p className="text-xs sm:text-sm text-gray-600">
-                        Agence sélectionnée
-                      </p>
-                      <h2 className="text-base sm:text-xl font-bold text-gray-900 truncate">
-                        {selected_agence?.long_name || "Aucune"}
-                      </h2>
-                      <p className="text-xs text-gray-500">
-                        {selected_agence?.ville} - {selected_agence?.location}
-                      </p>
-                    </div>
-                  </div>
-
-                  {agences.length > 1 && (
-                    <div className="relative">
-                      <button
-                        onClick={() =>
-                          setShowAgenceSelector(!show_agence_selector)
-                        }
-                        className="w-full sm:w-auto flex items-center justify-center space-x-2 px-4 py-2 border border-gray-300 rounded-lg hover:bg-gray-50 transition-colors"
-                      >
-                        <span className="text-gray-700 text-sm sm:text-base">
-                          Changer
-                        </span>
-                        <ChevronDown className="w-4 h-4 text-gray-600" />
-                      </button>
-
-                      {show_agence_selector && (
-                        <>
-                          <div
-                            className="fixed inset-0 z-10"
-                            onClick={() => setShowAgenceSelector(false)}
-                          ></div>
-                          <div className="absolute right-0 sm:right-0 left-0 sm:left-auto mt-2 w-full sm:w-72 bg-white rounded-lg shadow-lg border border-gray-200 py-2 z-20 max-h-60 overflow-y-auto">
-                            {agences.map((agence) => (
-                              <button
-                                key={agence.agency_id}
-                                onClick={() => handleSelectAgence(agence)}
-                                className={`w-full text-left px-4 py-3 hover:bg-gray-50 transition-colors ${
-                                  selected_agence?.agency_id ===
-                                  agence.agency_id
-                                    ? "bg-purple-50 border-l-4 border-[#6149CD]"
-                                    : ""
-                                }`}
-                              >
-                                <p className="font-medium text-gray-900 text-sm sm:text-base truncate">
+                    {showAgenceSelector && (
+                      <>
+                        <div
+                          className="selector-overlay"
+                          onClick={() => setShowAgenceSelector(false)}
+                        ></div>
+                        <div className="selector-dropdown">
+                          {agences.map((agence) => (
+                            <button
+                              key={agence.agency_id}
+                              onClick={() => handleSelectAgence(agence)}
+                              className={`selector-item ${selectedAgence?.agency_id === agence.agency_id ? "active" : ""}`}
+                            >
+                              <div>
+                                <p className="selector-item-name">
                                   {agence.long_name}
                                 </p>
-                                <p className="text-xs sm:text-sm text-gray-600">
-                                  {agence.short_name} - {agence.ville}
+                                <p className="selector-item-city">
+                                  {agence.ville}
                                 </p>
-                              </button>
-                            ))}
-                          </div>
-                        </>
-                      )}
-                    </div>
-                  )}
-                </div>
+                              </div>
+                            </button>
+                          ))}
+                        </div>
+                      </>
+                    )}
+                  </div>
+                )}
+
+                <button
+                  onClick={handleRefresh}
+                  className="btn-icon"
+                  title="Actualiser"
+                >
+                  <RefreshCw />
+                </button>
               </div>
 
-              {/* Loading Stats */}
-              {is_loading_stats && (
-                <div className="flex items-center justify-center py-10">
-                  <RefreshCw className="w-8 h-8 text-[#6149CD] animate-spin" />
+              {isLoadingStats && (
+                <div className="loading-state">
+                  <RefreshCw className="spin" />
+                  <p>Chargement des statistiques...</p>
                 </div>
               )}
 
-              {/* Error Message */}
-              {error_message && !is_loading_stats && (
-                <div className="bg-red-50 border border-red-200 rounded-lg p-4 sm:p-6 text-center">
-                  <AlertCircle className="w-10 h-10 sm:w-12 sm:h-12 text-red-500 mx-auto mb-4" />
-                  <p className="text-red-600 text-sm sm:text-base">
-                    {error_message}
-                  </p>
-                  <button
-                    onClick={handleRefresh}
-                    className="mt-4 px-4 py-2 bg-red-600 text-white rounded-lg hover:bg-red-700 transition-colors text-sm sm:text-base"
-                  >
-                    Réessayer
-                  </button>
-                </div>
-              )}
-
-              {/* Stats Content */}
-              {!is_loading_stats && !error_message && general_stats && (
+              {!isLoadingStats && !errorMessage && generalStats && (
                 <>
-                  {/* Top Stats Grid */}
-                  <div className="grid grid-cols-2 lg:grid-cols-4 gap-3 sm:gap-4 md:gap-6">
-                    <div className="bg-white rounded-xl shadow-sm border border-gray-200 p-3 sm:p-4 md:p-6">
-                      <div className="flex items-center justify-between mb-2 sm:mb-4">
-                        <div className="p-2 sm:p-3 bg-blue-100 rounded-lg">
-                          <Users className="w-4 h-4 sm:w-6 sm:h-6 text-blue-600" />
+                  <div className="stats-card">
+                    <div className="stats-header">
+                      <h3>Statistiques principales</h3>
+                    </div>
+                    <div className="stats-grid-main">
+                      <div className="stat-item">
+                        <div className="stat-content">
+                          <p className="stat-label">Employés</p>
+                          <p className="stat-value">
+                            {generalStats.nombreEmployes}
+                          </p>
                         </div>
                       </div>
-                      <h3 className="text-xl sm:text-2xl md:text-3xl font-bold text-gray-900">
-                        {general_stats.nombreEmployes}
-                      </h3>
-                      <p className="text-xs sm:text-sm md:text-base text-gray-600 mt-1">
-                        Employés
-                      </p>
-                    </div>
 
-                    <div className="bg-white rounded-xl shadow-sm border border-gray-200 p-3 sm:p-4 md:p-6">
-                      <div className="flex items-center justify-between mb-2 sm:mb-4">
-                        <div className="p-2 sm:p-3 bg-green-100 rounded-lg">
-                          <Car className="w-4 h-4 sm:w-6 sm:h-6 text-green-600" />
+                      <div className="stat-item">
+                        <div className="stat-content">
+                          <p className="stat-label">Chauffeurs</p>
+                          <p className="stat-value">
+                            {generalStats.nombreChauffeurs}
+                          </p>
                         </div>
                       </div>
-                      <h3 className="text-xl sm:text-2xl md:text-3xl font-bold text-gray-900">
-                        {general_stats.nombreChauffeurs}
-                      </h3>
-                      <p className="text-xs sm:text-sm md:text-base text-gray-600 mt-1">
-                        Chauffeurs
-                      </p>
-                    </div>
 
-                    <div className="bg-white rounded-xl shadow-sm border border-gray-200 p-3 sm:p-4 md:p-6">
-                      <div className="flex items-center justify-between mb-2 sm:mb-4">
-                        <div className="p-2 sm:p-3 bg-purple-100 rounded-lg">
-                          <Bus className="w-4 h-4 sm:w-6 sm:h-6 text-purple-600" />
+                      <div className="stat-item">
+                        <div className="stat-content">
+                          <p className="stat-label">Voyages</p>
+                          <p className="stat-value">
+                            {generalStats.nombreVoyages}
+                          </p>
                         </div>
                       </div>
-                      <h3 className="text-xl sm:text-2xl md:text-3xl font-bold text-gray-900">
-                        {general_stats.nombreVoyages}
-                      </h3>
-                      <p className="text-xs sm:text-sm md:text-base text-gray-600 mt-1">
-                        Voyages
-                      </p>
-                    </div>
 
-                    <div className="bg-white rounded-xl shadow-sm border border-gray-200 p-3 sm:p-4 md:p-6">
-                      <div className="flex items-center justify-between mb-2 sm:mb-4">
-                        <div className="p-2 sm:p-3 bg-orange-100 rounded-lg">
-                          <Ticket className="w-4 h-4 sm:w-6 sm:h-6 text-orange-600" />
+                      <div className="stat-item">
+                        <div className="stat-content">
+                          <p className="stat-label">Réservations</p>
+                          <p className="stat-value">
+                            {generalStats.nombreReservations}
+                          </p>
                         </div>
                       </div>
-                      <h3 className="text-xl sm:text-2xl md:text-3xl font-bold text-gray-900">
-                        {general_stats.nombreReservations}
-                      </h3>
-                      <p className="text-xs sm:text-sm md:text-base text-gray-600 mt-1">
-                        Réservations
-                      </p>
-                    </div>
-                  </div>
 
-                  {/* Revenue and Metrics Row */}
-                  <div className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 gap-3 sm:gap-4 md:gap-6">
-                    <div className="bg-linear-to-br from-green-400 to-green-600 rounded-xl shadow-lg p-4 sm:p-6 text-white">
-                      <div className="flex items-center justify-between mb-2 sm:mb-4">
-                        <h3 className="text-sm sm:text-lg font-semibold">
-                          Revenus totaux potentiels
-                        </h3>
-                        <TrendingUp className="w-5 h-5 sm:w-6 sm:h-6" />
-                      </div>
-                      <p className="text-lg sm:text-2xl md:text-3xl font-bold break-all">
-                        {formatRevenue(general_stats.revenus)}
-                      </p>
-                    </div>
-
-                    <div className="bg-white rounded-xl shadow-sm border border-gray-200 p-4 sm:p-6">
-                      <div className="flex items-center space-x-2 mb-2">
-                        <UserPlus className="w-4 h-4 sm:w-5 sm:h-5 text-[#6149CD]" />
-                        <h3 className="text-gray-600 text-xs sm:text-base">
-                          Nouveaux utilisateurs
-                        </h3>
-                      </div>
-                      <p className="text-xl sm:text-2xl md:text-3xl font-bold text-gray-900">
-                        {general_stats.nouveauxUtilisateurs}
-                      </p>
-                    </div>
-
-                    <div className="bg-white rounded-xl shadow-sm border border-gray-200 p-4 sm:p-6 sm:col-span-2 md:col-span-1">
-                      <h3 className="text-gray-600 mb-2 text-xs sm:text-base">
-                        Taux d'occupation
-                      </h3>
-                      <div className="flex items-center space-x-3 sm:space-x-4">
-                        <div className="flex-1">
-                          <div className="w-full bg-gray-200 rounded-full h-2 sm:h-3">
-                            <div
-                              className="bg-[#6149CD] h-2 sm:h-3 rounded-full transition-all duration-300"
-                              style={{
-                                width: `${general_stats.tauxOccupation}%`,
-                              }}
-                            ></div>
-                          </div>
+                      <div className="stat-item">
+                        <div className="stat-content">
+                          <p className="stat-label">Revenus totaux</p>
+                          <p className="stat-value revenue">
+                            {formatRevenue(generalStats.revenus)}
+                          </p>
                         </div>
-                        <span className="text-lg sm:text-2xl font-bold text-gray-900">
-                          {general_stats.tauxOccupation.toFixed(1)}%
+                      </div>
+
+                      <div className="stat-item">
+                        <div className="stat-content">
+                          <p className="stat-label">Nouveaux utilisateurs</p>
+                          <p className="stat-value">
+                            {generalStats.nouveauxUtilisateurs}
+                          </p>
+                        </div>
+                      </div>
+                    </div>
+
+                    <div className="occupation-rate">
+                      <p className="occupation-label">Taux d'occupation</p>
+                      <div className="occupation-bar-wrapper">
+                        <div className="occupation-bar">
+                          <div
+                            className="occupation-fill"
+                            style={{ width: `${generalStats.tauxOccupation}%` }}
+                          ></div>
+                        </div>
+                        <span className="occupation-value">
+                          {generalStats.tauxOccupation.toFixed(1)}%
                         </span>
                       </div>
                     </div>
                   </div>
 
-                  {/* Evolution Chart Section */}
-                  {evolution_stats && (
-                    <div className="bg-white rounded-xl shadow-sm border border-gray-200 p-4 sm:p-6">
-                      <div className="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-3 mb-4 sm:mb-6">
-                        <div className="flex items-center space-x-2">
-                          <BarChart3 className="w-5 h-5 text-[#6149CD]" />
-                          <h3 className="text-lg sm:text-xl font-bold text-gray-900">
-                            {getChartTitle()}
-                          </h3>
-                        </div>
-                        <div className="flex flex-wrap gap-2">
-                          <button
-                            onClick={() => setActiveChart("reservations")}
-                            className={`px-3 py-1.5 text-xs sm:text-sm rounded-lg transition-colors ${
-                              active_chart === "reservations"
-                                ? "bg-[#6149CD] text-white"
-                                : "bg-gray-100 text-gray-700 hover:bg-gray-200"
-                            }`}
-                          >
-                            Réservations
-                          </button>
-                          <button
-                            onClick={() => setActiveChart("voyages")}
-                            className={`px-3 py-1.5 text-xs sm:text-sm rounded-lg transition-colors ${
-                              active_chart === "voyages"
-                                ? "bg-[#6149CD] text-white"
-                                : "bg-gray-100 text-gray-700 hover:bg-gray-200"
-                            }`}
-                          >
-                            Voyages
-                          </button>
-                          <button
-                            onClick={() => setActiveChart("revenus")}
-                            className={`px-3 py-1.5 text-xs sm:text-sm rounded-lg transition-colors ${
-                              active_chart === "revenus"
-                                ? "bg-[#6149CD] text-white"
-                                : "bg-gray-100 text-gray-700 hover:bg-gray-200"
-                            }`}
-                          >
-                            Revenus
-                          </button>
-                          <button
-                            onClick={() => setActiveChart("utilisateurs")}
-                            className={`px-3 py-1.5 text-xs sm:text-sm rounded-lg transition-colors ${
-                              active_chart === "utilisateurs"
-                                ? "bg-[#6149CD] text-white"
-                                : "bg-gray-100 text-gray-700 hover:bg-gray-200"
-                            }`}
-                          >
-                            Utilisateurs
-                          </button>
-                        </div>
+                  {evolutionStats && (
+                    <div className="chart-card">
+                      <div className="chart-header">
+                        <h3>{getChartTitle()}</h3>
+                      </div>
+                      <div className="chart-tabs">
+                        <button
+                          onClick={() => setActiveChart("reservations")}
+                          className={`chart-tab ${activeChart === "reservations" ? "active" : ""}`}
+                        >
+                          Réservations
+                        </button>
+                        <button
+                          onClick={() => setActiveChart("voyages")}
+                          className={`chart-tab ${activeChart === "voyages" ? "active" : ""}`}
+                        >
+                          Voyages
+                        </button>
+                        <button
+                          onClick={() => setActiveChart("revenus")}
+                          className={`chart-tab ${activeChart === "revenus" ? "active" : ""}`}
+                        >
+                          Revenus
+                        </button>
+                        <button
+                          onClick={() => setActiveChart("utilisateurs")}
+                          className={`chart-tab ${activeChart === "utilisateurs" ? "active" : ""}`}
+                        >
+                          Utilisateurs
+                        </button>
                       </div>
 
-                      <div className="h-64 sm:h-80">
+                      <div className="chart-container">
                         {getChartData().length > 0 ? (
                           <ResponsiveContainer width="100%" height="100%">
                             <LineChart data={getChartData()}>
@@ -976,82 +705,42 @@ export default function AgenceDashboardPage() {
                                 dataKey="date"
                                 stroke="#6B7280"
                                 fontSize={12}
-                                tickLine={false}
                               />
-                              <YAxis
-                                stroke="#6B7280"
-                                fontSize={12}
-                                tickLine={false}
-                                axisLine={false}
-                              />
-                              <Tooltip
-                                contentStyle={{
-                                  backgroundColor: "#fff",
-                                  border: "1px solid #E5E7EB",
-                                  borderRadius: "8px",
-                                  boxShadow: "0 4px 6px -1px rgba(0,0,0,0.1)",
-                                }}
-                                labelStyle={{ color: "#374151" }}
-                              />
+                              <YAxis stroke="#6B7280" fontSize={12} />
+                              <Tooltip />
                               <Line
                                 type="monotone"
                                 dataKey="valeur"
-                                stroke="#6149CD"
-                                strokeWidth={3}
-                                dot={{ fill: "#6149CD", strokeWidth: 2, r: 4 }}
-                                activeDot={{
-                                  r: 6,
-                                  fill: "#6149CD",
-                                  stroke: "#fff",
-                                  strokeWidth: 2,
-                                }}
+                                stroke="#7cab1b"
+                                strokeWidth={2}
+                                dot={{ fill: "#7cab1b", r: 4 }}
                               />
-                              {active_chart === "revenus" && (
-                                <Line
-                                  type="monotone"
-                                  dataKey="montant"
-                                  stroke="#10B981"
-                                  strokeWidth={2}
-                                  dot={{
-                                    fill: "#10B981",
-                                    strokeWidth: 2,
-                                    r: 3,
-                                  }}
-                                />
-                              )}
                             </LineChart>
                           </ResponsiveContainer>
                         ) : (
-                          <div className="flex items-center justify-center h-full">
-                            <p className="text-gray-500">
-                              Aucune donnée disponible
-                            </p>
+                          <div className="chart-empty">
+                            <p>Aucune donnée disponible</p>
                           </div>
                         )}
                       </div>
                     </div>
                   )}
 
-                  {/* Status Charts Row */}
-                  <div className="grid grid-cols-1 md:grid-cols-2 gap-4 sm:gap-6">
-                    {/* Voyages par statut
-                    <div className="bg-white rounded-xl shadow-sm border border-gray-200 p-4 sm:p-6">
-                      <div className="flex items-center space-x-2 mb-4">
-                        <PieChart className="w-5 h-5 text-[#6149CD]" />
-                        <h3 className="text-base sm:text-lg font-bold text-gray-900">
-                          Voyages par statut
-                        </h3>
-                      </div>
-                      <div className="h-48 sm:h-64">
-                        {getVoyagesStatusData().length > 0 ? (
+                  <div className="charts-row">
+                    {getVoyagesStatusData().length > 0 && (
+                      <div className="chart-card-small">
+                        <div className="chart-header">
+                          <h3>Voyages par statut</h3>
+                        </div>
+                        <div className="chart-container-small">
                           <ResponsiveContainer width="100%" height="100%">
-                            <RechartsPieChart>
+                            <PieChart>
                               <Pie
                                 data={getVoyagesStatusData()}
                                 cx="50%"
                                 cy="50%"
                                 innerRadius={40}
-                                outerRadius={70}
+                                outerRadius={80}
                                 paddingAngle={5}
                                 dataKey="value"
                               >
@@ -1062,52 +751,28 @@ export default function AgenceDashboardPage() {
                                   />
                                 ))}
                               </Pie>
-                              <Tooltip
-                                contentStyle={{
-                                  backgroundColor: "#fff",
-                                  border: "1px solid #E5E7EB",
-                                  borderRadius: "8px",
-                                }}
-                              />
-                              <Legend
-                                verticalAlign="bottom"
-                                height={36}
-                                formatter={(value) => (
-                                  <span className="text-xs sm:text-sm text-gray-700">
-                                    {value}
-                                  </span>
-                                )}
-                              />
-                            </RechartsPieChart>
+                              <Tooltip />
+                              <Legend verticalAlign="bottom" height={36} />
+                            </PieChart>
                           </ResponsiveContainer>
-                        ) : (
-                          <div className="flex items-center justify-center h-full">
-                            <p className="text-gray-500 text-sm">
-                              Aucun voyage
-                            </p>
-                          </div>
-                        )}
+                        </div>
                       </div>
-                    </div> */}
+                    )}
 
-                    {/* Réservations par statut
-                    <div className="bg-white rounded-xl shadow-sm border border-gray-200 p-4 sm:p-6">
-                      <div className="flex items-center space-x-2 mb-4">
-                        <PieChart className="w-5 h-5 text-[#6149CD]" />
-                        <h3 className="text-base sm:text-lg font-bold text-gray-900">
-                          Réservations par statut
-                        </h3>
-                      </div>
-                      <div className="h-48 sm:h-64">
-                        {getReservationsStatusData().length > 0 ? (
+                    {getReservationsStatusData().length > 0 && (
+                      <div className="chart-card-small">
+                        <div className="chart-header">
+                          <h3>Réservations par statut</h3>
+                        </div>
+                        <div className="chart-container-small">
                           <ResponsiveContainer width="100%" height="100%">
-                            <RechartsPieChart>
+                            <PieChart>
                               <Pie
                                 data={getReservationsStatusData()}
                                 cx="50%"
                                 cy="50%"
                                 innerRadius={40}
-                                outerRadius={70}
+                                outerRadius={80}
                                 paddingAngle={5}
                                 dataKey="value"
                               >
@@ -1117,53 +782,31 @@ export default function AgenceDashboardPage() {
                                       key={`cell-${index}`}
                                       fill={entry.color}
                                     />
-                                  )
+                                  ),
                                 )}
                               </Pie>
-                              <Tooltip
-                                contentStyle={{
-                                  backgroundColor: "#fff",
-                                  border: "1px solid #E5E7EB",
-                                  borderRadius: "8px",
-                                }}
-                              />
-                              <Legend
-                                verticalAlign="bottom"
-                                height={36}
-                                formatter={(value) => (
-                                  <span className="text-xs sm:text-sm text-gray-700">
-                                    {value}
-                                  </span>
-                                )}
-                              />
-                            </RechartsPieChart>
+                              <Tooltip />
+                              <Legend verticalAlign="bottom" height={36} />
+                            </PieChart>
                           </ResponsiveContainer>
-                        ) : (
-                          <div className="flex items-center justify-center h-full">
-                            <p className="text-gray-500 text-sm">
-                              Aucune réservation
-                            </p>
-                          </div>
-                        )}
+                        </div>
                       </div>
-                    </div> */}
+                    )}
                   </div>
 
-                  {/* New Charts Section - Statistiques avancées */}
-                  <div className="grid grid-cols-1 lg:grid-cols-2 gap-4 sm:gap-6">
+                  <div className="charts-row">
                     {/* Revenus par classe */}
-                    {general_stats.revenue_by_class &&
-                      Object.keys(general_stats.revenue_by_class).length >
-                        0 && (
-                        <div className="bg-white rounded-xl shadow-sm border border-gray-200 p-4 sm:p-6">
-                          <h3 className="text-base sm:text-lg font-bold text-gray-900 mb-4">
-                            Revenus par classe
-                          </h3>
-                          <div className="h-64">
+                    {generalStats.revenue_by_class &&
+                      Object.keys(generalStats.revenue_by_class).length > 0 && (
+                        <div className="chart-card-small">
+                          <div className="chart-header">
+                            <h3>Revenus par classe</h3>
+                          </div>
+                          <div className="chart-container-small">
                             <ResponsiveContainer width="100%" height="100%">
                               <BarChart
                                 data={prepareBarChartData(
-                                  general_stats.revenue_by_class,
+                                  generalStats.revenue_by_class,
                                 )}
                               >
                                 <CartesianGrid
@@ -1180,17 +823,10 @@ export default function AgenceDashboardPage() {
                                   formatter={(value) =>
                                     formatRevenue(value as number)
                                   }
-                                  contentStyle={{
-                                    backgroundColor: "#fff",
-                                    border: "1px solid #E5E7EB",
-                                    borderRadius: "8px",
-                                  }}
                                 />
-                                <Legend />
                                 <Bar
                                   dataKey="value"
-                                  fill="#6149CD"
-                                  name="Revenu"
+                                  fill="#7cab1b"
                                   radius={[8, 8, 0, 0]}
                                 />
                               </BarChart>
@@ -1199,19 +835,18 @@ export default function AgenceDashboardPage() {
                         </div>
                       )}
 
-                    {/* Top destinations */}
-                    {general_stats.top_destinations &&
-                      Object.keys(general_stats.top_destinations).length >
-                        0 && (
-                        <div className="bg-white rounded-xl shadow-sm border border-gray-200 p-4 sm:p-6">
-                          <h3 className="text-base sm:text-lg font-bold text-gray-900 mb-4">
-                            Top 10 destinations
-                          </h3>
-                          <div className="h-64">
+                    {/* Top 10 destinations */}
+                    {generalStats.top_destinations &&
+                      Object.keys(generalStats.top_destinations).length > 0 && (
+                        <div className="chart-card-small">
+                          <div className="chart-header">
+                            <h3>Top 10 destinations</h3>
+                          </div>
+                          <div className="chart-container-small">
                             <ResponsiveContainer width="100%" height="100%">
                               <BarChart
                                 data={prepareBarChartData(
-                                  general_stats.top_destinations,
+                                  generalStats.top_destinations,
                                 )}
                                 layout="vertical"
                               >
@@ -1231,165 +866,10 @@ export default function AgenceDashboardPage() {
                                   stroke="#6B7280"
                                   fontSize={12}
                                 />
-                                <Tooltip
-                                  contentStyle={{
-                                    backgroundColor: "#fff",
-                                    border: "1px solid #E5E7EB",
-                                    borderRadius: "8px",
-                                  }}
-                                />
-                                <Legend />
+                                <Tooltip />
                                 <Bar
                                   dataKey="value"
-                                  fill="#10B981"
-                                  name="Voyages"
-                                  radius={[0, 8, 8, 0]}
-                                />
-                              </BarChart>
-                            </ResponsiveContainer>
-                          </div>
-                        </div>
-                      )}
-
-                    {/* Top origines
-                    {general_stats.top_origins &&
-                      Object.keys(general_stats.top_origins).length > 0 && (
-                        <div className="bg-white rounded-xl shadow-sm border border-gray-200 p-4 sm:p-6">
-                          <h3 className="text-base sm:text-lg font-bold text-gray-900 mb-4">
-                            Top 10 villes d'origine
-                          </h3>
-                          <div className="h-64">
-                            <ResponsiveContainer width="100%" height="100%">
-                              <BarChart
-                                data={prepareBarChartData(
-                                  general_stats.top_origins,
-                                )}
-                                layout="vertical"
-                              >
-                                <CartesianGrid
-                                  strokeDasharray="3 3"
-                                  stroke="#E5E7EB"
-                                />
-                                <XAxis
-                                  type="number"
-                                  stroke="#6B7280"
-                                  fontSize={12}
-                                />
-                                <YAxis
-                                  dataKey="name"
-                                  type="category"
-                                  width={100}
-                                  stroke="#6B7280"
-                                  fontSize={12}
-                                />
-                                <Tooltip
-                                  contentStyle={{
-                                    backgroundColor: "#fff",
-                                    border: "1px solid #E5E7EB",
-                                    borderRadius: "8px",
-                                  }}
-                                />
-                                <Legend />
-                                <Bar
-                                  dataKey="value"
-                                  fill="#F59E0B"
-                                  name="Voyages"
-                                  radius={[0, 8, 8, 0]}
-                                />
-                              </BarChart>
-                            </ResponsiveContainer>
-                          </div>
-                        </div>
-                      )} */}
-
-                    {/* Réservations par jour de la semaine */}
-                    {general_stats.reservations_by_day_of_week &&
-                      Object.keys(general_stats.reservations_by_day_of_week)
-                        .length > 0 && (
-                        <div className="bg-white rounded-xl shadow-sm border border-gray-200 p-4 sm:p-6">
-                          <h3 className="text-base sm:text-lg font-bold text-gray-900 mb-4">
-                            Réservations par jour
-                          </h3>
-                          <div className="h-64">
-                            <ResponsiveContainer width="100%" height="100%">
-                              <BarChart
-                                data={prepareDayOfWeekData(
-                                  general_stats.reservations_by_day_of_week,
-                                )}
-                              >
-                                <CartesianGrid
-                                  strokeDasharray="3 3"
-                                  stroke="#E5E7EB"
-                                />
-                                <XAxis
-                                  dataKey="day"
-                                  stroke="#6B7280"
-                                  fontSize={12}
-                                />
-                                <YAxis stroke="#6B7280" fontSize={12} />
-                                <Tooltip
-                                  contentStyle={{
-                                    backgroundColor: "#fff",
-                                    border: "1px solid #E5E7EB",
-                                    borderRadius: "8px",
-                                  }}
-                                />
-                                <Legend />
-                                <Bar
-                                  dataKey="value"
-                                  fill="#8B5CF6"
-                                  name="Réservations"
-                                  radius={[8, 8, 0, 0]}
-                                />
-                              </BarChart>
-                            </ResponsiveContainer>
-                          </div>
-                        </div>
-                      )}
-
-                    {/* Voyages par chauffeur */}
-                    {general_stats.trips_by_driver &&
-                      Object.keys(general_stats.trips_by_driver).length > 0 && (
-                        <div className="bg-white rounded-xl shadow-sm border border-gray-200 p-4 sm:p-6 lg:col-span-2">
-                          <h3 className="text-base sm:text-lg font-bold text-gray-900 mb-4">
-                            Top 10 chauffeurs (par nombre de voyages)
-                          </h3>
-                          <div className="h-64">
-                            <ResponsiveContainer width="100%" height="100%">
-                              <BarChart
-                                data={prepareBarChartData(
-                                  general_stats.trips_by_driver,
-                                )}
-                                layout="vertical"
-                              >
-                                <CartesianGrid
-                                  strokeDasharray="3 3"
-                                  stroke="#E5E7EB"
-                                />
-                                <XAxis
-                                  type="number"
-                                  stroke="#6B7280"
-                                  fontSize={12}
-                                />
-                                <YAxis
-                                  dataKey="name"
-                                  type="category"
-                                  width={120}
-                                  stroke="#6B7280"
-                                  fontSize={12}
-                                />
-                                <Tooltip
-                                  contentStyle={{
-                                    backgroundColor: "#fff",
-                                    border: "1px solid #E5E7EB",
-                                    borderRadius: "8px",
-                                  }}
-                                />
-                                <Legend />
-                                <Bar
-                                  dataKey="value"
-                                  fill="#EF4444"
-                                  name="Voyages"
+                                  fill="#7cab1b"
                                   radius={[0, 8, 8, 0]}
                                 />
                               </BarChart>
@@ -1399,21 +879,109 @@ export default function AgenceDashboardPage() {
                       )}
                   </div>
 
-                  {/* Evolution Charts - Nouveaux graphiques */}
-                  {evolution_stats && (
-                    <div className="grid grid-cols-1 lg:grid-cols-2 gap-4 sm:gap-6">
-                      {/* Evolution taux d'occupation */}
-                      {evolution_stats.evolution_taux_occupation &&
-                        evolution_stats.evolution_taux_occupation.length >
+                  {/* Réservations par jour de la semaine et Voyages par chauffeur */}
+                  {(generalStats?.reservations_by_day_of_week ||
+                    generalStats?.trips_by_driver) && (
+                    <div className="charts-row">
+                      {/* Réservations par jour de la semaine */}
+                      {generalStats?.reservations_by_day_of_week &&
+                        Object.keys(generalStats.reservations_by_day_of_week)
+                          .length > 0 && (
+                          <div className="chart-card-small">
+                            <div className="chart-header">
+                              <h3>Réservations par jour</h3>
+                            </div>
+                            <div className="chart-container-small">
+                              <ResponsiveContainer width="100%" height="100%">
+                                <BarChart
+                                  data={prepareDayOfWeekData(
+                                    generalStats.reservations_by_day_of_week,
+                                  )}
+                                >
+                                  <CartesianGrid
+                                    strokeDasharray="3 3"
+                                    stroke="#E5E7EB"
+                                  />
+                                  <XAxis
+                                    dataKey="day"
+                                    stroke="#6B7280"
+                                    fontSize={12}
+                                  />
+                                  <YAxis stroke="#6B7280" fontSize={12} />
+                                  <Tooltip />
+                                  <Bar
+                                    dataKey="value"
+                                    fill="#7cab1b"
+                                    name="Réservations"
+                                    radius={[8, 8, 0, 0]}
+                                  />
+                                </BarChart>
+                              </ResponsiveContainer>
+                            </div>
+                          </div>
+                        )}
+
+                      {/* Voyages par chauffeur */}
+                      {generalStats?.trips_by_driver &&
+                        Object.keys(generalStats.trips_by_driver).length >
                           0 && (
-                          <div className="bg-white rounded-xl shadow-sm border border-gray-200 p-4 sm:p-6">
-                            <h3 className="text-base sm:text-lg font-bold text-gray-900 mb-4">
-                              Évolution du taux d'occupation
-                            </h3>
-                            <div className="h-64">
+                          <div className="chart-card-small">
+                            <div className="chart-header">
+                              <h3>Top 10 chauffeurs</h3>
+                            </div>
+                            <div className="chart-container-small">
+                              <ResponsiveContainer width="100%" height="100%">
+                                <BarChart
+                                  data={prepareBarChartData(
+                                    generalStats.trips_by_driver,
+                                  )}
+                                  layout="vertical"
+                                >
+                                  <CartesianGrid
+                                    strokeDasharray="3 3"
+                                    stroke="#E5E7EB"
+                                  />
+                                  <XAxis
+                                    type="number"
+                                    stroke="#6B7280"
+                                    fontSize={12}
+                                  />
+                                  <YAxis
+                                    dataKey="name"
+                                    type="category"
+                                    width={120}
+                                    stroke="#6B7280"
+                                    fontSize={12}
+                                  />
+                                  <Tooltip />
+                                  <Bar
+                                    dataKey="value"
+                                    fill="#7cab1b"
+                                    name="Voyages"
+                                    radius={[0, 8, 8, 0]}
+                                  />
+                                </BarChart>
+                              </ResponsiveContainer>
+                            </div>
+                          </div>
+                        )}
+                    </div>
+                  )}
+
+                  {/* Evolution Charts - Première paire */}
+                  {evolutionStats && (
+                    <div className="charts-row">
+                      {/* Evolution taux d'occupation */}
+                      {evolutionStats.evolution_taux_occupation &&
+                        evolutionStats.evolution_taux_occupation.length > 0 && (
+                          <div className="chart-card-small">
+                            <div className="chart-header">
+                              <h3>Évolution taux d'occupation</h3>
+                            </div>
+                            <div className="chart-container-small">
                               <ResponsiveContainer width="100%" height="100%">
                                 <LineChart
-                                  data={evolution_stats.evolution_taux_occupation.map(
+                                  data={evolutionStats.evolution_taux_occupation.map(
                                     (item) => ({
                                       date: formatDate(item.date),
                                       valeur: item.valeur,
@@ -1430,20 +998,13 @@ export default function AgenceDashboardPage() {
                                     fontSize={12}
                                   />
                                   <YAxis stroke="#6B7280" fontSize={12} />
-                                  <Tooltip
-                                    contentStyle={{
-                                      backgroundColor: "#fff",
-                                      border: "1px solid #E5E7EB",
-                                      borderRadius: "8px",
-                                    }}
-                                  />
-                                  <Legend />
+                                  <Tooltip />
                                   <Line
                                     type="monotone"
                                     dataKey="valeur"
-                                    stroke="#6149CD"
+                                    stroke="#7cab1b"
                                     strokeWidth={2}
-                                    dot={{ fill: "#6149CD", r: 3 }}
+                                    dot={{ fill: "#7cab1b", r: 3 }}
                                     name="Taux (%)"
                                   />
                                 </LineChart>
@@ -1453,16 +1014,16 @@ export default function AgenceDashboardPage() {
                         )}
 
                       {/* Evolution annulations */}
-                      {evolution_stats.evolution_annulations &&
-                        evolution_stats.evolution_annulations.length > 0 && (
-                          <div className="bg-white rounded-xl shadow-sm border border-gray-200 p-4 sm:p-6">
-                            <h3 className="text-base sm:text-lg font-bold text-gray-900 mb-4">
-                              Évolution des annulations
-                            </h3>
-                            <div className="h-64">
+                      {evolutionStats.evolution_annulations &&
+                        evolutionStats.evolution_annulations.length > 0 && (
+                          <div className="chart-card-small">
+                            <div className="chart-header">
+                              <h3>Évolution des annulations</h3>
+                            </div>
+                            <div className="chart-container-small">
                               <ResponsiveContainer width="100%" height="100%">
                                 <LineChart
-                                  data={evolution_stats.evolution_annulations.map(
+                                  data={evolutionStats.evolution_annulations.map(
                                     (item) => ({
                                       date: formatDate(item.date),
                                       valeur: item.valeur,
@@ -1479,20 +1040,13 @@ export default function AgenceDashboardPage() {
                                     fontSize={12}
                                   />
                                   <YAxis stroke="#6B7280" fontSize={12} />
-                                  <Tooltip
-                                    contentStyle={{
-                                      backgroundColor: "#fff",
-                                      border: "1px solid #E5E7EB",
-                                      borderRadius: "8px",
-                                    }}
-                                  />
-                                  <Legend />
+                                  <Tooltip />
                                   <Line
                                     type="monotone"
                                     dataKey="valeur"
-                                    stroke="#EF4444"
+                                    stroke="#7cab1b"
                                     strokeWidth={2}
-                                    dot={{ fill: "#EF4444", r: 3 }}
+                                    dot={{ fill: "#7cab1b", r: 3 }}
                                     name="Annulations"
                                   />
                                 </LineChart>
@@ -1500,20 +1054,25 @@ export default function AgenceDashboardPage() {
                             </div>
                           </div>
                         )}
+                    </div>
+                  )}
 
+                  {/* Evolution Charts - Deuxième paire */}
+                  {evolutionStats && (
+                    <div className="charts-row">
                       {/* Revenus par mois */}
-                      {evolution_stats.revenue_per_month &&
-                        Object.keys(evolution_stats.revenue_per_month).length >
+                      {evolutionStats.revenue_per_month &&
+                        Object.keys(evolutionStats.revenue_per_month).length >
                           0 && (
-                          <div className="bg-white rounded-xl shadow-sm border border-gray-200 p-4 sm:p-6">
-                            <h3 className="text-base sm:text-lg font-bold text-gray-900 mb-4">
-                              Revenus par mois
-                            </h3>
-                            <div className="h-64">
+                          <div className="chart-card-small">
+                            <div className="chart-header">
+                              <h3>Revenus par mois</h3>
+                            </div>
+                            <div className="chart-container-small">
                               <ResponsiveContainer width="100%" height="100%">
                                 <BarChart
                                   data={prepareMonthlyData(
-                                    evolution_stats.revenue_per_month,
+                                    evolutionStats.revenue_per_month,
                                   )}
                                 >
                                   <CartesianGrid
@@ -1530,16 +1089,10 @@ export default function AgenceDashboardPage() {
                                     formatter={(value) =>
                                       formatRevenue(value as number)
                                     }
-                                    contentStyle={{
-                                      backgroundColor: "#fff",
-                                      border: "1px solid #E5E7EB",
-                                      borderRadius: "8px",
-                                    }}
                                   />
-                                  <Legend />
                                   <Bar
                                     dataKey="value"
-                                    fill="#10B981"
+                                    fill="#7cab1b"
                                     name="Revenu"
                                     radius={[8, 8, 0, 0]}
                                   />
@@ -1550,18 +1103,18 @@ export default function AgenceDashboardPage() {
                         )}
 
                       {/* Réservations par mois */}
-                      {evolution_stats.reservations_per_month &&
-                        Object.keys(evolution_stats.reservations_per_month)
+                      {evolutionStats.reservations_per_month &&
+                        Object.keys(evolutionStats.reservations_per_month)
                           .length > 0 && (
-                          <div className="bg-white rounded-xl shadow-sm border border-gray-200 p-4 sm:p-6">
-                            <h3 className="text-base sm:text-lg font-bold text-gray-900 mb-4">
-                              Réservations par mois
-                            </h3>
-                            <div className="h-64">
+                          <div className="chart-card-small">
+                            <div className="chart-header">
+                              <h3>Réservations par mois</h3>
+                            </div>
+                            <div className="chart-container-small">
                               <ResponsiveContainer width="100%" height="100%">
                                 <BarChart
                                   data={prepareMonthlyData(
-                                    evolution_stats.reservations_per_month,
+                                    evolutionStats.reservations_per_month,
                                   )}
                                 >
                                   <CartesianGrid
@@ -1574,17 +1127,10 @@ export default function AgenceDashboardPage() {
                                     fontSize={12}
                                   />
                                   <YAxis stroke="#6B7280" fontSize={12} />
-                                  <Tooltip
-                                    contentStyle={{
-                                      backgroundColor: "#fff",
-                                      border: "1px solid #E5E7EB",
-                                      borderRadius: "8px",
-                                    }}
-                                  />
-                                  <Legend />
+                                  <Tooltip />
                                   <Bar
                                     dataKey="value"
-                                    fill="#6149CD"
+                                    fill="#7cab1b"
                                     name="Réservations"
                                     radius={[8, 8, 0, 0]}
                                   />
@@ -1596,132 +1142,104 @@ export default function AgenceDashboardPage() {
                     </div>
                   )}
 
-                  {/* Agence Info Card */}
-                  {selected_agence && (
-                    <div className="bg-white rounded-xl shadow-sm border border-gray-200 p-4 sm:p-6">
-                      <h3 className="text-lg sm:text-xl font-bold text-gray-900 mb-4">
-                        Informations de l'agence
-                      </h3>
-                      <div className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 gap-4">
-                        <div>
-                          <p className="text-xs sm:text-sm text-gray-600">
-                            Nom complet
-                          </p>
-                          <p className="text-sm sm:text-base font-semibold text-gray-900">
-                            {selected_agence.long_name}
+                  {selectedAgence && (
+                    <div className="agency-details-card">
+                      <div className="agency-details-header">
+                        <h3>Informations de l'agence</h3>
+                      </div>
+                      <div className="agency-details-grid">
+                        <div className="detail-field">
+                          <p className="detail-label">Nom complet</p>
+                          <p className="detail-value">
+                            {selectedAgence.long_name}
                           </p>
                         </div>
-                        <div>
-                          <p className="text-xs sm:text-sm text-gray-600">
-                            Abréviation
-                          </p>
-                          <p className="text-sm sm:text-base font-semibold text-gray-900">
-                            {selected_agence.short_name}
+                        <div className="detail-field">
+                          <p className="detail-label">Abréviation</p>
+                          <p className="detail-value">
+                            {selectedAgence.short_name}
                           </p>
                         </div>
-                        <div>
-                          <p className="text-xs sm:text-sm text-gray-600">
-                            Ville
-                          </p>
-                          <p className="text-sm sm:text-base font-semibold text-gray-900">
-                            {selected_agence.ville}
+                        <div className="detail-field">
+                          <p className="detail-label">Ville</p>
+                          <p className="detail-value">{selectedAgence.ville}</p>
+                        </div>
+                        <div className="detail-field">
+                          <p className="detail-label">Localisation</p>
+                          <p className="detail-value">
+                            {selectedAgence.location}
                           </p>
                         </div>
-                        <div>
-                          <p className="text-xs sm:text-sm text-gray-600">
-                            Localisation
-                          </p>
-                          <p className="text-sm sm:text-base font-semibold text-gray-900">
-                            {selected_agence.location}
-                          </p>
-                        </div>
-                        <div>
-                          <p className="text-xs sm:text-sm text-gray-600">
-                            Statut
-                          </p>
-                          <span className="inline-block mt-1 px-2 py-1 bg-green-100 text-green-800 text-xs sm:text-sm rounded-full font-semibold">
-                            {selected_agence.statut_validation}
+                        <div className="detail-field">
+                          <p className="detail-label">Statut</p>
+                          <span className="status-badge">
+                            {selectedAgence.statut_validation}
                           </span>
                         </div>
-                        <div>
-                          <p className="text-xs sm:text-sm text-gray-600">
-                            Date de validation
-                          </p>
-                          <p className="text-sm sm:text-base font-semibold text-gray-900">
-                            {formatDateFull(selected_agence.date_validation)}
+                        <div className="detail-field">
+                          <p className="detail-label">Date de validation</p>
+                          <p className="detail-value">
+                            {formatDateFull(selectedAgence.date_validation)}
                           </p>
                         </div>
-                        {selected_agence.description && (
-                          <div className="sm:col-span-2 md:col-span-3">
-                            <p className="text-xs sm:text-sm text-gray-600">
-                              Description
-                            </p>
-                            <p className="text-sm sm:text-base text-gray-900">
-                              {selected_agence.description}
-                            </p>
-                          </div>
-                        )}
-                        {selected_agence.social_network && (
-                          <div>
-                            <p className="text-xs sm:text-sm text-gray-600">
-                              Réseau social
-                            </p>
-                            <a
-                              href={selected_agence.social_network}
-                              target="_blank"
-                              rel="noopener noreferrer"
-                              className="text-sm sm:text-base text-[#6149CD] hover:underline"
-                            >
-                              {selected_agence.social_network}
-                            </a>
-                          </div>
-                        )}
                       </div>
+                      {selectedAgence.description && (
+                        <div className="detail-field-full">
+                          <p className="detail-label">Description</p>
+                          <p className="detail-value">
+                            {selectedAgence.description}
+                          </p>
+                        </div>
+                      )}
+                      {selectedAgence.social_network && (
+                        <div className="detail-field-full">
+                          <p className="detail-label">Réseau social</p>
+                          <a
+                            href={"https://" + selectedAgence.social_network}
+                            target="_blank"
+                            rel="noopener noreferrer"
+                            className="detail-link"
+                          >
+                            {selectedAgence.social_network}
+                          </a>
+                        </div>
+                      )}
                     </div>
                   )}
 
-                  {/* Quick Actions */}
-                  <div className="grid grid-cols-2 sm:grid-cols-4 gap-3 sm:gap-4">
+                  <div className="quick-actions">
                     <button
                       onClick={() => router.push("/user/agency/travels")}
-                      className="bg-white rounded-xl shadow-sm border border-gray-200 p-4 hover:shadow-md transition-shadow text-center"
+                      className="btn btn-secondary"
                     >
-                      <Bus className="w-6 h-6 sm:w-8 sm:h-8 text-[#6149CD] mx-auto mb-2" />
-                      <p className="text-xs sm:text-sm font-medium text-gray-900">
-                        Gérer les voyages
-                      </p>
+                      <Bus />
+                      Gérer les voyages
                     </button>
                     <button
                       onClick={() => router.push("/user/agency/reservations")}
-                      className="bg-white rounded-xl shadow-sm border border-gray-200 p-4 hover:shadow-md transition-shadow text-center"
+                      className="btn btn-secondary"
                     >
-                      <Calendar className="w-6 h-6 sm:w-8 sm:h-8 text-[#6149CD] mx-auto mb-2" />
-                      <p className="text-xs sm:text-sm font-medium text-gray-900">
-                        Réservations
-                      </p>
+                      <Calendar />
+                      Réservations
                     </button>
                     <button
                       onClick={() => router.push("/user/agency/drivers")}
-                      className="bg-white rounded-xl shadow-sm border border-gray-200 p-4 hover:shadow-md transition-shadow text-center"
+                      className="btn btn-secondary"
                     >
-                      <Users className="w-6 h-6 sm:w-8 sm:h-8 text-[#6149CD] mx-auto mb-2" />
-                      <p className="text-xs sm:text-sm font-medium text-gray-900">
-                        Chauffeurs
-                      </p>
+                      <Users />
+                      Chauffeurs
                     </button>
                     <button
                       onClick={() => router.push("/user/agency/settings")}
-                      className="bg-white rounded-xl shadow-sm border border-gray-200 p-4 hover:shadow-md transition-shadow text-center"
+                      className="btn btn-secondary"
                     >
-                      <Settings className="w-6 h-6 sm:w-8 sm:h-8 text-[#6149CD] mx-auto mb-2" />
-                      <p className="text-xs sm:text-sm font-medium text-gray-900">
-                        Paramètres
-                      </p>
+                      <Settings />
+                      Paramètres
                     </button>
                   </div>
                 </>
               )}
-            </div>
+            </>
           )}
         </main>
       </div>

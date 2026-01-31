@@ -1,28 +1,17 @@
 "use client";
 
 import React, { useState } from "react";
-import {
-  Home,
-  Menu,
-  X,
-  Mail,
-  Phone,
-  MapPin,
-  Send,
-  CheckCircle,
-  AlertCircle,
-  User,
-  MessageSquare,
-  Clock,
-  Globe,
-  Facebook,
-  Instagram,
-  Twitter,
-  Linkedin,
-  HelpCircle,
-  ArrowLeft,
-} from "lucide-react";
 import { useRouter } from "next/navigation";
+import SuccessModal from "@/app/components/SuccessModal";
+import ErrorModal from "@/app/components/ErrorModal";
+
+/**
+ * BusStation Contact Page
+ * Professional contact page matching landing page aesthetics
+ *
+ * @author Félix DJOTIO NDIE
+ * @date 2025-01-29
+ */
 
 interface ContactFormData {
   nom: string;
@@ -33,24 +22,15 @@ interface ContactFormData {
   message: string;
 }
 
-/**
- * Contact Page Component
- *
- * Contact form to reach BusStation support team
- * Sends emails to bryanngoupeyou9@gmail.com
- * Public page - no authentication required
- *
- * @author Thomas Djotio Ndié
- * @date 2025-01-27
- */
 export default function ContactPage() {
-  const [show_mobile_menu, setShowMobileMenu] = useState(false);
-  const [is_submitting, setIsSubmitting] = useState(false);
-  const [show_success_modal, setShowSuccessModal] = useState(false);
-  const [show_error_modal, setShowErrorModal] = useState(false);
-  const [error_message, setErrorMessage] = useState("");
+  const router = useRouter();
+  const [mobileMenuOpen, setMobileMenuOpen] = useState(false);
+  const [isSubmitting, setIsSubmitting] = useState(false);
+  const [showSuccessModal, setShowSuccessModal] = useState(false);
+  const [showErrorModal, setShowErrorModal] = useState(false);
+  const [errorMessage, setErrorMessage] = useState("");
 
-  const [form_data, setFormData] = useState<ContactFormData>({
+  const [formData, setFormData] = useState<ContactFormData>({
     nom: "",
     prenom: "",
     email: "",
@@ -59,31 +39,7 @@ export default function ContactPage() {
     message: "",
   });
 
-  const router = useRouter();
-
   const API_BASE_URL = process.env.NEXT_PUBLIC_API_BASE_URL;
-  const BUTTON_COLOR = "#6149CD";
-
-  const CONTACT_INFO = [
-    {
-      icon: Mail,
-      label: "Email",
-      value: "bryanngoupeyou9@gmail.com",
-      subtext: "Réponse sous 24h",
-    },
-    {
-      icon: Phone,
-      label: "Téléphone",
-      value: "+237 655 12 10 10",
-      subtext: "Lun-Ven 8h-18h",
-    },
-    {
-      icon: MapPin,
-      label: "Adresse",
-      value: "Yaoundé, Cameroun",
-      subtext: "Siège social",
-    },
-  ];
 
   const SUBJECTS = [
     "Question générale",
@@ -96,7 +52,11 @@ export default function ContactPage() {
     "Autre",
   ];
 
-  const handleInputChange = (e: any) => {
+  const handleInputChange = (
+    e: React.ChangeEvent<
+      HTMLInputElement | HTMLTextAreaElement | HTMLSelectElement
+    >,
+  ) => {
     const { name, value } = e.target;
     setFormData((prev) => ({
       ...prev,
@@ -110,12 +70,12 @@ export default function ContactPage() {
     setErrorMessage("");
 
     try {
-      const email_data = {
-        subject: `[BusStation Contact] ${form_data.sujet}`,
-        senderName: `${form_data.prenom} ${form_data.nom}`,
-        senderEmail: form_data.email,
-        senderPhone: form_data.telephone || "",
-        message: form_data.message,
+      const emailData = {
+        subject: `[BusStation Contact] ${formData.sujet}`,
+        senderName: `${formData.prenom} ${formData.nom}`,
+        senderEmail: formData.email,
+        senderPhone: formData.telephone || "",
+        message: formData.message,
       };
 
       const response = await fetch(`${API_BASE_URL}/contact/send`, {
@@ -123,7 +83,7 @@ export default function ContactPage() {
         headers: {
           "Content-Type": "application/json",
         },
-        body: JSON.stringify(email_data),
+        body: JSON.stringify(emailData),
       });
 
       if (!response.ok) {
@@ -152,404 +112,446 @@ export default function ContactPage() {
 
   const isFormValid = () => {
     return (
-      form_data.nom.trim() &&
-      form_data.prenom.trim() &&
-      form_data.email.trim() &&
-      form_data.sujet &&
-      form_data.message.trim().length >= 10
+      formData.nom.trim() &&
+      formData.prenom.trim() &&
+      formData.email.trim() &&
+      formData.sujet &&
+      formData.message.trim().length >= 10
     );
   };
 
   return (
-    <div className="min-h-screen bg-gray-50">
-      {/* Mobile Menu */}
-      {show_mobile_menu && (
-        <>
-          <div
-            className="fixed inset-0 z-40 bg-black/50"
-            onClick={() => setShowMobileMenu(false)}
-          ></div>
+    <div className="page">
+      {/* Header */}
+      <header className="header">
+        <div className="container">
+          <div className="header-content">
+            <img
+              src="/images/busstation.png"
+              alt="BusStation"
+              className="logo"
+            />
 
-          <div className="fixed left-0 top-0 h-full w-64 bg-white shadow-2xl z-50 transform transition-transform duration-300">
-            <div className="p-6">
-              <div className="flex items-center justify-between mb-8">
-                <button
-                  onClick={() => {
-                    setShowMobileMenu(false);
-                  }}
-                >
-                  <img
-                    src="/images/busstation.png"
-                    alt="BusStation Logo"
-                    className="h-9.5 w-auto"
-                  />
-                </button>
-                <button
-                  onClick={() => setShowMobileMenu(false)}
-                  className="p-2 hover:bg-gray-100 rounded-lg transition-colors"
-                >
-                  <X className="w-6 h-6 text-gray-900" />
-                </button>
-              </div>
+            <nav className="nav-desktop">
+              <a href="/landing" className="nav-link">
+                Accueil
+              </a>
+              <a href="/help" className="nav-link">
+                Centre d'aide
+              </a>
+              <button
+                onClick={() => router.push("/login")}
+                className="nav-link"
+                style={{ background: "none", padding: 0 }}
+              >
+                Connexion
+              </button>
+              <button
+                onClick={() => router.push("/signup")}
+                className="btn btn-primary"
+              >
+                S'inscrire
+              </button>
+            </nav>
 
-              <nav className="space-y-2">
-                <button
-                  onClick={() => router.push("/landing")}
-                  className="w-full flex items-center space-x-3 px-4 py-3 rounded-lg text-gray-600 hover:bg-gray-100 transition-colors"
-                >
-                  <ArrowLeft className="w-5 h-5" />
-                  <span className="font-medium">Accueil</span>
-                </button>
-                <button
-                  onClick={() => router.push("/help")}
-                  className="w-full flex items-center space-x-3 px-4 py-3 rounded-lg text-gray-600 hover:bg-gray-100 transition-colors"
-                >
-                  <HelpCircle className="w-5 h-5" />
-                  <span className="font-medium">Aide</span>
-                </button>
+            <button
+              className="mobile-menu-btn"
+              onClick={() => setMobileMenuOpen(!mobileMenuOpen)}
+              aria-label="Menu"
+            >
+              <svg
+                width="24"
+                height="24"
+                viewBox="0 0 24 24"
+                fill="none"
+                stroke="currentColor"
+                strokeWidth="2"
+              >
+                {mobileMenuOpen ? (
+                  <path d="M18 6L6 18M6 6l12 12" />
+                ) : (
+                  <path d="M3 12h18M3 6h18M3 18h18" />
+                )}
+              </svg>
+            </button>
+          </div>
+
+          {mobileMenuOpen && (
+            <div className="mobile-menu">
+              <a href="/landing" className="mobile-menu-link">
+                Accueil
+              </a>
+              <a href="/help" className="mobile-menu-link">
+                Centre d'aide
+              </a>
+              <div className="mobile-menu-buttons">
                 <button
                   onClick={() => router.push("/login")}
-                  className="w-full flex items-center space-x-3 px-4 py-3 rounded-lg text-gray-600 hover:bg-gray-100 transition-colors"
+                  className="btn btn-secondary"
+                  style={{ width: "100%" }}
                 >
-                  <User className="w-5 h-5" />
-                  <span className="font-medium">Se connecter</span>
+                  Connexion
                 </button>
-              </nav>
+                <button
+                  onClick={() => router.push("/signup")}
+                  className="btn btn-primary"
+                  style={{ width: "100%" }}
+                >
+                  S'inscrire
+                </button>
+              </div>
             </div>
-          </div>
-        </>
-      )}
-
-      {/* Header */}
-      <header className="bg-white border-b border-gray-200 sticky top-0 z-10">
-        <div className="max-w-7xl mx-auto px-4 sm:px-6 py-4 flex items-center justify-between">
-          <div className="flex items-center space-x-3">
-            <button
-              onClick={() => setShowMobileMenu(true)}
-              className="lg:hidden p-2 hover:bg-gray-100 rounded-lg transition-colors"
-            >
-              <Menu className="w-6 h-6 text-gray-900" />
-            </button>
-
-            <button onClick={() => router.push("/landing")}>
-              <img
-                src="/images/busstation.png"
-                alt="BusStation Logo"
-                className="h-10 w-auto transition-transform duration-300 hover:scale-105"
-              />
-            </button>
-
-            <h1 className="text-xl sm:text-2xl font-semibold text-gray-900 hidden sm:block">
-              Nous contacter
-            </h1>
-          </div>
-
-          <div className="hidden md:flex items-center space-x-4">
-            <button
-              onClick={() => router.push("/help")}
-              className="flex items-center space-x-2 px-4 py-2 text-gray-700 hover:bg-gray-100 rounded-lg transition-colors"
-            >
-              <HelpCircle className="w-5 h-5" />
-              <span>Aide</span>
-            </button>
-            <button
-              onClick={() => router.push("/login")}
-              style={{ backgroundColor: BUTTON_COLOR }}
-              className="flex items-center space-x-2 px-4 py-2 text-white rounded-lg hover:opacity-90 transition-opacity"
-            >
-              <User className="w-5 h-5" />
-              <span>Se connecter</span>
-            </button>
-          </div>
+          )}
         </div>
       </header>
 
-      {/* Content */}
-      <main className="p-4 sm:p-6">
-        <div className="max-w-6xl mx-auto">
-          <div className="grid grid-cols-1 lg:grid-cols-3 gap-6 sm:gap-8">
+      {/* Hero Contact */}
+      <section className="hero-help">
+        <div className="container">
+          <div className="hero-help-content">
+            <h1 className="hero-help-title">Besoin d'aide ?</h1>
+            <p className="hero-help-description">
+              Écrivez-nous, nous sommes là pour vous accompagner
+            </p>
+          </div>
+        </div>
+      </section>
+
+      {/* Contact Section */}
+      <section className="contact-section">
+        <div className="container">
+          <div className="contact-content">
             {/* Contact Information */}
-            <div className="lg:col-span-1 space-y-4 sm:space-y-6">
-              {/* Contact Cards */}
-              <div className="space-y-4">
-                {CONTACT_INFO.map((info, index) => {
-                  const Icon = info.icon;
-                  return (
-                    <div
-                      key={index}
-                      className="bg-white rounded-xl shadow-sm border border-gray-200 p-4 sm:p-6"
-                    >
-                      <div className="flex items-start space-x-4">
-                        <div
-                          className="w-12 h-12 rounded-lg flex items-center justify-center shrink-0"
-                          style={{ backgroundColor: `${BUTTON_COLOR}15` }}
-                        >
-                          <Icon
-                            className="w-6 h-6"
-                            style={{ color: BUTTON_COLOR }}
-                          />
-                        </div>
-                        <div>
-                          <h3 className="font-semibold text-gray-900 mb-1">
-                            {info.label}
-                          </h3>
-                          <p className="text-gray-700 mb-1 text-sm sm:text-base break-all">
-                            {info.value}
-                          </p>
-                          <p className="text-xs sm:text-sm text-gray-500">
-                            {info.subtext}
-                          </p>
-                        </div>
-                      </div>
-                    </div>
-                  );
-                })}
+            <div className="contact-info">
+              <div className="contact-item">
+                <div className="contact-item-icon">
+                  <svg
+                    width="24"
+                    height="24"
+                    viewBox="0 0 24 24"
+                    fill="none"
+                    stroke="currentColor"
+                    strokeWidth="2"
+                  >
+                    <rect x="2" y="4" width="20" height="16" rx="2" />
+                    <path d="m22 7-8.97 5.7a1.94 1.94 0 0 1-2.06 0L2 7" />
+                  </svg>
+                </div>
+                <div className="contact-item-content">
+                  <div className="contact-item-label">Support</div>
+                  <div className="contact-item-value">
+                    bryanngoupeyou9@gmail.com
+                  </div>
+                  <div className="contact-item-note">Réponse sous 24h</div>
+                </div>
               </div>
 
-              {/* Business Hours */}
-              <div className="bg-white rounded-xl shadow-sm border border-gray-200 p-4 sm:p-6">
-                <div className="flex items-center space-x-3 mb-4">
-                  <div
-                    className="w-10 h-10 rounded-lg flex items-center justify-center"
-                    style={{ backgroundColor: `${BUTTON_COLOR}15` }}
+              <div className="contact-item">
+                <div className="contact-item-icon">
+                  <svg
+                    width="24"
+                    height="24"
+                    viewBox="0 0 24 24"
+                    fill="none"
+                    stroke="currentColor"
+                    strokeWidth="2"
                   >
-                    <Clock
-                      className="w-5 h-5"
-                      style={{ color: BUTTON_COLOR }}
-                    />
-                  </div>
-                  <h3 className="font-semibold text-gray-900">
-                    Heures d'ouverture
-                  </h3>
+                    <path d="M22 16.92v3a2 2 0 0 1-2.18 2 19.79 19.79 0 0 1-8.63-3.07 19.5 19.5 0 0 1-6-6 19.79 19.79 0 0 1-3.07-8.67A2 2 0 0 1 4.11 2h3a2 2 0 0 1 2 1.72 12.84 12.84 0 0 0 .7 2.81 2 2 0 0 1-.45 2.11L8.09 9.91a16 16 0 0 0 6 6l1.27-1.27a2 2 0 0 1 2.11-.45 12.84 12.84 0 0 0 2.81.7A2 2 0 0 1 22 16.92z" />
+                  </svg>
                 </div>
-                <div className="space-y-2">
-                  <div className="flex justify-between text-xs sm:text-sm">
-                    <span className="text-gray-600">Lundi - Vendredi</span>
-                    <span className="text-gray-900 font-medium">
-                      8h00 - 18h00
-                    </span>
+                <div className="contact-item-content">
+                  <div className="contact-item-label">Contact</div>
+                  <div className="contact-item-value">(+237) 655 12 10 10</div>
+                  <div className="contact-item-note">
+                    De Lundi à Vendredi 8h-18h
                   </div>
-                  <div className="flex justify-between text-xs sm:text-sm">
-                    <span className="text-gray-600">Samedi</span>
-                    <span className="text-gray-900 font-medium">
-                      9h00 - 14h00
-                    </span>
+                </div>
+              </div>
+
+              <div className="contact-item">
+                <div className="contact-item-icon">
+                  <svg
+                    width="24"
+                    height="24"
+                    viewBox="0 0 24 24"
+                    fill="none"
+                    stroke="currentColor"
+                    strokeWidth="2"
+                  >
+                    <path d="M21 10c0 7-9 13-9 13s-9-6-9-13a9 9 0 0 1 18 0z" />
+                    <circle cx="12" cy="10" r="3" />
+                  </svg>
+                </div>
+                <div className="contact-item-content">
+                  <div className="contact-item-label">Adresse</div>
+                  <div className="contact-item-value">
+                    Pharmacie EMIA, Rte de Melen, Yaoundé Cameroun
                   </div>
-                  <div className="flex justify-between text-xs sm:text-sm">
-                    <span className="text-gray-600">Dimanche</span>
-                    <span className="text-red-600 font-medium">Fermé</span>
-                  </div>
+                  <div className="contact-item-note">Siège social</div>
                 </div>
               </div>
             </div>
 
             {/* Contact Form */}
-            <div className="lg:col-span-2">
-              <div className="bg-white rounded-xl shadow-sm border border-gray-200 p-6 sm:p-8">
-                <div className="mb-6">
-                  <h3 className="text-xl sm:text-2xl font-bold text-gray-900 mb-2">
-                    Envoyez-nous un message
-                  </h3>
-                  <p className="text-gray-600 text-sm sm:text-base">
-                    Remplissez le formulaire ci-dessous et nous vous répondrons
-                    dans les plus brefs délais
+            <div className="contact-form-container">
+              <div className="contact-form-header">
+                <h2 className="contact-form-title">Envoyez-nous un message</h2>
+                <p className="contact-form-description">
+                  Remplissez le formulaire ci-dessous et nous vous répondrons
+                  dans les plus brefs délais
+                </p>
+              </div>
+
+              <form onSubmit={handleSubmit}>
+                {/* Nom et Prénom */}
+                <div className="form-row">
+                  <div>
+                    <label className="form-label">Nom *</label>
+                    <input
+                      type="text"
+                      name="nom"
+                      value={formData.nom}
+                      onChange={handleInputChange}
+                      required
+                      className="form-input"
+                      placeholder="Votre nom"
+                    />
+                  </div>
+
+                  <div>
+                    <label className="form-label">Prénom *</label>
+                    <input
+                      type="text"
+                      name="prenom"
+                      value={formData.prenom}
+                      onChange={handleInputChange}
+                      required
+                      className="form-input"
+                      placeholder="Votre prénom"
+                    />
+                  </div>
+                </div>
+
+                {/* Email et Téléphone */}
+                <div className="form-row">
+                  <div>
+                    <label className="form-label">Email *</label>
+                    <input
+                      type="email"
+                      name="email"
+                      value={formData.email}
+                      onChange={handleInputChange}
+                      required
+                      className="form-input"
+                      placeholder="exemple@email.com"
+                    />
+                  </div>
+
+                  <div>
+                    <label className="form-label">Téléphone</label>
+                    <input
+                      type="tel"
+                      name="telephone"
+                      value={formData.telephone}
+                      onChange={handleInputChange}
+                      className="form-input"
+                      placeholder="+237 6XX XX XX XX"
+                    />
+                  </div>
+                </div>
+
+                {/* Sujet */}
+                <div className="form-group">
+                  <label className="form-label">Sujet *</label>
+                  <select
+                    name="sujet"
+                    value={formData.sujet}
+                    onChange={handleInputChange}
+                    required
+                    className="form-select"
+                  >
+                    <option value="">Sélectionnez un sujet</option>
+                    {SUBJECTS.map((subject, index) => (
+                      <option key={index} value={subject}>
+                        {subject}
+                      </option>
+                    ))}
+                  </select>
+                </div>
+
+                {/* Message */}
+                <div className="form-group">
+                  <label className="form-label">Message *</label>
+                  <textarea
+                    name="message"
+                    value={formData.message}
+                    onChange={handleInputChange}
+                    required
+                    rows={6}
+                    className="form-textarea"
+                    placeholder="Décrivez votre demande en détail..."
+                  />
+                  <p className="form-helper-text">
+                    {formData.message.length} / 10 caractères minimum
                   </p>
                 </div>
 
-                <form onSubmit={handleSubmit} className="space-y-6">
-                  {/* Nom et Prénom */}
-                  <div className="grid grid-cols-1 md:grid-cols-2 gap-4 sm:gap-6">
-                    <div>
-                      <label className="block text-sm font-semibold text-gray-700 mb-2">
-                        Nom *
-                      </label>
-                      <input
-                        type="text"
-                        name="nom"
-                        value={form_data.nom}
-                        onChange={handleInputChange}
-                        required
-                        className="w-full px-4 py-3 border-2 border-gray-200 rounded-xl focus:outline-none focus:ring-2 focus:ring-[#6149CD] focus:border-transparent text-gray-900 placeholder:text-gray-400"
-                        placeholder="Votre nom"
-                      />
-                    </div>
+                {/* Submit Button */}
+                <button
+                  type="submit"
+                  disabled={isSubmitting || !isFormValid()}
+                  className={`btn btn-primary btn-full-width ${
+                    isSubmitting || !isFormValid() ? "btn-disabled" : ""
+                  }`}
+                >
+                  {isSubmitting ? (
+                    <>
+                      <div className="spinner" />
+                      <span>Envoi en cours...</span>
+                    </>
+                  ) : (
+                    <>
+                      <svg
+                        width="20"
+                        height="20"
+                        viewBox="0 0 24 24"
+                        fill="none"
+                        stroke="currentColor"
+                        strokeWidth="2"
+                      >
+                        <line x1="22" y1="2" x2="11" y2="13" />
+                        <polygon points="22 2 15 22 11 13 2 9 22 2" />
+                      </svg>
+                      <span>Envoyer le message</span>
+                    </>
+                  )}
+                </button>
 
-                    <div>
-                      <label className="block text-sm font-semibold text-gray-700 mb-2">
-                        Prénom *
-                      </label>
-                      <input
-                        type="text"
-                        name="prenom"
-                        value={form_data.prenom}
-                        onChange={handleInputChange}
-                        required
-                        className="w-full px-4 py-3 border-2 border-gray-200 rounded-xl focus:outline-none focus:ring-2 focus:ring-[#6149CD] focus:border-transparent text-gray-900 placeholder:text-gray-400"
-                        placeholder="Votre prénom"
-                      />
-                    </div>
-                  </div>
-
-                  {/* Email et Téléphone */}
-                  <div className="grid grid-cols-1 md:grid-cols-2 gap-4 sm:gap-6">
-                    <div>
-                      <label className="block text-sm font-semibold text-gray-700 mb-2">
-                        Email *
-                      </label>
-                      <input
-                        type="email"
-                        name="email"
-                        value={form_data.email}
-                        onChange={handleInputChange}
-                        required
-                        className="w-full px-4 py-3 border-2 border-gray-200 rounded-xl focus:outline-none focus:ring-2 focus:ring-[#6149CD] focus:border-transparent text-gray-900 placeholder:text-gray-400"
-                        placeholder="exemple@email.com"
-                      />
-                    </div>
-
-                    <div>
-                      <label className="block text-sm font-semibold text-gray-700 mb-2">
-                        Téléphone
-                      </label>
-                      <input
-                        type="tel"
-                        name="telephone"
-                        value={form_data.telephone}
-                        onChange={handleInputChange}
-                        className="w-full px-4 py-3 border-2 border-gray-200 rounded-xl focus:outline-none focus:ring-2 focus:ring-[#6149CD] focus:border-transparent text-gray-900 placeholder:text-gray-400"
-                        placeholder="+237 6XX XX XX XX"
-                        maxLength={9}
-                      />
-                    </div>
-                  </div>
-
-                  {/* Sujet */}
-                  <div>
-                    <label className="block text-sm font-semibold text-gray-700 mb-2">
-                      Sujet *
-                    </label>
-                    <select
-                      name="sujet"
-                      value={form_data.sujet}
-                      onChange={handleInputChange}
-                      required
-                      className="w-full px-4 py-3 border-2 border-gray-200 rounded-xl focus:outline-none focus:ring-2 focus:ring-[#6149CD] focus:border-transparent text-gray-900"
-                    >
-                      <option value="">Sélectionnez un sujet</option>
-                      {SUBJECTS.map((subject, index) => (
-                        <option key={index} value={subject}>
-                          {subject}
-                        </option>
-                      ))}
-                    </select>
-                  </div>
-
-                  {/* Message */}
-                  <div>
-                    <label className="block text-sm font-semibold text-gray-700 mb-2">
-                      Message *
-                    </label>
-                    <textarea
-                      name="message"
-                      value={form_data.message}
-                      onChange={handleInputChange}
-                      required
-                      rows={6}
-                      className="w-full px-4 py-3 border-2 border-gray-200 rounded-xl focus:outline-none focus:ring-2 focus:ring-[#6149CD] focus:border-transparent resize-none text-gray-900 placeholder:text-gray-400"
-                      placeholder="Décrivez votre demande en détail (minimum 10 caractères)..."
-                    />
-                    <p className="text-sm text-gray-500 mt-2">
-                      {form_data.message.length} / 10 caractères minimum
-                    </p>
-                  </div>
-
-                  {/* Submit Button */}
-                  <button
-                    type="submit"
-                    disabled={is_submitting || !isFormValid()}
-                    style={{ backgroundColor: BUTTON_COLOR }}
-                    className="w-full py-3 sm:py-4 text-white rounded-xl font-semibold hover:opacity-90 active:opacity-80 transition-all flex items-center justify-center space-x-2 disabled:opacity-50 disabled:cursor-not-allowed shadow-lg"
-                  >
-                    {is_submitting ? (
-                      <>
-                        <div className="w-5 h-5 border-2 border-white border-t-transparent rounded-full animate-spin"></div>
-                        <span>Envoi en cours...</span>
-                      </>
-                    ) : (
-                      <>
-                        <Send className="w-5 h-5" />
-                        <span>Envoyer le message</span>
-                      </>
-                    )}
-                  </button>
-
-                  <p className="text-center text-xs sm:text-sm text-gray-500">
-                    En envoyant ce message, vous acceptez notre politique de
-                    confidentialité
-                  </p>
-                </form>
-              </div>
+                <p className="form-footer-text">
+                  En envoyant ce message, vous acceptez notre politique de
+                  confidentialité
+                </p>
+              </form>
             </div>
           </div>
         </div>
-      </main>
+      </section>
+
+      {/* Footer */}
+      <footer className="footer">
+        <div className="container">
+          <div className="footer-grid">
+            <div>
+              <img
+                src="/images/busstation.png"
+                alt="BusStation"
+                className="footer-logo"
+              />
+              <p className="footer-description">
+                La plateforme de réservation et de gestion d'agences de
+                transport la plus complète du Cameroun.
+              </p>
+            </div>
+            <div>
+              <h4 className="footer-title">Produit</h4>
+              <ul className="footer-links">
+                <li>
+                  <a href="/landing#features" className="footer-link">
+                    Fonctionnalités
+                  </a>
+                </li>
+                <li>
+                  <a href="/landing#process" className="footer-link">
+                    Comment ça marche
+                  </a>
+                </li>
+                <li>
+                  <a href="/landing#stats" className="footer-link">
+                    Nos chiffres
+                  </a>
+                </li>
+              </ul>
+            </div>
+            <div>
+              <h4 className="footer-title">Entreprise</h4>
+              <ul className="footer-links">
+                <li>
+                  <a href="#" className="footer-link">
+                    À propos
+                  </a>
+                </li>
+                <li>
+                  <a href="#" className="footer-link">
+                    Devenir partenaire
+                  </a>
+                </li>
+                <li>
+                  <a href="#" className="footer-link">
+                    Blog
+                  </a>
+                </li>
+              </ul>
+            </div>
+            <div>
+              <h4 className="footer-title">Support</h4>
+              <ul className="footer-links">
+                <li>
+                  <a href="/help" className="footer-link">
+                    Centre d'aide
+                  </a>
+                </li>
+                <li>
+                  <a href="/contact" className="footer-link">
+                    Contact
+                  </a>
+                </li>
+                <li>
+                  <a href="/landing#faq" className="footer-link">
+                    FAQ
+                  </a>
+                </li>
+              </ul>
+            </div>
+          </div>
+          <div className="footer-bottom">
+            <div>© 2025 BusStation. Tous droits réservés.</div>
+            <div className="footer-legal">
+              <a href="#" className="footer-link">
+                Mentions légales
+              </a>
+              <a href="#" className="footer-link">
+                Confidentialité
+              </a>
+              <a href="#" className="footer-link">
+                CGU
+              </a>
+            </div>
+          </div>
+        </div>
+      </footer>
 
       {/* Success Modal */}
-      {show_success_modal && (
-        <div className="fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center z-50 p-4">
-          <div className="bg-white rounded-2xl shadow-2xl max-w-md w-full p-8">
-            <div className="text-center">
-              <div className="w-20 h-20 bg-linear-to-br from-green-400 to-green-600 rounded-full flex items-center justify-center mx-auto mb-4">
-                <CheckCircle className="w-12 h-12 text-white" />
-              </div>
-              <h2 className="text-2xl font-bold text-gray-900 mb-2">
-                Message envoyé !
-              </h2>
-              <p className="text-gray-600 mb-6">
-                Votre message a été envoyé avec succès. Nous vous répondrons
-                dans les plus brefs délais.
-              </p>
-              <button
-                onClick={() => {
-                  setShowSuccessModal(false);
-                  router.push("/landing");
-                }}
-                className="w-full py-3 bg-green-600 text-white rounded-xl font-semibold hover:bg-green-700 transition-colors"
-              >
-                Retour à l'accueil
-              </button>
-            </div>
-          </div>
-        </div>
-      )}
+      <SuccessModal
+        show={showSuccessModal}
+        onClose={() => {
+          setShowSuccessModal(false);
+          router.push("/landing");
+        }}
+        title="Message envoyé"
+        message="Nous vous répondrons dans les plus brefs délais."
+        buttonText="OK"
+      />
 
       {/* Error Modal */}
-      {show_error_modal && (
-        <div className="fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center z-50 p-4">
-          <div className="bg-white rounded-2xl shadow-2xl max-w-md w-full p-8">
-            <div className="text-center">
-              <div className="w-20 h-20 bg-linear-to-br from-red-400 to-red-600 rounded-full flex items-center justify-center mx-auto mb-4">
-                <AlertCircle className="w-12 h-12 text-white" />
-              </div>
-              <h2 className="text-2xl font-bold text-gray-900 mb-2">
-                Erreur d'envoi
-              </h2>
-              <div className="bg-red-50 rounded-xl p-4 mb-6">
-                <p className="text-sm text-red-800">{error_message}</p>
-              </div>
-              <button
-                onClick={() => {
-                  setShowErrorModal(false);
-                  setErrorMessage("");
-                }}
-                className="w-full py-3 bg-red-600 text-white rounded-xl font-semibold hover:bg-red-700 transition-colors"
-              >
-                Fermer
-              </button>
-            </div>
-          </div>
-        </div>
-      )}
+      <ErrorModal
+        show={showErrorModal}
+        onClose={() => {
+          setShowErrorModal(false);
+          setErrorMessage("");
+        }}
+        message={errorMessage}
+        buttonText="Réessayer"
+      />
     </div>
   );
 }

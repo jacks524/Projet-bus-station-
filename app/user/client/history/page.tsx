@@ -1,25 +1,35 @@
 "use client";
 
 import React, { useState, useEffect } from "react";
+import { useRouter } from "next/navigation";
 import {
   Home,
   Calendar,
   FileText,
   Ticket,
   Gift,
-  History,
+  History as HistoryIcon,
   Settings,
-  ChevronDown,
-  LogOut,
-  Menu,
-  X,
-  Clock,
   CheckCircle,
   XCircle,
-  AlertCircle,
-  Coins,
+  Clock,
+  RefreshCw,
+  ChevronDown,
+  ChevronUp,
+  Download,
+  X,
 } from "lucide-react";
-import { useRouter } from "next/navigation";
+import Sidebar from "@/app/components/Sidebar";
+import MobileSidebar from "@/app/components/Mobilesidebar";
+import Header from "@/app/components/Header";
+
+/**
+ * BusStation Client History Page
+ * Display user's reservation history in a professional table
+ *
+ * @author Félix DJOTIO NDIE
+ * @date 2025-01-30
+ */
 
 interface Historique {
   idHistorique: string;
@@ -42,28 +52,20 @@ interface UserData {
   userId: string;
 }
 
-/**
- * Client History Page Component
- *
- * Display user's reservation history
- * Fetches from GET /historique/reservation/{idUtilisateur}
- *
- * @author Thomas Djotio Ndié
- * @date 2025-12-20
- */
 export default function ClientHistoryPage() {
-  const [historiques, setHistoriques] = useState<Historique[]>([]);
-  const [is_loading, setIsLoading] = useState(true);
-  const [error_message, setErrorMessage] = useState("");
-
-  const [show_profile_menu, setShowProfileMenu] = useState(false);
-  const [show_mobile_menu, setShowMobileMenu] = useState(false);
-  const [user_data, setUserData] = useState<UserData | null>(null);
-
   const router = useRouter();
+  const [historiques, setHistoriques] = useState<Historique[]>([]);
+  const [isLoading, setIsLoading] = useState(true);
+  const [errorMessage, setErrorMessage] = useState("");
+  const [showMobileMenu, setShowMobileMenu] = useState(false);
+  const [userData, setUserData] = useState<UserData | null>(null);
+  const [expandedRows, setExpandedRows] = useState<Set<string>>(new Set());
+  const [sortConfig, setSortConfig] = useState<{
+    key: keyof Historique | null;
+    direction: "asc" | "desc";
+  }>({ key: null, direction: "asc" });
 
   const API_BASE_URL = process.env.NEXT_PUBLIC_API_BASE_URL;
-  const BUTTON_COLOR = "#6149CD";
 
   const MENU_ITEMS = [
     { icon: Home, label: "Accueil", path: "/user/client/home", active: false },
@@ -92,7 +94,7 @@ export default function ClientHistoryPage() {
       active: false,
     },
     {
-      icon: History,
+      icon: HistoryIcon,
       label: "Historique",
       path: "/user/client/history",
       active: true,
@@ -106,31 +108,31 @@ export default function ClientHistoryPage() {
   ];
 
   useEffect(() => {
-    const auth_token =
+    const authToken =
       localStorage.getItem("auth_token") ||
       sessionStorage.getItem("auth_token");
 
-    if (!auth_token) {
+    if (!authToken) {
       router.push("/login");
       return;
     }
 
-    const stored_user_data =
+    const storedUserData =
       localStorage.getItem("user_data") || sessionStorage.getItem("user_data");
-    if (stored_user_data) {
-      const parsed_user = JSON.parse(stored_user_data);
-      setUserData(parsed_user);
-      fetchHistoriques(parsed_user.userId);
+    if (storedUserData) {
+      const parsedUser = JSON.parse(storedUserData);
+      setUserData(parsedUser);
+      fetchHistoriques(parsedUser.userId);
     }
   }, []);
 
-  const fetchHistoriques = async (user_id: string) => {
+  const fetchHistoriques = async (userId: string) => {
     setIsLoading(true);
     setErrorMessage("");
 
     try {
       const response = await fetch(
-        `${API_BASE_URL}/historique/reservation/${user_id}`,
+        `${API_BASE_URL}/historique/reservation/${userId}`,
         {
           method: "GET",
           headers: {
@@ -153,413 +155,381 @@ export default function ClientHistoryPage() {
     }
   };
 
-  const handleLogout = () => {
-    localStorage.removeItem("auth_token");
-    localStorage.removeItem("user_data");
-    sessionStorage.removeItem("auth_token");
-    sessionStorage.removeItem("user_data");
-    router.push("/login");
-  };
-
-  const formatDate = (date_string: string) => {
-    if (!date_string) return "N/A";
-    const date = new Date(date_string);
+  const formatDate = (dateString: string) => {
+    if (!dateString) return "-";
+    const date = new Date(dateString);
     return date.toLocaleDateString("fr-FR", {
       day: "2-digit",
-      month: "long",
+      month: "short",
       year: "numeric",
       hour: "2-digit",
       minute: "2-digit",
     });
   };
 
-  const formatStatus = (status: string) => {
-    const status_map: { [key: string]: string } = {
-      ANNULER_PAR_AGENCE_APRES_RESERVATION:
-        "Annulé par l'agence après réservation",
-      ANNULER_PAR_USAGER_APRES_RESERVATION:
-        "Annulé par l'usager après réservation",
-      ANNULER_PAR_AGENCE_APRES_CONFIRMATION:
-        "Annulé par l'agence après confirmation",
-      ANNULER_PAR_USAGER_APRES_CONFIRMATION:
-        "Annulé par l'usager après confirmation",
-      VALIDER: "Reservation effectuée",
+  const getStatusInfo = (status: string) => {
+    const statusMap: {
+      [key: string]: { label: string; type: "success" | "warning" | "error" };
+    } = {
+      ANNULER_PAR_AGENCE_APRES_RESERVATION: {
+        label: "Annulé (Agence)",
+        type: "error",
+      },
+      ANNULER_PAR_USAGER_APRES_RESERVATION: {
+        label: "Annulé (Vous)",
+        type: "warning",
+      },
+      ANNULER_PAR_AGENCE_APRES_CONFIRMATION: {
+        label: "Annulé (Agence)",
+        type: "error",
+      },
+      ANNULER_PAR_USAGER_APRES_CONFIRMATION: {
+        label: "Annulé (Vous)",
+        type: "warning",
+      },
+      VALIDER: { label: "Validé", type: "success" },
     };
-    return status_map[status] || status;
+    return statusMap[status] || { label: status, type: "warning" as "warning" };
   };
 
-  const getStatusIcon = (status: string) => {
-    if (status.includes("VALIDER")) {
-      return <FileText className="w-5 h-5 text-gray-600" />;
-    } else if (
-      status.includes("ANNULER_PAR_AGENCE_APRES_RESERVATION") ||
-      status.includes("ANNULER_PAR_USAGER_APRES_RESERVATION") ||
-      status.includes("ANNULER_PAR_AGENCE_APRES_CONFIRMATION") ||
-      status.includes("ANNULER_PAR_USAGER_APRES_CONFIRMATION")
-    ) {
-      return <XCircle className="w-5 h-5 text-red-600" />;
+  const toggleRowExpansion = (id: string) => {
+    const newExpanded = new Set(expandedRows);
+    if (newExpanded.has(id)) {
+      newExpanded.delete(id);
     } else {
-      return <AlertCircle className="w-5 h-5 text-gray-600" />;
+      newExpanded.add(id);
     }
+    setExpandedRows(newExpanded);
   };
 
-  const getStatusColor = (status: string, dateConfirmation: string) => {
-    if (status.includes("VALIDER") && dateConfirmation) {
-      return "bg-green-100 border-green-200";
-    } else if (
-      status.includes("ANNULER_PAR_AGENCE_APRES_RESERVATION") ||
-      status.includes("ANNULER_PAR_USAGER_APRES_RESERVATION") ||
-      status.includes("ANNULER_PAR_AGENCE_APRES_CONFIRMATION") ||
-      status.includes("ANNULER_PAR_USAGER_APRES_CONFIRMATION")
-    ) {
-      return "bg-red-100 border-red-200";
-    } else {
-      return "bg-gray-50 border-gray-200";
+  const handleSort = (key: keyof Historique) => {
+    let direction: "asc" | "desc" = "asc";
+    if (sortConfig.key === key && sortConfig.direction === "asc") {
+      direction = "desc";
     }
+    setSortConfig({ key, direction });
+  };
+
+  const sortedHistoriques = React.useMemo(() => {
+    let sortableItems = [...historiques];
+    if (sortConfig.key !== null) {
+      sortableItems.sort((a, b) => {
+        const aValue = a[sortConfig.key!];
+        const bValue = b[sortConfig.key!];
+
+        if (aValue < bValue) {
+          return sortConfig.direction === "asc" ? -1 : 1;
+        }
+        if (aValue > bValue) {
+          return sortConfig.direction === "asc" ? 1 : -1;
+        }
+        return 0;
+      });
+    }
+    return sortableItems;
+  }, [historiques, sortConfig]);
+
+  const exportToCSV = () => {
+    const headers = [
+      "N° Réservation",
+      "Statut",
+      "Date Réservation",
+      "Date Confirmation",
+      "Date Annulation",
+      "Compensation",
+    ];
+
+    const rows = historiques.map((item) => [
+      item.idReservation,
+      getStatusInfo(item.statusHistorique).label,
+      formatDate(item.dateReservation),
+      formatDate(item.dateConfirmation),
+      formatDate(item.dateAnnulation),
+      item.compensation > 0 ? `${(item.compensation * 100).toFixed(0)}%` : "-",
+    ]);
+
+    const csvContent = [
+      headers.join(","),
+      ...rows.map((row) => row.join(",")),
+    ].join("\n");
+
+    const blob = new Blob([csvContent], { type: "text/csv;charset=utf-8;" });
+    const link = document.createElement("a");
+    const url = URL.createObjectURL(blob);
+    link.setAttribute("href", url);
+    link.setAttribute("download", `historique_${Date.now()}.csv`);
+    link.style.visibility = "hidden";
+    document.body.appendChild(link);
+    link.click();
+    document.body.removeChild(link);
   };
 
   return (
-    <div className="min-h-screen bg-gray-50 flex">
-      {/* Sidebar */}
-      <>
-        <aside className="hidden lg:flex lg:flex-col w-64 bg-white border-r border-gray-200 fixed h-full">
-          <div className="p-6">
-            <div className="mb-8">
-              <button
-                onClick={() => router.push("/user/client/home")}
-                className="group relative transition-all duration-300 hover:scale-105 active:scale-95"
-              >
-                <div className="absolute inset-0 bg-linear-to-r from-[#6149CD] to-[#8B7BE8] rounded-lg opacity-0 group-hover:opacity-10 blur-xl transition-opacity duration-300"></div>
-                <img
-                  src="/images/busstation.png"
-                  alt="BusStation Logo"
-                  className="h-12 w-auto relative z-10 drop-shadow-md group-hover:drop-shadow-xl transition-all duration-300"
-                />
-              </button>
-            </div>
+    <div className="dashboard-layout">
+      <Sidebar menuItems={MENU_ITEMS} activePath="/user/client/history" />
+      <MobileSidebar
+        isOpen={showMobileMenu}
+        onClose={() => setShowMobileMenu(false)}
+        menuItems={MENU_ITEMS}
+        activePath="/user/client/history"
+      />
 
-            <nav className="space-y-1">
-              {MENU_ITEMS.map((item, index) => (
-                <button
-                  key={index}
-                  onClick={() =>
-                    item.active
-                      ? window.location.reload()
-                      : router.push(item.path)
-                  }
-                  className={`w-full flex items-center space-x-3 px-4 py-3 rounded-lg transition-colors ${
-                    item.active
-                      ? "bg-[#6149CD] text-white"
-                      : "text-gray-600 hover:bg-gray-100"
-                  }`}
-                >
-                  <item.icon className="w-5 h-5" />
-                  <span className="font-medium">{item.label}</span>
-                </button>
-              ))}
-            </nav>
-          </div>
-        </aside>
+      <div className="dashboard-main">
+        <Header
+          title="Historique"
+          userData={userData}
+          onMenuClick={() => setShowMobileMenu(true)}
+        />
 
-        {show_mobile_menu && (
-          <>
+        <main className="dashboard-content">
+          <div className="container" style={{ maxWidth: "1200px" }}>
+            {/* Section Header */}
             <div
-              className="fixed inset-0 z-40 lg:hidden"
-              onClick={() => setShowMobileMenu(false)}
-            ></div>
-
-            <aside className="fixed left-0 top-0 h-full w-64 bg-white shadow-2xl z-50 lg:hidden transform transition-transform duration-300">
-              <div className="p-6">
-                <div className="flex items-center justify-between mb-8">
-                  <button
-                    onClick={() => {
-                      setShowMobileMenu(false);
-                      router.push("/user/client/home");
-                    }}
-                    className="group relative transition-all duration-300 hover:scale-105 active:scale-95"
-                  >
-                    <img
-                      src="/images/busstation.png"
-                      alt="BusStation Logo"
-                      className="h-9.5 w-auto"
-                    />
-                  </button>
-                  <button
-                    onClick={() => setShowMobileMenu(false)}
-                    className="p-2 hover:bg-gray-100 rounded-lg transition-colors"
-                  >
-                    <X className="w-6 h-6 text-gray-900" />
-                  </button>
-                </div>
-
-                <nav className="space-y-1">
-                  {MENU_ITEMS.map((item, index) => (
-                    <button
-                      key={index}
-                      onClick={() => {
-                        setShowMobileMenu(false);
-                        router.push(item.path);
-                      }}
-                      className={`w-full flex items-center space-x-3 px-4 py-3 rounded-lg transition-colors ${
-                        item.active
-                          ? "bg-[#6149CD] text-white"
-                          : "text-gray-600 hover:bg-gray-100"
-                      }`}
-                    >
-                      <item.icon className="w-5 h-5" />
-                      <span className="font-medium">{item.label}</span>
-                    </button>
-                  ))}
-                </nav>
+              className="section-header"
+              style={{ marginBottom: "var(--spacing-2xl)" }}
+            >
+              <div>
+                <h2 className="section-title">Historique des réservations</h2>
+                <p className="section-description">
+                  Consultez l'ensemble de vos activités passées
+                </p>
               </div>
-            </aside>
-          </>
-        )}
-      </>
-
-      {/* Main Content */}
-      <div className="flex-1 lg:ml-64">
-        {/* Header */}
-        <header className="bg-white border-b border-gray-200 sticky top-0 z-10">
-          <div className="px-6 py-4 flex items-center justify-between">
-            <div className="flex items-center space-x-3">
-              <button
-                onClick={() => setShowMobileMenu(true)}
-                className="lg:hidden p-2 hover:bg-gray-100 rounded-lg transition-colors"
-              >
-                <Menu className="w-6 h-6 text-gray-900" />
-              </button>
-              <h1 className="text-2xl font-semibold text-gray-900">
-                Historique
-              </h1>
-            </div>
-
-            <div className="flex items-center space-x-4">
-              <button
-                onClick={() => router.push("/user/client/settings")}
-                className="p-2 hover:bg-gray-100 rounded-lg transition-colors"
-              >
-                <Settings className="w-6 h-6 text-gray-600" />
-              </button>
-
-              {/* Profile Menu */}
-              <div className="relative">
+              {!isLoading && historiques.length > 0 && (
                 <button
-                  onClick={() => setShowProfileMenu(!show_profile_menu)}
-                  className="flex items-center space-x-3 hover:bg-gray-100 rounded-lg px-3 py-2 transition-colors"
+                  onClick={exportToCSV}
+                  className="btn btn-secondary"
+                  style={{ marginTop: "20px" }}
                 >
-                  <img
-                    src="/images/user-icon.png"
-                    alt="Profile"
-                    className="w-8.5 h-8.5 rounded-full object-cover"
-                  />
-                  <span className="font-medium text-gray-900 hidden md:block">
-                    {user_data?.username}
-                  </span>
-                  <ChevronDown className="w-4 h-4 text-gray-600" />
+                  <Download />
+                  Exporter CSV
                 </button>
-
-                {show_profile_menu && (
-                  <div className="absolute right-0 mt-2 w-48 bg-white rounded-lg shadow-lg border border-gray-200 py-2">
-                    <button
-                      onClick={() => {
-                        setShowProfileMenu(false);
-                        router.push("/user/client/settings");
-                      }}
-                      className="w-full flex items-center space-x-3 px-4 py-2 hover:bg-gray-100 transition-colors"
-                    >
-                      <Settings className="w-4 h-4 text-gray-600" />
-                      <span className="text-gray-700">Paramètres</span>
-                    </button>
-                    <button
-                      onClick={handleLogout}
-                      className="w-full flex items-center space-x-3 px-4 py-2 hover:bg-gray-100 transition-colors text-red-600"
-                    >
-                      <LogOut className="w-4 h-4" />
-                      <span>Se déconnecter</span>
-                    </button>
-                  </div>
-                )}
-              </div>
+              )}
             </div>
-          </div>
-        </header>
 
-        {/* Content */}
-        <main className="p-6">
-          <div className="max-w-7xl mx-auto">
-            <div className="bg-white rounded-2xl shadow-lg border border-gray-200 overflow-hidden">
-              {/* Image en haut */}
-              <div className="relative h-64">
-                <img
-                  src="/images/cameroun1___.jpg"
-                  alt="Historique"
-                  className="w-full h-full object-cover"
-                  onError={(e) => {
-                    e.currentTarget.src =
-                      "https://images.unsplash.com/photo-1501139083538-0139583c060f?w=1200&h=300&fit=crop";
-                  }}
-                />
-                <div className="absolute inset-0 bg-linear-to-b from-black/60 via-black/40 to-transparent"></div>
-                <div className="absolute top-0 left-0 right-0 p-8">
-                  <h2 className="text-3xl md:text-4xl font-bold text-white mb-2 drop-shadow-lg">
-                    Historique de vos réservations
-                  </h2>
-                  <p className="text-white/90 text-lg drop-shadow-md">
-                    Consultez toutes vos activités passées
-                  </p>
-                </div>
+            {/* Loading State */}
+            {isLoading && (
+              <div className="loading-state">
+                <RefreshCw className="spin" />
+                <p>Chargement de l'historique...</p>
               </div>
+            )}
 
-              {/* Liste des historiques */}
-              <div className="p-8">
-                {is_loading ? (
-                  <div className="flex items-center justify-center py-20">
-                    <div className="text-center">
-                      <History className="w-16 h-16 text-[#6149CD] animate-spin mx-auto mb-4" />
-                      <p className="text-gray-600">
-                        Chargement de l'historique...
-                      </p>
-                    </div>
-                  </div>
-                ) : error_message ? (
-                  <div
-                    onClick={() => window.location.reload()}
-                    className="bg-red-50 border border-red-200 rounded-lg p-6 text-center"
-                  >
-                    <X className="w-12 h-12 text-red-500 mx-auto mb-4" />
-                    <p className="text-red-600">{error_message}</p>
-                  </div>
-                ) : historiques.length === 0 ? (
-                  <div className="bg-white rounded-xl p-12 text-center">
-                    <History
-                      onClick={() => window.location.reload()}
-                      className="w-16 h-16 text-gray-400 mx-auto mb-4 hover:scale-105 active:scale-95 transition-transform cursor-pointer"
-                    />
-                    <h3 className="text-xl font-semibold text-gray-900 mb-2">
-                      Aucun historique
-                    </h3>
-                    <p className="text-gray-600 mb-6">
-                      Votre historique de réservations est vide
-                    </p>
-                    <button
-                      onClick={() => router.push("/user/client/book")}
-                      style={{ backgroundColor: BUTTON_COLOR }}
-                      className="px-6 py-3 text-white rounded-lg hover:opacity-90 transition-opacity"
-                    >
-                      Réserver un voyage
-                    </button>
-                  </div>
-                ) : (
-                  <div className="space-y-3">
-                    {historiques.map((item) => (
-                      <div
-                        key={item.idHistorique}
-                        className={`flex items-start space-x-4 p-4 rounded-lg border-l-4 transition-all hover:shadow-md ${getStatusColor(
-                          item.statusHistorique,
-                          item.dateConfirmation,
-                        )}`}
-                      >
-                        {/* Icône de statut */}
-                        <div className="shrink-0 mt-1">
-                          {getStatusIcon(item.statusHistorique)}
-                        </div>
+            {/* Error State */}
+            {!isLoading && errorMessage && (
+              <div className="error-state">
+                <X className="error-state-icon" />
+                <p className="error-text">{errorMessage}</p>
+                <button
+                  onClick={() => window.location.reload()}
+                  className="btn modal-button modal-button-error"
+                >
+                  Réessayer
+                </button>
+              </div>
+            )}
 
-                        {/* Contenu */}
-                        <div className="flex-1 min-w-0">
-                          <div className="flex items-start justify-between mb-2">
-                            <div className="flex-1">
-                              <h3 className="text-base font-semibold text-gray-900">
-                                {formatStatus(item.statusHistorique)}
-                              </h3>
-                              <p className="text-sm text-gray-600 mt-1">
-                                Réservation N° {item.idReservation}
-                              </p>
-                            </div>
-                            <span className="text-xs text-gray-500 ml-4 whitespace-nowrap">
-                              {formatDate(
-                                item.dateAnnulation ||
-                                  item.dateConfirmation ||
-                                  item.dateReservation,
-                              )}
-                            </span>
+            {/* Empty State */}
+            {!isLoading && !errorMessage && historiques.length === 0 && (
+              <div className="empty-state">
+                <HistoryIcon className="empty-icon" />
+                <h3 className="empty-title">Aucun historique</h3>
+                <p className="empty-description">
+                  Votre historique de réservations est vide
+                </p>
+                <button
+                  onClick={() => router.push("/user/client/book")}
+                  className="btn btn-primary"
+                  style={{ marginTop: "var(--spacing-lg)" }}
+                >
+                  Réserver un voyage
+                </button>
+              </div>
+            )}
+
+            {/* History Table */}
+            {!isLoading && !errorMessage && historiques.length > 0 && (
+              <div className="history-table-container">
+                <div className="history-table-wrapper">
+                  <table className="history-table">
+                    <thead>
+                      <tr>
+                        <th className="th-expand"></th>
+                        <th
+                          className="th-sortable"
+                          onClick={() => handleSort("idReservation")}
+                        >
+                          <div className="th-content">
+                            <span>N° Réservation</span>
+                            {sortConfig.key === "idReservation" &&
+                              (sortConfig.direction === "asc" ? (
+                                <ChevronUp className="sort-icon" />
+                              ) : (
+                                <ChevronDown className="sort-icon" />
+                              ))}
                           </div>
+                        </th>
+                        <th
+                          className="th-sortable"
+                          onClick={() => handleSort("statusHistorique")}
+                        >
+                          <div className="th-content">
+                            <span>Statut</span>
+                            {sortConfig.key === "statusHistorique" &&
+                              (sortConfig.direction === "asc" ? (
+                                <ChevronUp className="sort-icon" />
+                              ) : (
+                                <ChevronDown className="sort-icon" />
+                              ))}
+                          </div>
+                        </th>
+                        <th
+                          className="th-sortable"
+                          onClick={() => handleSort("dateReservation")}
+                        >
+                          <div className="th-content">
+                            <span>Date Réservation</span>
+                            {sortConfig.key === "dateReservation" &&
+                              (sortConfig.direction === "asc" ? (
+                                <ChevronUp className="sort-icon" />
+                              ) : (
+                                <ChevronDown className="sort-icon" />
+                              ))}
+                          </div>
+                        </th>
+                        <th
+                          className="th-sortable"
+                          onClick={() => handleSort("dateConfirmation")}
+                        >
+                          <div className="th-content">
+                            <span>Date Confirmation</span>
+                            {sortConfig.key === "dateConfirmation" &&
+                              (sortConfig.direction === "asc" ? (
+                                <ChevronUp className="sort-icon" />
+                              ) : (
+                                <ChevronDown className="sort-icon" />
+                              ))}
+                          </div>
+                        </th>
+                        <th>Compensation</th>
+                      </tr>
+                    </thead>
+                    <tbody>
+                      {sortedHistoriques.map((item) => {
+                        const statusInfo = getStatusInfo(item.statusHistorique);
+                        const isExpanded = expandedRows.has(item.idHistorique);
 
-                          {/* Détails supplémentaires */}
-                          <div className="grid grid-cols-1 md:grid-cols-2 gap-2 text-xs text-gray-600">
-                            {item.dateReservation && (
-                              <div className="flex items-center space-x-2">
-                                <Clock className="w-3.5 h-3.5" />
-                                <span>
-                                  Réservé le {formatDate(item.dateReservation)}
+                        return (
+                          <React.Fragment key={item.idHistorique}>
+                            <tr className="table-row">
+                              <td className="td-expand">
+                                {(item.causeAnnulation ||
+                                  item.dateAnnulation) && (
+                                  <button
+                                    onClick={() =>
+                                      toggleRowExpansion(item.idHistorique)
+                                    }
+                                    className="expand-btn"
+                                  >
+                                    {isExpanded ? (
+                                      <ChevronUp />
+                                    ) : (
+                                      <ChevronDown />
+                                    )}
+                                  </button>
+                                )}
+                              </td>
+                              <td className="td-reservation">
+                                <span className="reservation-id">
+                                  {item.idReservation}
                                 </span>
-                              </div>
-                            )}
-                            <div className="flex items-center space-x-2">
-                              <CheckCircle className="w-3.5 h-3.5 text-gray-400" />
-                              <span>
-                                {item.dateConfirmation
-                                  ? "Confirmé le " +
-                                    formatDate(item.dateConfirmation)
-                                  : "Pas encore confirmé"}
-                              </span>
-                            </div>
-                            {item.causeAnnulation && (
-                              <div className="col-span-full flex items-start space-x-2 mt-2 p-2 bg-white rounded border border-gray-200">
-                                <AlertCircle className="w-3.5 h-3.5 text-orange-600 shrink-0 mt-0.5" />
-                                <div>
-                                  <p className="font-semibold text-gray-700">
-                                    Cause : {item.causeAnnulation}
-                                  </p>
-                                  {item.origineAnnulation && (
-                                    <p className="text-gray-600 mt-1">
-                                      Origine : {item.origineAnnulation}
-                                    </p>
+                              </td>
+                              <td>
+                                <span
+                                  className={`status-badge-table status-${statusInfo.type}`}
+                                >
+                                  {statusInfo.type === "success" && (
+                                    <CheckCircle />
                                   )}
-                                </div>
-                              </div>
-                            )}
-                            {item.compensation > 0 && (
-                              <div className="col-span-full flex items-center space-x-2 mt-2 p-2 bg-green-50 rounded border border-green-200">
-                                <Coins className="w-3.5 h-3.5 text-green-600" />
-                                <span className="font-semibold text-green-700">
-                                  Compensation :{" "}
-                                  {(item.compensation * 100).toFixed(0)}%
+                                  {statusInfo.type === "error" && <XCircle />}
+                                  {statusInfo.type === "warning" && <Clock />}
+                                  {statusInfo.label}
                                 </span>
-                              </div>
+                              </td>
+                              <td className="td-date">
+                                {formatDate(item.dateReservation)}
+                              </td>
+                              <td className="td-date">
+                                {formatDate(item.dateConfirmation)}
+                              </td>
+                              <td>
+                                {item.compensation > 0 ? (
+                                  <span className="compensation-badge">
+                                    {(item.compensation * 100).toFixed(0)}%
+                                  </span>
+                                ) : (
+                                  <span className="text-muted">-</span>
+                                )}
+                              </td>
+                            </tr>
+                            {isExpanded && (
+                              <tr className="expanded-row">
+                                <td colSpan={6}>
+                                  <div className="expanded-content">
+                                    {item.dateAnnulation && (
+                                      <div className="expanded-item">
+                                        <span className="expanded-label">
+                                          Date d'annulation:
+                                        </span>
+                                        <span className="expanded-value">
+                                          {formatDate(item.dateAnnulation)}
+                                        </span>
+                                      </div>
+                                    )}
+                                    {item.causeAnnulation && (
+                                      <div className="expanded-item">
+                                        <span className="expanded-label">
+                                          Motif d'annulation:
+                                        </span>
+                                        <span className="expanded-value">
+                                          {item.causeAnnulation}
+                                        </span>
+                                      </div>
+                                    )}
+                                    {item.origineAnnulation && (
+                                      <div className="expanded-item">
+                                        <span className="expanded-label">
+                                          Origine:
+                                        </span>
+                                        <span className="expanded-value">
+                                          {item.origineAnnulation}
+                                        </span>
+                                      </div>
+                                    )}
+                                    {item.tauxAnnulation > 0 && (
+                                      <div className="expanded-item">
+                                        <span className="expanded-label">
+                                          Taux d'annulation:
+                                        </span>
+                                        <span className="expanded-value">
+                                          {(item.tauxAnnulation * 100).toFixed(
+                                            0,
+                                          )}
+                                          %
+                                        </span>
+                                      </div>
+                                    )}
+                                  </div>
+                                </td>
+                              </tr>
                             )}
-                          </div>
-                        </div>
-                      </div>
-                    ))}
-                  </div>
-                )}
-              </div>
-
-              {/* Image en bas */}
-              <div className="relative h-30">
-                <img
-                  src="/images/cameroun3___.jpg"
-                  alt="Historique"
-                  className="w-full h-full object-cover"
-                  onError={(e) => {
-                    e.currentTarget.src =
-                      "https://images.unsplash.com/photo-1488646953014-85cb44e25828?w=1200&h=300&fit=crop";
-                  }}
-                />
-                <div className="absolute inset-0 bg-linear-to-t from-black/60 via-black/40 to-transparent"></div>
-                <div className="absolute bottom-0 left-0 right-0 p-8">
-                  <div className="max-w-4xl mx-auto text-center">
-                    <h3 className="text-2xl md:text-3xl font-bold text-white mb-2 drop-shadow-lg">
-                      Votre parcours avec nous
-                    </h3>
-                    <p className="text-white/90 drop-shadow-md">
-                      Merci de voyager avec BusStation
-                    </p>
-                  </div>
+                          </React.Fragment>
+                        );
+                      })}
+                    </tbody>
+                  </table>
                 </div>
               </div>
-            </div>
+            )}
           </div>
         </main>
       </div>
