@@ -80,7 +80,7 @@ export default function ClientReservePage() {
   const resultsRef = useRef<HTMLDivElement>(null);
 
   const API_BASE_URL = process.env.NEXT_PUBLIC_API_BASE_URL;
-  const VOYAGES_PER_PAGE = 12;
+  const VOYAGES_PER_PAGE = 100;
 
   const MENU_ITEMS = [
     { icon: Home, label: "Accueil", path: "/user/client/home", active: false },

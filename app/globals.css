@@ -168,6 +168,10 @@ img {
   border-radius: var(--radius-sm);
 }
 
+.mobile-menu-btn svg {
+  color: var(--color-primary);
+}
+
 .mobile-menu-btn:hover {
   background: var(--gray-100);
 }
@@ -691,7 +695,6 @@ img {
 
 .faq-section {
   padding: var(--spacing-2xl) 0 var(--spacing-4xl);
-  background: var(--gray-50);
 }
 
 .faq-list {
@@ -1575,7 +1578,6 @@ img {
 .dashboard-layout {
   min-height: 100vh;
   display: flex;
-  background: var(--gray-50);
 }
 
 .dashboard-main {
@@ -3331,7 +3333,6 @@ img {
   display: flex;
   justify-content: center;
   padding: var(--spacing-lg);
-  background: var(--gray-50);
   border-radius: var(--radius-md);
 }
 
