@@ -747,7 +747,7 @@ export default function AgenceDashboardPage() {
                             <LineChart data={getChartData()}>
                               <CartesianGrid
                                 strokeDasharray="3 3"
-                                stroke="#E5E7EB"
+                                stroke="#525252"
                               />
                               <XAxis
                                 dataKey="date"
@@ -861,7 +861,7 @@ export default function AgenceDashboardPage() {
                               >
                                 <CartesianGrid
                                   strokeDasharray="3 3"
-                                  stroke="#E5E7EB"
+                                  stroke="#525252"
                                 />
                                 <XAxis
                                   dataKey="name"
@@ -902,7 +902,7 @@ export default function AgenceDashboardPage() {
                               >
                                 <CartesianGrid
                                   strokeDasharray="3 3"
-                                  stroke="#E5E7EB"
+                                  stroke="#525252"
                                 />
                                 <XAxis
                                   type="number"
@@ -950,7 +950,7 @@ export default function AgenceDashboardPage() {
                                 >
                                   <CartesianGrid
                                     strokeDasharray="3 3"
-                                    stroke="#E5E7EB"
+                                    stroke="#525252"
                                   />
                                   <XAxis
                                     dataKey="day"
@@ -989,7 +989,7 @@ export default function AgenceDashboardPage() {
                                 >
                                   <CartesianGrid
                                     strokeDasharray="3 3"
-                                    stroke="#E5E7EB"
+                                    stroke="#525252"
                                   />
                                   <XAxis
                                     type="number"
@@ -1042,7 +1042,7 @@ export default function AgenceDashboardPage() {
                                 >
                                   <CartesianGrid
                                     strokeDasharray="3 3"
-                                    stroke="#E5E7EB"
+                                    stroke="#525252"
                                   />
                                   <XAxis
                                     dataKey="date"
@@ -1086,7 +1086,7 @@ export default function AgenceDashboardPage() {
                                 >
                                   <CartesianGrid
                                     strokeDasharray="3 3"
-                                    stroke="#E5E7EB"
+                                    stroke="#525252"
                                   />
                                   <XAxis
                                     dataKey="date"
@@ -1131,7 +1131,7 @@ export default function AgenceDashboardPage() {
                                 >
                                   <CartesianGrid
                                     strokeDasharray="3 3"
-                                    stroke="#E5E7EB"
+                                    stroke="#525252"
                                   />
                                   <XAxis
                                     dataKey="month"
@@ -1173,7 +1173,7 @@ export default function AgenceDashboardPage() {
                                 >
                                   <CartesianGrid
                                     strokeDasharray="3 3"
-                                    stroke="#E5E7EB"
+                                    stroke="#525252"
                                   />
                                   <XAxis
                                     dataKey="month"

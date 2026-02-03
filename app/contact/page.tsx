@@ -5,6 +5,8 @@ import { useRouter } from "next/navigation";
 import { useLanguage } from "@/app/providers";
 import SuccessModal from "@/app/components/SuccessModal";
 import ErrorModal from "@/app/components/ErrorModal";
+import Header from "@/app/components/HeaderHome";
+import Footer from "@/app/components/Footer";
 
 /**
  * BusStation Contact Page
@@ -31,6 +33,11 @@ export default function ContactPage() {
   const [showErrorModal, setShowErrorModal] = useState(false);
   const [errorMessage, setErrorMessage] = useState("");
   const { t } = useLanguage();
+
+  const landingNavLinks = [
+    { label: 'Accueil', labelEn: 'Home', href: '/landing' },
+    { label: "Centre d'aide", labelEn: 'Help center', href: '/help' },
+  ];
 
   const [formData, setFormData] = useState<ContactFormData>({
     nom: "",
@@ -130,87 +137,7 @@ export default function ContactPage() {
   return (
     <div className="page">
       {/* Header */}
-      <header className="header">
-        <div className="container">
-          <div className="header-content">
-            <img
-              src="/images/busstation.png"
-              alt="BusStation"
-              className="logo"
-            />
-
-            <nav className="nav-desktop">
-              <a href="/landing" className="nav-link">
-                {t("Accueil", "Home")}
-              </a>
-              <a href="/help" className="nav-link">
-                {t("Centre d'aide", "Help center")}
-              </a>
-              <button
-                onClick={() => router.push("/login")}
-                className="nav-link"
-                style={{ background: "none", padding: 0 }}
-              >
-                {t("Connexion", "Sign in")}
-              </button>
-              <button
-                onClick={() => router.push("/signup")}
-                className="btn btn-primary"
-              >
-                {t("S'inscrire", "Sign up")}
-              </button>
-            </nav>
-
-            <button
-              className="mobile-menu-btn"
-              onClick={() => setMobileMenuOpen(!mobileMenuOpen)}
-              aria-label={t("Menu", "Menu")}
-            >
-              <svg
-                width="24"
-                height="24"
-                viewBox="0 0 24 24"
-                fill="none"
-                stroke="currentColor"
-                strokeWidth="2"
-              >
-                {mobileMenuOpen ? (
-                  <path d="M18 6L6 18M6 6l12 12" />
-                ) : (
-                  <path d="M3 12h18M3 6h18M3 18h18" />
-                )}
-              </svg>
-            </button>
-          </div>
-
-          {mobileMenuOpen && (
-            <div className="mobile-menu">
-              <a href="/landing" className="mobile-menu-link">
-                {t("Accueil", "Home")}
-              </a>
-              <a href="/help" className="mobile-menu-link">
-                {t("Centre d'aide", "Help center")}
-              </a>
-              <div className="mobile-menu-buttons">
-                <button
-                  onClick={() => router.push("/login")}
-                  className="btn btn-secondary"
-                  style={{ width: "100%" }}
-                >
-                  {t("Connexion", "Sign in")}
-                </button>
-                <button
-                  onClick={() => router.push("/signup")}
-                  className="btn btn-primary"
-                  style={{ width: "100%" }}
-                >
-                  {t("S'inscrire", "Sign up")}
-                </button>
-              </div>
-            </div>
-          )}
-        </div>
-      </header>
+      <Header navLinks={landingNavLinks} showAuthButtons={true} t={t} />
 
       {/* Hero Contact */}
       <section className="hero-help">
@@ -482,104 +409,7 @@ export default function ContactPage() {
       </section>
 
       {/* Footer */}
-      <footer className="footer">
-        <div className="container">
-          <div className="footer-grid">
-            <div>
-              <img
-                src="/images/busstation.png"
-                alt="BusStation"
-                className="footer-logo"
-              />
-              <p className="footer-description">
-                {t(
-                  "La plateforme de réservation et de gestion d'agences de transport la plus complète du Cameroun.",
-                  "The most complete booking and transport agency management platform in Cameroon."
-                )}
-              </p>
-            </div>
-            <div>
-              <h4 className="footer-title">{t("Produit", "Product")}</h4>
-              <ul className="footer-links">
-                <li>
-                  <a href="/landing#features" className="footer-link">
-                    {t("Fonctionnalités", "Features")}
-                  </a>
-                </li>
-                <li>
-                  <a href="/landing#process" className="footer-link">
-                    {t("Comment ça marche", "How it works")}
-                  </a>
-                </li>
-                <li>
-                  <a href="/landing#stats" className="footer-link">
-                    {t("Nos chiffres", "Our numbers")}
-                  </a>
-                </li>
-              </ul>
-            </div>
-            <div>
-              <h4 className="footer-title">{t("Entreprise", "Company")}</h4>
-              <ul className="footer-links">
-                <li>
-                  <a href="#" className="footer-link">
-                    {t("À propos", "About")}
-                  </a>
-                </li>
-                <li>
-                  <a href="#" className="footer-link">
-                    {t("Devenir partenaire", "Become a partner")}
-                  </a>
-                </li>
-                <li>
-                  <a href="#" className="footer-link">
-                    {t("Blog", "Blog")}
-                  </a>
-                </li>
-              </ul>
-            </div>
-            <div>
-              <h4 className="footer-title">{t("Support", "Support")}</h4>
-              <ul className="footer-links">
-                <li>
-                  <a href="/help" className="footer-link">
-                    {t("Centre d'aide", "Help center")}
-                  </a>
-                </li>
-                <li>
-                  <a href="/contact" className="footer-link">
-                    {t("Contact", "Contact")}
-                  </a>
-                </li>
-                <li>
-                  <a href="/landing#faq" className="footer-link">
-                    FAQ
-                  </a>
-                </li>
-              </ul>
-            </div>
-          </div>
-          <div className="footer-bottom">
-            <div>
-              {t(
-                "© 2025 BusStation. Tous droits réservés.",
-                "© 2025 BusStation. All rights reserved."
-              )}
-            </div>
-            <div className="footer-legal">
-              <a href="#" className="footer-link">
-                {t("Mentions légales", "Legal notice")}
-              </a>
-              <a href="#" className="footer-link">
-                {t("Confidentialité", "Privacy")}
-              </a>
-              <a href="#" className="footer-link">
-                {t("CGU", "Terms")}
-              </a>
-            </div>
-          </div>
-        </div>
-      </footer>
+      <Footer showDefaultSections={true} t={t} />
 
       {/* Success Modal */}
       <SuccessModal

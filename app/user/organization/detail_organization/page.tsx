@@ -866,6 +866,8 @@ function DetailOrganizationContent() {
 }
 
 export default function DetailOrganizationPage() {
+  const { t, language } = useLanguage();
+  
   return (
     <Suspense
       fallback={

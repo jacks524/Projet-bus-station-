@@ -791,7 +791,7 @@ export default function OrganizationDashboardPage() {
                               >
                                 <CartesianGrid
                                   strokeDasharray="3 3"
-                                  stroke="#E5E7EB"
+                                  stroke="#525252"
                                 />
                                 <XAxis
                                   dataKey="month"
@@ -829,7 +829,7 @@ export default function OrganizationDashboardPage() {
                               >
                                 <CartesianGrid
                                   strokeDasharray="3 3"
-                                  stroke="#E5E7EB"
+                                  stroke="#525252"
                                 />
                                 <XAxis
                                   dataKey="month"
@@ -906,7 +906,7 @@ export default function OrganizationDashboardPage() {
                               >
                                 <CartesianGrid
                                   strokeDasharray="3 3"
-                                  stroke="#E5E7EB"
+                                  stroke="#525252"
                                 />
                                 <XAxis
                                   type="number"
@@ -1055,7 +1055,7 @@ export default function OrganizationDashboardPage() {
                               >
                                 <CartesianGrid
                                   strokeDasharray="3 3"
-                                  stroke="#E5E7EB"
+                                  stroke="#525252"
                                 />
                                 <XAxis
                                   type="number"

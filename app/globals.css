@@ -80,7 +80,7 @@ html.dark .settings-container,
 html.dark .settings-section,
 html.dark .form-section,
 html.dark .payment-modal-content,
-html.dark .modal-overlay,
+html.dark .modal-content,
 html.dark .empty-state,
 html.dark .voyage-result-item,
 html.dark .org-agency-card,
@@ -215,6 +215,7 @@ html.dark .sidebar,
 html.dark .mobile-sidebar,
 html.dark .dashboard-header,
 html.dark .profile-menu-dropdown,
+html.dark .mobile-menu,
 html.dark .profile-menu-item {
   background: var(--background);
   border-color: var(--gray-300);
@@ -243,10 +244,13 @@ html.dark .profile-menu-item {
   color: var(--foreground);
 }
 
+html.dark .profile-menu-item.logout {
+  color: #dc2626;
+}
+
 html.dark .contact-form-container {
   background: #0f172a;
-  border-color: var(--gray-600);
-  color: var(--foreground);
+  border-color: var(--gray-300);
 }
 
 html.dark .contact-form-title,
@@ -261,8 +265,8 @@ html.dark .form-input,
 html.dark .form-select,
 html.dark .form-textarea {
   background: rgba(15, 23, 42, 0.55);
-  border-color: var(--gray-600);
-  color: var(--gray-50);
+  border-color: var(--gray-300);
+  color: white;
 }
 
 html.dark .form-input::placeholder,
@@ -271,7 +275,7 @@ html.dark .form-textarea::placeholder {
 }
 
 html.dark .form-select {
-  color: var(--gray-50);
+  color: var(--gray-400);
 }
 
 a {
@@ -292,7 +296,7 @@ img {
 
 .global-controls {
   position: fixed;
-  top: 1rem;
+  bottom: 1rem; 
   right: 1rem;
   z-index: 2000;
   display: flex;
@@ -1035,16 +1039,15 @@ html.dark .faq-question:hover {
 }
 
 html.dark .faq-answer {
+  background: #0f172a;
   color: var(--gray-50);
 }
 
 /* Chatbot */
 .chatbot-card {
-  background: var(--gray-50);
   border: 1px solid var(--gray-200);
   border-radius: var(--radius-lg);
   padding: var(--spacing-lg);
-  box-shadow: var(--shadow-sm);
 }
 
 .chatbot-messages {
@@ -1052,7 +1055,6 @@ html.dark .faq-answer {
   overflow-y: auto;
   padding: var(--spacing-md);
   background: white;
-  border: 1px solid var(--gray-200);
   border-radius: var(--radius-md);
   margin-bottom: var(--spacing-md);
 }
@@ -1097,23 +1099,33 @@ html.dark .chatbot-messages {
 .chatbot-input {
   display: flex;
   gap: var(--spacing-sm);
+  flex-direction: column;
   align-items: flex-end;
+  align-items: flex-start;
 }
 
 .chatbot-input textarea {
   flex: 1;
   resize: none;
-  padding: 0.7rem 0.9rem;
+  width: 100%;
+  min-height: 150px;
   border-radius: var(--radius-md);
   border: 1px solid var(--gray-200);
   font-family: inherit;
+  padding-top: var(--spacing-sm);
+  padding-left: var(--spacing-sm);
+  box-sizing: border-box; 
+}
+
+.chatbot-input textarea:focus {
+  outline: 1px solid var(--color-primary);
 }
 
 .chatbot-input button {
   background: var(--color-primary);
+  width: fit-content;
   color: white;
   border-radius: var(--radius-md);
-  padding: 0.7rem 1rem;
   font-weight: 600;
 }
 
@@ -2355,8 +2367,8 @@ html.dark .chatbot-messages {
 
 html.dark .btn-secondary {
   background: #111827;
-  border-color: var(--gray-600);
-  color: var(--gray-50);
+  border-color: var(--gray-300);
+  color: white;
 }
 
 html.dark .btn-secondary:hover {
@@ -2583,7 +2595,7 @@ html.dark .btn-secondary:hover {
 
 html.dark .agences-widget {
   background: #0f172a;
-  border-color: var(--gray-600);
+  border-color: var(--gray-300);
   color: var(--foreground);
 }
 
@@ -2596,7 +2608,7 @@ html.dark .agences-widget .search-input-wrapper input {
 }
 
 html.dark .agences-widget .search-input-wrapper input {
-  border-color: var(--gray-500);
+  border-color: var(--gray-300);
   background: rgba(15, 23, 42, 0.4);
 }
 
@@ -2612,7 +2624,7 @@ html.dark .agences-widget .search-input-wrapper input::placeholder {
 
 html.dark .agences-widget .widget-search .btn-icon {
   color: var(--gray-200);
-  border-color: var(--gray-600);
+  border-color: var(--gray-300);
   background: transparent;
 }
 
@@ -2734,7 +2746,7 @@ html.dark .agences-widget .widget-search .btn-icon {
 
 html.dark .search-form {
   background: #0f172a;
-  border-color: var(--gray-600);
+  border-color: var(--gray-300);
 }
 
 html.dark .search-form .form-label,
@@ -2750,12 +2762,13 @@ html.dark .search-form .form-label {
 html.dark .search-form select,
 html.dark .search-form .form-input {
   background: rgba(15, 23, 42, 0.5);
-  border-color: var(--gray-600);
+  border-color: var(--gray-300);
+  color: white;
 }
 
 html.dark .search-form select option {
   background: #0f172a;
-  color: var(--gray-50);
+  color: white;
 }
 
 /* Voyage Results List */
@@ -3783,12 +3796,12 @@ html.dark .search-form select option {
 
 html.dark .booking-details {
   background: #0f172a;
-  border-color: var(--gray-600);
+  border-color: var(--gray-300);
   color: var(--foreground);
 }
 
 html.dark .booking-detail-item {
-  border-color: var(--gray-600);
+  border-color: var(--gray-300);
 }
 
 html.dark .booking-detail-label,
@@ -3798,13 +3811,13 @@ html.dark .booking-detail-value {
 
 html.dark .seat-map-container {
   background: #0f172a;
-  border-color: var(--gray-600);
+  border-color: var(--gray-300);
   color: var(--foreground);
 }
 
 html.dark .seat-map-legend {
   background: #111827;
-  border-color: var(--gray-600);
+  border-color: var(--gray-300);
 }
 
 html.dark .legend-label {
@@ -3817,7 +3830,7 @@ html.dark .seat-grid {
 
 html.dark .seat {
   background: #0f172a;
-  border-color: var(--gray-600);
+  border-color: var(--gray-300);
   color: var(--color-primary);
 }
 
@@ -3859,6 +3872,11 @@ html.dark .seat:not(.selected):not(.reserved):not(.disabled):hover {
   transform: scale(1.1);
 }
 
+html.dark .seat.selected {
+  background: var(--color-success);
+  border-color: var(--color-success);
+}
+
 .seat.reserved {
   background: #ef4444;
   border-color: #ef4444;
@@ -3866,11 +3884,21 @@ html.dark .seat:not(.selected):not(.reserved):not(.disabled):hover {
   cursor: not-allowed;
 }
 
+html.dark .seat.reserved {
+  background: #ef4444;
+  border-color: #ef4444;
+}
+
 .seat.disabled {
   background: var(--gray-100);
   border-color: var(--gray-300);
   color: var(--gray-500);
   cursor: not-allowed;
+}
+
+html.dark .seat.disabled {
+  background: var(--gray-200);
+  border-color: var(--gray-200);
 }
 
 /* Passenger Form */
@@ -3964,7 +3992,7 @@ html.dark .seat:not(.selected):not(.reserved):not(.disabled):hover {
 
 html.dark .passenger-card-body {
   background: #0f172a;
-  border-color: var(--gray-600);
+  border-color: var(--gray-300);
 }
 
 html.dark .passenger-field-label,
@@ -3975,7 +4003,7 @@ html.dark .passenger-card-seat {
 
 html.dark .passenger-field input {
   background: rgba(15, 23, 42, 0.5);
-  border-color: var(--gray-600);
+  border-color: var(--gray-300);
   color: var(--foreground);
 }
 
@@ -4000,7 +4028,19 @@ html.dark .passenger-field input:focus {
   transition: all var(--transition-base);
 }
 
+html.dark .gender-button {
+  background: #111827;
+  border-color: var(--gray-300);
+  color: white;
+}
+
 .gender-button.active {
+  background: var(--color-primary);
+  border-color: var(--color-primary);
+  color: white;
+}
+
+html.dark .gender-button.active {
   background: var(--color-primary);
   border-color: var(--color-primary);
   color: white;
@@ -4087,6 +4127,11 @@ html.dark .passenger-field input:focus {
   color: #1e40af;
   line-height: var(--line-height-relaxed);
   margin-bottom: var(--spacing-lg);
+}
+
+html.dark .payment-info-box {
+  background: var(--gray-50);
+  border-color: var(--gray-300);
 }
 
 /* Agency Header Card */
@@ -6023,13 +6068,13 @@ html.dark .dashboard-layout .agency-details-header h3 {
 
 html.dark .history-table-container {
   background: #0f172a;
-  border-color: var(--gray-600);
+  border-color: var(--gray-300);
   box-shadow: none;
 }
 
 html.dark .history-table thead {
   background: #111827;
-  border-bottom-color: var(--gray-600);
+  border-bottom-color: var(--gray-300);
 }
 
 html.dark .history-table th {
@@ -6038,7 +6083,7 @@ html.dark .history-table th {
 }
 
 html.dark .history-table tbody tr.table-row {
-  border-color: var(--gray-700);
+  border-color: var(--gray-300);
 }
 
 html.dark .history-table tbody tr.table-row:hover {
@@ -6057,7 +6102,7 @@ html.dark .history-table td .td-date {
 
 html.dark .expand-btn {
   background: #111827;
-  border-color: var(--gray-600);
+  border-color: var(--gray-300);
   color: var(--gray-300);
 }
 

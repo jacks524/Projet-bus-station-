@@ -497,6 +497,7 @@ export default function BSMDashboardPage() {
                     paddingTop: "var(--spacing-xl)",
                     borderTop: "1px solid var(--gray-200)",
                   }}
+                  className="agences-widget"
                 >
                   <div
                     style={{
@@ -504,6 +505,7 @@ export default function BSMDashboardPage() {
                       borderRadius: "var(--radius-md)",
                       border: "1px solid var(--gray-200)",
                     }}
+                    className="agences-widget"
                   >
                     <p
                       style={{
@@ -615,7 +617,7 @@ export default function BSMDashboardPage() {
                         >
                           <CartesianGrid
                             strokeDasharray="3 3"
-                            stroke="#E5E7EB"
+                            stroke="#525252"
                           />
                           <XAxis
                             dataKey="name"
@@ -654,7 +656,7 @@ export default function BSMDashboardPage() {
                           >
                             <CartesianGrid
                               strokeDasharray="3 3"
-                              stroke="#E5E7EB"
+                              stroke="#525252"
                             />
                             <XAxis
                               type="number"
@@ -707,7 +709,7 @@ export default function BSMDashboardPage() {
                           >
                             <CartesianGrid
                               strokeDasharray="3 3"
-                              stroke="#E5E7EB"
+                              stroke="#525252"
                             />
                             <XAxis
                               type="number"
@@ -751,7 +753,7 @@ export default function BSMDashboardPage() {
                           >
                             <CartesianGrid
                               strokeDasharray="3 3"
-                              stroke="#E5E7EB"
+                              stroke="#525252"
                             />
                             <XAxis
                               dataKey="month"
@@ -789,7 +791,7 @@ export default function BSMDashboardPage() {
                           >
                             <CartesianGrid
                               strokeDasharray="3 3"
-                              stroke="#E5E7EB"
+                              stroke="#525252"
                             />
                             <XAxis
                               dataKey="month"
@@ -904,7 +906,7 @@ export default function BSMDashboardPage() {
                         >
                           <CartesianGrid
                             strokeDasharray="3 3"
-                            stroke="#E5E7EB"
+                            stroke="#525252"
                           />
                           <XAxis
                             dataKey="name"

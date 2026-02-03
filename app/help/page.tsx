@@ -4,6 +4,8 @@ import React, { useState } from "react";
 import { useRouter } from "next/navigation";
 import { useLanguage } from "@/app/providers";
 import { RAW_FAQ_DATA } from "./faq-data";
+import Header from "@/app/components/HeaderHome";
+import Footer from "@/app/components/Footer";
 
 /**
  * BusStation Help/FAQ Page - Redesigned
@@ -27,6 +29,11 @@ export default function ClientHelpPage() {
   const [isChatLoading, setIsChatLoading] = useState(false);
   const [chatError, setChatError] = useState("");
   const { t, language } = useLanguage();
+
+  const landingNavLinks = [
+    { label: 'Accueil', labelEn: 'Home', href: '/landing' },
+    { label: "Contact", labelEn: 'Contact', href: '/contact' },
+  ];
 
   const categories = [
     { id: "all", name: t("Toutes", "All"), icon: "grid" },
@@ -307,74 +314,7 @@ const filteredFAQs = faqs.filter((faq) => {
     <>
       <div className="page">
         {/* Header */}
-        <header className="header">
-          <div className="container">
-            <div className="header-content">
-              <img
-                src="/images/busstation.png"
-                alt="BusStation"
-                className="logo"
-              />
-
-              <nav className="nav-desktop">
-                <a href="/landing" className="nav-link">
-                  {t("Accueil", "Home")}
-                </a>
-                <a href="/contact" className="nav-link">
-                  {t("Contact", "Contact")}
-                </a>
-                <button
-                  onClick={() => router.push("/login")}
-                  className="nav-link"
-                  style={{ background: "none", padding: 0 }}
-                >
-                  {t("Connexion", "Sign in")}
-                </button>
-                <button
-                  onClick={() => router.push("/signup")}
-                  className="btn btn-primary"
-                >
-                  {t("S'inscrire", "Sign up")}
-                </button>
-              </nav>
-
-              <button
-                className="mobile-menu-btn"
-                onClick={() => setMobileMenuOpen(!mobileMenuOpen)}
-                aria-label={t("Menu", "Menu")}
-              >
-                {mobileMenuOpen ? getIcon("x") : getIcon("menu")}
-              </button>
-            </div>
-
-            {mobileMenuOpen && (
-              <div className="mobile-menu">
-                <a href="/landing" className="mobile-menu-link">
-                  {t("Accueil", "Home")}
-                </a>
-                <a href="/contact" className="mobile-menu-link">
-                  {t("Contact", "Contact")}
-                </a>
-                <div className="mobile-menu-buttons">
-                  <button
-                    onClick={() => router.push("/login")}
-                    className="btn btn-secondary"
-                    style={{ width: "100%" }}
-                  >
-                    {t("Connexion", "Sign in")}
-                  </button>
-                  <button
-                    onClick={() => router.push("/signup")}
-                    className="btn btn-primary"
-                    style={{ width: "100%" }}
-                  >
-                    {t("S'inscrire", "Sign up")}
-                  </button>
-                </div>
-              </div>
-            )}
-          </div>
-        </header>
+        <Header navLinks={landingNavLinks} showAuthButtons={true} t={t} />
 
         {/* Hero Contact */}
         <section className="hero-help">
@@ -536,6 +476,7 @@ const filteredFAQs = faqs.filter((faq) => {
                 />
                 <button
                   type="button"
+                  className="btn btn-primary"
                   onClick={handleSendChat}
                   disabled={isChatLoading || !chatInput.trim()}
                 >
@@ -619,104 +560,7 @@ const filteredFAQs = faqs.filter((faq) => {
         </section>
 
         {/* Footer */}
-        <footer className="footer">
-          <div className="container">
-            <div className="footer-grid">
-              <div>
-                <img
-                  src="/images/busstation.png"
-                  alt="BusStation"
-                  className="footer-logo"
-                />
-                <p className="footer-description">
-                  {t(
-                    "La plateforme de réservation de voyages la plus simple du Cameroun. Voyagez en toute sérénité.",
-                    "The simplest travel booking platform in Cameroon. Travel with peace of mind."
-                  )}
-                </p>
-              </div>
-              <div>
-                <h4 className="footer-title">{t("Produit", "Product")}</h4>
-                <ul className="footer-links">
-                  <li>
-                    <a href="/landing#features" className="footer-link">
-                      {t("Fonctionnalités", "Features")}
-                    </a>
-                  </li>
-                  <li>
-                    <a href="/landing#process" className="footer-link">
-                      {t("Comment ça marche", "How it works")}
-                    </a>
-                  </li>
-                  <li>
-                    <a href="/landing#stats" className="footer-link">
-                      {t("Nos chiffres", "Our numbers")}
-                    </a>
-                  </li>
-                </ul>
-              </div>
-              <div>
-                <h4 className="footer-title">{t("Entreprise", "Company")}</h4>
-                <ul className="footer-links">
-                  <li>
-                    <a href="#" className="footer-link">
-                      {t("À propos", "About")}
-                    </a>
-                  </li>
-                  <li>
-                    <a href="#" className="footer-link">
-                      {t("Agences", "Agencies")}
-                    </a>
-                  </li>
-                  <li>
-                    <a href="#" className="footer-link">
-                      {t("Blog", "Blog")}
-                    </a>
-                  </li>
-                </ul>
-              </div>
-              <div>
-                <h4 className="footer-title">{t("Support", "Support")}</h4>
-                <ul className="footer-links">
-                  <li>
-                    <a href="/help" className="footer-link">
-                      {t("Centre d'aide", "Help center")}
-                    </a>
-                  </li>
-                  <li>
-                    <a href="/contact" className="footer-link">
-                      {t("Contact", "Contact")}
-                    </a>
-                  </li>
-                  <li>
-                    <a href="/landing#faq" className="footer-link">
-                      FAQ
-                    </a>
-                  </li>
-                </ul>
-              </div>
-            </div>
-            <div className="footer-bottom">
-              <div>
-                {t(
-                  "© 2025 BusStation. Tous droits réservés.",
-                  "© 2025 BusStation. All rights reserved."
-                )}
-              </div>
-              <div className="footer-legal">
-                <a href="#" className="footer-link">
-                  {t("Mentions légales", "Legal notice")}
-                </a>
-                <a href="#" className="footer-link">
-                  {t("Confidentialité", "Privacy")}
-                </a>
-                <a href="#" className="footer-link">
-                  {t("CGU", "Terms")}
-                </a>
-              </div>
-            </div>
-          </div>
-        </footer>
+        <Footer showDefaultSections={true} t={t} />
       </div>
     </>
   );

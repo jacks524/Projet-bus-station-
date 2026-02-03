@@ -1065,7 +1065,7 @@ function DetailAgencyContent() {
                           <LineChart data={getChartData()}>
                             <CartesianGrid
                               strokeDasharray="3 3"
-                              stroke="#E5E7EB"
+                              stroke="#525252"
                             />
                             <XAxis
                               dataKey="date"
@@ -1179,7 +1179,7 @@ function DetailAgencyContent() {
                             >
                               <CartesianGrid
                                 strokeDasharray="3 3"
-                                stroke="#E5E7EB"
+                                stroke="#525252"
                               />
                               <XAxis
                                 dataKey="name"
@@ -1219,7 +1219,7 @@ function DetailAgencyContent() {
                             >
                               <CartesianGrid
                                 strokeDasharray="3 3"
-                                stroke="#E5E7EB"
+                                stroke="#525252"
                               />
                               <XAxis
                                 type="number"
@@ -1265,7 +1265,7 @@ function DetailAgencyContent() {
                               >
                                 <CartesianGrid
                                   strokeDasharray="3 3"
-                                  stroke="#E5E7EB"
+                                  stroke="#525252"
                                 />
                                 <XAxis
                                   dataKey="day"
@@ -1302,7 +1302,7 @@ function DetailAgencyContent() {
                               >
                                 <CartesianGrid
                                   strokeDasharray="3 3"
-                                  stroke="#E5E7EB"
+                                  stroke="#525252"
                                 />
                                 <XAxis
                                   type="number"
@@ -1353,7 +1353,7 @@ function DetailAgencyContent() {
                               >
                                 <CartesianGrid
                                   strokeDasharray="3 3"
-                                  stroke="#E5E7EB"
+                                  stroke="#525252"
                                 />
                                 <XAxis
                                   dataKey="date"
@@ -1396,7 +1396,7 @@ function DetailAgencyContent() {
                               >
                                 <CartesianGrid
                                   strokeDasharray="3 3"
-                                  stroke="#E5E7EB"
+                                  stroke="#525252"
                                 />
                                 <XAxis
                                   dataKey="date"
@@ -1439,7 +1439,7 @@ function DetailAgencyContent() {
                               >
                                 <CartesianGrid
                                   strokeDasharray="3 3"
-                                  stroke="#E5E7EB"
+                                  stroke="#525252"
                                 />
                                 <XAxis
                                   dataKey="month"
@@ -1480,7 +1480,7 @@ function DetailAgencyContent() {
                               >
                                 <CartesianGrid
                                   strokeDasharray="3 3"
-                                  stroke="#E5E7EB"
+                                  stroke="#525252"
                                 />
                                 <XAxis
                                   dataKey="month"
@@ -1550,6 +1550,8 @@ function DetailAgencyContent() {
 }
 
 export default function DetailAgencyPage() {
+  const { t, language } = useLanguage();
+  
   return (
     <Suspense
       fallback={
