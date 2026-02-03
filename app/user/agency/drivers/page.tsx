@@ -6,6 +6,7 @@ import { Home, Users, Car, Calendar, Bus, Settings } from "lucide-react";
 import Sidebar from "@/app/components/Sidebar";
 import MobileSidebar from "@/app/components/Mobilesidebar";
 import Header from "@/app/components/Header";
+import { useLanguage } from "@/app/providers";
 
 interface UserData {
   username: string;
@@ -21,35 +22,36 @@ export default function AgenceDriversPage() {
   const [showMobileMenu, setShowMobileMenu] = useState(false);
   const [userData, setUserData] = useState<UserData | null>(null);
   const router = useRouter();
+  const { t } = useLanguage();
 
   const MENU_ITEMS = [
     {
       icon: Home,
-      label: "Dashboard",
+      label: t("Dashboard", "Dashboard"),
       path: "/user/agency/dashboard",
       active: false,
     },
     {
       icon: Bus,
-      label: "Voyages",
+      label: t("Voyages", "Trips"),
       path: "/user/agency/travels",
       active: false,
     },
     {
       icon: Calendar,
-      label: "Réservations",
+      label: t("Réservations", "Reservations"),
       path: "/user/agency/reservations",
       active: false,
     },
     {
       icon: Users,
-      label: "Chauffeurs",
+      label: t("Chauffeurs", "Drivers"),
       path: "/user/agency/drivers",
       active: true,
     },
     {
       icon: Settings,
-      label: "Mes paramètres",
+      label: t("Mes paramètres", "My settings"),
       path: "/user/agency/settings",
       active: false,
     },
@@ -89,7 +91,7 @@ export default function AgenceDriversPage() {
 
       <div className="dashboard-main">
         <Header
-          title="Gestion des Chauffeurs"
+          title={t("Gestion des Chauffeurs", "Driver management")}
           userData={userData}
           onMenuClick={() => setShowMobileMenu(true)}
           showSettingsButton={true}
@@ -107,9 +109,14 @@ export default function AgenceDriversPage() {
                   marginTop: "-80px",
                 }}
               >
-                <h2 className="section-title">Gestion des chauffeurs</h2>
+                <h2 className="section-title">
+                  {t("Gestion des chauffeurs", "Driver management")}
+                </h2>
                 <p className="section-description">
-                  Gérer vos véhicules et chauffeurs en quelques clics
+                  {t(
+                    "Gérer vos véhicules et chauffeurs en quelques clics",
+                    "Manage your vehicles and drivers in a few clicks",
+                  )}
                 </p>
               </div>
 
@@ -119,13 +126,20 @@ export default function AgenceDriversPage() {
                 </div>
               </div>
 
-              <h2 className="empty-title">Gestion des Chauffeurs</h2>
+              <h2 className="empty-title">
+                {t("Gestion des Chauffeurs", "Driver management")}
+              </h2>
 
               <p className="empty-description">
-                Cette fonctionnalité n'est pas encore disponible.
+                {t(
+                  "Cette fonctionnalité n'est pas encore disponible.",
+                  "This feature is not available yet.",
+                )}
                 <br />
-                Elle sera bientôt accessible pour gérer vos chauffeurs et
-                véhicules.
+                {t(
+                  "Elle sera bientôt accessible pour gérer vos chauffeurs et véhicules.",
+                  "It will be available soon to manage your drivers and vehicles.",
+                )}
               </p>
 
               <div className="cta-buttons">
@@ -133,14 +147,14 @@ export default function AgenceDriversPage() {
                   onClick={() => router.push("/user/agency/dashboard")}
                   className="btn btn-primary"
                 >
-                  Retour au Dashboard
+                  {t("Retour au Dashboard", "Back to dashboard")}
                 </button>
 
                 <button
                   onClick={() => router.push("/user/agency/travels")}
                   className="btn btn-secondary"
                 >
-                  Voir les Voyages
+                  {t("Voir les Voyages", "View trips")}
                 </button>
               </div>
             </div>

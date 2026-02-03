@@ -21,6 +21,7 @@ import MobileSidebar from "@/app/components/Mobilesidebar";
 import Header from "@/app/components/Header";
 import SuccessModal from "@/app/components/SuccessModal";
 import ErrorModal from "@/app/components/ErrorModal";
+import { useLanguage } from "@/app/providers";
 
 interface AgencyFormData {
   organisation_id: string;
@@ -75,6 +76,7 @@ export default function AgencyPage() {
   const [showSuccessModal, setShowSuccessModal] = useState(false);
   const [showErrorModal, setShowErrorModal] = useState(false);
   const [errorMessage, setErrorMessage] = useState("");
+  const { t } = useLanguage();
 
   const [formData, setFormData] = useState<AgencyFormData>({
     organisation_id: "",
@@ -93,25 +95,25 @@ export default function AgencyPage() {
   const MENU_ITEMS = [
     {
       icon: Home,
-      label: "Dashboard",
+      label: t("Dashboard", "Dashboard"),
       path: "/user/organization/dashboard",
       active: false,
     },
     {
       icon: Briefcase,
-      label: "Organisation",
+      label: t("Organisation", "Organization"),
       path: "/user/organization/organization",
       active: false,
     },
     {
       icon: Building2,
-      label: "Agence",
+      label: t("Agence", "Agency"),
       path: "/user/organization/agencies",
       active: true,
     },
     {
       icon: Settings,
-      label: "Mes paramètres",
+      label: t("Mes paramètres", "My settings"),
       path: "/user/organization/settings",
       active: false,
     },
@@ -171,7 +173,12 @@ export default function AgencyPage() {
       );
 
       if (!response.ok)
-        throw new Error("Erreur lors du chargement des organisations");
+        throw new Error(
+          t(
+            "Erreur lors du chargement des organisations",
+            "Failed to load organizations",
+          ),
+        );
 
       const data = await response.json();
       const myOrgs = data.filter(
@@ -209,23 +216,32 @@ export default function AgencyPage() {
 
   const validateForm = () => {
     if (!formData.long_name.trim()) {
-      setErrorMessage("Le nom complet de l'agence est requis");
+      setErrorMessage(
+        t("Le nom complet de l'agence est requis", "Agency full name is required"),
+      );
       return false;
     }
     if (!formData.short_name.trim()) {
-      setErrorMessage("L'abréviation de l'agence est requise");
+      setErrorMessage(
+        t(
+          "L'abréviation de l'agence est requise",
+          "Agency abbreviation is required",
+        ),
+      );
       return false;
     }
     if (!formData.location.trim()) {
-      setErrorMessage("La localisation est requise");
+      setErrorMessage(t("La localisation est requise", "Location is required"));
       return false;
     }
     if (!formData.ville.trim()) {
-      setErrorMessage("La ville est requise");
+      setErrorMessage(t("La ville est requise", "City is required"));
       return false;
     }
     if (!formData.organisation_id.trim()) {
-      setErrorMessage("L'ID de l'organisation est requis");
+      setErrorMessage(
+        t("L'ID de l'organisation est requis", "Organization ID is required"),
+      );
       return false;
     }
     return true;
@@ -256,7 +272,12 @@ export default function AgencyPage() {
       });
 
       if (!response.ok)
-        throw new Error("Erreur lors de la création de l'agence");
+        throw new Error(
+          t(
+            "Erreur lors de la création de l'agence",
+            "Failed to create agency",
+          ),
+        );
 
       setShowSuccessModal(true);
       setFormData({
@@ -272,7 +293,10 @@ export default function AgencyPage() {
       });
     } catch (error: any) {
       setErrorMessage(
-        "Une erreur est survenue lors de la création de l'agence",
+        t(
+          "Une erreur est survenue lors de la création de l'agence",
+          "An error occurred while creating the agency",
+        ),
       );
       setShowErrorModal(true);
     } finally {
@@ -305,7 +329,7 @@ export default function AgencyPage() {
 
       <div className="dashboard-main">
         <Header
-          title="Créer une agence"
+          title={t("Créer une agence", "Create an agency")}
           userData={userData}
           onMenuClick={() => setShowMobileMenu(true)}
           userType="organization"
@@ -314,9 +338,11 @@ export default function AgencyPage() {
         <main className="dashboard-content">
           {/* Section Header */}
           <div className="section-header">
-            <h2 className="section-title">Nouvelle agence</h2>
+            <h2 className="section-title">
+              {t("Nouvelle agence", "New agency")}
+            </h2>
             <p className="section-description">
-              Ajoutez une agence à votre organisation
+              {t("Ajoutez une agence à votre organisation", "Add an agency to your organization")}
             </p>
           </div>
 
@@ -349,14 +375,15 @@ export default function AgencyPage() {
                     marginBottom: "4px",
                   }}
                 >
-                  Validation du Bus Station Manager requise
+                  {t("Validation du Bus Station Manager requise", "Bus Station Manager validation required")}
                 </h3>
                 <p
                   style={{ fontSize: "var(--font-size-sm)", color: "#1e40af" }}
                 >
-                  Après la création, votre agence sera soumise à validation par
-                  le Bus Station Manager (BSM). Vous serez notifié une fois la
-                  validation effectuée.
+                  {t(
+                    "Après la création, votre agence sera soumise à validation par le Bus Station Manager (BSM). Vous serez notifié une fois la validation effectuée.",
+                    "After creation, your agency will be submitted for validation by the Bus Station Manager (BSM). You will be notified once validation is completed.",
+                  )}
                 </p>
               </div>
             </div>
@@ -365,7 +392,7 @@ export default function AgencyPage() {
             {isLoadingOrgs && (
               <div className="loading-state">
                 <RefreshCw className="spin" />
-                <p>Chargement des organisations...</p>
+                <p>{t("Chargement des organisations...", "Loading organizations...")}</p>
               </div>
             )}
 
@@ -373,16 +400,21 @@ export default function AgencyPage() {
             {!isLoadingOrgs && organizations.length === 0 && (
               <div className="empty-state">
                 <Briefcase className="empty-icon" />
-                <h3 className="empty-title">Aucune organisation</h3>
+                <h3 className="empty-title">
+                  {t("Aucune organisation", "No organization")}
+                </h3>
                 <p className="empty-description">
-                  Vous devez créer une organisation avant de créer une agence
+                  {t(
+                    "Vous devez créer une organisation avant de créer une agence",
+                    "You must create an organization before creating an agency",
+                  )}
                 </p>
                 <button
                   onClick={() => router.push("/user/organization/organization")}
                   className="btn btn-primary"
                   style={{ marginTop: "15px" }}
                 >
-                  Créer une organisation
+                  {t("Créer une organisation", "Create an organization")}
                 </button>
               </div>
             )}
@@ -394,11 +426,14 @@ export default function AgencyPage() {
                 <div className="agency-header-card">
                   <div className="agency-info">
                     <h2 className="agency-name">
-                      Nom de l'organisation où vous voulez créer une agence :{" "}
-                      {selectedOrganization?.long_name || "Aucune"}
+                      {t(
+                        "Nom de l'organisation où vous voulez créer une agence :",
+                        "Organization name where you want to create an agency:",
+                      )}{" "}
+                      {selectedOrganization?.long_name || t("Aucune", "None")}
                     </h2>
                     <p className="agency-location">
-                      Abréviation du nom de l'organisation :{" "}
+                      {t("Abréviation du nom de l'organisation :", "Organization short name:")}{" "}
                       {selectedOrganization?.short_name}
                     </p>
                   </div>
@@ -409,7 +444,7 @@ export default function AgencyPage() {
                         onClick={() => setShowOrgSelector(!showOrgSelector)}
                         className="btn btn-secondary"
                       >
-                        Changer
+                        {t("Changer", "Change")}
                         <ChevronDown />
                       </button>
 
@@ -449,12 +484,12 @@ export default function AgencyPage() {
                   <div className="form-section">
                     <div className="form-section-header">
                       <Building />
-                      <h3>Informations principales</h3>
+                      <h3>{t("Informations principales", "Main information")}</h3>
                     </div>
                     <div className="form-section-content">
                       <div className="form-group">
                         <label className="form-label">
-                          Nom complet de l'agence *
+                          {t("Nom complet de l'agence *", "Agency full name *")}
                         </label>
                         <input
                           type="text"
@@ -463,12 +498,17 @@ export default function AgencyPage() {
                           onChange={handleInputChange}
                           required
                           className="form-input"
-                          placeholder="Ex: Agence BusStation Yaoundé Centre"
+                          placeholder={t(
+                            "Ex: Agence BusStation Yaoundé Centre",
+                            "e.g., BusStation Yaounde Center Agency",
+                          )}
                         />
                       </div>
 
                       <div className="form-group">
-                        <label className="form-label">Abréviation *</label>
+                        <label className="form-label">
+                          {t("Abréviation *", "Abbreviation *")}
+                        </label>
                         <input
                           type="text"
                           name="short_name"
@@ -476,7 +516,7 @@ export default function AgencyPage() {
                           onChange={handleInputChange}
                           required
                           className="form-input"
-                          placeholder="Ex: BST-YDE-CTR"
+                          placeholder={t("Ex: BST-YDE-CTR", "e.g., BST-YDE-CTR")}
                         />
                       </div>
                     </div>
@@ -486,11 +526,11 @@ export default function AgencyPage() {
                   <div className="form-section">
                     <div className="form-section-header">
                       <MapPin />
-                      <h3>Localisation</h3>
+                      <h3>{t("Localisation", "Location")}</h3>
                     </div>
                     <div className="form-section-content">
                       <div className="form-group">
-                        <label className="form-label">Ville *</label>
+                        <label className="form-label">{t("Ville *", "City *")}</label>
                         <select
                           name="ville"
                           value={formData.ville}
@@ -498,7 +538,9 @@ export default function AgencyPage() {
                           required
                           className="form-input"
                         >
-                          <option value="">Sélectionner une ville</option>
+                          <option value="">
+                            {t("Sélectionner une ville", "Select a city")}
+                          </option>
                           <option value="Yaoundé">Yaoundé</option>
                           <option value="Douala">Douala</option>
                           <option value="Bafoussam">Bafoussam</option>
@@ -513,7 +555,9 @@ export default function AgencyPage() {
                       </div>
 
                       <div className="form-group">
-                        <label className="form-label">Zone/Quartier *</label>
+                        <label className="form-label">
+                          {t("Zone/Quartier *", "Area/Neighborhood *")}
+                        </label>
                         <input
                           type="text"
                           name="location"
@@ -521,7 +565,10 @@ export default function AgencyPage() {
                           onChange={handleInputChange}
                           required
                           className="form-input"
-                          placeholder="Ex: Mvan, Marché Central"
+                          placeholder={t(
+                            "Ex: Mvan, Marché Central",
+                            "e.g., Mvan, Central Market",
+                          )}
                         />
                       </div>
                     </div>
@@ -531,18 +578,25 @@ export default function AgencyPage() {
                   <div className="form-section">
                     <div className="form-section-header">
                       <Globe />
-                      <h3>Informations supplémentaires</h3>
+                      <h3>
+                        {t("Informations supplémentaires", "Additional information")}
+                      </h3>
                     </div>
                     <div className="form-section-content">
                       <div className="form-group">
-                        <label className="form-label">Réseau social</label>
+                        <label className="form-label">
+                          {t("Réseau social", "Social network")}
+                        </label>
                         <input
                           type="text"
                           name="social_network"
                           value={formData.social_network}
                           onChange={handleInputChange}
                           className="form-input"
-                          placeholder="Ex: facebook.com/votre-agence"
+                          placeholder={t(
+                            "Ex: facebook.com/votre-agence",
+                            "e.g., facebook.com/your-agency",
+                          )}
                         />
                       </div>
 
@@ -550,13 +604,18 @@ export default function AgencyPage() {
                         className="form-group"
                         style={{ gridColumn: "1 / -1" }}
                       >
-                        <label className="form-label">Message d'accueil</label>
+                        <label className="form-label">
+                          {t("Message d'accueil", "Welcome message")}
+                        </label>
                         <textarea
                           name="greeting_message"
                           value={formData.greeting_message}
                           onChange={handleInputChange}
                           className="form-textarea"
-                          placeholder="Message de bienvenue pour vos clients..."
+                          placeholder={t(
+                            "Message de bienvenue pour vos clients...",
+                            "Welcome message for your customers...",
+                          )}
                           style={{ minHeight: "80px" }}
                         />
                       </div>
@@ -565,13 +624,18 @@ export default function AgencyPage() {
                         className="form-group"
                         style={{ gridColumn: "1 / -1" }}
                       >
-                        <label className="form-label">Description</label>
+                        <label className="form-label">
+                          {t("Description", "Description")}
+                        </label>
                         <textarea
                           name="description"
                           value={formData.description}
                           onChange={handleInputChange}
                           className="form-textarea"
-                          placeholder="Description détaillée de l'agence..."
+                          placeholder={t(
+                            "Description détaillée de l'agence...",
+                            "Detailed description of the agency...",
+                          )}
                           style={{ minHeight: "100px" }}
                         />
                       </div>
@@ -587,7 +651,7 @@ export default function AgencyPage() {
                       }
                       className="btn btn-secondary"
                     >
-                      Annuler
+                      {t("Annuler", "Cancel")}
                     </button>
                     <button
                       type="submit"
@@ -597,12 +661,12 @@ export default function AgencyPage() {
                       {isSubmitting ? (
                         <>
                           <RefreshCw className="spin" />
-                          <span>Création en cours...</span>
+                          <span>{t("Création en cours...", "Creating...")}</span>
                         </>
                       ) : (
                         <>
                           <Building2 />
-                          <span>Créer l'agence</span>
+                          <span>{t("Créer l'agence", "Create agency")}</span>
                         </>
                       )}
                     </button>
@@ -620,9 +684,12 @@ export default function AgencyPage() {
           setShowSuccessModal(false);
           router.push("/user/organization/dashboard");
         }}
-        title="Agence créée !"
-        message="Demande de création réussie avec succès, veuillez attendre la validation par le BSM."
-        buttonText="Retour au dashboard"
+        title={t("Agence créée !", "Agency created!")}
+        message={t(
+          "Demande de création réussie avec succès, veuillez attendre la validation par le BSM.",
+          "Creation request successful, please wait for BSM validation.",
+        )}
+        buttonText={t("Retour au dashboard", "Back to dashboard")}
       />
 
       <ErrorModal

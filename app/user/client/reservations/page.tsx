@@ -25,6 +25,7 @@ import MobileSidebar from "@/app/components/Mobilesidebar";
 import Header from "@/app/components/Header";
 import SuccessModal from "@/app/components/SuccessModal";
 import ErrorModal from "@/app/components/ErrorModal";
+import { useLanguage } from "@/app/providers";
 
 interface Voyage {
   idVoyage: string;
@@ -97,45 +98,51 @@ export default function ClientReservationsPage() {
   const [showErrorModal, setShowErrorModal] = useState(false);
 
   const router = useRouter();
+  const { t } = useLanguage();
 
   const API_BASE_URL = process.env.NEXT_PUBLIC_API_BASE_URL;
   const RESERVATIONS_PER_PAGE = 6;
 
   const MENU_ITEMS = [
-    { icon: Home, label: "Accueil", path: "/user/client/home", active: false },
+    {
+      icon: Home,
+      label: t("Accueil", "Home"),
+      path: "/user/client/home",
+      active: false,
+    },
     {
       icon: Calendar,
-      label: "Réserver",
+      label: t("Réserver", "Book"),
       path: "/user/client/book",
       active: false,
     },
     {
       icon: FileText,
-      label: "Réservations",
+      label: t("Réservations", "Bookings"),
       path: "/user/client/reservations",
       active: true,
     },
     {
       icon: Ticket,
-      label: "Billets",
+      label: t("Billets", "Tickets"),
       path: "/user/client/tickets",
       active: false,
     },
     {
       icon: Gift,
-      label: "Coupons",
+      label: t("Coupons", "Vouchers"),
       path: "/user/client/vouchers",
       active: false,
     },
     {
       icon: History,
-      label: "Historique",
+      label: t("Historique", "History"),
       path: "/user/client/history",
       active: false,
     },
     {
       icon: Settings,
-      label: "Mes paramètres",
+      label: t("Mes paramètres", "Settings"),
       path: "/user/client/settings",
       active: false,
     },
@@ -187,7 +194,12 @@ export default function ClientReservationsPage() {
       );
 
       if (!response.ok) {
-        throw new Error("Erreur lors du chargement des réservations");
+        throw new Error(
+          t(
+            "Erreur lors du chargement des réservations",
+            "Error loading reservations"
+          ),
+        );
       }
 
       const data = await response.json();
@@ -207,7 +219,12 @@ export default function ClientReservationsPage() {
       setTotalPages(data.totalPages || 0);
       setTotalElements(pending_reservations.length);
     } catch (error: any) {
-      setErrorMessage("Impossible de charger vos réservations");
+      setErrorMessage(
+        t(
+          "Impossible de charger vos réservations",
+          "Unable to load your reservations"
+        ),
+      );
       console.error("Fetch Reservations Error:", error);
     } finally {
       setIsLoading(false);
@@ -252,7 +269,7 @@ export default function ClientReservationsPage() {
       );
 
       if (!response.ok) {
-        throw new Error("Erreur lors du paiement");
+        throw new Error(t("Erreur lors du paiement", "Payment error"));
       }
 
       setShowPaiementModal(false);
@@ -262,7 +279,10 @@ export default function ClientReservationsPage() {
       setShowSuccessModal(true);
     } catch (error: any) {
       setErrorMessage(
-        "Une erreur est survenue lors du paiement. Veuillez réessayer.",
+        t(
+          "Une erreur est survenue lors du paiement. Veuillez réessayer.",
+          "An error occurred during payment. Please try again."
+        ),
       );
       setShowErrorModal(true);
       console.error("Payment Error:", error);
@@ -301,7 +321,7 @@ export default function ClientReservationsPage() {
 
       <div className="dashboard-main">
         <Header
-          title="Mes réservations"
+          title={t("Mes réservations", "My reservations")}
           userData={user_data}
           onMenuClick={() => setShowMobileMenu(true)}
         />
@@ -313,9 +333,14 @@ export default function ClientReservationsPage() {
               className="section-header"
               style={{ marginBottom: "var(--spacing-2xl)" }}
             >
-              <h2 className="section-title">Vos réservations en attente</h2>
+              <h2 className="section-title">
+                {t("Vos réservations en attente", "Your pending reservations")}
+              </h2>
               <p className="section-description">
-                Gérez et payez vos réservations pour obtenir vos billets
+                {t(
+                  "Gérez et payez vos réservations pour obtenir vos billets",
+                  "Manage and pay your reservations to get your tickets"
+                )}
               </p>
             </div>
 
@@ -323,7 +348,7 @@ export default function ClientReservationsPage() {
             {is_loading && (
               <div className="loading-state">
                 <RefreshCw className="spin" />
-                <p>Chargement de vos réservations...</p>
+                <p>{t("Chargement de vos réservations...", "Loading reservations...")}</p>
               </div>
             )}
 
@@ -336,7 +361,7 @@ export default function ClientReservationsPage() {
                   onClick={() => window.location.reload()}
                   className="btn modal-button modal-button-error"
                 >
-                  Réessayer
+                  {t("Réessayer", "Try again")}
                 </button>
               </div>
             )}
@@ -345,16 +370,21 @@ export default function ClientReservationsPage() {
             {!is_loading && !error_message && reservations.length === 0 && (
               <div className="empty-state">
                 <FileText className="empty-icon" />
-                <h3 className="empty-title">Aucune réservation en attente</h3>
+                <h3 className="empty-title">
+                  {t("Aucune réservation en attente", "No pending reservations")}
+                </h3>
                 <p className="empty-description">
-                  Toutes vos réservations ont été traitées
+                  {t(
+                    "Toutes vos réservations ont été traitées",
+                    "All your reservations have been processed"
+                  )}
                 </p>
                 <button
                   onClick={() => router.push("/user/client/book")}
                   className="btn btn-primary"
                   style={{ marginTop: "var(--spacing-lg)" }}
                 >
-                  Réserver un voyage
+                  {t("Réserver un voyage", "Book a trip")}
                 </button>
               </div>
             )}
@@ -371,7 +401,10 @@ export default function ClientReservationsPage() {
                       <div className="voyage-result-header">
                         <div className="voyage-result-agency">
                           <span className="voyage-result-label">
-                            Nom de l'agence de voyage choisie
+                            {t(
+                              "Nom de l'agence de voyage choisie",
+                              "Selected travel agency"
+                            )}
                           </span>
                           <h3 className="voyage-result-agency-name">
                             {data.agence.longName}
@@ -397,7 +430,7 @@ export default function ClientReservationsPage() {
                               fontWeight: "var(--font-weight-semibold)",
                             }}
                           >
-                            En attente
+                            {t("En attente", "Pending")}
                           </span>
                         </div>
                       </div>
@@ -408,7 +441,7 @@ export default function ClientReservationsPage() {
                             <MapPin />
                             <div>
                               <span className="voyage-result-location-label">
-                                Départ
+                                {t("Départ", "Departure")}
                               </span>
                               <span className="voyage-result-location-value">
                                 {data.voyage.lieuDepart} -{" "}
@@ -421,7 +454,7 @@ export default function ClientReservationsPage() {
                             <MapPin />
                             <div>
                               <span className="voyage-result-location-label">
-                                Destination
+                                {t("Destination", "Destination")}
                               </span>
                               <span className="voyage-result-location-value">
                                 {data.voyage.lieuArrive} -{" "}
@@ -442,7 +475,8 @@ export default function ClientReservationsPage() {
                           <div className="voyage-result-detail">
                             <Users />
                             <span>
-                              {data.reservation.nbrPassager} passager
+                              {data.reservation.nbrPassager}{" "}
+                              {t("passager", "passenger")}
                               {data.reservation.nbrPassager > 1 ? "s" : ""}
                             </span>
                           </div>
@@ -450,7 +484,7 @@ export default function ClientReservationsPage() {
                           <div className="voyage-result-detail">
                             <Calendar />
                             <span>
-                              Réservé le{" "}
+                              {t("Réservé le", "Booked on")}{" "}
                               {formatDate(data.reservation.dateReservation)}
                             </span>
                           </div>
@@ -460,7 +494,7 @@ export default function ClientReservationsPage() {
                       <div className="voyage-result-footer">
                         <div className="voyage-result-price">
                           <span className="voyage-result-price-label">
-                            Montant total
+                            {t("Montant total", "Total amount")}
                           </span>
                           <span className="voyage-result-price-value">
                             {data.reservation.prixTotal} FCFA
@@ -475,7 +509,7 @@ export default function ClientReservationsPage() {
                             gap: "var(--spacing-xs)",
                           }}
                         >
-                          <span>Payer maintenant</span>
+                          <span>{t("Payer maintenant", "Pay now")}</span>
                         </button>
                       </div>
                     </div>
@@ -501,7 +535,7 @@ export default function ClientReservationsPage() {
                       <ChevronLeft />
                     </button>
                     <span>
-                      Page {current_page + 1} / {total_pages}
+                      {t("Page", "Page")} {current_page + 1} / {total_pages}
                     </span>
                     <button
                       onClick={() =>
@@ -528,7 +562,7 @@ export default function ClientReservationsPage() {
           <div className="payment-modal-content">
             <div className="payment-modal-header">
               <h2 className="payment-modal-title">
-                Paiement de la réservation
+                {t("Paiement de la réservation", "Reservation payment")}
               </h2>
               <button
                 onClick={() => setShowPaiementModal(false)}
@@ -539,45 +573,57 @@ export default function ClientReservationsPage() {
             </div>
 
             <div className="payment-modal-body">
-              {/* Résumé */}
+              {/* Summary */}
               <div className="payment-summary">
                 <h3 className="payment-summary-title">
-                  Résumé de la réservation
+                  {t("Résumé de la réservation", "Reservation summary")}
                 </h3>
                 <div className="payment-summary-item">
-                  <span className="payment-summary-label">Agence</span>
+                  <span className="payment-summary-label">
+                    {t("Agence", "Agency")}
+                  </span>
                   <span className="payment-summary-value">
                     {selected_reservation.agence.longName}
                   </span>
                 </div>
                 <div className="payment-summary-item">
-                  <span className="payment-summary-label">Départ</span>
+                  <span className="payment-summary-label">
+                    {t("Départ", "Departure")}
+                  </span>
                   <span className="payment-summary-value">
                     {selected_reservation.voyage.lieuDepart} -{" "}
                     {selected_reservation.voyage.pointDeDepart}
                   </span>
                 </div>
                 <div className="payment-summary-item">
-                  <span className="payment-summary-label">Destination</span>
+                  <span className="payment-summary-label">
+                    {t("Destination", "Destination")}
+                  </span>
                   <span className="payment-summary-value">
                     {selected_reservation.voyage.lieuArrive} -{" "}
                     {selected_reservation.voyage.pointArrivee}
                   </span>
                 </div>
                 <div className="payment-summary-item">
-                  <span className="payment-summary-label">Date de départ</span>
+                  <span className="payment-summary-label">
+                    {t("Date de départ", "Departure date")}
+                  </span>
                   <span className="payment-summary-value">
                     {formatDate(selected_reservation.voyage.dateDepartPrev)}
                   </span>
                 </div>
                 <div className="payment-summary-item-end payment-summary-item">
-                  <span className="payment-summary-label">Passagers</span>
+                  <span className="payment-summary-label">
+                    {t("Passagers", "Passengers")}
+                  </span>
                   <span className="payment-summary-value">
                     {selected_reservation.reservation.nbrPassager}
                   </span>
                 </div>
                 <div className="payment-summary-total">
-                  <span className="payment-summary-label">Montant à payer</span>
+                  <span className="payment-summary-label">
+                    {t("Montant à payer", "Amount to pay")}
+                  </span>
                   <span className="payment-summary-total-value">
                     {selected_reservation.reservation.prixTotal} FCFA
                   </span>
@@ -587,31 +633,37 @@ export default function ClientReservationsPage() {
               {/* Formulaire */}
               <div className="payment-form">
                 <div className="form-group">
-                  <label className="form-label">Numéro de téléphone *</label>
+                  <label className="form-label">
+                    {t("Numéro de téléphone *", "Phone number *")}
+                  </label>
                   <input
                     type="tel"
                     value={mobile_phone}
                     onChange={(e) => setMobilePhone(e.target.value)}
-                    placeholder="(+237) 6XX XXX XXX"
+                    placeholder={t("(+237) 6XX XXX XXX", "(+237) 6XX XXX XXX")}
                     className="form-input"
                     maxLength={9}
                   />
                 </div>
 
                 <div className="form-group">
-                  <label className="form-label">Nom du propriétaire *</label>
+                  <label className="form-label">
+                    {t("Nom du propriétaire *", "Owner name *")}
+                  </label>
                   <input
                     type="text"
                     value={mobile_phone_name}
                     onChange={(e) => setMobilePhoneName(e.target.value)}
-                    placeholder="Nom complet"
+                    placeholder={t("Nom complet", "Full name")}
                     className="form-input"
                   />
                 </div>
 
                 <div className="payment-info">
-                  Une demande de paiement sera envoyée sur ce numéro pour
-                  valider la transaction.
+                  {t(
+                    "Une demande de paiement sera envoyée sur ce numéro pour valider la transaction.",
+                    "A payment request will be sent to this number to validate the transaction."
+                  )}
                 </div>
 
                 <button
@@ -622,12 +674,12 @@ export default function ClientReservationsPage() {
                   {is_loading_paiement ? (
                     <>
                       <RefreshCw className="spin" />
-                      <span>Paiement en cours...</span>
+                      <span>{t("Paiement en cours...", "Payment in progress...")}</span>
                     </>
                   ) : (
                     <>
                       <CreditCard />
-                      <span>Confirmer le paiement</span>
+                      <span>{t("Confirmer le paiement", "Confirm payment")}</span>
                     </>
                   )}
                 </button>
@@ -643,9 +695,9 @@ export default function ClientReservationsPage() {
           setShowSuccessModal(false);
           router.push("/user/client/tickets");
         }}
-        title="Réservation payée"
-        message="Votre réservation a été confirmée."
-        buttonText="OK"
+        title={t("Réservation payée", "Reservation paid")}
+        message={t("Votre réservation a été confirmée.", "Your reservation has been confirmed.")}
+        buttonText={t("OK", "OK")}
       />
 
       <ErrorModal

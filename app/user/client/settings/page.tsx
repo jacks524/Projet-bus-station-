@@ -22,6 +22,7 @@ import { useRouter } from "next/navigation";
 import Sidebar from "@/app/components/Sidebar";
 import MobileSidebar from "@/app/components/Mobilesidebar";
 import Header from "@/app/components/Header";
+import { useLanguage } from "@/app/providers";
 
 interface UserProfile {
   userId: string;
@@ -49,44 +50,50 @@ export default function ClientSettingsPage() {
   const [error_message, setErrorMessage] = useState("");
   const [show_mobile_menu, setShowMobileMenu] = useState(false);
   const router = useRouter();
+  const { t } = useLanguage();
 
   const API_BASE_URL = process.env.NEXT_PUBLIC_API_BASE_URL;
 
   const MENU_ITEMS = [
-    { icon: Home, label: "Accueil", path: "/user/client/home", active: false },
+    {
+      icon: Home,
+      label: t("Accueil", "Home"),
+      path: "/user/client/home",
+      active: false,
+    },
     {
       icon: Calendar,
-      label: "Réserver",
+      label: t("Réserver", "Book"),
       path: "/user/client/book",
       active: false,
     },
     {
       icon: FileText,
-      label: "Réservations",
+      label: t("Réservations", "Reservations"),
       path: "/user/client/reservations",
       active: false,
     },
     {
       icon: Ticket,
-      label: "Billets",
+      label: t("Billets", "Tickets"),
       path: "/user/client/tickets",
       active: false,
     },
     {
       icon: Gift,
-      label: "Coupons",
+      label: t("Coupons", "Vouchers"),
       path: "/user/client/vouchers",
       active: false,
     },
     {
       icon: History,
-      label: "Historique",
+      label: t("Historique", "History"),
       path: "/user/client/history",
       active: false,
     },
     {
       icon: Settings,
-      label: "Mes paramètres",
+      label: t("Mes paramètres", "My settings"),
       path: "/user/client/settings",
       active: true,
     },
@@ -123,7 +130,9 @@ export default function ClientSettingsPage() {
       });
 
       if (!response.ok) {
-        throw new Error("Erreur lors du chargement du profil");
+        throw new Error(
+          t("Erreur lors du chargement du profil", "Failed to load profile"),
+        );
       }
 
       const data = await response.json();
@@ -139,7 +148,12 @@ export default function ClientSettingsPage() {
 
       setUserProfile({ ...data, email });
     } catch (error: any) {
-      setErrorMessage("Impossible de charger les informations du profil");
+      setErrorMessage(
+        t(
+          "Impossible de charger les informations du profil",
+          "Unable to load profile information",
+        ),
+      );
       console.error("Fetch Profile Error:", error);
     } finally {
       setIsLoading(false);
@@ -156,10 +170,10 @@ export default function ClientSettingsPage() {
 
   const getRoleLabel = (role: string) => {
     const role_labels: { [key: string]: string } = {
-      USAGER: "Client",
-      AGENCE_VOYAGE: "Chef d'agence",
-      ORGANISATION: "Directeur Général",
-      BSM: "Administrateur BSM",
+      USAGER: t("Client", "Client"),
+      AGENCE_VOYAGE: t("Chef d'agence", "Agency manager"),
+      ORGANISATION: t("Directeur Général", "General Director"),
+      BSM: t("Administrateur BSM", "BSM Administrator"),
     };
     return role_labels[role] || role;
   };
@@ -176,7 +190,7 @@ export default function ClientSettingsPage() {
 
       <div className="dashboard-main">
         <Header
-          title="Mes paramètres"
+          title={t("Mes paramètres", "My settings")}
           userData={user_profile}
           onMenuClick={() => setShowMobileMenu(true)}
         />
@@ -187,7 +201,7 @@ export default function ClientSettingsPage() {
             {is_loading && (
               <div className="loading-state">
                 <RefreshCw className="spin" />
-                <p>Chargement de votre profil...</p>
+                <p>{t("Chargement de votre profil...", "Loading your profile...")}</p>
               </div>
             )}
 
@@ -200,7 +214,7 @@ export default function ClientSettingsPage() {
                   onClick={fetchUserProfile}
                   className="btn modal-button modal-button-error"
                 >
-                  Réessayer
+                  {t("Réessayer", "Try again")}
                 </button>
               </div>
             )}
@@ -231,18 +245,18 @@ export default function ClientSettingsPage() {
                     <div className="settings-section-header">
                       <User style={{ width: "20px", height: "20px" }} />
                       <h3 className="settings-section-title">
-                        Informations personnelles
+                        {t("Informations personnelles", "Personal information")}
                       </h3>
                     </div>
                     <div className="settings-section-content">
                       <div className="settings-field">
-                        <label className="settings-label">Prénom</label>
+                        <label className="settings-label">{t("Prénom", "First name")}</label>
                         <div className="settings-value">
                           {user_profile.first_name}
                         </div>
                       </div>
                       <div className="settings-field">
-                        <label className="settings-label">Nom</label>
+                        <label className="settings-label">{t("Nom", "Last name")}</label>
                         <div className="settings-value">
                           {user_profile.last_name}
                         </div>
@@ -254,16 +268,19 @@ export default function ClientSettingsPage() {
                   <div className="settings-section">
                     <div className="settings-section-header">
                       <Mail style={{ width: "20px", height: "20px" }} />
-                      <h3 className="settings-section-title">Coordonnées</h3>
+                      <h3 className="settings-section-title">
+                        {t("Coordonnées", "Contact details")}
+                      </h3>
                     </div>
                     <div className="settings-section-content">
                       <div className="settings-field">
                         <label className="settings-label">
                           <Phone style={{ width: "16px", height: "16px" }} />
-                          Téléphone
+                          {t("Téléphone", "Phone")}
                         </label>
                         <div className="settings-value">
-                          {user_profile.phone_number || "Non renseigné"}
+                          {user_profile.phone_number ||
+                            t("Non renseigné", "Not provided")}
                         </div>
                       </div>
                       <div className="settings-field">
@@ -272,14 +289,14 @@ export default function ClientSettingsPage() {
                           Email
                         </label>
                         <div className="settings-value">
-                          {user_profile.email || "Non renseigné"}
+                          {user_profile.email || t("Non renseigné", "Not provided")}
                         </div>
                       </div>
                       {user_profile.address && (
                         <div className="settings-field">
                           <label className="settings-label">
                             <MapPin style={{ width: "16px", height: "16px" }} />
-                            Adresse
+                            {t("Adresse", "Address")}
                           </label>
                           <div className="settings-value">
                             {user_profile.address}
@@ -293,25 +310,29 @@ export default function ClientSettingsPage() {
                   <div className="settings-section">
                     <div className="settings-section-header">
                       <Shield style={{ width: "20px", height: "20px" }} />
-                      <h3 className="settings-section-title">Compte</h3>
+                      <h3 className="settings-section-title">
+                        {t("Compte", "Account")}
+                      </h3>
                     </div>
                     <div className="settings-section-content">
                       <div className="settings-field">
                         <label className="settings-label">
-                          Nom d'utilisateur
+                          {t("Nom d'utilisateur", "Username")}
                         </label>
                         <div className="settings-value">
                           {user_profile.username}
                         </div>
                       </div>
                       <div className="settings-field">
-                        <label className="settings-label">Rôle</label>
+                        <label className="settings-label">{t("Rôle", "Role")}</label>
                         <div className="settings-value">
                           {user_profile.role.map(getRoleLabel).join(", ")}
                         </div>
                       </div>
                       <div className="settings-field">
-                        <label className="settings-label">ID utilisateur</label>
+                        <label className="settings-label">
+                          {t("ID utilisateur", "User ID")}
+                        </label>
                         <div className="settings-value settings-value-mono">
                           {user_profile.userId}
                         </div>
@@ -326,7 +347,7 @@ export default function ClientSettingsPage() {
                     onClick={() => router.push("/user/client/home")}
                     className="btn btn-secondary"
                   >
-                    Retour à l'accueil
+                    {t("Retour à l'accueil", "Back to home")}
                   </button>
                   <button
                     onClick={handleLogout}
@@ -338,7 +359,7 @@ export default function ClientSettingsPage() {
                     }}
                   >
                     <LogOut style={{ width: "20px", height: "20px" }} />
-                    <span>Se déconnecter</span>
+                    <span>{t("Se déconnecter", "Sign out")}</span>
                   </button>
                 </div>
               </div>

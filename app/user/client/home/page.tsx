@@ -24,6 +24,7 @@ import {
 import Sidebar from "@/app/components/Sidebar";
 import MobileSidebar from "@/app/components/Mobilesidebar";
 import Header from "@/app/components/Header";
+import { useLanguage } from "@/app/providers";
 
 interface Voyage {
   idVoyage: string;
@@ -77,46 +78,52 @@ export default function ClientHomePage() {
   const [agencesTotalPages, setAgencesTotalPages] = useState(0);
   const [isLoadingAgences, setIsLoadingAgences] = useState(false);
   const [agencesSearch, setAgencesSearch] = useState("");
+  const { t } = useLanguage();
 
   const API_BASE_URL = process.env.NEXT_PUBLIC_API_BASE_URL;
   const VOYAGES_PER_PAGE = 100;
   const AGENCES_PER_PAGE = 100;
 
   const menuItems = [
-    { icon: Home, label: "Accueil", path: "/user/client/home", active: true },
+    {
+      icon: Home,
+      label: t("Accueil", "Home"),
+      path: "/user/client/home",
+      active: true,
+    },
     {
       icon: Calendar,
-      label: "Réserver",
+      label: t("Réserver", "Book"),
       path: "/user/client/book",
       active: false,
     },
     {
       icon: FileText,
-      label: "Réservations",
+      label: t("Réservations", "Bookings"),
       path: "/user/client/reservations",
       active: false,
     },
     {
       icon: Ticket,
-      label: "Billets",
+      label: t("Billets", "Tickets"),
       path: "/user/client/tickets",
       active: false,
     },
     {
       icon: Gift,
-      label: "Coupons",
+      label: t("Coupons", "Vouchers"),
       path: "/user/client/vouchers",
       active: false,
     },
     {
       icon: History,
-      label: "Historique",
+      label: t("Historique", "History"),
       path: "/user/client/history",
       active: false,
     },
     {
       icon: Settings,
-      label: "Mes paramètres",
+      label: t("Mes paramètres", "Settings"),
       path: "/user/client/settings",
       active: false,
     },
@@ -157,7 +164,9 @@ export default function ClientHomePage() {
       );
 
       if (!response.ok) {
-        throw new Error("Erreur lors du chargement des voyages");
+        throw new Error(
+          t("Erreur lors du chargement des voyages", "Error loading trips"),
+        );
       }
 
       const data = await response.json();
@@ -171,7 +180,7 @@ export default function ClientHomePage() {
 
       setVoyages(voyagesFuturs);
     } catch (error: any) {
-      setErrorMessage("Une erreur est survenue");
+      setErrorMessage(t("Une erreur est survenue", "An error occurred"));
     } finally {
       setIsLoading(false);
     }
@@ -197,7 +206,9 @@ export default function ClientHomePage() {
       );
 
       if (!response.ok) {
-        throw new Error("Erreur lors du chargement des agences");
+        throw new Error(
+          t("Erreur lors du chargement des agences", "Error loading agencies"),
+        );
       }
 
       const data = await response.json();
@@ -237,7 +248,7 @@ export default function ClientHomePage() {
 
       <div className="dashboard-main">
         <Header
-          title="Voyages"
+          title={t("Voyages", "Trips")}
           userData={userData}
           onMenuClick={() => setShowMobileMenu(true)}
         />
@@ -246,8 +257,8 @@ export default function ClientHomePage() {
           <div className="content-header">
             <h2 className="content-title">
               {voyages.length === 0
-                ? "Aucun voyage disponible"
-                : "Voyages disponibles"}
+                ? t("Aucun voyage disponible", "No trips available")
+                : t("Voyages disponibles", "Available trips")}
             </h2>
             <div className="content-actions">
               <button
@@ -256,14 +267,14 @@ export default function ClientHomePage() {
                 className="btn btn-secondary"
               >
                 <RefreshCw className={isLoading ? "spin" : ""} />
-                <span>Actualiser</span>
+                <span>{t("Actualiser", "Refresh")}</span>
               </button>
               <button
                 onClick={() => router.push("/user/client/book")}
                 className="btn btn-primary"
               >
                 <Calendar />
-                <span>Réserver</span>
+                <span>{t("Réserver", "Book")}</span>
               </button>
             </div>
           </div>
@@ -273,7 +284,7 @@ export default function ClientHomePage() {
               {isLoading && (
                 <div className="loading-state">
                   <RefreshCw className="spin" />
-                  <p>Chargement des voyages...</p>
+                  <p>{t("Chargement des voyages...", "Loading trips...")}</p>
                 </div>
               )}
 
@@ -287,7 +298,7 @@ export default function ClientHomePage() {
                       onClick={fetchVoyages}
                       className="btn modal-button modal-button-error"
                     >
-                      Réessayer
+                      {t("Réessayer", "Try again")}
                     </button>
                   </div>
                 </>
@@ -300,13 +311,16 @@ export default function ClientHomePage() {
                     onClick={() => window.location.reload()}
                     className="empty-title"
                   >
-                    Aucun voyage disponible
+                    {t("Aucun voyage disponible", "No trips available")}
                   </h3>
                   <p className="empty-description">
-                    Il n'y a pas de voyages disponibles pour le moment.
+                    {t(
+                      "Il n'y a pas de voyages disponibles pour le moment.",
+                      "There are no trips available at the moment."
+                    )}
                   </p>
                   <button onClick={fetchVoyages} className="btn btn-primary">
-                    Actualiser
+                    {t("Actualiser", "Refresh")}
                   </button>
                 </div>
               )}
@@ -321,10 +335,11 @@ export default function ClientHomePage() {
                             voyage.smallImage ||
                             "https://images.unsplash.com/photo-1544620347-c4fd4a3d5957?w=800"
                           }
-                          alt={voyage.titre || "Voyage"}
+                          alt={voyage.titre || t("Voyage", "Trip")}
                           fill
                           style={{ objectFit: "cover" }}
                           quality={75}
+                          unoptimized
                         />
                         <div className="voyage-badge">
                           #{voyage.idVoyage.slice(0, 13)}
@@ -334,13 +349,15 @@ export default function ClientHomePage() {
                         <div className="voyage-info">
                           <MapPin />
                           <h3>
-                            De {voyage.lieuDepart} vers {voyage.lieuArrive}
+                            {t("De", "From")} {voyage.lieuDepart}{" "}
+                            {t("vers", "to")} {voyage.lieuArrive}
                           </h3>
                         </div>
                         <div className="voyage-info">
                           <Compass />
                           <span>
-                            Itinéraire : {voyage.pointDeDepart} vers{" "}
+                            {t("Itinéraire :", "Route:")}{" "}
+                            {voyage.pointDeDepart} {t("vers", "to")}{" "}
                             {voyage.pointArrivee}
                           </span>
                         </div>
@@ -349,22 +366,26 @@ export default function ClientHomePage() {
                           <span>
                             {voyage.nbrPlaceReservable} /{" "}
                             {voyage.nbrPlaceRestante + voyage.nbrPlaceConfirm}{" "}
-                            Places restantes
+                            {t("Places restantes", "Seats remaining")}
                           </span>
                         </div>
                         <div className="voyage-info">
                           <Group />
-                          <span>Classe : {voyage.nomClasseVoyage}</span>
+                          <span>
+                            {t("Classe :", "Class:")} {voyage.nomClasseVoyage}
+                          </span>
                         </div>
                         <div className="voyage-price">
-                          <span>Le {formatDate(voyage.dateDepartPrev)}</span>
+                          <span>
+                            {t("Le", "On")} {formatDate(voyage.dateDepartPrev)}
+                          </span>
                           <span className="price">{voyage.prix} FCFA</span>
                         </div>
                         <button
                           onClick={() => handleReserver(voyage.idVoyage)}
                           className="btn btn-outline-primary"
                         >
-                          Réserver maintenant
+                          {t("Réserver maintenant", "Book now")}
                         </button>
                       </div>
                     </div>
@@ -375,14 +396,16 @@ export default function ClientHomePage() {
 
             <aside className="content-sidebar">
               <div className="agences-widget">
-                <h3 className="widget-title">Agences validées</h3>
+                <h3 className="widget-title">
+                  {t("Agences validées", "Validated agencies")}
+                </h3>
 
                 <div className="widget-search">
                   <div className="search-input-wrapper">
                     <Search />
                     <input
                       type="text"
-                      placeholder="Rechercher..."
+                      placeholder={t("Rechercher...", "Search...")}
                       value={agencesSearch}
                       onChange={(e) => setAgencesSearch(e.target.value)}
                     />
@@ -401,7 +424,9 @@ export default function ClientHomePage() {
                     <RefreshCw className="spin" />
                   </div>
                 ) : agences.length === 0 ? (
-                  <p className="widget-empty">Aucune agence validée</p>
+                  <p className="widget-empty">
+                    {t("Aucune agence validée", "No validated agency")}
+                  </p>
                 ) : (
                   <>
                     <div className="agences-list">
@@ -413,11 +438,23 @@ export default function ClientHomePage() {
                         )
                         .map((agence) => (
                           <div key={agence.agency_id} className="agence-item">
-                            <h4>Nom : {agence.long_name}</h4>
-                            <p>Abréviation : {agence.short_name}</p>
-                            <p>Ville : {agence.ville}</p>
-                            <p>Zone : {agence.location}</p>
-                            <p>Réseau social : {agence.social_network}</p>
+                            <h4>
+                              {t("Nom :", "Name:")} {agence.long_name}
+                            </h4>
+                            <p>
+                              {t("Abréviation :", "Abbreviation:")}{" "}
+                              {agence.short_name}
+                            </p>
+                            <p>
+                              {t("Ville :", "City:")} {agence.ville}
+                            </p>
+                            <p>
+                              {t("Zone :", "Area:")} {agence.location}
+                            </p>
+                            <p>
+                              {t("Réseau social :", "Social network:")}{" "}
+                              {agence.social_network}
+                            </p>
                           </div>
                         ))}
                     </div>

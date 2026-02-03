@@ -22,6 +22,7 @@ import { useRouter } from "next/navigation";
 import Sidebar from "@/app/components/Sidebar";
 import MobileSidebar from "@/app/components/Mobilesidebar";
 import Header from "@/app/components/Header";
+import { useLanguage } from "@/app/providers";
 
 interface Agence {
   agency_id: string;
@@ -68,6 +69,7 @@ export default function BSMMonitoringPage() {
   const [motifRejet, setMotifRejet] = useState("");
   const [currentPage, setCurrentPage] = useState(0);
   const [totalPages, setTotalPages] = useState(0);
+  const { t, language } = useLanguage();
 
   const router = useRouter();
   const API_BASE_URL = process.env.NEXT_PUBLIC_API_BASE_URL;
@@ -76,19 +78,19 @@ export default function BSMMonitoringPage() {
   const menuItems = [
     {
       icon: Home,
-      label: "Dashboard",
+      label: t("Dashboard", "Dashboard"),
       path: "/user/bsm/dashboard",
       active: false,
     },
     {
       icon: Eye,
-      label: "Surveillance",
+      label: t("Surveillance", "Monitoring"),
       path: "/user/bsm/monitoring",
       active: true,
     },
     {
       icon: Settings,
-      label: "Mes paramètres",
+      label: t("Mes paramètres", "My settings"),
       path: "/user/bsm/settings",
       active: false,
     },
@@ -137,7 +139,9 @@ export default function BSMMonitoringPage() {
       );
 
       if (!response.ok)
-        throw new Error("Erreur lors du chargement des agences");
+        throw new Error(
+          t("Erreur lors du chargement des agences", "Failed to load agencies"),
+        );
 
       const data = await response.json();
       let filteredAgences = data.content || [];
@@ -151,7 +155,12 @@ export default function BSMMonitoringPage() {
       setAgences(filteredAgences);
       setTotalPages(data.page?.totalPages || 0);
     } catch (error: any) {
-      setErrorMessage("Impossible de charger les agences en attente");
+      setErrorMessage(
+        t(
+          "Impossible de charger les agences en attente",
+          "Unable to load pending agencies",
+        ),
+      );
       console.error("Fetch Agences Error:", error);
     } finally {
       setIsLoading(false);
@@ -169,13 +178,18 @@ export default function BSMMonitoringPage() {
     if (!selectedAgence) return;
 
     if (action === "reject" && !motifRejet.trim()) {
-      setValidationError("Veuillez renseigner le motif de rejet");
+      setValidationError(
+        t("Veuillez renseigner le motif de rejet", "Please enter a rejection reason"),
+      );
       return;
     }
 
     if (action === "reject" && motifRejet.trim().length < 10) {
       setValidationError(
-        "Le motif de rejet doit contenir au moins 10 caractères",
+        t(
+          "Le motif de rejet doit contenir au moins 10 caractères",
+          "The rejection reason must be at least 10 characters",
+        ),
       );
       return;
     }
@@ -206,17 +220,23 @@ export default function BSMMonitoringPage() {
 
       if (!response.ok)
         throw new Error(
-          `Erreur lors de la ${action === "approve" ? "validation" : "rejection"}`,
+          t(
+            `Erreur lors de la ${action === "approve" ? "validation" : "rejection"}`,
+            `Failed to ${action === "approve" ? "approve" : "reject"}`,
+          ),
         );
 
       setShowDetailModal(false);
       setMotifRejet("");
       fetchAgences();
       setSuccessMessage(
-        `Agence ${action === "approve" ? "validée" : "rejetée"} avec succès!`,
+        t(
+          `Agence ${action === "approve" ? "validée" : "rejetée"} avec succès!`,
+          `Agency ${action === "approve" ? "approved" : "rejected"} successfully!`,
+        ),
       );
     } catch (error: any) {
-      setValidationError(`Une erreur est survenue. Veuillez réessayer.`);
+      setValidationError(t("Une erreur est survenue. Veuillez réessayer.", "An error occurred. Please try again."));
       console.error("Validation Error:", error);
     } finally {
       setIsLoadingValidation(false);
@@ -224,9 +244,10 @@ export default function BSMMonitoringPage() {
   };
 
   const formatDate = (dateString: string) => {
-    if (!dateString) return "N/A";
+    if (!dateString) return t("N/A", "N/A");
     const date = new Date(dateString);
-    return date.toLocaleDateString("fr-FR", {
+    const locale = language === "fr" ? "fr-FR" : "en-US";
+    return date.toLocaleDateString(locale, {
       day: "2-digit",
       month: "long",
       year: "numeric",
@@ -247,7 +268,7 @@ export default function BSMMonitoringPage() {
 
       <div className="dashboard-main">
         <Header
-          title="Surveillance des agences"
+          title={t("Surveillance des agences", "Agency monitoring")}
           userData={userData}
           onMenuClick={() => setShowMobileMenu(true)}
           userType="bsm"
@@ -309,10 +330,13 @@ export default function BSMMonitoringPage() {
               style={{ marginBottom: "var(--spacing-2xl)" }}
             >
               <h2 className="section-title">
-                Agences en attente de validation
+                {t("Agences en attente de validation", "Agencies pending validation")}
               </h2>
               <p className="section-description">
-                Examinez et validez les demandes de création d'agence
+                {t(
+                  "Examinez et validez les demandes de création d'agence",
+                  "Review and validate agency creation requests",
+                )}
               </p>
             </div>
 
@@ -320,7 +344,7 @@ export default function BSMMonitoringPage() {
             {isLoading && (
               <div className="loading-state">
                 <RefreshCw className="spin" />
-                <p>Chargement des agences...</p>
+                <p>{t("Chargement des agences...", "Loading agencies...")}</p>
               </div>
             )}
 
@@ -335,7 +359,7 @@ export default function BSMMonitoringPage() {
                     onClick={() => window.location.reload()}
                     className="btn modal-button modal-button-error"
                   >
-                    Réessayer
+                    {t("Réessayer", "Try again")}
                   </button>
                 </div>
               </>
@@ -346,16 +370,21 @@ export default function BSMMonitoringPage() {
               <>
                 <div className="empty-state">
                   <Building2 className="empty-icon" />
-                  <h3 className="empty-title">Aucune agence en attente</h3>
+                  <h3 className="empty-title">
+                    {t("Aucune agence en attente", "No pending agency")}
+                  </h3>
                   <p className="empty-description">
-                    Toutes les agences ont été traitées
+                    {t(
+                      "Toutes les agences ont été traitées",
+                      "All agencies have been processed",
+                    )}
                   </p>
                   <button
                     className="btn btn-primary"
                     style={{ marginTop: "20px" }}
                     onClick={fetchAgences}
                   >
-                    Actualiser la liste
+                    {t("Actualiser la liste", "Refresh list")}
                   </button>
                 </div>
               </>
@@ -370,7 +399,7 @@ export default function BSMMonitoringPage() {
                       <div className="voyage-result-header">
                         <div className="voyage-result-agency">
                           <span className="voyage-result-label">
-                            Nom de l'agence de voyage
+                            {t("Nom de l'agence de voyage", "Agency name")}
                           </span>
                           <h3 className="voyage-result-agency-name">
                             {agence.long_name}
@@ -396,7 +425,7 @@ export default function BSMMonitoringPage() {
                               fontWeight: "var(--font-weight-semibold)",
                             }}
                           >
-                            En attente
+                            {t("En attente", "Pending")}
                           </span>
                         </div>
                       </div>
@@ -407,7 +436,7 @@ export default function BSMMonitoringPage() {
                             <Building2 />
                             <div>
                               <span className="voyage-result-location-label">
-                                Nom court
+                                {t("Nom court", "Short name")}
                               </span>
                               <span className="voyage-result-location-value">
                                 {agence.short_name}
@@ -419,7 +448,7 @@ export default function BSMMonitoringPage() {
                             <MapPin />
                             <div>
                               <span className="voyage-result-location-label">
-                                Localisation
+                                {t("Localisation", "Location")}
                               </span>
                               <span className="voyage-result-location-value">
                                 {agence.ville} - {agence.location}
@@ -433,7 +462,10 @@ export default function BSMMonitoringPage() {
                             <Globe />
                             <span>
                               {agence.social_network ||
-                                "Réseau social non renseigné"}
+                                t(
+                                  "Réseau social non renseigné",
+                                  "Social network not provided",
+                                )}
                             </span>
                           </div>
 
@@ -441,7 +473,7 @@ export default function BSMMonitoringPage() {
                             <MessageSquare />
                             <span>
                               {agence.greeting_message ||
-                                "Message non renseigné"}
+                                t("Message non renseigné", "Message not provided")}
                             </span>
                           </div>
                         </div>
@@ -450,7 +482,7 @@ export default function BSMMonitoringPage() {
                       <div className="voyage-result-footer">
                         <div className="voyage-result-price">
                           <span className="voyage-result-price-label">
-                            Organisation
+                            {t("Organisation", "Organization")}
                           </span>
                           <span
                             className="voyage-result-price-value"
@@ -468,7 +500,7 @@ export default function BSMMonitoringPage() {
                             gap: "var(--spacing-xs)",
                           }}
                         >
-                          <span>Voir détails</span>
+                          <span>{t("Voir détails", "View details")}</span>
                         </button>
                       </div>
                     </div>
@@ -494,7 +526,7 @@ export default function BSMMonitoringPage() {
                       <ChevronLeft />
                     </button>
                     <span>
-                      Page {currentPage + 1} / {totalPages}
+                      {t("Page", "Page")} {currentPage + 1} / {totalPages}
                     </span>
                     <button
                       onClick={() =>
@@ -520,7 +552,9 @@ export default function BSMMonitoringPage() {
         <div className="modal-overlay">
           <div className="payment-modal-content">
             <div className="payment-modal-header">
-              <h2 className="payment-modal-title">Détails de l'agence</h2>
+              <h2 className="payment-modal-title">
+                {t("Détails de l'agence", "Agency details")}
+              </h2>
               <button
                 onClick={() => {
                   setShowDetailModal(false);
@@ -537,22 +571,28 @@ export default function BSMMonitoringPage() {
               {/* Informations */}
               <div className="payment-summary">
                 <h3 className="payment-summary-title">
-                  Informations générales
+                  {t("Informations générales", "General information")}
                 </h3>
                 <div className="payment-summary-item">
-                  <span className="payment-summary-label">Nom complet</span>
+                  <span className="payment-summary-label">
+                    {t("Nom complet", "Full name")}
+                  </span>
                   <span className="payment-summary-value">
                     {selectedAgence.long_name}
                   </span>
                 </div>
                 <div className="payment-summary-item">
-                  <span className="payment-summary-label">Abréviation</span>
+                  <span className="payment-summary-label">
+                    {t("Abréviation", "Abbreviation")}
+                  </span>
                   <span className="payment-summary-value">
                     {selectedAgence.short_name}
                   </span>
                 </div>
                 <div className="payment-summary-item">
-                  <span className="payment-summary-label">ID Agence</span>
+                  <span className="payment-summary-label">
+                    {t("ID Agence", "Agency ID")}
+                  </span>
                   <span
                     className="payment-summary-value"
                     style={{
@@ -564,7 +604,9 @@ export default function BSMMonitoringPage() {
                   </span>
                 </div>
                 <div className="payment-summary-item">
-                  <span className="payment-summary-label">ID Organisation</span>
+                  <span className="payment-summary-label">
+                    {t("ID Organisation", "Organization ID")}
+                  </span>
                   <span
                     className="payment-summary-value"
                     style={{
@@ -581,15 +623,21 @@ export default function BSMMonitoringPage() {
                 className="payment-summary"
                 style={{ marginTop: "var(--spacing-lg)" }}
               >
-                <h3 className="payment-summary-title">Localisation</h3>
+                <h3 className="payment-summary-title">
+                  {t("Localisation", "Location")}
+                </h3>
                 <div className="payment-summary-item">
-                  <span className="payment-summary-label">Ville</span>
+                  <span className="payment-summary-label">
+                    {t("Ville", "City")}
+                  </span>
                   <span className="payment-summary-value">
                     {selectedAgence.ville}
                   </span>
                 </div>
                 <div className="payment-summary-item">
-                  <span className="payment-summary-label">Zone</span>
+                  <span className="payment-summary-label">
+                    {t("Zone", "Area")}
+                  </span>
                   <span className="payment-summary-value">
                     {selectedAgence.location}
                   </span>
@@ -601,10 +649,12 @@ export default function BSMMonitoringPage() {
                 style={{ marginTop: "var(--spacing-lg)" }}
               >
                 <h3 className="payment-summary-title">
-                  Contact et communication
+                  {t("Contact et communication", "Contact and communication")}
                 </h3>
                 <div className="payment-summary-item">
-                  <span className="payment-summary-label">Réseau social</span>
+                  <span className="payment-summary-label">
+                    {t("Réseau social", "Social network")}
+                  </span>
                   <span
                     className="payment-summary-value"
                     style={{
@@ -612,18 +662,20 @@ export default function BSMMonitoringPage() {
                       wordBreak: "break-all",
                     }}
                   >
-                    {selectedAgence.social_network || "Non renseigné"}
+                    {selectedAgence.social_network ||
+                      t("Non renseigné", "Not provided")}
                   </span>
                 </div>
                 <div className="payment-summary-item">
                   <span className="payment-summary-label">
-                    Message d'accueil
+                    {t("Message d'accueil", "Welcome message")}
                   </span>
                   <span
                     className="payment-summary-value"
                     style={{ fontSize: "var(--font-size-sm)" }}
                   >
-                    {selectedAgence.greeting_message || "Non renseigné"}
+                    {selectedAgence.greeting_message ||
+                      t("Non renseigné", "Not provided")}
                   </span>
                 </div>
               </div>
@@ -633,7 +685,9 @@ export default function BSMMonitoringPage() {
                   className="payment-summary"
                   style={{ marginTop: "var(--spacing-lg)" }}
                 >
-                  <h3 className="payment-summary-title">Description</h3>
+                  <h3 className="payment-summary-title">
+                    {t("Description", "Description")}
+                  </h3>
                   <p
                     style={{
                       fontSize: "var(--font-size-sm)",
@@ -652,7 +706,10 @@ export default function BSMMonitoringPage() {
                 style={{ marginTop: "var(--spacing-xl)" }}
               >
                 <label className="form-label">
-                  Motif de rejet (obligatoire pour rejeter)
+                  {t(
+                    "Motif de rejet (obligatoire pour rejeter)",
+                    "Rejection reason (required to reject)",
+                  )}
                 </label>
                 <textarea
                   value={motifRejet}
@@ -660,7 +717,10 @@ export default function BSMMonitoringPage() {
                     setMotifRejet(e.target.value);
                     setValidationError("");
                   }}
-                  placeholder="Entrez le motif de rejet (minimum 10 caractères)..."
+                  placeholder={t(
+                    "Entrez le motif de rejet (minimum 10 caractères)...",
+                    "Enter the rejection reason (minimum 10 characters)...",
+                  )}
                   className="form-textarea"
                   style={{ minHeight: "100px" }}
                 />
@@ -675,10 +735,10 @@ export default function BSMMonitoringPage() {
                     }}
                   >
                     <AlertCircle style={{ width: "16px", height: "16px" }} />
-                    <span style={{ fontSize: "var(--font-size-sm)" }}>
-                      {validationError}
-                    </span>
-                  </div>
+                      <span style={{ fontSize: "var(--font-size-sm)" }}>
+                        {validationError}
+                      </span>
+                    </div>
                 )}
               </div>
 
@@ -709,11 +769,11 @@ export default function BSMMonitoringPage() {
                         className="spin"
                         style={{ width: "20px", height: "20px" }}
                       />
-                      <span>Traitement...</span>
+                      <span>{t("Traitement...", "Processing...")}</span>
                     </>
                   ) : (
                     <>
-                      <span>Rejeter</span>
+                      <span>{t("Rejeter", "Reject")}</span>
                     </>
                   )}
                 </button>
@@ -735,11 +795,11 @@ export default function BSMMonitoringPage() {
                         className="spin"
                         style={{ width: "20px", height: "20px" }}
                       />
-                      <span>Traitement...</span>
+                      <span>{t("Traitement...", "Processing...")}</span>
                     </>
                   ) : (
                     <>
-                      <span>Valider</span>
+                      <span>{t("Valider", "Approve")}</span>
                     </>
                   )}
                 </button>

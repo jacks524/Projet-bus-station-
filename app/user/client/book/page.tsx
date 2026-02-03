@@ -26,6 +26,7 @@ import { useRouter } from "next/navigation";
 import Sidebar from "@/app/components/Sidebar";
 import MobileSidebar from "@/app/components/Mobilesidebar";
 import Header from "@/app/components/Header";
+import { useLanguage } from "@/app/providers";
 
 interface Voyage {
   idVoyage: string;
@@ -76,6 +77,7 @@ export default function ClientReservePage() {
   const [date_depart, setDateDepart] = useState("");
 
   const router = useRouter();
+  const { t } = useLanguage();
 
   const resultsRef = useRef<HTMLDivElement>(null);
 
@@ -83,40 +85,45 @@ export default function ClientReservePage() {
   const VOYAGES_PER_PAGE = 12;
 
   const MENU_ITEMS = [
-    { icon: Home, label: "Accueil", path: "/user/client/home", active: false },
+    {
+      icon: Home,
+      label: t("Accueil", "Home"),
+      path: "/user/client/home",
+      active: false,
+    },
     {
       icon: Calendar,
-      label: "Réserver",
+      label: t("Réserver", "Book"),
       path: "/user/client/book",
       active: true,
     },
     {
       icon: FileText,
-      label: "Réservations",
+      label: t("Réservations", "Bookings"),
       path: "/user/client/reservations",
       active: false,
     },
     {
       icon: Ticket,
-      label: "Billets",
+      label: t("Billets", "Tickets"),
       path: "/user/client/tickets",
       active: false,
     },
     {
       icon: Gift,
-      label: "Coupons",
+      label: t("Coupons", "Vouchers"),
       path: "/user/client/vouchers",
       active: false,
     },
     {
       icon: History,
-      label: "Historique",
+      label: t("Historique", "History"),
       path: "/user/client/history",
       active: false,
     },
     {
       icon: Settings,
-      label: "Mes paramètres",
+      label: t("Mes paramètres", "Settings"),
       path: "/user/client/settings",
       active: false,
     },
@@ -148,7 +155,10 @@ export default function ClientReservePage() {
   const searchVoyages = async () => {
     if (!ville_depart || !ville_arrive) {
       setErrorMessage(
-        "Veuillez renseigner au moins la ville de départ et d'arrivée",
+        t(
+          "Veuillez renseigner au moins la ville de départ et d'arrivée",
+          "Please provide at least the departure and arrival cities"
+        ),
       );
       return;
     }
@@ -280,7 +290,7 @@ export default function ClientReservePage() {
 
       <div className="dashboard-main">
         <Header
-          title="Rechercher un voyage"
+          title={t("Rechercher un voyage", "Search for a trip")}
           userData={user_data}
           onMenuClick={() => setShowMobileMenu(true)}
         />
@@ -290,17 +300,23 @@ export default function ClientReservePage() {
           <section className="section">
             <div className="container" style={{ maxWidth: "1000px" }}>
               <div className="section-header" style={{ marginTop: "-80px" }}>
-                <h2 className="section-title">Trouvez votre prochain voyage</h2>
+                <h2 className="section-title">
+                  {t("Trouvez votre prochain voyage", "Find your next trip")}
+                </h2>
                 <p className="section-description">
-                  Remplissez les champs ci-dessous pour rechercher les voyages
-                  disponibles
+                  {t(
+                    "Remplissez les champs ci-dessous pour rechercher les voyages disponibles",
+                    "Fill in the fields below to search available trips"
+                  )}
                 </p>
               </div>
 
               <form onSubmit={handleSearch} className="search-form">
                 <div className="form-row">
                   <div className="form-group">
-                    <label className="form-label">Ville de départ *</label>
+                    <label className="form-label">
+                      {t("Ville de départ *", "Departure city *")}
+                    </label>
                     <select
                       value={ville_depart}
                       onChange={(e) => {
@@ -312,14 +328,19 @@ export default function ClientReservePage() {
                       required
                       className="form-input"
                     >
-                      <option value="">Choisir une ville de départ</option>
-                      <option value="Yaoundé">Yaoundé</option>
+                      <option value="">
+                        {t(
+                          "Choisir une ville de départ",
+                          "Select a departure city"
+                        )}
+                      </option>
+                      <option value="Yaoundé">{t("Yaoundé", "Yaounde")}</option>
                       <option value="Douala">Douala</option>
                       <option value="Bafoussam">Bafoussam</option>
                       <option value="Bamenda">Bamenda</option>
                       <option value="Garoua">Garoua</option>
                       <option value="Maroua">Maroua</option>
-                      <option value="Ngaoundéré">Ngaoundéré</option>
+                      <option value="Ngaoundéré">{t("Ngaoundéré", "Ngaoundere")}</option>
                       <option value="Bertoua">Bertoua</option>
                       <option value="Ebolowa">Ebolowa</option>
                       <option value="Kribi">Kribi</option>
@@ -327,7 +348,9 @@ export default function ClientReservePage() {
                   </div>
 
                   <div className="form-group">
-                    <label className="form-label">Ville d'arrivée *</label>
+                    <label className="form-label">
+                      {t("Ville d'arrivée *", "Arrival city *")}
+                    </label>
                     <select
                       value={ville_arrive}
                       onChange={(e) => {
@@ -339,14 +362,19 @@ export default function ClientReservePage() {
                       required
                       className="form-input"
                     >
-                      <option value="">Choisir une ville d’arrivée</option>
-                      <option value="Yaoundé">Yaoundé</option>
+                      <option value="">
+                        {t(
+                          "Choisir une ville d’arrivée",
+                          "Select an arrival city"
+                        )}
+                      </option>
+                      <option value="Yaoundé">{t("Yaoundé", "Yaounde")}</option>
                       <option value="Douala">Douala</option>
                       <option value="Bafoussam">Bafoussam</option>
                       <option value="Bamenda">Bamenda</option>
                       <option value="Garoua">Garoua</option>
                       <option value="Maroua">Maroua</option>
-                      <option value="Ngaoundéré">Ngaoundéré</option>
+                      <option value="Ngaoundéré">{t("Ngaoundéré", "Ngaoundere")}</option>
                       <option value="Bertoua">Bertoua</option>
                       <option value="Ebolowa">Ebolowa</option>
                       <option value="Kribi">Kribi</option>
@@ -355,7 +383,9 @@ export default function ClientReservePage() {
                 </div>
                 <div className="form-row">
                   <div className="form-group">
-                    <label className="form-label">Zone de départ</label>
+                    <label className="form-label">
+                      {t("Zone de départ", "Departure area")}
+                    </label>
                     <input
                       type="text"
                       value={zone_depart}
@@ -366,7 +396,9 @@ export default function ClientReservePage() {
                   </div>
 
                   <div className="form-group">
-                    <label className="form-label">Zone d'arrivée</label>
+                    <label className="form-label">
+                      {t("Zone d'arrivée", "Arrival area")}
+                    </label>
                     <input
                       type="text"
                       value={zone_arrive}
@@ -378,7 +410,9 @@ export default function ClientReservePage() {
                 </div>
 
                 <div className="form-group">
-                  <label className="form-label">Date de départ</label>
+                  <label className="form-label">
+                    {t("Date de départ", "Departure date")}
+                  </label>
                   <input
                     type="date"
                     value={date_depart}
@@ -396,12 +430,12 @@ export default function ClientReservePage() {
                   {is_loading ? (
                     <>
                       <RefreshCw className="spin" />
-                      <span>Recherche en cours...</span>
+                      <span>{t("Recherche en cours...", "Searching...")}</span>
                     </>
                   ) : (
                     <>
                       <Search />
-                      <span>Rechercher mon voyage</span>
+                      <span>{t("Rechercher mon voyage", "Search my trip")}</span>
                     </>
                   )}
                 </button>
@@ -423,7 +457,7 @@ export default function ClientReservePage() {
                         }}
                         className="btn modal-button modal-button-error"
                       >
-                        Réessayer
+                        {t("Réessayer", "Try again")}
                       </button>
                     </div>
                   </>
@@ -439,16 +473,21 @@ export default function ClientReservePage() {
                 {is_loading && (
                   <div className="loading-state">
                     <RefreshCw className="spin" />
-                    <p>Recherche en cours...</p>
+                    <p>{t("Recherche en cours...", "Searching...")}</p>
                   </div>
                 )}
 
                 {!is_loading && voyages.length === 0 && (
                   <div ref={resultsRef} className="empty-state">
                     <Calendar className="empty-icon" />
-                    <h3 className="empty-title">Aucun voyage trouvé</h3>
+                    <h3 className="empty-title">
+                      {t("Aucun voyage trouvé", "No trips found")}
+                    </h3>
                     <p className="empty-description">
-                      Essayez de modifier vos critères de recherche
+                      {t(
+                        "Essayez de modifier vos critères de recherche",
+                        "Try adjusting your search criteria"
+                      )}
                     </p>
                   </div>
                 )}
@@ -457,12 +496,16 @@ export default function ClientReservePage() {
                   <>
                     <div ref={resultsRef} className="section-header">
                       <h2 className="section-title">
-                        {voyages.length} voyage{voyages.length > 1 ? "s" : ""}{" "}
-                        trouvé
-                        {voyages.length > 1 ? "s" : ""}
+                        {t(
+                          `${voyages.length} voyage${voyages.length > 1 ? "s" : ""} trouvé${voyages.length > 1 ? "s" : ""}`,
+                          `${voyages.length} trip${voyages.length > 1 ? "s" : ""} found`
+                        )}
                       </h2>
                       <p className="section-description">
-                        Cliquez sur un voyage pour le réserver
+                        {t(
+                          "Cliquez sur un voyage pour le réserver",
+                          "Click a trip to book it"
+                        )}
                       </p>
                     </div>
 
@@ -475,7 +518,7 @@ export default function ClientReservePage() {
                           <div className="voyage-result-header">
                             <div className="voyage-result-agency">
                               <span className="voyage-result-label">
-                                Agence
+                                {t("Agence", "Agency")}
                               </span>
                               <h3 className="voyage-result-agency-name">
                                 {voyage.nomAgence}
@@ -492,7 +535,7 @@ export default function ClientReservePage() {
                                 <MapPin />
                                 <div>
                                   <span className="voyage-result-location-label">
-                                    Départ
+                                    {t("Départ", "Departure")}
                                   </span>
                                   <span className="voyage-result-location-value">
                                     {voyage.lieuDepart} - {voyage.pointDeDepart}
@@ -504,7 +547,7 @@ export default function ClientReservePage() {
                                 <MapPin />
                                 <div>
                                   <span className="voyage-result-location-label">
-                                    Arrivée
+                                    {t("Arrivée", "Arrival")}
                                   </span>
                                   <span className="voyage-result-location-value">
                                     {voyage.lieuArrive} - {voyage.pointArrivee}
@@ -550,7 +593,7 @@ export default function ClientReservePage() {
                               onClick={() => handleReserver(voyage.idVoyage)}
                               className="btn btn-primary"
                             >
-                              Réserver
+                              {t("Réserver", "Book")}
                             </button>
                           </div>
                         </div>

@@ -22,6 +22,7 @@ import {
 import Sidebar from "@/app/components/Sidebar";
 import MobileSidebar from "@/app/components/Mobilesidebar";
 import Header from "@/app/components/Header";
+import { useLanguage } from "@/app/providers";
 
 /**
  * BusStation Client History Page
@@ -64,44 +65,50 @@ export default function ClientHistoryPage() {
     key: keyof Historique | null;
     direction: "asc" | "desc";
   }>({ key: null, direction: "asc" });
+  const { t, language } = useLanguage();
 
   const API_BASE_URL = process.env.NEXT_PUBLIC_API_BASE_URL;
 
   const MENU_ITEMS = [
-    { icon: Home, label: "Accueil", path: "/user/client/home", active: false },
+    {
+      icon: Home,
+      label: t("Accueil", "Home"),
+      path: "/user/client/home",
+      active: false,
+    },
     {
       icon: Calendar,
-      label: "Réserver",
+      label: t("Réserver", "Book"),
       path: "/user/client/book",
       active: false,
     },
     {
       icon: FileText,
-      label: "Réservations",
+      label: t("Réservations", "Reservations"),
       path: "/user/client/reservations",
       active: false,
     },
     {
       icon: Ticket,
-      label: "Billets",
+      label: t("Billets", "Tickets"),
       path: "/user/client/tickets",
       active: false,
     },
     {
       icon: Gift,
-      label: "Coupons",
+      label: t("Coupons", "Vouchers"),
       path: "/user/client/vouchers",
       active: false,
     },
     {
       icon: HistoryIcon,
-      label: "Historique",
+      label: t("Historique", "History"),
       path: "/user/client/history",
       active: true,
     },
     {
       icon: Settings,
-      label: "Mes paramètres",
+      label: t("Mes paramètres", "My settings"),
       path: "/user/client/settings",
       active: false,
     },
@@ -142,13 +149,20 @@ export default function ClientHistoryPage() {
       );
 
       if (!response.ok) {
-        throw new Error("Erreur lors du chargement de l'historique");
+        throw new Error(
+          t(
+            "Erreur lors du chargement de l'historique",
+            "Failed to load history",
+          ),
+        );
       }
 
       const data = await response.json();
       setHistoriques(data || []);
     } catch (error: any) {
-      setErrorMessage("Impossible de charger votre historique");
+      setErrorMessage(
+        t("Impossible de charger votre historique", "Unable to load your history"),
+      );
       console.error("Fetch Historiques Error:", error);
     } finally {
       setIsLoading(false);
@@ -158,7 +172,8 @@ export default function ClientHistoryPage() {
   const formatDate = (dateString: string) => {
     if (!dateString) return "-";
     const date = new Date(dateString);
-    return date.toLocaleDateString("fr-FR", {
+    const locale = language === "fr" ? "fr-FR" : "en-US";
+    return date.toLocaleDateString(locale, {
       day: "2-digit",
       month: "short",
       year: "numeric",
@@ -172,22 +187,22 @@ export default function ClientHistoryPage() {
       [key: string]: { label: string; type: "success" | "warning" | "error" };
     } = {
       ANNULER_PAR_AGENCE_APRES_RESERVATION: {
-        label: "Annulé (Agence)",
+        label: t("Annulé (Agence)", "Cancelled (Agency)"),
         type: "error",
       },
       ANNULER_PAR_USAGER_APRES_RESERVATION: {
-        label: "Annulé (Vous)",
+        label: t("Annulé (Vous)", "Cancelled (You)"),
         type: "warning",
       },
       ANNULER_PAR_AGENCE_APRES_CONFIRMATION: {
-        label: "Annulé (Agence)",
+        label: t("Annulé (Agence)", "Cancelled (Agency)"),
         type: "error",
       },
       ANNULER_PAR_USAGER_APRES_CONFIRMATION: {
-        label: "Annulé (Vous)",
+        label: t("Annulé (Vous)", "Cancelled (You)"),
         type: "warning",
       },
-      VALIDER: { label: "Validé", type: "success" },
+      VALIDER: { label: t("Validé", "Validated"), type: "success" },
     };
     return statusMap[status] || { label: status, type: "warning" as "warning" };
   };
@@ -231,12 +246,12 @@ export default function ClientHistoryPage() {
 
   const exportToCSV = () => {
     const headers = [
-      "N° Réservation",
-      "Statut",
-      "Date Réservation",
-      "Date Confirmation",
-      "Date Annulation",
-      "Compensation",
+      t("N° Réservation", "Reservation #"),
+      t("Statut", "Status"),
+      t("Date Réservation", "Reservation date"),
+      t("Date Confirmation", "Confirmation date"),
+      t("Date Annulation", "Cancellation date"),
+      t("Compensation", "Compensation"),
     ];
 
     const rows = historiques.map((item) => [
@@ -257,7 +272,10 @@ export default function ClientHistoryPage() {
     const link = document.createElement("a");
     const url = URL.createObjectURL(blob);
     link.setAttribute("href", url);
-    link.setAttribute("download", `historique_${Date.now()}.csv`);
+    link.setAttribute(
+      "download",
+      `${t("historique", "history")}_${Date.now()}.csv`,
+    );
     link.style.visibility = "hidden";
     document.body.appendChild(link);
     link.click();
@@ -276,7 +294,7 @@ export default function ClientHistoryPage() {
 
       <div className="dashboard-main">
         <Header
-          title="Historique"
+          title={t("Historique", "History")}
           userData={userData}
           onMenuClick={() => setShowMobileMenu(true)}
         />
@@ -289,9 +307,14 @@ export default function ClientHistoryPage() {
               style={{ marginBottom: "var(--spacing-2xl)" }}
             >
               <div>
-                <h2 className="section-title">Historique des réservations</h2>
+                <h2 className="section-title">
+                  {t("Historique des réservations", "Reservation history")}
+                </h2>
                 <p className="section-description">
-                  Consultez l'ensemble de vos activités passées
+                  {t(
+                    "Consultez l'ensemble de vos activités passées",
+                    "Review all of your past activity",
+                  )}
                 </p>
               </div>
               {!isLoading && historiques.length > 0 && (
@@ -301,7 +324,7 @@ export default function ClientHistoryPage() {
                   style={{ marginTop: "20px" }}
                 >
                   <Download />
-                  Exporter CSV
+                  {t("Exporter CSV", "Export CSV")}
                 </button>
               )}
             </div>
@@ -310,7 +333,7 @@ export default function ClientHistoryPage() {
             {isLoading && (
               <div className="loading-state">
                 <RefreshCw className="spin" />
-                <p>Chargement de l'historique...</p>
+                <p>{t("Chargement de l'historique...", "Loading history...")}</p>
               </div>
             )}
 
@@ -323,7 +346,7 @@ export default function ClientHistoryPage() {
                   onClick={() => window.location.reload()}
                   className="btn modal-button modal-button-error"
                 >
-                  Réessayer
+                  {t("Réessayer", "Try again")}
                 </button>
               </div>
             )}
@@ -332,16 +355,21 @@ export default function ClientHistoryPage() {
             {!isLoading && !errorMessage && historiques.length === 0 && (
               <div className="empty-state">
                 <HistoryIcon className="empty-icon" />
-                <h3 className="empty-title">Aucun historique</h3>
+                <h3 className="empty-title">
+                  {t("Aucun historique", "No history")}
+                </h3>
                 <p className="empty-description">
-                  Votre historique de réservations est vide
+                  {t(
+                    "Votre historique de réservations est vide",
+                    "Your reservation history is empty",
+                  )}
                 </p>
                 <button
                   onClick={() => router.push("/user/client/book")}
                   className="btn btn-primary"
                   style={{ marginTop: "var(--spacing-lg)" }}
                 >
-                  Réserver un voyage
+                  {t("Réserver un voyage", "Book a trip")}
                 </button>
               </div>
             )}
@@ -359,7 +387,7 @@ export default function ClientHistoryPage() {
                           onClick={() => handleSort("idReservation")}
                         >
                           <div className="th-content">
-                            <span>N° Réservation</span>
+                            <span>{t("N° Réservation", "Reservation #")}</span>
                             {sortConfig.key === "idReservation" &&
                               (sortConfig.direction === "asc" ? (
                                 <ChevronUp className="sort-icon" />
@@ -373,7 +401,7 @@ export default function ClientHistoryPage() {
                           onClick={() => handleSort("statusHistorique")}
                         >
                           <div className="th-content">
-                            <span>Statut</span>
+                            <span>{t("Statut", "Status")}</span>
                             {sortConfig.key === "statusHistorique" &&
                               (sortConfig.direction === "asc" ? (
                                 <ChevronUp className="sort-icon" />
@@ -387,7 +415,7 @@ export default function ClientHistoryPage() {
                           onClick={() => handleSort("dateReservation")}
                         >
                           <div className="th-content">
-                            <span>Date Réservation</span>
+                            <span>{t("Date Réservation", "Reservation date")}</span>
                             {sortConfig.key === "dateReservation" &&
                               (sortConfig.direction === "asc" ? (
                                 <ChevronUp className="sort-icon" />
@@ -401,7 +429,7 @@ export default function ClientHistoryPage() {
                           onClick={() => handleSort("dateConfirmation")}
                         >
                           <div className="th-content">
-                            <span>Date Confirmation</span>
+                            <span>{t("Date Confirmation", "Confirmation date")}</span>
                             {sortConfig.key === "dateConfirmation" &&
                               (sortConfig.direction === "asc" ? (
                                 <ChevronUp className="sort-icon" />
@@ -410,7 +438,7 @@ export default function ClientHistoryPage() {
                               ))}
                           </div>
                         </th>
-                        <th>Compensation</th>
+                        <th>{t("Compensation", "Compensation")}</th>
                       </tr>
                     </thead>
                     <tbody>
@@ -478,7 +506,7 @@ export default function ClientHistoryPage() {
                                     {item.dateAnnulation && (
                                       <div className="expanded-item">
                                         <span className="expanded-label">
-                                          Date d'annulation:
+                                          {t("Date d'annulation:", "Cancellation date:")}
                                         </span>
                                         <span className="expanded-value">
                                           {formatDate(item.dateAnnulation)}
@@ -488,7 +516,7 @@ export default function ClientHistoryPage() {
                                     {item.causeAnnulation && (
                                       <div className="expanded-item">
                                         <span className="expanded-label">
-                                          Motif d'annulation:
+                                          {t("Motif d'annulation:", "Cancellation reason:")}
                                         </span>
                                         <span className="expanded-value">
                                           {item.causeAnnulation}
@@ -498,7 +526,7 @@ export default function ClientHistoryPage() {
                                     {item.origineAnnulation && (
                                       <div className="expanded-item">
                                         <span className="expanded-label">
-                                          Origine:
+                                          {t("Origine:", "Origin:")}
                                         </span>
                                         <span className="expanded-value">
                                           {item.origineAnnulation}
@@ -508,7 +536,7 @@ export default function ClientHistoryPage() {
                                     {item.tauxAnnulation > 0 && (
                                       <div className="expanded-item">
                                         <span className="expanded-label">
-                                          Taux d'annulation:
+                                          {t("Taux d'annulation:", "Cancellation rate:")}
                                         </span>
                                         <span className="expanded-value">
                                           {(item.tauxAnnulation * 100).toFixed(

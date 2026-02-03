@@ -27,6 +27,7 @@ import Header from "@/app/components/Header";
 import SuccessModal from "@/app/components/SuccessModal";
 import ErrorModal from "@/app/components/ErrorModal";
 import ConfirmModal from "@/app/components/ConfirmModal";
+import { useLanguage } from "@/app/providers";
 
 interface OrganizationData {
   id: string;
@@ -93,31 +94,32 @@ function DetailOrganizationContent() {
 
   const [showMobileMenu, setShowMobileMenu] = useState(false);
   const [userData, setUserData] = useState<UserData | null>(null);
+  const { t, language } = useLanguage();
 
   const API_BASE_URL = process.env.NEXT_PUBLIC_API_BASE_URL;
 
   const menuItems = [
     {
       icon: Home,
-      label: "Dashboard",
+      label: t("Dashboard", "Dashboard"),
       path: "/user/organization/dashboard",
       active: false,
     },
     {
       icon: Briefcase,
-      label: "Organisation",
+      label: t("Organisation", "Organization"),
       path: "/user/organization/organization",
       active: true,
     },
     {
       icon: Building2,
-      label: "Agence",
+      label: t("Agence", "Agency"),
       path: "/user/organization/agencies",
       active: false,
     },
     {
       icon: Settings,
-      label: "Mes paramètres",
+      label: t("Mes paramètres", "My settings"),
       path: "/user/organization/settings",
       active: false,
     },
@@ -160,13 +162,19 @@ function DetailOrganizationContent() {
         },
       );
 
-      if (!response.ok) throw new Error("Erreur lors du chargement");
+      if (!response.ok)
+        throw new Error(t("Erreur lors du chargement", "Failed to load"));
 
       const data = await response.json();
       setOrganization(data);
       setFormData(data);
     } catch (error: any) {
-      setErrorMessage("Impossible de charger les détails de l'organisation");
+      setErrorMessage(
+        t(
+          "Impossible de charger les détails de l'organisation",
+          "Unable to load organization details",
+        ),
+      );
       setShowErrorModal(true);
     } finally {
       setIsLoading(false);
@@ -218,13 +226,19 @@ function DetailOrganizationContent() {
         },
       );
 
-      if (!response.ok) throw new Error("Erreur lors de la mise à jour");
+      if (!response.ok)
+        throw new Error(t("Erreur lors de la mise à jour", "Update failed"));
 
       setShowSuccessModal(true);
       setEditMode(false);
       fetchOrganizationDetails();
     } catch (error: any) {
-      setErrorMessage("Erreur lors de la mise à jour de l'organisation");
+      setErrorMessage(
+        t(
+          "Erreur lors de la mise à jour de l'organisation",
+          "Failed to update organization",
+        ),
+      );
       setShowErrorModal(true);
     } finally {
       setIsSaving(false);
@@ -247,12 +261,16 @@ function DetailOrganizationContent() {
         },
       );
 
-      if (!response.ok) throw new Error("Erreur lors de la suppression");
+      if (!response.ok)
+        throw new Error(t("Erreur lors de la suppression", "Delete failed"));
 
       router.push("/user/organization/dashboard");
     } catch (error: any) {
       setErrorMessage(
-        "Erreur lors de la suppression de l'organisation, vérifiez qu'aucune agence n'y est associée.",
+        t(
+          "Erreur lors de la suppression de l'organisation, vérifiez qu'aucune agence n'y est associée.",
+          "Failed to delete organization, please check that no agency is linked to it.",
+        ),
       );
       setShowErrorModal(true);
     } finally {
@@ -262,12 +280,28 @@ function DetailOrganizationContent() {
   };
 
   const formatDate = (dateString: string) => {
-    if (!dateString) return "Non renseigné";
-    return new Date(dateString).toLocaleDateString("fr-FR", {
+    if (!dateString) return t("Non renseigné", "Not provided");
+    const locale = language === "fr" ? "fr-FR" : "en-US";
+    return new Date(dateString).toLocaleDateString(locale, {
       day: "numeric",
       month: "long",
       year: "numeric",
     });
+  };
+
+  const getLegalFormLabel = (form: string) => {
+    switch (form) {
+      case "Entreprise individuelle":
+        return t("Entreprise individuelle", "Sole proprietorship");
+      case "Association":
+        return t("Association", "Association");
+      case "Coopérative":
+        return t("Coopérative", "Cooperative");
+      case "Autre":
+        return t("Autre", "Other");
+      default:
+        return form;
+    }
   };
 
   if (isLoading) {
@@ -280,7 +314,7 @@ function DetailOrganizationContent() {
         <div className="dashboard-main">
           <div className="loading-state">
             <RefreshCw className="spin" />
-            <p>Chargement...</p>
+            <p>{t("Chargement...", "Loading...")}</p>
           </div>
         </div>
       </div>
@@ -297,12 +331,14 @@ function DetailOrganizationContent() {
         <div className="dashboard-main">
           <div className="empty-state">
             <Briefcase className="empty-icon" />
-            <h3 className="empty-title">Organisation introuvable</h3>
+            <h3 className="empty-title">
+              {t("Organisation introuvable", "Organization not found")}
+            </h3>
             <button
               onClick={() => router.push("/user/organization/dashboard")}
               className="btn btn-primary"
             >
-              Retour au dashboard
+              {t("Retour au dashboard", "Back to dashboard")}
             </button>
           </div>
         </div>
@@ -325,7 +361,7 @@ function DetailOrganizationContent() {
 
       <div className="dashboard-main">
         <Header
-          title="Détails de l'organisation"
+          title={t("Détails de l'organisation", "Organization details")}
           userData={userData}
           onMenuClick={() => setShowMobileMenu(true)}
         />
@@ -339,7 +375,7 @@ function DetailOrganizationContent() {
                 className="btn btn-secondary"
               >
                 <ArrowLeft />
-                Retour
+                {t("Retour", "Back")}
               </button>
 
               <div style={{ display: "flex", gap: "var(--spacing-sm)" }}>
@@ -350,14 +386,14 @@ function DetailOrganizationContent() {
                       className="btn btn-primary"
                     >
                       <Edit />
-                      Modifier
+                      {t("Modifier", "Edit")}
                     </button>
                     <button
                       onClick={() => setShowDeleteModal(true)}
                       className="btn btn-danger"
                     >
                       <Trash2 />
-                      Supprimer
+                      {t("Supprimer", "Delete")}
                     </button>
                   </>
                 ) : (
@@ -368,7 +404,9 @@ function DetailOrganizationContent() {
                       className="btn btn-primary"
                     >
                       <Save />
-                      {isSaving ? "Enregistrement..." : "Enregistrer"}
+                      {isSaving
+                        ? t("Enregistrement...", "Saving...")
+                        : t("Enregistrer", "Save")}
                     </button>
                     <button
                       onClick={() => {
@@ -378,7 +416,7 @@ function DetailOrganizationContent() {
                       className="btn btn-secondary"
                     >
                       <X />
-                      Annuler
+                      {t("Annuler", "Cancel")}
                     </button>
                   </>
                 )}
@@ -412,12 +450,14 @@ function DetailOrganizationContent() {
                 <div className="settings-section-header">
                   <Briefcase style={{ width: "20px", height: "20px" }} />
                   <h3 className="settings-section-title">
-                    Informations générales
+                    {t("Informations générales", "General information")}
                   </h3>
                 </div>
                 <div className="settings-section-content">
                   <div className="settings-field">
-                    <label className="settings-label">Nom complet</label>
+                    <label className="settings-label">
+                      {t("Nom complet", "Full name")}
+                    </label>
                     {editMode ? (
                       <input
                         type="text"
@@ -434,7 +474,9 @@ function DetailOrganizationContent() {
                     )}
                   </div>
                   <div className="settings-field">
-                    <label className="settings-label">Abréviation</label>
+                    <label className="settings-label">
+                      {t("Abréviation", "Abbreviation")}
+                    </label>
                     {editMode ? (
                       <input
                         type="text"
@@ -453,7 +495,7 @@ function DetailOrganizationContent() {
                   <div className="settings-field">
                     <label className="settings-label">
                       <Mail style={{ width: "16px", height: "16px" }} />
-                      Email
+                      {t("Email", "Email")}
                     </label>
                     {editMode ? (
                       <input
@@ -471,17 +513,19 @@ function DetailOrganizationContent() {
                   <div className="settings-field">
                     <label className="settings-label">
                       <User style={{ width: "16px", height: "16px" }} />
-                      Nom du dirigeant
+                      {t("Nom du dirigeant", "Executive name")}
                     </label>
                     <div className="settings-value">
-                      {organization.ceo_name || "Non renseigné"}
+                      {organization.ceo_name || t("Non renseigné", "Not provided")}
                     </div>
                   </div>
                   <div
                     className="settings-field"
                     style={{ gridColumn: "1 / -1" }}
                   >
-                    <label className="settings-label">Description</label>
+                    <label className="settings-label">
+                      {t("Description", "Description")}
+                    </label>
                     {editMode ? (
                       <textarea
                         name="description"
@@ -492,7 +536,8 @@ function DetailOrganizationContent() {
                       />
                     ) : (
                       <div className="settings-value">
-                        {organization.description || "Non renseignée"}
+                        {organization.description ||
+                          t("Non renseignée", "Not provided")}
                       </div>
                     )}
                   </div>
@@ -504,12 +549,14 @@ function DetailOrganizationContent() {
                 <div className="settings-section-header">
                   <FileText style={{ width: "20px", height: "20px" }} />
                   <h3 className="settings-section-title">
-                    Informations légales
+                    {t("Informations légales", "Legal information")}
                   </h3>
                 </div>
                 <div className="settings-section-content">
                   <div className="settings-field">
-                    <label className="settings-label">Forme juridique</label>
+                    <label className="settings-label">
+                      {t("Forme juridique", "Legal form")}
+                    </label>
                     {editMode ? (
                       <select
                         name="legal_form"
@@ -518,22 +565,24 @@ function DetailOrganizationContent() {
                         className="form-select"
                         style={{ width: "fit-content" }}
                       >
-                        <option value="">Sélectionner</option>
+                        <option value="">{t("Sélectionner", "Select")}</option>
                         {LEGAL_FORMS.map((form) => (
                           <option key={form} value={form}>
-                            {form}
+                            {getLegalFormLabel(form)}
                           </option>
                         ))}
                       </select>
                     ) : (
                       <div className="settings-value">
-                        {organization.legal_form || "Non renseignée"}
+                        {organization.legal_form
+                          ? getLegalFormLabel(organization.legal_form)
+                          : t("Non renseignée", "Not provided")}
                       </div>
                     )}
                   </div>
                   <div className="settings-field">
                     <label className="settings-label">
-                      N° registre de commerce
+                      {t("N° registre de commerce", "Business registration number")}
                     </label>
                     {editMode ? (
                       <input
@@ -547,12 +596,14 @@ function DetailOrganizationContent() {
                     ) : (
                       <div className="settings-value">
                         {organization.business_registration_number ||
-                          "Non renseigné"}
+                          t("Non renseigné", "Not provided")}
                       </div>
                     )}
                   </div>
                   <div className="settings-field">
-                    <label className="settings-label">Numéro fiscal</label>
+                    <label className="settings-label">
+                      {t("Numéro fiscal", "Tax number")}
+                    </label>
                     {editMode ? (
                       <input
                         type="text"
@@ -564,14 +615,14 @@ function DetailOrganizationContent() {
                       />
                     ) : (
                       <div className="settings-value">
-                        {organization.tax_number || "Non renseigné"}
+                        {organization.tax_number || t("Non renseigné", "Not provided")}
                       </div>
                     )}
                   </div>
                   <div className="settings-field">
                     <label className="settings-label">
                       <DollarSign style={{ width: "16px", height: "16px" }} />
-                      Capital social
+                      {t("Capital social", "Share capital")}
                     </label>
                     {editMode ? (
                       <input
@@ -586,23 +637,26 @@ function DetailOrganizationContent() {
                       <div className="settings-value">
                         {organization.capital_share
                           ? `${organization.capital_share} FCFA`
-                          : "Non renseigné"}
+                          : t("Non renseigné", "Not provided")}
                       </div>
                     )}
                   </div>
                   <div className="settings-field">
                     <label className="settings-label">
                       <Calendar style={{ width: "16px", height: "16px" }} />
-                      Date d'enregistrement
+                      {t("Date d'enregistrement", "Registration date")}
                     </label>
                     <div className="settings-value">
                       {formatDate(organization.registration_date)}
                     </div>
                   </div>
                   <div className="settings-field">
-                    <label className="settings-label">Année de création</label>
+                    <label className="settings-label">
+                      {t("Année de création", "Year founded")}
+                    </label>
                     <div className="settings-value">
-                      {organization.year_founded || "Non renseignée"}
+                      {organization.year_founded ||
+                        t("Non renseignée", "Not provided")}
                     </div>
                   </div>
                 </div>
@@ -612,7 +666,9 @@ function DetailOrganizationContent() {
               <div className="settings-section">
                 <div className="settings-section-header">
                   <Globe style={{ width: "20px", height: "20px" }} />
-                  <h3 className="settings-section-title">Informations web</h3>
+                  <h3 className="settings-section-title">
+                    {t("Informations web", "Web information")}
+                  </h3>
                 </div>
                 <div className="settings-section-content">
                   <div
@@ -621,7 +677,7 @@ function DetailOrganizationContent() {
                   >
                     <label className="settings-label">
                       <Globe style={{ width: "16px", height: "16px" }} />
-                      Site web
+                      {t("Site web", "Website")}
                     </label>
                     {editMode ? (
                       <input
@@ -630,7 +686,7 @@ function DetailOrganizationContent() {
                         value={formData.website_url || ""}
                         onChange={handleInputChange}
                         className="form-input"
-                        placeholder="https://exemple.com"
+                        placeholder={t("https://exemple.com", "https://example.com")}
                         style={{ width: "fit-content" }}
                       />
                     ) : organization.website_url ? (
@@ -643,7 +699,9 @@ function DetailOrganizationContent() {
                         {organization.website_url}
                       </a>
                     ) : (
-                      <div className="settings-value">Non renseigné</div>
+                      <div className="settings-value">
+                        {t("Non renseigné", "Not provided")}
+                      </div>
                     )}
                   </div>
                   <div
@@ -652,7 +710,7 @@ function DetailOrganizationContent() {
                   >
                     <label className="settings-label">
                       <Globe style={{ width: "16px", height: "16px" }} />
-                      Réseau social
+                      {t("Réseau social", "Social network")}
                     </label>
                     {editMode ? (
                       <input
@@ -661,7 +719,10 @@ function DetailOrganizationContent() {
                         value={formData.social_network || ""}
                         onChange={handleInputChange}
                         className="form-input"
-                        placeholder="https://facebook.com/..."
+                        placeholder={t(
+                          "https://facebook.com/...",
+                          "https://facebook.com/...",
+                        )}
                         style={{ width: "fit-content" }}
                       />
                     ) : organization.social_network ? (
@@ -674,16 +735,20 @@ function DetailOrganizationContent() {
                         {organization.social_network}
                       </a>
                     ) : (
-                      <div className="settings-value">Non renseigné</div>
+                      <div className="settings-value">
+                        {t("Non renseigné", "Not provided")}
+                      </div>
                     )}
                   </div>
                   <div
                     className="settings-field"
                     style={{ gridColumn: "1 / -1" }}
                   >
-                    <label className="settings-label">Logo URL</label>
+                    <label className="settings-label">
+                      {t("Logo URL", "Logo URL")}
+                    </label>
                     <div className="settings-value">
-                      {organization.logo_url || "Non renseigné"}
+                      {organization.logo_url || t("Non renseigné", "Not provided")}
                     </div>
                   </div>
                 </div>
@@ -694,7 +759,7 @@ function DetailOrganizationContent() {
                 <div className="settings-section-header">
                   <Hash style={{ width: "20px", height: "20px" }} />
                   <h3 className="settings-section-title">
-                    Informations supplémentaires
+                    {t("Informations supplémentaires", "Additional information")}
                   </h3>
                 </div>
                 <div className="settings-section-content">
@@ -702,7 +767,9 @@ function DetailOrganizationContent() {
                     className="settings-field"
                     style={{ gridColumn: "1 / -1" }}
                   >
-                    <label className="settings-label">Mots-clés</label>
+                    <label className="settings-label">
+                      {t("Mots-clés", "Keywords")}
+                    </label>
                     <div className="keywords-container">
                       {organization.keywords &&
                       organization.keywords.length > 0 ? (
@@ -713,7 +780,9 @@ function DetailOrganizationContent() {
                           </span>
                         ))
                       ) : (
-                        <div className="settings-value">Aucun mot-clé</div>
+                        <div className="settings-value">
+                          {t("Aucun mot-clé", "No keywords")}
+                        </div>
                       )}
                     </div>
                   </div>
@@ -722,7 +791,7 @@ function DetailOrganizationContent() {
                     style={{ gridColumn: "1 / -1" }}
                   >
                     <label className="settings-label">
-                      Domaines d'activité
+                      {t("Domaines d'activité", "Business domains")}
                     </label>
                     <div className="keywords-container">
                       {organization.business_domains &&
@@ -734,19 +803,23 @@ function DetailOrganizationContent() {
                         ))
                       ) : (
                         <div className="settings-value">
-                          Aucun domaine d'activité
+                          {t("Aucun domaine d'activité", "No business domains")}
                         </div>
                       )}
                     </div>
                   </div>
                   <div className="settings-field">
-                    <label className="settings-label">Date de création</label>
+                    <label className="settings-label">
+                      {t("Date de création", "Creation date")}
+                    </label>
                     <div className="settings-value">
                       {formatDate(organization.created_at)}
                     </div>
                   </div>
                   <div className="settings-field">
-                    <label className="settings-label">Statut</label>
+                    <label className="settings-label">
+                      {t("Statut", "Status")}
+                    </label>
                     <span className="status-badge status-validee">
                       {organization.status}
                     </span>
@@ -762,19 +835,25 @@ function DetailOrganizationContent() {
         show={showDeleteModal}
         onClose={() => setShowDeleteModal(false)}
         onConfirm={handleDelete}
-        title="Supprimer l'organisation"
-        message={`Êtes-vous sûr de vouloir supprimer l'organisation ${organization?.long_name} ? Cette action est irréversible.`}
-        confirmText="Supprimer"
-        cancelText="Annuler"
+        title={t("Supprimer l'organisation", "Delete organization")}
+        message={t(
+          `Êtes-vous sûr de vouloir supprimer l'organisation ${organization?.long_name} ? Cette action est irréversible.`,
+          `Are you sure you want to delete the organization ${organization?.long_name}? This action cannot be undone.`,
+        )}
+        confirmText={t("Supprimer", "Delete")}
+        cancelText={t("Annuler", "Cancel")}
         isLoading={isDeleting}
       />
 
       <SuccessModal
         show={showSuccessModal}
         onClose={() => setShowSuccessModal(false)}
-        title="Organisation mise à jour !"
-        message="Les informations de l'organisation ont été mises à jour avec succès."
-        buttonText="OK"
+        title={t("Organisation mise à jour !", "Organization updated!")}
+        message={t(
+          "Les informations de l'organisation ont été mises à jour avec succès.",
+          "Organization information was updated successfully.",
+        )}
+        buttonText={t("OK", "OK")}
       />
 
       <ErrorModal
@@ -793,7 +872,7 @@ export default function DetailOrganizationPage() {
         <div className="dashboard-layout">
           <div className="loading-state">
             <RefreshCw className="spin" />
-            <p>Chargement...</p>
+            <p>{t("Chargement...", "Loading...")}</p>
           </div>
         </div>
       }

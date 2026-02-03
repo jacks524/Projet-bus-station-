@@ -2,6 +2,7 @@
 
 import React, { useState } from "react";
 import { useRouter } from "next/navigation";
+import { useLanguage } from "@/app/providers";
 import SuccessModal from "@/app/components/SuccessModal";
 import ErrorModal from "@/app/components/ErrorModal";
 
@@ -29,6 +30,7 @@ export default function ContactPage() {
   const [showSuccessModal, setShowSuccessModal] = useState(false);
   const [showErrorModal, setShowErrorModal] = useState(false);
   const [errorMessage, setErrorMessage] = useState("");
+  const { t } = useLanguage();
 
   const [formData, setFormData] = useState<ContactFormData>({
     nom: "",
@@ -42,14 +44,14 @@ export default function ContactPage() {
   const API_BASE_URL = process.env.NEXT_PUBLIC_API_BASE_URL;
 
   const SUBJECTS = [
-    "Question générale",
-    "Problème de réservation",
-    "Problème de paiement",
-    "Annulation/Remboursement",
-    "Problème technique",
-    "Partenariat",
-    "Suggestion d'amélioration",
-    "Autre",
+    t("Question générale", "General question"),
+    t("Problème de réservation", "Booking issue"),
+    t("Problème de paiement", "Payment issue"),
+    t("Annulation/Remboursement", "Cancellation/Refund"),
+    t("Problème technique", "Technical issue"),
+    t("Partenariat", "Partnership"),
+    t("Suggestion d'amélioration", "Improvement suggestion"),
+    t("Autre", "Other"),
   ];
 
   const handleInputChange = (
@@ -87,7 +89,9 @@ export default function ContactPage() {
       });
 
       if (!response.ok) {
-        throw new Error("Erreur lors de l'envoi du message");
+        throw new Error(
+          t("Erreur lors de l'envoi du message", "Error sending the message"),
+        );
       }
 
       setShowSuccessModal(true);
@@ -102,7 +106,10 @@ export default function ContactPage() {
     } catch (error: any) {
       console.error("Contact Error:", error);
       setErrorMessage(
-        "Une erreur est survenue lors de l'envoi du message. Veuillez réessayer.",
+        t(
+          "Une erreur est survenue lors de l'envoi du message. Veuillez réessayer.",
+          "An error occurred while sending the message. Please try again."
+        ),
       );
       setShowErrorModal(true);
     } finally {
@@ -134,30 +141,30 @@ export default function ContactPage() {
 
             <nav className="nav-desktop">
               <a href="/landing" className="nav-link">
-                Accueil
+                {t("Accueil", "Home")}
               </a>
               <a href="/help" className="nav-link">
-                Centre d'aide
+                {t("Centre d'aide", "Help center")}
               </a>
               <button
                 onClick={() => router.push("/login")}
                 className="nav-link"
                 style={{ background: "none", padding: 0 }}
               >
-                Connexion
+                {t("Connexion", "Sign in")}
               </button>
               <button
                 onClick={() => router.push("/signup")}
                 className="btn btn-primary"
               >
-                S'inscrire
+                {t("S'inscrire", "Sign up")}
               </button>
             </nav>
 
             <button
               className="mobile-menu-btn"
               onClick={() => setMobileMenuOpen(!mobileMenuOpen)}
-              aria-label="Menu"
+              aria-label={t("Menu", "Menu")}
             >
               <svg
                 width="24"
@@ -179,10 +186,10 @@ export default function ContactPage() {
           {mobileMenuOpen && (
             <div className="mobile-menu">
               <a href="/landing" className="mobile-menu-link">
-                Accueil
+                {t("Accueil", "Home")}
               </a>
               <a href="/help" className="mobile-menu-link">
-                Centre d'aide
+                {t("Centre d'aide", "Help center")}
               </a>
               <div className="mobile-menu-buttons">
                 <button
@@ -190,14 +197,14 @@ export default function ContactPage() {
                   className="btn btn-secondary"
                   style={{ width: "100%" }}
                 >
-                  Connexion
+                  {t("Connexion", "Sign in")}
                 </button>
                 <button
                   onClick={() => router.push("/signup")}
                   className="btn btn-primary"
                   style={{ width: "100%" }}
                 >
-                  S'inscrire
+                  {t("S'inscrire", "Sign up")}
                 </button>
               </div>
             </div>
@@ -209,9 +216,14 @@ export default function ContactPage() {
       <section className="hero-help">
         <div className="container">
           <div className="hero-help-content">
-            <h1 className="hero-help-title">Besoin d'aide ?</h1>
+            <h1 className="hero-help-title">
+              {t("Besoin d'aide ?", "Need help?")}
+            </h1>
             <p className="hero-help-description">
-              Écrivez-nous, nous sommes là pour vous accompagner
+              {t(
+                "Écrivez-nous, nous sommes là pour vous accompagner",
+                "Write to us, we are here to help"
+              )}
             </p>
           </div>
         </div>
@@ -238,11 +250,15 @@ export default function ContactPage() {
                   </svg>
                 </div>
                 <div className="contact-item-content">
-                  <div className="contact-item-label">Support</div>
+                  <div className="contact-item-label">
+                    {t("Support", "Support")}
+                  </div>
                   <div className="contact-item-value">
                     bryanngoupeyou9@gmail.com
                   </div>
-                  <div className="contact-item-note">Réponse sous 24h</div>
+                  <div className="contact-item-note">
+                    {t("Réponse sous 24h", "Reply within 24h")}
+                  </div>
                 </div>
               </div>
 
@@ -260,10 +276,15 @@ export default function ContactPage() {
                   </svg>
                 </div>
                 <div className="contact-item-content">
-                  <div className="contact-item-label">Contact</div>
+                  <div className="contact-item-label">
+                    {t("Contact", "Contact")}
+                  </div>
                   <div className="contact-item-value">(+237) 655 12 10 10</div>
                   <div className="contact-item-note">
-                    De Lundi à Vendredi 8h-18h
+                    {t(
+                      "De Lundi à Vendredi 8h-18h",
+                      "Monday to Friday 8am-6pm"
+                    )}
                   </div>
                 </div>
               </div>
@@ -283,11 +304,18 @@ export default function ContactPage() {
                   </svg>
                 </div>
                 <div className="contact-item-content">
-                  <div className="contact-item-label">Adresse</div>
-                  <div className="contact-item-value">
-                    Pharmacie EMIA, Rte de Melen, Yaoundé Cameroun
+                  <div className="contact-item-label">
+                    {t("Adresse", "Address")}
                   </div>
-                  <div className="contact-item-note">Siège social</div>
+                  <div className="contact-item-value">
+                    {t(
+                      "Pharmacie EMIA, Rte de Melen, Yaoundé Cameroun",
+                      "Pharmacie EMIA, Rte de Melen, Yaounde Cameroon"
+                    )}
+                  </div>
+                  <div className="contact-item-note">
+                    {t("Siège social", "Head office")}
+                  </div>
                 </div>
               </div>
             </div>
@@ -295,10 +323,14 @@ export default function ContactPage() {
             {/* Contact Form */}
             <div className="contact-form-container">
               <div className="contact-form-header">
-                <h2 className="contact-form-title">Envoyez-nous un message</h2>
+                <h2 className="contact-form-title">
+                  {t("Envoyez-nous un message", "Send us a message")}
+                </h2>
                 <p className="contact-form-description">
-                  Remplissez le formulaire ci-dessous et nous vous répondrons
-                  dans les plus brefs délais
+                  {t(
+                    "Remplissez le formulaire ci-dessous et nous vous répondrons dans les plus brefs délais",
+                    "Fill out the form below and we will get back to you as soon as possible"
+                  )}
                 </p>
               </div>
 
@@ -306,7 +338,9 @@ export default function ContactPage() {
                 {/* Nom et Prénom */}
                 <div className="form-row">
                   <div>
-                    <label className="form-label">Nom *</label>
+                    <label className="form-label">
+                      {t("Nom *", "Last name *")}
+                    </label>
                     <input
                       type="text"
                       name="nom"
@@ -314,12 +348,14 @@ export default function ContactPage() {
                       onChange={handleInputChange}
                       required
                       className="form-input"
-                      placeholder="Votre nom"
+                      placeholder={t("Votre nom", "Your last name")}
                     />
                   </div>
 
                   <div>
-                    <label className="form-label">Prénom *</label>
+                    <label className="form-label">
+                      {t("Prénom *", "First name *")}
+                    </label>
                     <input
                       type="text"
                       name="prenom"
@@ -327,7 +363,7 @@ export default function ContactPage() {
                       onChange={handleInputChange}
                       required
                       className="form-input"
-                      placeholder="Votre prénom"
+                      placeholder={t("Votre prénom", "Your first name")}
                     />
                   </div>
                 </div>
@@ -335,7 +371,7 @@ export default function ContactPage() {
                 {/* Email et Téléphone */}
                 <div className="form-row">
                   <div>
-                    <label className="form-label">Email *</label>
+                    <label className="form-label">{t("Email *", "Email *")}</label>
                     <input
                       type="email"
                       name="email"
@@ -343,26 +379,26 @@ export default function ContactPage() {
                       onChange={handleInputChange}
                       required
                       className="form-input"
-                      placeholder="exemple@email.com"
+                      placeholder={t("exemple@email.com", "example@email.com")}
                     />
                   </div>
 
                   <div>
-                    <label className="form-label">Téléphone</label>
+                    <label className="form-label">{t("Téléphone", "Phone")}</label>
                     <input
                       type="tel"
                       name="telephone"
                       value={formData.telephone}
                       onChange={handleInputChange}
                       className="form-input"
-                      placeholder="+237 6XX XX XX XX"
+                      placeholder={t("+237 6XX XX XX XX", "+237 6XX XX XX XX")}
                     />
                   </div>
                 </div>
 
                 {/* Sujet */}
                 <div className="form-group">
-                  <label className="form-label">Sujet *</label>
+                  <label className="form-label">{t("Sujet *", "Subject *")}</label>
                   <select
                     name="sujet"
                     value={formData.sujet}
@@ -370,7 +406,7 @@ export default function ContactPage() {
                     required
                     className="form-select"
                   >
-                    <option value="">Sélectionnez un sujet</option>
+                    <option value="">{t("Sélectionnez un sujet", "Select a subject")}</option>
                     {SUBJECTS.map((subject, index) => (
                       <option key={index} value={subject}>
                         {subject}
@@ -381,7 +417,7 @@ export default function ContactPage() {
 
                 {/* Message */}
                 <div className="form-group">
-                  <label className="form-label">Message *</label>
+                  <label className="form-label">{t("Message *", "Message *")}</label>
                   <textarea
                     name="message"
                     value={formData.message}
@@ -389,10 +425,16 @@ export default function ContactPage() {
                     required
                     rows={6}
                     className="form-textarea"
-                    placeholder="Décrivez votre demande en détail..."
+                    placeholder={t(
+                      "Décrivez votre demande en détail...",
+                      "Describe your request in detail..."
+                    )}
                   />
                   <p className="form-helper-text">
-                    {formData.message.length} / 10 caractères minimum
+                    {t(
+                      `${formData.message.length} / 10 caractères minimum`,
+                      `${formData.message.length} / 10 characters minimum`
+                    )}
                   </p>
                 </div>
 
@@ -407,7 +449,7 @@ export default function ContactPage() {
                   {isSubmitting ? (
                     <>
                       <div className="spinner" />
-                      <span>Envoi en cours...</span>
+                      <span>{t("Envoi en cours...", "Sending...")}</span>
                     </>
                   ) : (
                     <>
@@ -422,14 +464,16 @@ export default function ContactPage() {
                         <line x1="22" y1="2" x2="11" y2="13" />
                         <polygon points="22 2 15 22 11 13 2 9 22 2" />
                       </svg>
-                      <span>Envoyer le message</span>
+                      <span>{t("Envoyer le message", "Send message")}</span>
                     </>
                   )}
                 </button>
 
                 <p className="form-footer-text">
-                  En envoyant ce message, vous acceptez notre politique de
-                  confidentialité
+                  {t(
+                    "En envoyant ce message, vous acceptez notre politique de confidentialité",
+                    "By sending this message, you accept our privacy policy"
+                  )}
                 </p>
               </form>
             </div>
@@ -448,61 +492,63 @@ export default function ContactPage() {
                 className="footer-logo"
               />
               <p className="footer-description">
-                La plateforme de réservation et de gestion d'agences de
-                transport la plus complète du Cameroun.
+                {t(
+                  "La plateforme de réservation et de gestion d'agences de transport la plus complète du Cameroun.",
+                  "The most complete booking and transport agency management platform in Cameroon."
+                )}
               </p>
             </div>
             <div>
-              <h4 className="footer-title">Produit</h4>
+              <h4 className="footer-title">{t("Produit", "Product")}</h4>
               <ul className="footer-links">
                 <li>
                   <a href="/landing#features" className="footer-link">
-                    Fonctionnalités
+                    {t("Fonctionnalités", "Features")}
                   </a>
                 </li>
                 <li>
                   <a href="/landing#process" className="footer-link">
-                    Comment ça marche
+                    {t("Comment ça marche", "How it works")}
                   </a>
                 </li>
                 <li>
                   <a href="/landing#stats" className="footer-link">
-                    Nos chiffres
+                    {t("Nos chiffres", "Our numbers")}
                   </a>
                 </li>
               </ul>
             </div>
             <div>
-              <h4 className="footer-title">Entreprise</h4>
+              <h4 className="footer-title">{t("Entreprise", "Company")}</h4>
               <ul className="footer-links">
                 <li>
                   <a href="#" className="footer-link">
-                    À propos
+                    {t("À propos", "About")}
                   </a>
                 </li>
                 <li>
                   <a href="#" className="footer-link">
-                    Devenir partenaire
+                    {t("Devenir partenaire", "Become a partner")}
                   </a>
                 </li>
                 <li>
                   <a href="#" className="footer-link">
-                    Blog
+                    {t("Blog", "Blog")}
                   </a>
                 </li>
               </ul>
             </div>
             <div>
-              <h4 className="footer-title">Support</h4>
+              <h4 className="footer-title">{t("Support", "Support")}</h4>
               <ul className="footer-links">
                 <li>
                   <a href="/help" className="footer-link">
-                    Centre d'aide
+                    {t("Centre d'aide", "Help center")}
                   </a>
                 </li>
                 <li>
                   <a href="/contact" className="footer-link">
-                    Contact
+                    {t("Contact", "Contact")}
                   </a>
                 </li>
                 <li>
@@ -514,16 +560,21 @@ export default function ContactPage() {
             </div>
           </div>
           <div className="footer-bottom">
-            <div>© 2025 BusStation. Tous droits réservés.</div>
+            <div>
+              {t(
+                "© 2025 BusStation. Tous droits réservés.",
+                "© 2025 BusStation. All rights reserved."
+              )}
+            </div>
             <div className="footer-legal">
               <a href="#" className="footer-link">
-                Mentions légales
+                {t("Mentions légales", "Legal notice")}
               </a>
               <a href="#" className="footer-link">
-                Confidentialité
+                {t("Confidentialité", "Privacy")}
               </a>
               <a href="#" className="footer-link">
-                CGU
+                {t("CGU", "Terms")}
               </a>
             </div>
           </div>
@@ -537,9 +588,12 @@ export default function ContactPage() {
           setShowSuccessModal(false);
           router.push("/landing");
         }}
-        title="Message envoyé"
-        message="Nous vous répondrons dans les plus brefs délais."
-        buttonText="OK"
+        title={t("Message envoyé", "Message sent")}
+        message={t(
+          "Nous vous répondrons dans les plus brefs délais.",
+          "We will get back to you as soon as possible."
+        )}
+        buttonText={t("OK", "OK")}
       />
 
       {/* Error Modal */}
@@ -550,7 +604,7 @@ export default function ContactPage() {
           setErrorMessage("");
         }}
         message={errorMessage}
-        buttonText="Réessayer"
+        buttonText={t("Réessayer", "Try again")}
       />
     </div>
   );

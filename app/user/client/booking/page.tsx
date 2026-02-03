@@ -26,6 +26,7 @@ import MobileSidebar from "@/app/components/Mobilesidebar";
 import Header from "@/app/components/Header";
 import SuccessModal from "@/app/components/SuccessModal";
 import ErrorModal from "@/app/components/ErrorModal";
+import { useLanguage } from "@/app/providers";
 
 /**
  * BusStation Client Booking Page
@@ -105,42 +106,48 @@ function BookingContent() {
   const [totalCapacity, setTotalCapacity] = useState(0);
 
   const API_BASE_URL = process.env.NEXT_PUBLIC_API_BASE_URL;
+  const { t, language } = useLanguage();
 
   const MENU_ITEMS = [
-    { icon: Home, label: "Accueil", path: "/user/client/home", active: false },
+    {
+      icon: Home,
+      label: t("Accueil", "Home"),
+      path: "/user/client/home",
+      active: false,
+    },
     {
       icon: Calendar,
-      label: "Réserver",
+      label: t("Réserver", "Book"),
       path: "/user/client/book",
       active: true,
     },
     {
       icon: FileText,
-      label: "Réservations",
+      label: t("Réservations", "Reservations"),
       path: "/user/client/reservations",
       active: false,
     },
     {
       icon: Ticket,
-      label: "Billets",
+      label: t("Billets", "Tickets"),
       path: "/user/client/tickets",
       active: false,
     },
     {
       icon: Gift,
-      label: "Coupons",
+      label: t("Coupons", "Vouchers"),
       path: "/user/client/vouchers",
       active: false,
     },
     {
       icon: History,
-      label: "Historique",
+      label: t("Historique", "History"),
       path: "/user/client/history",
       active: false,
     },
     {
       icon: Settings,
-      label: "Mes paramètres",
+      label: t("Mes paramètres", "My settings"),
       path: "/user/client/settings",
       active: false,
     },
@@ -186,7 +193,9 @@ function BookingContent() {
       });
 
       if (!response.ok) {
-        throw new Error("Erreur lors du chargement du voyage");
+        throw new Error(
+          t("Erreur lors du chargement du voyage", "Failed to load trip"),
+        );
       }
 
       const data = await response.json();
@@ -194,7 +203,12 @@ function BookingContent() {
       setVoyage(data);
       setPlacesReservees(data.placeReservees || []);
     } catch (error: any) {
-      setErrorMessage("Impossible de charger les détails du voyage");
+      setErrorMessage(
+        t(
+          "Impossible de charger les détails du voyage",
+          "Unable to load trip details",
+        ),
+      );
       console.error("Fetch Voyage Error:", error);
     } finally {
       setIsLoading(false);
@@ -280,7 +294,7 @@ function BookingContent() {
       });
 
       if (!response.ok) {
-        throw new Error("Erreur lors de la réservation");
+        throw new Error(t("Erreur lors de la réservation", "Booking error"));
       }
 
       const reservationResult = await response.json();
@@ -297,7 +311,7 @@ function BookingContent() {
       setPlacesSelectionnees([]);
       setShowSuccessModal(true);
     } catch (error: any) {
-      setErrorMessage("Erreur lors de la réservation");
+      setErrorMessage(t("Erreur lors de la réservation", "Booking error"));
       setShowErrorModal(true);
       console.error("Reservation Error:", error);
     } finally {
@@ -341,13 +355,13 @@ function BookingContent() {
       );
 
       if (!response.ok) {
-        throw new Error("Erreur lors du paiement");
+        throw new Error(t("Erreur lors du paiement", "Payment error"));
       }
 
       setShowPaymentModal(false);
       router.push("/user/client/tickets");
     } catch (error: any) {
-      setErrorMessage("Erreur lors du paiement");
+      setErrorMessage(t("Erreur lors du paiement", "Payment error"));
       setShowErrorModal(true);
       console.error("Payment Error:", error);
     } finally {
@@ -357,7 +371,8 @@ function BookingContent() {
 
   const formatDate = (dateString: string) => {
     const date = new Date(dateString);
-    return date.toLocaleDateString("fr-FR", {
+    const locale = language === "fr" ? "fr-FR" : "en-US";
+    return date.toLocaleDateString(locale, {
       day: "2-digit",
       month: "long",
       year: "numeric",
@@ -438,7 +453,7 @@ function BookingContent() {
                 fontSize: "var(--font-size-sm)",
               }}
             >
-              Driver
+              {t("Chauffeur", "Driver")}
             </div>
             {Array.from({ length: 30 }, (_, i) => renderSeat(i + 1))}
           </div>
@@ -469,17 +484,17 @@ function BookingContent() {
                 fontSize: "var(--font-size-sm)",
               }}
             >
-              Hôtesse
+              {t("Hôtesse", "Attendant")}
             </div>
             {Array.from({ length: 4 }, (_, i) => renderSeat(i + 31))}
-            {renderSeat(35, true, "Toilette")}
-            {renderSeat(36, true, "Toilette")}
-            {renderSeat(37, true, "Porte")}
-            {renderSeat(38, true, "Porte")}
+            {renderSeat(35, true, t("Toilette", "Restroom"))}
+            {renderSeat(36, true, t("Toilette", "Restroom"))}
+            {renderSeat(37, true, t("Porte", "Door"))}
+            {renderSeat(38, true, t("Porte", "Door"))}
             {Array.from({ length: 4 }, (_, i) => renderSeat(i + 35))}
             {Array.from({ length: 10 }, (_, i) => renderSeat(i + 39))}
-            {renderSeat(49, true, "Porte")}
-            {renderSeat(50, true, "Porte")}
+            {renderSeat(49, true, t("Porte", "Door"))}
+            {renderSeat(50, true, t("Porte", "Door"))}
             {Array.from({ length: 8 }, (_, i) => renderSeat(i + 49))}
           </div>
         </div>
@@ -524,7 +539,7 @@ function BookingContent() {
                   fontSize: "var(--font-size-sm)",
                 }}
               >
-                Driver
+                {t("Chauffeur", "Driver")}
               </div>
               {Array.from({ length: 42 }, (_, i) => renderSeat(i + 1))}
             </div>
@@ -540,15 +555,15 @@ function BookingContent() {
               }}
             >
               {Array.from({ length: 4 }, (_, i) => renderSeat(i + 43))}
-              {renderSeat(900, true, "Porte")}
-              {renderSeat(901, true, "Porte")}
-              {Array.from({ length: 6 }, (_, i) => renderSeat(i + 47))}
-              {Array.from({ length: 8 }, (_, i) => renderSeat(i + 53))}
-              {renderSeat(902, true, "Porte")}
-              {renderSeat(903, true, "Porte")}
-              {Array.from({ length: 4 }, (_, i) => renderSeat(i + 61))}
-            </div>
+            {renderSeat(900, true, t("Porte", "Door"))}
+            {renderSeat(901, true, t("Porte", "Door"))}
+            {Array.from({ length: 6 }, (_, i) => renderSeat(i + 47))}
+            {Array.from({ length: 8 }, (_, i) => renderSeat(i + 53))}
+            {renderSeat(902, true, t("Porte", "Door"))}
+            {renderSeat(903, true, t("Porte", "Door"))}
+            {Array.from({ length: 4 }, (_, i) => renderSeat(i + 61))}
           </div>
+        </div>
 
           {/* Dernier banc */}
           <div
@@ -613,7 +628,7 @@ function BookingContent() {
                   fontSize: "var(--font-size-sm)",
                 }}
               >
-                Driver
+                {t("Chauffeur", "Driver")}
               </div>
               {Array.from({ length: 45 }, (_, i) => renderSeat(i + 1))}
             </div>
@@ -629,12 +644,12 @@ function BookingContent() {
               }}
             >
               {Array.from({ length: 4 }, (_, i) => renderSeat(i + 46))}
-              {renderSeat(904, true, "Porte")}
-              {renderSeat(905, true, "Porte")}
+              {renderSeat(904, true, t("Porte", "Door"))}
+              {renderSeat(905, true, t("Porte", "Door"))}
               {Array.from({ length: 6 }, (_, i) => renderSeat(i + 50))}
               {Array.from({ length: 8 }, (_, i) => renderSeat(i + 56))}
-              {renderSeat(906, true, "Porte")}
-              {renderSeat(907, true, "Porte")}
+              {renderSeat(906, true, t("Porte", "Door"))}
+              {renderSeat(907, true, t("Porte", "Door"))}
               {Array.from({ length: 6 }, (_, i) => renderSeat(i + 64))}
             </div>
           </div>
@@ -702,7 +717,7 @@ function BookingContent() {
                   fontSize: "var(--font-size-sm)",
                 }}
               >
-                Driver
+                {t("Chauffeur", "Driver")}
               </div>
               {Array.from({ length: 48 }, (_, i) => renderSeat(i + 1))}
             </div>
@@ -718,12 +733,12 @@ function BookingContent() {
               }}
             >
               {Array.from({ length: 4 }, (_, i) => renderSeat(i + 49))}
-              {renderSeat(908, true, "Porte")}
-              {renderSeat(909, true, "Porte")}
+              {renderSeat(908, true, t("Porte", "Door"))}
+              {renderSeat(909, true, t("Porte", "Door"))}
               {Array.from({ length: 6 }, (_, i) => renderSeat(i + 53))}
               {Array.from({ length: 12 }, (_, i) => renderSeat(i + 59))}
-              {renderSeat(910, true, "Porte")}
-              {renderSeat(911, true, "Porte")}
+              {renderSeat(910, true, t("Porte", "Door"))}
+              {renderSeat(911, true, t("Porte", "Door"))}
               {Array.from({ length: 4 }, (_, i) => renderSeat(i + 71))}
             </div>
           </div>
@@ -783,7 +798,7 @@ function BookingContent() {
     return (
       <div className="loading-state">
         <RefreshCw className="spin" />
-        <p>Chargement du voyage...</p>
+        <p>{t("Chargement du voyage...", "Loading trip...")}</p>
       </div>
     );
   }
@@ -792,12 +807,14 @@ function BookingContent() {
     return (
       <div className="error-state">
         <X className="error-state-icon" />
-        <p className="error-text">{errorMessage || "Voyage introuvable"}</p>
+        <p className="error-text">
+          {errorMessage || t("Voyage introuvable", "Trip not found")}
+        </p>
         <button
           onClick={() => router.push("/user/client/book")}
           className="btn btn-primary"
         >
-          Retour à la recherche
+          {t("Retour à la recherche", "Back to search")}
         </button>
       </div>
     );
@@ -815,7 +832,7 @@ function BookingContent() {
 
       <div className="dashboard-main">
         <Header
-          title="Réservation"
+          title={t("Réservation", "Booking")}
           userData={userData}
           onMenuClick={() => setShowMobileMenu(true)}
         />
@@ -837,14 +854,14 @@ function BookingContent() {
                 onClick={() => router.push("/user/client/home")}
                 style={{ background: "none", padding: 0, color: "inherit" }}
               >
-                Accueil
+                {t("Accueil", "Home")}
               </button>
               <span>/</span>
               <button
                 onClick={() => router.push("/user/client/book")}
                 style={{ background: "none", padding: 0, color: "inherit" }}
               >
-                Rechercher
+                {t("Rechercher", "Search")}
               </button>
               <span>/</span>
               <span
@@ -853,7 +870,7 @@ function BookingContent() {
                   fontWeight: "var(--font-weight-medium)",
                 }}
               >
-                Réservation
+                {t("Réservation", "Booking")}
               </span>
             </div>
 
@@ -868,14 +885,16 @@ function BookingContent() {
                     marginBottom: "var(--spacing-lg)",
                   }}
                 >
-                  Détails du voyage
+                  {t("Détails du voyage", "Trip details")}
                 </h2>
 
                 {/* Agence */}
                 <div className="booking-detail-item">
                   <Home className="booking-detail-icon" />
                   <div className="booking-detail-content">
-                    <div className="booking-detail-label">Agence</div>
+                    <div className="booking-detail-label">
+                      {t("Agence", "Agency")}
+                    </div>
                     <div className="booking-detail-value">
                       {voyage.nomAgence}
                     </div>
@@ -886,9 +905,11 @@ function BookingContent() {
                 <div className="booking-detail-item">
                   <MapPin className="booking-detail-icon" />
                   <div className="booking-detail-content">
-                    <div className="booking-detail-label">Trajet</div>
+                    <div className="booking-detail-label">
+                      {t("Trajet", "Route")}
+                    </div>
                     <div className="booking-detail-value">
-                      {voyage.lieuDepart} vers {voyage.lieuArrive}
+                      {voyage.lieuDepart} {t("vers", "to")} {voyage.lieuArrive}
                     </div>
                     <div
                       style={{
@@ -897,7 +918,8 @@ function BookingContent() {
                         marginTop: "4px",
                       }}
                     >
-                      {voyage.pointDeDepart} vers {voyage.pointArrivee}
+                      {voyage.pointDeDepart} {t("vers", "to")}{" "}
+                      {voyage.pointArrivee}
                     </div>
                   </div>
                 </div>
@@ -906,7 +928,7 @@ function BookingContent() {
                 <div className="booking-detail-item">
                   <Clock className="booking-detail-icon" />
                   <div className="booking-detail-content">
-                    <div className="booking-detail-label">Date</div>
+                    <div className="booking-detail-label">{t("Date", "Date")}</div>
                     <div className="booking-detail-value">
                       {formatDate(voyage.dateDepartPrev)}
                     </div>
@@ -917,7 +939,9 @@ function BookingContent() {
                 <div className="booking-detail-item">
                   <CreditCard className="booking-detail-icon" />
                   <div className="booking-detail-content">
-                    <div className="booking-detail-label">Prix par place</div>
+                    <div className="booking-detail-label">
+                      {t("Prix par place", "Price per seat")}
+                    </div>
                     <div className="booking-detail-value">
                       {voyage.prix} FCFA
                     </div>
@@ -928,7 +952,7 @@ function BookingContent() {
                 <div className="booking-detail-item">
                   <Users className="booking-detail-icon" />
                   <div className="booking-detail-content">
-                    <div className="booking-detail-label">Classe</div>
+                    <div className="booking-detail-label">{t("Classe", "Class")}</div>
                     <span className="booking-class-badge">
                       {voyage.nomClasseVoyage}
                     </span>
@@ -943,7 +967,7 @@ function BookingContent() {
                   <Luggage className="booking-detail-icon" />
                   <div className="booking-detail-content">
                     <div className="booking-detail-label">
-                      Bagages par passager
+                      {t("Bagages par passager", "Baggage per passenger")}
                     </div>
                     <div className="baggage-counter">
                       <button
@@ -977,7 +1001,7 @@ function BookingContent() {
                           color: "var(--gray-700)",
                         }}
                       >
-                        Places sélectionnées
+                        {t("Places sélectionnées", "Selected seats")}
                       </span>
                       <span className="selected-seats-count">
                         {placesSelectionnees.length}
@@ -986,7 +1010,7 @@ function BookingContent() {
                     <div className="selected-seats-list">
                       {placesSelectionnees.map((place) => (
                         <span key={place} className="seat-badge">
-                          Place {place}
+                          {t("Place", "Seat")} {place}
                         </span>
                       ))}
                     </div>
@@ -996,7 +1020,7 @@ function BookingContent() {
                 {/* Prix total */}
                 <div className="price-summary">
                   <div className="price-summary-row">
-                    <span className="price-summary-label">Total</span>
+                    <span className="price-summary-label">{t("Total", "Total")}</span>
                     <span className="price-summary-value">
                       {placesSelectionnees.length * voyage.prix} FCFA
                     </span>
@@ -1014,7 +1038,7 @@ function BookingContent() {
                     marginRight: "10px",
                   }}
                 >
-                  Réserver
+                  {t("Réserver", "Book")}
                 </button>
 
                 <button
@@ -1025,7 +1049,7 @@ function BookingContent() {
                     marginTop: "var(--spacing-sm)",
                   }}
                 >
-                  Retour
+                  {t("Retour", "Back")}
                 </button>
               </div>
 
@@ -1039,7 +1063,7 @@ function BookingContent() {
                     marginBottom: "var(--spacing-sm)",
                   }}
                 >
-                  Sélection des places
+                  {t("Sélection des places", "Seat selection")}
                 </h2>
                 <p
                   style={{
@@ -1048,22 +1072,22 @@ function BookingContent() {
                     marginBottom: "var(--spacing-lg)",
                   }}
                 >
-                  Cliquez sur les places disponibles
+                  {t("Cliquez sur les places disponibles", "Click on available seats")}
                 </p>
 
                 {/* Légende */}
                 <div className="seat-map-legend">
                   <div className="legend-item">
                     <div className="legend-box available" />
-                    <span className="legend-label">Disponible</span>
+                    <span className="legend-label">{t("Disponible", "Available")}</span>
                   </div>
                   <div className="legend-item">
                     <div className="legend-box selected" />
-                    <span className="legend-label">Sélectionnée</span>
+                    <span className="legend-label">{t("Sélectionnée", "Selected")}</span>
                   </div>
                   <div className="legend-item">
                     <div className="legend-box reserved" />
-                    <span className="legend-label">Réservée</span>
+                    <span className="legend-label">{t("Réservée", "Reserved")}</span>
                   </div>
                 </div>
 
@@ -1081,7 +1105,7 @@ function BookingContent() {
           <div className="payment-modal-content">
             <div className="payment-modal-header">
               <h2 className="payment-modal-title">
-                Informations des passagers
+                {t("Informations des passagers", "Passenger information")}
               </h2>
               <button
                 onClick={() => setShowPassagersModal(false)}
@@ -1101,11 +1125,13 @@ function BookingContent() {
                       </div>
                       <div>
                         <div className="passenger-card-title">
-                          Passager {index + 1}
+                          {t("Passager", "Passenger")} {index + 1}
                         </div>
                         <div className="passenger-card-seat">
                           <Users style={{ width: "12px", height: "12px" }} />
-                          <span>Place {passager.placeChoisis}</span>
+                          <span>
+                            {t("Place", "Seat")} {passager.placeChoisis}
+                          </span>
                         </div>
                       </div>
                     </div>
@@ -1113,7 +1139,7 @@ function BookingContent() {
                     <div className="passenger-card-body">
                       <div className="passenger-field">
                         <label className="passenger-field-label">
-                          N° Pièce d'identité *
+                          {t("N° Pièce d'identité *", "ID number *")}
                         </label>
                         <input
                           type="text"
@@ -1125,13 +1151,13 @@ function BookingContent() {
                               e.target.value,
                             )
                           }
-                          placeholder="CNI, Passeport..."
+                          placeholder={t("CNI, Passeport...", "ID, passport...")}
                         />
                       </div>
 
                       <div className="passenger-field">
                         <label className="passenger-field-label">
-                          Nom complet *
+                          {t("Nom complet *", "Full name *")}
                         </label>
                         <input
                           type="text"
@@ -1139,7 +1165,7 @@ function BookingContent() {
                           onChange={(e) =>
                             updatePassager(index, "nom", e.target.value)
                           }
-                          placeholder="Nom et prénom(s)"
+                          placeholder={t("Nom et prénom(s)", "Full name")}
                         />
                       </div>
 
@@ -1152,7 +1178,7 @@ function BookingContent() {
                       >
                         <div className="passenger-field">
                           <label className="passenger-field-label">
-                            Genre *
+                            {t("Genre *", "Gender *")}
                           </label>
                           <div className="gender-buttons">
                             <button
@@ -1177,14 +1203,16 @@ function BookingContent() {
                         </div>
 
                         <div className="passenger-field">
-                          <label className="passenger-field-label">Âge *</label>
+                          <label className="passenger-field-label">
+                            {t("Âge *", "Age *")}
+                          </label>
                           <input
                             type="number"
                             value={passager.age}
                             onChange={(e) =>
                               updatePassager(index, "age", e.target.value)
                             }
-                            placeholder="Âge"
+                            placeholder={t("Âge", "Age")}
                             min="1"
                           />
                         </div>
@@ -1203,10 +1231,12 @@ function BookingContent() {
                 {isLoadingReservation ? (
                   <>
                     <RefreshCw className="spin" />
-                    <span>Réservation en cours...</span>
+                    <span>
+                      {t("Réservation en cours...", "Booking in progress...")}
+                    </span>
                   </>
                 ) : (
-                  <span>Confirmer la réservation</span>
+                  <span>{t("Confirmer la réservation", "Confirm booking")}</span>
                 )}
               </button>
             </div>
@@ -1219,7 +1249,7 @@ function BookingContent() {
         <div className="modal-overlay">
           <div className="payment-modal-content">
             <div className="payment-modal-header">
-              <h2 className="payment-modal-title">Paiement</h2>
+              <h2 className="payment-modal-title">{t("Paiement", "Payment")}</h2>
               <button
                 onClick={() => setShowPaymentModal(false)}
                 className="payment-modal-close"
@@ -1230,15 +1260,19 @@ function BookingContent() {
 
             <div className="payment-modal-body">
               <div className="payment-summary-modal">
-                <h3 className="payment-summary-title">Résumé</h3>
+                <h3 className="payment-summary-title">{t("Résumé", "Summary")}</h3>
                 <div className="payment-summary-item">
-                  <span className="payment-summary-item-label">Agence</span>
+                  <span className="payment-summary-item-label">
+                    {t("Agence", "Agency")}
+                  </span>
                   <span className="payment-summary-item-value">
                     {reservationCourante.voyage.nomAgence}
                   </span>
                 </div>
                 <div className="payment-summary-item">
-                  <span className="payment-summary-item-label">Départ</span>
+                  <span className="payment-summary-item-label">
+                    {t("Départ", "Departure")}
+                  </span>
                   <span className="payment-summary-item-value">
                     {reservationCourante.voyage.lieuDepart} -{" "}
                     {reservationCourante.voyage.pointDeDepart}
@@ -1246,7 +1280,7 @@ function BookingContent() {
                 </div>
                 <div className="payment-summary-item">
                   <span className="payment-summary-item-label">
-                    Destination
+                    {t("Destination", "Destination")}
                   </span>
                   <span className="payment-summary-item-value">
                     {reservationCourante.voyage.lieuArrive} -{" "}
@@ -1254,19 +1288,23 @@ function BookingContent() {
                   </span>
                 </div>
                 <div className="payment-summary-item">
-                  <span className="payment-summary-label">Date de départ</span>
+                  <span className="payment-summary-label">
+                    {t("Date de départ", "Departure date")}
+                  </span>
                   <span className="payment-summary-value">
                     {formatDate(reservationCourante.voyage.dateDepartPrev)}
                   </span>
                 </div>
                 <div className="payment-summary-item-end payment-summary-item">
-                  <span className="payment-summary-item-label">Passagers</span>
+                  <span className="payment-summary-item-label">
+                    {t("Passagers", "Passengers")}
+                  </span>
                   <span className="payment-summary-item-value">
                     {reservationCourante.placesReservees.length}
                   </span>
                 </div>
                 <div className="payment-total">
-                  <span className="payment-total-label">Total</span>
+                  <span className="payment-total-label">{t("Total", "Total")}</span>
                   <span className="payment-total-value">
                     {reservationCourante.prixTotal} FCFA
                   </span>
@@ -1274,30 +1312,37 @@ function BookingContent() {
               </div>
 
               <div className="form-group">
-                <label className="form-label">Numéro de téléphone *</label>
+                <label className="form-label">
+                  {t("Numéro de téléphone *", "Phone number *")}
+                </label>
                 <input
                   type="tel"
                   value={mobilePhone}
                   onChange={(e) => setMobilePhone(e.target.value)}
-                  placeholder="(+237) 6XX XXX XXX"
+                  placeholder={t("(+237) 6XX XXX XXX", "(+237) 6XX XXX XXX")}
                   className="form-input"
                   maxLength={9}
                 />
               </div>
 
               <div className="form-group">
-                <label className="form-label">Nom du propriétaire *</label>
+                <label className="form-label">
+                  {t("Nom du propriétaire *", "Account holder name *")}
+                </label>
                 <input
                   type="text"
                   value={mobilePhoneName}
                   onChange={(e) => setMobilePhoneName(e.target.value)}
-                  placeholder="Nom complet"
+                  placeholder={t("Nom complet", "Full name")}
                   className="form-input"
                 />
               </div>
 
               <div className="payment-info-box">
-                Une demande de paiement sera envoyée sur ce numéro.
+                {t(
+                  "Une demande de paiement sera envoyée sur ce numéro.",
+                  "A payment request will be sent to this number.",
+                )}
               </div>
 
               <button
@@ -1313,12 +1358,12 @@ function BookingContent() {
                 {isLoadingPayment ? (
                   <>
                     <RefreshCw className="spin" />
-                    <span>Paiement en cours...</span>
+                    <span>{t("Paiement en cours...", "Payment in progress...")}</span>
                   </>
                 ) : (
                   <>
                     <CreditCard />
-                    <span>Confirmer le paiement</span>
+                    <span>{t("Confirmer le paiement", "Confirm payment")}</span>
                   </>
                 )}
               </button>
@@ -1331,9 +1376,12 @@ function BookingContent() {
       <SuccessModal
         show={showSuccessModal}
         onClose={openPaymentModal}
-        title="Réservation effectuée"
-        message="Votre réservation a été enregistrée avec succès."
-        buttonText="Payer maintenant"
+        title={t("Réservation effectuée", "Booking successful")}
+        message={t(
+          "Votre réservation a été enregistrée avec succès.",
+          "Your booking has been successfully recorded.",
+        )}
+        buttonText={t("Payer maintenant", "Pay now")}
       />
 
       {/* Error Modal */}
@@ -1347,12 +1395,14 @@ function BookingContent() {
 }
 
 export default function VoyageReservationPage() {
+  const { t } = useLanguage();
+
   return (
     <Suspense
       fallback={
         <div className="loading-state">
           <RefreshCw className="spin" />
-          <p>Chargement...</p>
+          <p>{t("Chargement...", "Loading...")}</p>
         </div>
       }
     >

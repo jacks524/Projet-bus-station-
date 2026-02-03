@@ -43,6 +43,7 @@ import Header from "@/app/components/Header";
 import SuccessModal from "@/app/components/SuccessModal";
 import ErrorModal from "@/app/components/ErrorModal";
 import ConfirmModal from "@/app/components/ConfirmModal";
+import { useLanguage } from "@/app/providers";
 
 interface Voyage {
   idVoyage: string;
@@ -134,6 +135,7 @@ export default function AgencyTravelsPage() {
 
   const [showSuccessModal, setShowSuccessModal] = useState(false);
   const [showErrorModal, setShowErrorModal] = useState(false);
+  const { t, language } = useLanguage();
 
   const API_BASE_URL = process.env.NEXT_PUBLIC_API_BASE_URL;
   const VOYAGES_PER_PAGE = 6;
@@ -142,26 +144,26 @@ export default function AgencyTravelsPage() {
   const MENU_ITEMS = [
     {
       icon: Home,
-      label: "Dashboard",
+      label: t("Dashboard", "Dashboard"),
       path: "/user/agency/dashboard",
       active: false,
     },
-    { icon: Bus, label: "Voyages", path: "/user/agency/travels", active: true },
+    { icon: Bus, label: t("Voyages", "Trips"), path: "/user/agency/travels", active: true },
     {
       icon: Calendar,
-      label: "Réservations",
+      label: t("Réservations", "Reservations"),
       path: "/user/agency/reservations",
       active: false,
     },
     {
       icon: Users,
-      label: "Chauffeurs",
+      label: t("Chauffeurs", "Drivers"),
       path: "/user/agency/drivers",
       active: false,
     },
     {
       icon: Settings,
-      label: "Mes paramètres",
+      label: t("Mes paramètres", "My settings"),
       path: "/user/agency/settings",
       active: false,
     },
@@ -215,7 +217,9 @@ export default function AgencyTravelsPage() {
       );
 
       if (!response.ok)
-        throw new Error("Erreur lors du chargement des agences");
+        throw new Error(
+          t("Erreur lors du chargement des agences", "Failed to load agencies"),
+        );
 
       const data = await response.json();
       const allAgences = data.content || data || [];
@@ -231,7 +235,9 @@ export default function AgencyTravelsPage() {
         setIsLoading(false);
       }
     } catch (error: any) {
-      setErrorMessage("Impossible de charger vos agences");
+      setErrorMessage(
+        t("Impossible de charger vos agences", "Unable to load your agencies"),
+      );
     } finally {
       setIsLoadingAgences(false);
     }
@@ -256,13 +262,17 @@ export default function AgencyTravelsPage() {
       );
 
       if (!response.ok)
-        throw new Error("Erreur lors du chargement des voyages");
+        throw new Error(
+          t("Erreur lors du chargement des voyages", "Failed to load trips"),
+        );
 
       const data = await response.json();
       setVoyages(data.content || []);
       setTotalPages(data.totalPages || 0);
     } catch (error: any) {
-      setErrorMessage("Impossible de charger les voyages");
+      setErrorMessage(
+        t("Impossible de charger les voyages", "Unable to load trips"),
+      );
     } finally {
       setIsLoading(false);
     }
@@ -286,13 +296,17 @@ export default function AgencyTravelsPage() {
       );
 
       if (!response.ok)
-        throw new Error("Erreur lors du chargement des statistiques");
+        throw new Error(
+          t("Erreur lors du chargement des statistiques", "Failed to load statistics"),
+        );
 
       const data = await response.json();
       setSelectedVoyageStats(data);
       setShowStatsModal(true);
     } catch (error: any) {
-      setErrorMessage("Impossible de charger les statistiques");
+      setErrorMessage(
+        t("Impossible de charger les statistiques", "Unable to load statistics"),
+      );
       setShowErrorModal(true);
     } finally {
       setIsLoadingStats(false);
@@ -326,7 +340,9 @@ export default function AgencyTravelsPage() {
         fetchVoyages(selectedAgence.agency_id);
       }
     } catch (error: any) {
-      setErrorMessage("Erreur lors de la suppression du voyage");
+      setErrorMessage(
+        t("Erreur lors de la suppression du voyage", "Failed to delete trip"),
+      );
       setShowErrorModal(true);
     } finally {
       setIsDeleting(false);
@@ -340,7 +356,8 @@ export default function AgencyTravelsPage() {
   };
 
   const formatDate = (dateString: string) => {
-    return new Date(dateString).toLocaleDateString("fr-FR", {
+    const locale = language === "fr" ? "fr-FR" : "en-US";
+    return new Date(dateString).toLocaleDateString(locale, {
       day: "numeric",
       month: "long",
       year: "numeric",
@@ -350,7 +367,8 @@ export default function AgencyTravelsPage() {
   };
 
   const formatRevenue = (amount: number) => {
-    return new Intl.NumberFormat("fr-FR", {
+    const locale = language === "fr" ? "fr-FR" : "en-US";
+    return new Intl.NumberFormat(locale, {
       style: "currency",
       currency: "XAF",
       minimumFractionDigits: 0,
@@ -380,7 +398,7 @@ export default function AgencyTravelsPage() {
 
       <div className="dashboard-main">
         <Header
-          title="Voyages"
+          title={t("Voyages", "Trips")}
           userData={userData}
           onMenuClick={() => setShowMobileMenu(true)}
           userType="agency"
@@ -390,7 +408,7 @@ export default function AgencyTravelsPage() {
           {isLoadingAgences && agences.length === 0 && (
             <div className="loading-state">
               <RefreshCw className="spin" />
-              <p>Chargement en cours...</p>
+              <p>{t("Chargement en cours...", "Loading...")}</p>
             </div>
           )}
 
@@ -403,7 +421,7 @@ export default function AgencyTravelsPage() {
                   onClick={() => window.location.reload()}
                   className="btn btn-primary"
                 >
-                  Réessayer
+                  {t("Réessayer", "Try again")}
                 </button>
               </div>
             </>
@@ -413,9 +431,14 @@ export default function AgencyTravelsPage() {
             <>
               <div className="empty-state">
                 <Building2 className="empty-icon" />
-                <h3 className="empty-title">Aucune agence validée</h3>
+                <h3 className="empty-title">
+                  {t("Aucune agence validée", "No validated agency")}
+                </h3>
                 <p className="empty-description">
-                  Vous devez avoir une agence pour créer des voyages
+                  {t(
+                    "Vous devez avoir une agence pour créer des voyages",
+                    "You need an agency to create trips",
+                  )}
                 </p>
               </div>
             </>
@@ -427,21 +450,29 @@ export default function AgencyTravelsPage() {
                 className="section-header"
                 style={{ marginBottom: "var(--spacing-2xl)" }}
               >
-                <h2 className="section-title">Gestion de voyages</h2>
+                <h2 className="section-title">
+                  {t("Gestion de voyages", "Trip management")}
+                </h2>
                 <p className="section-description">
-                  Gérez vos voyages et examinez les statistiques générales des
-                  voyages effectués
+                  {t(
+                    "Gérez vos voyages et examinez les statistiques générales des voyages effectués",
+                    "Manage your trips and review overall trip statistics",
+                  )}
                 </p>
               </div>
 
               <div className="agency-header-card">
                 <div className="agency-info">
                   <h2 className="agency-name">
-                    Nom de votre agence de voyage : {selectedAgence?.long_name}
+                    {t("Nom de votre agence de voyage :", "Agency name:")}{" "}
+                    {selectedAgence?.long_name}
                   </h2>
                   <p className="agency-location">
-                    Adresse de votre agence de voyage : {selectedAgence?.ville}{" "}
-                    - {selectedAgence?.short_name}
+                    {t(
+                      "Adresse de votre agence de voyage :",
+                      "Agency address:",
+                    )}{" "}
+                    {selectedAgence?.ville} - {selectedAgence?.short_name}
                   </p>
                 </div>
 
@@ -451,7 +482,7 @@ export default function AgencyTravelsPage() {
                       onClick={() => setShowAgenceSelector(!showAgenceSelector)}
                       className="btn btn-secondary"
                     >
-                      Changer
+                      {t("Changer", "Change")}
                       <ChevronDown />
                     </button>
 
@@ -489,14 +520,14 @@ export default function AgencyTravelsPage() {
                   className="btn btn-primary"
                 >
                   <Plus />
-                  Créer un voyage
+                  {t("Créer un voyage", "Create a trip")}
                 </button>
               </div>
 
               {isLoading && (
                 <div className="loading-state">
                   <RefreshCw className="spin" />
-                  <p>Chargement des voyages...</p>
+                  <p>{t("Chargement des voyages...", "Loading trips...")}</p>
                 </div>
               )}
 
@@ -517,7 +548,8 @@ export default function AgencyTravelsPage() {
                             marginRight: "var(--spacing-xs)",
                           }}
                         />
-                        Voyages à venir ({voyagesAVenir.length})
+                        {t("Voyages à venir", "Upcoming trips")} (
+                        {voyagesAVenir.length})
                       </h2>
 
                       <div className="voyages-grid">
@@ -527,7 +559,8 @@ export default function AgencyTravelsPage() {
                               <div className="voyage-info">
                                 <MapPin />
                                 <h3>
-                                  {voyage.lieuDepart} vers {voyage.lieuArrive}
+                                  {voyage.lieuDepart} {t("vers", "to")}{" "}
+                                  {voyage.lieuArrive}
                                 </h3>
                               </div>
                               <div className="voyage-info">
@@ -537,7 +570,7 @@ export default function AgencyTravelsPage() {
                                 <span
                                   style={{ fontSize: "var(--font-size-sm)" }}
                                 >
-                                  {voyage.pointDeDepart} vers{" "}
+                                  {voyage.pointDeDepart} {t("vers", "to")}{" "}
                                   {voyage.pointArrivee}
                                 </span>
                               </div>
@@ -551,14 +584,16 @@ export default function AgencyTravelsPage() {
                                   {voyage.nbrPlaceReservable} /{" "}
                                   {voyage.nbrPlaceRestante +
                                     voyage.nbrPlaceConfirm}{" "}
-                                  places restantes
+                                  {t("places restantes", "seats remaining")}
                                 </span>
                               </div>
                               <div
                                 className="voyage-price"
                                 style={{ fontWeight: "bold" }}
                               >
-                                <span>Classe: {voyage.nomClasseVoyage}</span>
+                                <span>
+                                  {t("Classe:", "Class:")} {voyage.nomClasseVoyage}
+                                </span>
                                 <span className="price">
                                   {formatRevenue(voyage.prix)}
                                 </span>
@@ -578,7 +613,7 @@ export default function AgencyTravelsPage() {
                                 }}
                               >
                                 <Trash2 />
-                                Supprimer
+                                {t("Supprimer", "Delete")}
                               </button>
                             </div>
                           </div>
@@ -602,7 +637,8 @@ export default function AgencyTravelsPage() {
                             marginRight: "var(--spacing-xs)",
                           }}
                         />
-                        Voyages effectués ({voyagesEffectues.length})
+                        {t("Voyages effectués", "Completed trips")} (
+                        {voyagesEffectues.length})
                       </h2>
 
                       <div className="voyages-grid">
@@ -612,7 +648,8 @@ export default function AgencyTravelsPage() {
                               <div className="voyage-info">
                                 <MapPin />
                                 <h3>
-                                  {voyage.lieuDepart} vers {voyage.lieuArrive}
+                                  {voyage.lieuDepart} {t("vers", "to")}{" "}
+                                  {voyage.lieuArrive}
                                 </h3>
                               </div>
                               <div className="voyage-info">
@@ -622,7 +659,7 @@ export default function AgencyTravelsPage() {
                                 <span
                                   style={{ fontSize: "var(--font-size-sm)" }}
                                 >
-                                  {voyage.pointDeDepart} vers{" "}
+                                  {voyage.pointDeDepart} {t("vers", "to")}{" "}
                                   {voyage.pointArrivee}
                                 </span>
                               </div>
@@ -632,13 +669,20 @@ export default function AgencyTravelsPage() {
                               </div>
                               <div className="voyage-info">
                                 <Users />
-                                <span>{voyage.nbrPlaceConfirm} passagers</span>
+                                <span>
+                                  {voyage.nbrPlaceConfirm}{" "}
+                                  {voyage.nbrPlaceConfirm > 1
+                                    ? t("passagers", "passengers")
+                                    : t("passager", "passenger")}
+                                </span>
                               </div>
                               <div
                                 className="voyage-price"
                                 style={{ fontWeight: "bold" }}
                               >
-                                <span>Classe: {voyage.nomClasseVoyage}</span>
+                                <span>
+                                  {t("Classe:", "Class:")} {voyage.nomClasseVoyage}
+                                </span>
                                 <span className="price">
                                   {formatRevenue(voyage.prix)}
                                 </span>
@@ -657,7 +701,7 @@ export default function AgencyTravelsPage() {
                                   marginLeft: "auto",
                                 }}
                               >
-                                Voir les stats
+                                {t("Voir les stats", "View stats")}
                               </button>
                             </div>
                           </div>
@@ -669,15 +713,20 @@ export default function AgencyTravelsPage() {
                   {voyages.length === 0 && (
                     <div className="empty-state">
                       <Bus className="empty-icon" />
-                      <h3 className="empty-title">Aucun voyage</h3>
+                      <h3 className="empty-title">
+                        {t("Aucun voyage", "No trips")}
+                      </h3>
                       <p className="empty-description">
-                        Créez votre premier voyage pour commencer
+                        {t(
+                          "Créez votre premier voyage pour commencer",
+                          "Create your first trip to get started",
+                        )}
                       </p>
                       <button
                         onClick={() => router.push("/user/agency/travel")}
                         className="btn btn-primary"
                       >
-                        Créer un voyage
+                        {t("Créer un voyage", "Create a trip")}
                       </button>
                     </div>
                   )}
@@ -700,7 +749,7 @@ export default function AgencyTravelsPage() {
                         <ChevronLeft />
                       </button>
                       <span>
-                        Page {currentPage + 1} / {totalPages}
+                        {t("Page", "Page")} {currentPage + 1} / {totalPages}
                       </span>
                       <button
                         onClick={() =>
@@ -728,9 +777,11 @@ export default function AgencyTravelsPage() {
           <div className="stats-modal-content">
             <div className="stats-modal-header">
               <div>
-                <h2 className="stats-modal-title">Statistiques du voyage</h2>
+                <h2 className="stats-modal-title">
+                  {t("Statistiques du voyage", "Trip statistics")}
+                </h2>
                 <p className="stats-modal-subtitle">
-                  {selectedVoyageStats.lieu_depart} vers{" "}
+                  {selectedVoyageStats.lieu_depart} {t("vers", "to")}{" "}
                   {selectedVoyageStats.lieu_arrive}
                 </p>
               </div>
@@ -752,26 +803,34 @@ export default function AgencyTravelsPage() {
                   {selectedVoyageStats.titre}
                 </h3>
                 <div className="stats-info-grid">
-                  <div className="stats-info-item">
-                    <span className="stats-info-label">Chauffeur</span>
+                <div className="stats-info-item">
+                    <span className="stats-info-label">
+                      {t("Chauffeur", "Driver")}
+                    </span>
                     <span className="stats-info-value">
                       {selectedVoyageStats.nom_chauffeur}
                     </span>
                   </div>
                   <div className="stats-info-item">
-                    <span className="stats-info-label">Véhicule</span>
+                    <span className="stats-info-label">
+                      {t("Véhicule", "Vehicle")}
+                    </span>
                     <span className="stats-info-value">
                       {selectedVoyageStats.vehicule_nom}
                     </span>
                   </div>
                   <div className="stats-info-item">
-                    <span className="stats-info-label">Plaque</span>
+                    <span className="stats-info-label">
+                      {t("Plaque", "Plate")}
+                    </span>
                     <span className="stats-info-value">
                       {selectedVoyageStats.vehicule_plaque}
                     </span>
                   </div>
                   <div className="stats-info-item">
-                    <span className="stats-info-label">Statut</span>
+                    <span className="stats-info-label">
+                      {t("Statut", "Status")}
+                    </span>
                     <span className="stats-info-value">
                       {selectedVoyageStats.statut_voyage}
                     </span>
@@ -786,14 +845,18 @@ export default function AgencyTravelsPage() {
                   <div className="stat-card-value">
                     {selectedVoyageStats.total_passagers}
                   </div>
-                  <div className="stat-card-label">Passagers</div>
+                  <div className="stat-card-label">
+                    {t("Passagers", "Passengers")}
+                  </div>
                 </div>
                 <div className="stat-card">
                   <Calendar className="stat-card-icon" />
                   <div className="stat-card-value">
                     {selectedVoyageStats.total_reservations}
                   </div>
-                  <div className="stat-card-label">Réservations</div>
+                  <div className="stat-card-label">
+                    {t("Réservations", "Reservations")}
+                  </div>
                 </div>
                 <div className="stat-card">
                   <CheckCircle
@@ -803,7 +866,9 @@ export default function AgencyTravelsPage() {
                   <div className="stat-card-value">
                     {selectedVoyageStats.places_confirmees}
                   </div>
-                  <div className="stat-card-label">Places confirmées</div>
+                  <div className="stat-card-label">
+                    {t("Places confirmées", "Confirmed seats")}
+                  </div>
                 </div>
                 <div className="stat-card">
                   <BarChart3
@@ -813,34 +878,44 @@ export default function AgencyTravelsPage() {
                   <div className="stat-card-value">
                     {selectedVoyageStats.taux_occupation.toFixed(1)}%
                   </div>
-                  <div className="stat-card-label">Taux d'occupation</div>
+                  <div className="stat-card-label">
+                    {t("Taux d'occupation", "Occupancy rate")}
+                  </div>
                 </div>
                 <div className="stat-card">
                   <Calendar className="stat-card-icon" />
                   <div className="stat-card-value">
                     {selectedVoyageStats.places_restantes}
                   </div>
-                  <div className="stat-card-label">Places restantes</div>
+                  <div className="stat-card-label">
+                    {t("Places restantes", "Remaining seats")}
+                  </div>
                 </div>
                 <div className="stat-card">
                   <Calendar className="stat-card-icon" />
                   <div className="stat-card-value">
                     {selectedVoyageStats.total_places}
                   </div>
-                  <div className="stat-card-label">Places totales</div>
+                  <div className="stat-card-label">
+                    {t("Places totales", "Total seats")}
+                  </div>
                 </div>
               </div>
 
               {/* Revenus */}
               <div className="stats-revenue-grid">
                 <div className="stats-revenue-card">
-                  <div className="stats-revenue-label">Revenus potentiels</div>
+                  <div className="stats-revenue-label">
+                    {t("Revenus potentiels", "Potential revenue")}
+                  </div>
                   <div className="stats-revenue-value">
                     {formatRevenue(selectedVoyageStats.revenus_totaux)}
                   </div>
                 </div>
                 <div className="stats-revenue-card">
-                  <div className="stats-revenue-label">Revenus confirmés</div>
+                  <div className="stats-revenue-label">
+                    {t("Revenus confirmés", "Confirmed revenue")}
+                  </div>
                   <div className="stats-revenue-value">
                     {formatRevenue(selectedVoyageStats.revenus_confirmes)}
                   </div>
@@ -858,7 +933,9 @@ export default function AgencyTravelsPage() {
                   ).some((v) => (v as number) > 0) && (
                     <div className="chart-card-small">
                       <div className="chart-header">
-                        <h3>Réservations par statut</h3>
+                        <h3>
+                          {t("Réservations par statut", "Reservations by status")}
+                        </h3>
                       </div>
                       <div className="chart-container-small">
                         <ResponsiveContainer width="100%" height="100%">
@@ -908,7 +985,7 @@ export default function AgencyTravelsPage() {
                   ) && (
                     <div className="chart-card-small">
                       <div className="chart-header">
-                        <h3>Passagers par genre</h3>
+                        <h3>{t("Passagers par genre", "Passengers by gender")}</h3>
                       </div>
                       <div className="chart-container-small">
                         <ResponsiveContainer width="100%" height="100%">
@@ -959,7 +1036,9 @@ export default function AgencyTravelsPage() {
                   ).some((v) => (v as number) > 0) && (
                     <div className="chart-card-small">
                       <div className="chart-header">
-                        <h3>Passagers par tranche d'âge</h3>
+                        <h3>
+                          {t("Passagers par tranche d'âge", "Passengers by age group")}
+                        </h3>
                       </div>
                       <div className="chart-container-small">
                         <ResponsiveContainer width="100%" height="100%">
@@ -1005,7 +1084,9 @@ export default function AgencyTravelsPage() {
                   ).some((v) => (v as number) > 0) && (
                     <div className="chart-card-small">
                       <div className="chart-header">
-                        <h3>Distribution des bagages</h3>
+                        <h3>
+                          {t("Distribution des bagages", "Baggage distribution")}
+                        </h3>
                       </div>
                       <div className="chart-container-small">
                         <ResponsiveContainer width="100%" height="100%">
@@ -1050,7 +1131,7 @@ export default function AgencyTravelsPage() {
                       style={{ gridColumn: "1 / -1" }}
                     >
                       <div className="chart-header">
-                        <h3>Réservations par jour</h3>
+                        <h3>{t("Réservations par jour", "Reservations by day")}</h3>
                       </div>
                       <div className="chart-container-small">
                         <ResponsiveContainer width="100%" height="100%">
@@ -1061,7 +1142,7 @@ export default function AgencyTravelsPage() {
                               .sort((a, b) => a[0].localeCompare(b[0]))
                               .map(([date, value]) => ({
                                 date: new Date(date).toLocaleDateString(
-                                  "fr-FR",
+                                  language === "fr" ? "fr-FR" : "en-US",
                                   {
                                     day: "numeric",
                                     month: "short",
@@ -1085,7 +1166,7 @@ export default function AgencyTravelsPage() {
                               dataKey="value"
                               fill="#7cab1b"
                               radius={[8, 8, 0, 0]}
-                              name="Réservations"
+                              name={t("Réservations", "Reservations")}
                             />
                           </BarChart>
                         </ResponsiveContainer>
@@ -1102,7 +1183,7 @@ export default function AgencyTravelsPage() {
                       style={{ gridColumn: "1 / -1" }}
                     >
                       <div className="chart-header">
-                        <h3>Revenus par jour</h3>
+                        <h3>{t("Revenus par jour", "Revenue by day")}</h3>
                       </div>
                       <div className="chart-container-small">
                         <ResponsiveContainer width="100%" height="100%">
@@ -1113,7 +1194,7 @@ export default function AgencyTravelsPage() {
                               .sort((a, b) => a[0].localeCompare(b[0]))
                               .map(([date, revenue]) => ({
                                 date: new Date(date).toLocaleDateString(
-                                  "fr-FR",
+                                  language === "fr" ? "fr-FR" : "en-US",
                                   {
                                     day: "numeric",
                                     month: "short",
@@ -1143,7 +1224,7 @@ export default function AgencyTravelsPage() {
                               stroke="#7cab1b"
                               strokeWidth={2}
                               dot={{ fill: "#7cab1b", r: 4 }}
-                              name="Revenu"
+                              name={t("Revenu", "Revenue")}
                             />
                           </LineChart>
                         </ResponsiveContainer>
@@ -1163,19 +1244,25 @@ export default function AgencyTravelsPage() {
           setSelectedVoyageToDelete(null);
         }}
         onConfirm={handleDeleteVoyage}
-        title="Supprimer le voyage"
-        message="Êtes-vous sûr de vouloir supprimer ce voyage ? Cette action est irréversible."
-        confirmText="Supprimer"
-        cancelText="Annuler"
+        title={t("Supprimer le voyage", "Delete trip")}
+        message={t(
+          "Êtes-vous sûr de vouloir supprimer ce voyage ? Cette action est irréversible.",
+          "Are you sure you want to delete this trip? This action cannot be undone.",
+        )}
+        confirmText={t("Supprimer", "Delete")}
+        cancelText={t("Annuler", "Cancel")}
         isLoading={isDeleting}
       />
 
       <SuccessModal
         show={showSuccessModal}
         onClose={() => setShowSuccessModal(false)}
-        title="Voyage supprimé"
-        message="Le voyage a été supprimé avec succès."
-        buttonText="OK"
+        title={t("Voyage supprimé", "Trip deleted")}
+        message={t(
+          "Le voyage a été supprimé avec succès.",
+          "The trip was deleted successfully.",
+        )}
+        buttonText={t("OK", "OK")}
       />
 
       <ErrorModal

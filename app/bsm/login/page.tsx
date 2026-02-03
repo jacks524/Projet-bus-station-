@@ -3,6 +3,7 @@
 import React, { useState, useEffect } from "react";
 import Image from "next/image";
 import { useRouter } from "next/navigation";
+import { useLanguage } from "@/app/providers";
 
 export default function LoginBSMPage() {
   const router = useRouter();
@@ -12,6 +13,7 @@ export default function LoginBSMPage() {
   const [currentSlide, setCurrentSlide] = useState(0);
   const [isLoading, setIsLoading] = useState(false);
   const [errorMessage, setErrorMessage] = useState("");
+  const { t } = useLanguage();
 
   const API_BASE_URL = process.env.NEXT_PUBLIC_API_BASE_URL;
 
@@ -26,7 +28,9 @@ export default function LoginBSMPage() {
     setErrorMessage("");
 
     if (!username || !password) {
-      setErrorMessage("Veuillez remplir tous les champs");
+      setErrorMessage(
+        t("Veuillez remplir tous les champs", "Please fill in all fields"),
+      );
       return;
     }
 
@@ -45,13 +49,15 @@ export default function LoginBSMPage() {
       });
 
       if (!response.ok) {
-        throw new Error("Identifiants incorrects");
+        throw new Error(t("Identifiants incorrects", "Invalid credentials"));
       }
 
       const data = await response.json();
 
       if (!data.role.includes("BSM")) {
-        throw new Error("Accès réservé aux administrateurs");
+        throw new Error(
+          t("Accès réservé aux administrateurs", "Access restricted to administrators"),
+        );
       }
 
       sessionStorage.setItem("bsm_token", data.token);
@@ -59,7 +65,12 @@ export default function LoginBSMPage() {
 
       router.push("/user/bsm/dashboard");
     } catch (error: any) {
-      setErrorMessage("Une erreur est survenue lors de la connexion");
+      setErrorMessage(
+        t(
+          "Une erreur est survenue lors de la connexion",
+          "An error occurred during login"
+        ),
+      );
     } finally {
       setIsLoading(false);
     }
@@ -83,14 +94,19 @@ export default function LoginBSMPage() {
             <img src="/images/busstation.png" alt="BusStation" />
           </div>
 
-          <h1 className="auth-title">Connexion BSM</h1>
-          <p className="auth-subtitle">Accédez à votre espace administrateur</p>
+          <h1 className="auth-title">{t("Connexion BSM", "BSM sign in")}</h1>
+          <p className="auth-subtitle">
+            {t(
+              "Accédez à votre espace administrateur",
+              "Access your admin space"
+            )}
+          </p>
 
           {errorMessage && <p className="error-text">{errorMessage}</p>}
 
           <form onSubmit={handleSubmit} className="auth-form">
             <fieldset className="auth-fieldset">
-              <legend>Nom d'utilisateur *</legend>
+              <legend>{t("Nom d'utilisateur *", "Username *")}</legend>
               <input
                 type="text"
                 value={username}
@@ -100,7 +116,7 @@ export default function LoginBSMPage() {
             </fieldset>
 
             <fieldset className="auth-fieldset">
-              <legend>Mot de passe *</legend>
+              <legend>{t("Mot de passe *", "Password *")}</legend>
               <div className="auth-password-wrapper">
                 <input
                   type={showPassword ? "text" : "password"}
@@ -147,7 +163,7 @@ export default function LoginBSMPage() {
               disabled={isLoading}
               className="auth-submit-btn"
             >
-              {isLoading ? "Connexion..." : "Se connecter"}
+              {isLoading ? t("Connexion...", "Signing in...") : t("Se connecter", "Sign in")}
             </button>
           </form>
         </div>

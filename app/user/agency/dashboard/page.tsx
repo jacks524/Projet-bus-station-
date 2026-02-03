@@ -34,6 +34,7 @@ import {
 import Sidebar from "@/app/components/Sidebar";
 import MobileSidebar from "@/app/components/Mobilesidebar";
 import Header from "@/app/components/Header";
+import { useLanguage } from "@/app/providers";
 
 interface GeneralStatistics {
   nombreEmployes: number;
@@ -113,6 +114,7 @@ export default function AgenceDashboardPage() {
   const [activeChart, setActiveChart] = useState<
     "reservations" | "voyages" | "revenus" | "utilisateurs"
   >("reservations");
+  const { t, language } = useLanguage();
 
   const API_BASE_URL = process.env.NEXT_PUBLIC_API_BASE_URL;
   const PIE_COLORS = ["#10B981", "#F59E0B", "#EF4444", "#6366F1", "#8B5CF6"];
@@ -120,31 +122,31 @@ export default function AgenceDashboardPage() {
   const menuItems = [
     {
       icon: Home,
-      label: "Dashboard",
+      label: t("Dashboard", "Dashboard"),
       path: "/user/agency/dashboard",
       active: true,
     },
     {
       icon: Bus,
-      label: "Voyages",
+      label: t("Voyages", "Trips"),
       path: "/user/agency/travels",
       active: false,
     },
     {
       icon: Calendar,
-      label: "Réservations",
+      label: t("Réservations", "Reservations"),
       path: "/user/agency/reservations",
       active: false,
     },
     {
       icon: Users,
-      label: "Chauffeurs",
+      label: t("Chauffeurs", "Drivers"),
       path: "/user/agency/drivers",
       active: false,
     },
     {
       icon: Settings,
-      label: "Mes paramètres",
+      label: t("Mes paramètres", "My settings"),
       path: "/user/agency/settings",
       active: false,
     },
@@ -207,7 +209,9 @@ export default function AgenceDashboardPage() {
       );
 
       if (!response.ok)
-        throw new Error("Erreur lors du chargement des agences");
+        throw new Error(
+          t("Erreur lors du chargement des agences", "Failed to load agencies"),
+        );
 
       const data = await response.json();
       const allAgences = data.content || data || [];
@@ -223,7 +227,9 @@ export default function AgenceDashboardPage() {
         setIsLoadingStats(false);
       }
     } catch (error: any) {
-      setErrorMessage("Impossible de charger vos agences");
+      setErrorMessage(
+        t("Impossible de charger vos agences", "Unable to load your agencies"),
+      );
       setIsLoadingStats(false);
     } finally {
       setIsLoadingAgences(false);
@@ -248,11 +254,21 @@ export default function AgenceDashboardPage() {
       );
 
       if (!response.ok)
-        throw new Error("Erreur lors du chargement des statistiques");
+        throw new Error(
+          t(
+            "Erreur lors du chargement des statistiques",
+            "Failed to load statistics",
+          ),
+        );
       const data = await response.json();
       setGeneralStats(data);
     } catch (error: any) {
-      setErrorMessage("Impossible de charger les statistiques générales");
+      setErrorMessage(
+        t(
+          "Impossible de charger les statistiques générales",
+          "Unable to load general statistics",
+        ),
+      );
     } finally {
       setIsLoadingStats(false);
     }
@@ -273,7 +289,12 @@ export default function AgenceDashboardPage() {
       );
 
       if (!response.ok)
-        throw new Error("Erreur lors du chargement des évolutions");
+        throw new Error(
+          t(
+            "Erreur lors du chargement des évolutions",
+            "Failed to load trends",
+          ),
+        );
       const data = await response.json();
       setEvolutionStats(data);
     } catch (error: any) {
@@ -295,7 +316,8 @@ export default function AgenceDashboardPage() {
   };
 
   const formatRevenue = (amount: number) => {
-    return new Intl.NumberFormat("fr-FR", {
+    const locale = language === "fr" ? "fr-FR" : "en-US";
+    return new Intl.NumberFormat(locale, {
       style: "currency",
       currency: "XAF",
       minimumFractionDigits: 0,
@@ -303,14 +325,16 @@ export default function AgenceDashboardPage() {
   };
 
   const formatDate = (dateString: string) => {
-    return new Date(dateString).toLocaleDateString("fr-FR", {
+    const locale = language === "fr" ? "fr-FR" : "en-US";
+    return new Date(dateString).toLocaleDateString(locale, {
       month: "numeric",
       year: "numeric",
     });
   };
 
   const formatDateFull = (dateString: string) => {
-    return new Date(dateString).toLocaleDateString("fr-FR", {
+    const locale = language === "fr" ? "fr-FR" : "en-US";
+    return new Date(dateString).toLocaleDateString(locale, {
       day: "numeric",
       month: "long",
       year: "numeric",
@@ -357,13 +381,13 @@ export default function AgenceDashboardPage() {
   const getChartTitle = () => {
     switch (activeChart) {
       case "reservations":
-        return "Évolution des réservations";
+        return t("Évolution des réservations", "Reservation trends");
       case "voyages":
-        return "Évolution des voyages";
+        return t("Évolution des voyages", "Trip trends");
       case "revenus":
-        return "Évolution des revenus";
+        return t("Évolution des revenus", "Revenue trends");
       case "utilisateurs":
-        return "Évolution des utilisateurs";
+        return t("Évolution des utilisateurs", "User trends");
       default:
         return "";
     }
@@ -403,13 +427,13 @@ export default function AgenceDashboardPage() {
 
   const prepareDayOfWeekData = (data: { [key: string]: number }) => {
     const dayMapping: { [key: string]: string } = {
-      MONDAY: "Lundi",
-      TUESDAY: "Mardi",
-      WEDNESDAY: "Mercredi",
-      THURSDAY: "Jeudi",
-      FRIDAY: "Vendredi",
-      SATURDAY: "Samedi",
-      SUNDAY: "Dimanche",
+      MONDAY: t("Lundi", "Monday"),
+      TUESDAY: t("Mardi", "Tuesday"),
+      WEDNESDAY: t("Mercredi", "Wednesday"),
+      THURSDAY: t("Jeudi", "Thursday"),
+      FRIDAY: t("Vendredi", "Friday"),
+      SATURDAY: t("Samedi", "Saturday"),
+      SUNDAY: t("Dimanche", "Sunday"),
     };
 
     const daysOrder = [
@@ -451,7 +475,7 @@ export default function AgenceDashboardPage() {
 
       <div className="dashboard-main">
         <Header
-          title="Dashboard"
+          title={t("Dashboard", "Dashboard")}
           userData={userData}
           onMenuClick={() => setShowMobileMenu(true)}
           showSettingsButton={true}
@@ -462,7 +486,7 @@ export default function AgenceDashboardPage() {
           {(isLoadingAgences || isLoadingStats) && agences.length === 0 && (
             <div className="loading-state">
               <RefreshCw className="spin" />
-              <p>Chargement en cours...</p>
+              <p>{t("Chargement en cours...", "Loading...")}</p>
             </div>
           )}
 
@@ -476,7 +500,7 @@ export default function AgenceDashboardPage() {
                   onClick={() => window.location.reload()}
                   className="btn modal-button modal-button-error"
                 >
-                  Réessayer
+                  {t("Réessayer", "Try again")}
                 </button>
               </div>
             </>
@@ -486,15 +510,20 @@ export default function AgenceDashboardPage() {
             <>
               <div className="empty-state">
                 <Building2 className="empty-icon" />
-                <h3 className="empty-title">Aucune agence validée</h3>
+                <h3 className="empty-title">
+                  {t("Aucune agence validée", "No validated agency")}
+                </h3>
                 <p className="empty-description">
-                  Vous n'avez pas encore d'agence validée
+                  {t(
+                    "Vous n'avez pas encore d'agence validée",
+                    "You don't have any validated agency yet",
+                  )}
                 </p>
                 <button
                   onClick={() => router.push("/user/agency/create")}
                   className="btn btn-primary"
                 >
-                  Créer une agence
+                  {t("Créer une agence", "Create an agency")}
                 </button>
               </div>
             </>
@@ -506,25 +535,36 @@ export default function AgenceDashboardPage() {
                 className="section-header"
                 style={{ marginBottom: "var(--spacing-2xl)" }}
               >
-                <h2 className="section-title">Votre tableau de bord</h2>
+                <h2 className="section-title">
+                  {t("Votre tableau de bord", "Your dashboard")}
+                </h2>
                 <p className="section-description">
-                  Examinez les statistiques générales de votre agence et gérez
-                  votre agence en quelques clics
+                  {t(
+                    "Examinez les statistiques générales de votre agence et gérez votre agence en quelques clics",
+                    "Review your agency’s general statistics and manage everything in a few clicks",
+                  )}
                 </p>
               </div>
 
               <div className="agency-header-card">
                 <div className="agency-info">
                   <h2 className="agency-name">
-                    Nom de votre agence de voyage : {selectedAgence?.long_name}
+                    {t("Nom de votre agence de voyage :", "Agency name:")}{" "}
+                    {selectedAgence?.long_name}
                   </h2>
                   <p className="agency-location">
-                    Abréviation du nom de votre agence de voyage :{" "}
+                    {t(
+                      "Abréviation du nom de votre agence de voyage :",
+                      "Agency short name:",
+                    )}{" "}
                     {selectedAgence?.short_name}
                   </p>
                   <p className="agency-location">
-                    Addresse de votre agence de voyage : {selectedAgence?.ville}{" "}
-                    - {selectedAgence?.location}
+                    {t(
+                      "Addresse de votre agence de voyage :",
+                      "Agency address:",
+                    )}{" "}
+                    {selectedAgence?.ville} - {selectedAgence?.location}
                   </p>
                 </div>
 
@@ -534,7 +574,7 @@ export default function AgenceDashboardPage() {
                       onClick={() => setShowAgenceSelector(!showAgenceSelector)}
                       className="btn btn-secondary"
                     >
-                      Changer
+                      {t("Changer", "Change")}
                       <ChevronDown />
                     </button>
 
@@ -570,7 +610,7 @@ export default function AgenceDashboardPage() {
                 <button
                   onClick={handleRefresh}
                   className="btn-icon"
-                  title="Actualiser"
+                  title={t("Actualiser", "Refresh")}
                 >
                   <RefreshCw />
                 </button>
@@ -579,7 +619,7 @@ export default function AgenceDashboardPage() {
               {isLoadingStats && (
                 <div className="loading-state">
                   <RefreshCw className="spin" />
-                  <p>Chargement des statistiques...</p>
+                  <p>{t("Chargement des statistiques...", "Loading statistics...")}</p>
                 </div>
               )}
 
@@ -587,12 +627,12 @@ export default function AgenceDashboardPage() {
                 <>
                   <div className="stats-card">
                     <div className="stats-header">
-                      <h3>Statistiques principales</h3>
+                      <h3>{t("Statistiques principales", "Key statistics")}</h3>
                     </div>
                     <div className="stats-grid-main">
                       <div className="stat-item">
                         <div className="stat-content">
-                          <p className="stat-label">Employés</p>
+                          <p className="stat-label">{t("Employés", "Employees")}</p>
                           <p className="stat-value">
                             {generalStats.nombreEmployes}
                           </p>
@@ -601,7 +641,7 @@ export default function AgenceDashboardPage() {
 
                       <div className="stat-item">
                         <div className="stat-content">
-                          <p className="stat-label">Chauffeurs</p>
+                          <p className="stat-label">{t("Chauffeurs", "Drivers")}</p>
                           <p className="stat-value">
                             {generalStats.nombreChauffeurs}
                           </p>
@@ -610,7 +650,7 @@ export default function AgenceDashboardPage() {
 
                       <div className="stat-item">
                         <div className="stat-content">
-                          <p className="stat-label">Voyages</p>
+                          <p className="stat-label">{t("Voyages", "Trips")}</p>
                           <p className="stat-value">
                             {generalStats.nombreVoyages}
                           </p>
@@ -619,7 +659,9 @@ export default function AgenceDashboardPage() {
 
                       <div className="stat-item">
                         <div className="stat-content">
-                          <p className="stat-label">Réservations</p>
+                          <p className="stat-label">
+                            {t("Réservations", "Reservations")}
+                          </p>
                           <p className="stat-value">
                             {generalStats.nombreReservations}
                           </p>
@@ -628,7 +670,9 @@ export default function AgenceDashboardPage() {
 
                       <div className="stat-item">
                         <div className="stat-content">
-                          <p className="stat-label">Revenus totaux</p>
+                          <p className="stat-label">
+                            {t("Revenus totaux", "Total revenue")}
+                          </p>
                           <p className="stat-value revenue">
                             {formatRevenue(generalStats.revenus)}
                           </p>
@@ -637,7 +681,9 @@ export default function AgenceDashboardPage() {
 
                       <div className="stat-item">
                         <div className="stat-content">
-                          <p className="stat-label">Nouveaux utilisateurs</p>
+                          <p className="stat-label">
+                            {t("Nouveaux utilisateurs", "New users")}
+                          </p>
                           <p className="stat-value">
                             {generalStats.nouveauxUtilisateurs}
                           </p>
@@ -646,7 +692,9 @@ export default function AgenceDashboardPage() {
                     </div>
 
                     <div className="occupation-rate">
-                      <p className="occupation-label">Taux d'occupation</p>
+                      <p className="occupation-label">
+                        {t("Taux d'occupation", "Occupancy rate")}
+                      </p>
                       <div className="occupation-bar-wrapper">
                         <div className="occupation-bar">
                           <div
@@ -671,25 +719,25 @@ export default function AgenceDashboardPage() {
                           onClick={() => setActiveChart("reservations")}
                           className={`chart-tab ${activeChart === "reservations" ? "active" : ""}`}
                         >
-                          Réservations
+                          {t("Réservations", "Reservations")}
                         </button>
                         <button
                           onClick={() => setActiveChart("voyages")}
                           className={`chart-tab ${activeChart === "voyages" ? "active" : ""}`}
                         >
-                          Voyages
+                          {t("Voyages", "Trips")}
                         </button>
                         <button
                           onClick={() => setActiveChart("revenus")}
                           className={`chart-tab ${activeChart === "revenus" ? "active" : ""}`}
                         >
-                          Revenus
+                          {t("Revenus", "Revenue")}
                         </button>
                         <button
                           onClick={() => setActiveChart("utilisateurs")}
                           className={`chart-tab ${activeChart === "utilisateurs" ? "active" : ""}`}
                         >
-                          Utilisateurs
+                          {t("Utilisateurs", "Users")}
                         </button>
                       </div>
 
@@ -719,7 +767,7 @@ export default function AgenceDashboardPage() {
                           </ResponsiveContainer>
                         ) : (
                           <div className="chart-empty">
-                            <p>Aucune donnée disponible</p>
+                            <p>{t("Aucune donnée disponible", "No data available")}</p>
                           </div>
                         )}
                       </div>
@@ -730,7 +778,7 @@ export default function AgenceDashboardPage() {
                     {getVoyagesStatusData().length > 0 && (
                       <div className="chart-card-small">
                         <div className="chart-header">
-                          <h3>Voyages par statut</h3>
+                          <h3>{t("Voyages par statut", "Trips by status")}</h3>
                         </div>
                         <div className="chart-container-small">
                           <ResponsiveContainer width="100%" height="100%">
@@ -762,7 +810,9 @@ export default function AgenceDashboardPage() {
                     {getReservationsStatusData().length > 0 && (
                       <div className="chart-card-small">
                         <div className="chart-header">
-                          <h3>Réservations par statut</h3>
+                          <h3>
+                            {t("Réservations par statut", "Reservations by status")}
+                          </h3>
                         </div>
                         <div className="chart-container-small">
                           <ResponsiveContainer width="100%" height="100%">
@@ -800,7 +850,7 @@ export default function AgenceDashboardPage() {
                       Object.keys(generalStats.revenue_by_class).length > 0 && (
                         <div className="chart-card-small">
                           <div className="chart-header">
-                            <h3>Revenus par classe</h3>
+                            <h3>{t("Revenus par classe", "Revenue by class")}</h3>
                           </div>
                           <div className="chart-container-small">
                             <ResponsiveContainer width="100%" height="100%">
@@ -840,7 +890,7 @@ export default function AgenceDashboardPage() {
                       Object.keys(generalStats.top_destinations).length > 0 && (
                         <div className="chart-card-small">
                           <div className="chart-header">
-                            <h3>Top 10 destinations</h3>
+                            <h3>{t("Top 10 destinations", "Top 10 destinations")}</h3>
                           </div>
                           <div className="chart-container-small">
                             <ResponsiveContainer width="100%" height="100%">
@@ -889,7 +939,7 @@ export default function AgenceDashboardPage() {
                           .length > 0 && (
                           <div className="chart-card-small">
                             <div className="chart-header">
-                              <h3>Réservations par jour</h3>
+                              <h3>{t("Réservations par jour", "Reservations by day")}</h3>
                             </div>
                             <div className="chart-container-small">
                               <ResponsiveContainer width="100%" height="100%">
@@ -912,7 +962,7 @@ export default function AgenceDashboardPage() {
                                   <Bar
                                     dataKey="value"
                                     fill="#7cab1b"
-                                    name="Réservations"
+                                    name={t("Réservations", "Reservations")}
                                     radius={[8, 8, 0, 0]}
                                   />
                                 </BarChart>
@@ -927,7 +977,7 @@ export default function AgenceDashboardPage() {
                           0 && (
                           <div className="chart-card-small">
                             <div className="chart-header">
-                              <h3>Top 10 chauffeurs</h3>
+                              <h3>{t("Top 10 chauffeurs", "Top 10 drivers")}</h3>
                             </div>
                             <div className="chart-container-small">
                               <ResponsiveContainer width="100%" height="100%">
@@ -957,7 +1007,7 @@ export default function AgenceDashboardPage() {
                                   <Bar
                                     dataKey="value"
                                     fill="#7cab1b"
-                                    name="Voyages"
+                                    name={t("Voyages", "Trips")}
                                     radius={[0, 8, 8, 0]}
                                   />
                                 </BarChart>
@@ -976,7 +1026,9 @@ export default function AgenceDashboardPage() {
                         evolutionStats.evolution_taux_occupation.length > 0 && (
                           <div className="chart-card-small">
                             <div className="chart-header">
-                              <h3>Évolution taux d'occupation</h3>
+                              <h3>
+                                {t("Évolution taux d'occupation", "Occupancy trend")}
+                              </h3>
                             </div>
                             <div className="chart-container-small">
                               <ResponsiveContainer width="100%" height="100%">
@@ -1005,7 +1057,7 @@ export default function AgenceDashboardPage() {
                                     stroke="#7cab1b"
                                     strokeWidth={2}
                                     dot={{ fill: "#7cab1b", r: 3 }}
-                                    name="Taux (%)"
+                                    name={t("Taux (%)", "Rate (%)")}
                                   />
                                 </LineChart>
                               </ResponsiveContainer>
@@ -1018,7 +1070,9 @@ export default function AgenceDashboardPage() {
                         evolutionStats.evolution_annulations.length > 0 && (
                           <div className="chart-card-small">
                             <div className="chart-header">
-                              <h3>Évolution des annulations</h3>
+                              <h3>
+                                {t("Évolution des annulations", "Cancellation trend")}
+                              </h3>
                             </div>
                             <div className="chart-container-small">
                               <ResponsiveContainer width="100%" height="100%">
@@ -1047,7 +1101,7 @@ export default function AgenceDashboardPage() {
                                     stroke="#7cab1b"
                                     strokeWidth={2}
                                     dot={{ fill: "#7cab1b", r: 3 }}
-                                    name="Annulations"
+                                    name={t("Annulations", "Cancellations")}
                                   />
                                 </LineChart>
                               </ResponsiveContainer>
@@ -1066,7 +1120,7 @@ export default function AgenceDashboardPage() {
                           0 && (
                           <div className="chart-card-small">
                             <div className="chart-header">
-                              <h3>Revenus par mois</h3>
+                              <h3>{t("Revenus par mois", "Revenue by month")}</h3>
                             </div>
                             <div className="chart-container-small">
                               <ResponsiveContainer width="100%" height="100%">
@@ -1093,7 +1147,7 @@ export default function AgenceDashboardPage() {
                                   <Bar
                                     dataKey="value"
                                     fill="#7cab1b"
-                                    name="Revenu"
+                                    name={t("Revenu", "Revenue")}
                                     radius={[8, 8, 0, 0]}
                                   />
                                 </BarChart>
@@ -1108,7 +1162,7 @@ export default function AgenceDashboardPage() {
                           .length > 0 && (
                           <div className="chart-card-small">
                             <div className="chart-header">
-                              <h3>Réservations par mois</h3>
+                              <h3>{t("Réservations par mois", "Reservations by month")}</h3>
                             </div>
                             <div className="chart-container-small">
                               <ResponsiveContainer width="100%" height="100%">
@@ -1131,7 +1185,7 @@ export default function AgenceDashboardPage() {
                                   <Bar
                                     dataKey="value"
                                     fill="#7cab1b"
-                                    name="Réservations"
+                                    name={t("Réservations", "Reservations")}
                                     radius={[8, 8, 0, 0]}
                                   />
                                 </BarChart>
@@ -1145,39 +1199,41 @@ export default function AgenceDashboardPage() {
                   {selectedAgence && (
                     <div className="agency-details-card">
                       <div className="agency-details-header">
-                        <h3>Informations de l'agence</h3>
+                        <h3>{t("Informations de l'agence", "Agency details")}</h3>
                       </div>
                       <div className="agency-details-grid">
                         <div className="detail-field">
-                          <p className="detail-label">Nom complet</p>
+                          <p className="detail-label">{t("Nom complet", "Full name")}</p>
                           <p className="detail-value">
                             {selectedAgence.long_name}
                           </p>
                         </div>
                         <div className="detail-field">
-                          <p className="detail-label">Abréviation</p>
+                          <p className="detail-label">{t("Abréviation", "Abbreviation")}</p>
                           <p className="detail-value">
                             {selectedAgence.short_name}
                           </p>
                         </div>
                         <div className="detail-field">
-                          <p className="detail-label">Ville</p>
+                          <p className="detail-label">{t("Ville", "City")}</p>
                           <p className="detail-value">{selectedAgence.ville}</p>
                         </div>
                         <div className="detail-field">
-                          <p className="detail-label">Localisation</p>
+                          <p className="detail-label">{t("Localisation", "Location")}</p>
                           <p className="detail-value">
                             {selectedAgence.location}
                           </p>
                         </div>
                         <div className="detail-field">
-                          <p className="detail-label">Statut</p>
+                          <p className="detail-label">{t("Statut", "Status")}</p>
                           <span className="status-badge">
                             {selectedAgence.statut_validation}
                           </span>
                         </div>
                         <div className="detail-field">
-                          <p className="detail-label">Date de validation</p>
+                          <p className="detail-label">
+                            {t("Date de validation", "Validation date")}
+                          </p>
                           <p className="detail-value">
                             {formatDateFull(selectedAgence.date_validation)}
                           </p>
@@ -1185,7 +1241,7 @@ export default function AgenceDashboardPage() {
                       </div>
                       {selectedAgence.description && (
                         <div className="detail-field-full">
-                          <p className="detail-label">Description</p>
+                          <p className="detail-label">{t("Description", "Description")}</p>
                           <p className="detail-value">
                             {selectedAgence.description}
                           </p>
@@ -1193,7 +1249,9 @@ export default function AgenceDashboardPage() {
                       )}
                       {selectedAgence.social_network && (
                         <div className="detail-field-full">
-                          <p className="detail-label">Réseau social</p>
+                          <p className="detail-label">
+                            {t("Réseau social", "Social network")}
+                          </p>
                           <a
                             href={"https://" + selectedAgence.social_network}
                             target="_blank"
@@ -1213,28 +1271,28 @@ export default function AgenceDashboardPage() {
                       className="btn btn-secondary"
                     >
                       <Bus />
-                      Gérer les voyages
+                      {t("Gérer les voyages", "Manage trips")}
                     </button>
                     <button
                       onClick={() => router.push("/user/agency/reservations")}
                       className="btn btn-secondary"
                     >
                       <Calendar />
-                      Réservations
+                      {t("Réservations", "Reservations")}
                     </button>
                     <button
                       onClick={() => router.push("/user/agency/drivers")}
                       className="btn btn-secondary"
                     >
                       <Users />
-                      Chauffeurs
+                      {t("Chauffeurs", "Drivers")}
                     </button>
                     <button
                       onClick={() => router.push("/user/agency/settings")}
                       className="btn btn-secondary"
                     >
                       <Settings />
-                      Paramètres
+                      {t("Paramètres", "Settings")}
                     </button>
                   </div>
                 </>

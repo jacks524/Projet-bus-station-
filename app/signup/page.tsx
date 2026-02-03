@@ -3,6 +3,7 @@
 import React, { useState, useEffect } from "react";
 import Image from "next/image";
 import { useRouter } from "next/navigation";
+import { useLanguage } from "@/app/providers";
 
 export default function SignupPage() {
   const router = useRouter();
@@ -22,6 +23,7 @@ export default function SignupPage() {
   const [isLoading, setIsLoading] = useState(false);
   const [errorMessage, setErrorMessage] = useState("");
   const [successMessage, setSuccessMessage] = useState("");
+  const { t } = useLanguage();
 
   const API_BASE_URL = process.env.NEXT_PUBLIC_API_BASE_URL;
 
@@ -45,17 +47,26 @@ export default function SignupPage() {
       !password ||
       !confirmPassword
     ) {
-      setErrorMessage("Veuillez remplir tous les champs");
+      setErrorMessage(
+        t("Veuillez remplir tous les champs", "Please fill in all fields"),
+      );
       return;
     }
 
     if (password !== confirmPassword) {
-      setErrorMessage("Les mots de passe ne correspondent pas");
+      setErrorMessage(
+        t("Les mots de passe ne correspondent pas", "Passwords do not match"),
+      );
       return;
     }
 
     if (!acceptTerms) {
-      setErrorMessage("Veuillez accepter les conditions d'utilisation");
+      setErrorMessage(
+        t(
+          "Veuillez accepter les conditions d'utilisation",
+          "Please accept the terms of use"
+        ),
+      );
       return;
     }
 
@@ -81,14 +92,25 @@ export default function SignupPage() {
 
       if (!response.ok) {
         const data = await response.json();
-        throw new Error(data.message || "Une erreur est survenue");
+        throw new Error(
+          data.message || t("Une erreur est survenue", "An error occurred"),
+        );
       }
 
-      setSuccessMessage("Compte créé avec succès ! Redirection...");
+      setSuccessMessage(
+        t(
+          "Compte créé avec succès ! Redirection...",
+          "Account created successfully! Redirecting..."
+        ),
+      );
       setTimeout(() => router.push("/login"), 2000);
     } catch (error: any) {
       setErrorMessage(
-        error.message || "Une erreur est survenue lors de l'inscription",
+        error.message ||
+          t(
+            "Une erreur est survenue lors de l'inscription",
+            "An error occurred during signup"
+          ),
       );
     } finally {
       setIsLoading(false);
@@ -118,9 +140,12 @@ export default function SignupPage() {
             <img src="/images/busstation.png" alt="BusStation" />
           </div>
 
-          <h1 className="auth-title">S'inscrire</h1>
+          <h1 className="auth-title">{t("S'inscrire", "Sign up")}</h1>
           <p className="auth-subtitle">
-            Créez votre compte pour réserver vos voyages en ligne
+            {t(
+              "Créez votre compte pour réserver vos voyages en ligne",
+              "Create your account to book your trips online"
+            )}
           </p>
 
           {errorMessage && <p className="error-text">{errorMessage}</p>}
@@ -129,7 +154,9 @@ export default function SignupPage() {
           <form onSubmit={handleSubmit} className="auth-form">
             {/* Type de compte */}
             <div className="role-group">
-              <label className="role-label">Type de compte *</label>
+              <label className="role-label">
+                {t("Type de compte *", "Account type *")}
+              </label>
               <div className="role-options">
                 <label className="role-option">
                   <input
@@ -139,7 +166,7 @@ export default function SignupPage() {
                     checked={role === "USAGER"}
                     onChange={(e) => setRole(e.target.value)}
                   />
-                  <span>Client</span>
+                  <span>{t("Client", "Customer")}</span>
                 </label>
 
                 <label className="role-option">
@@ -150,7 +177,7 @@ export default function SignupPage() {
                     checked={role === "AGENCE_VOYAGE"}
                     onChange={(e) => setRole(e.target.value)}
                   />
-                  <span>Agence</span>
+                  <span>{t("Agence", "Agency")}</span>
                 </label>
 
                 <label className="role-option">
@@ -161,7 +188,7 @@ export default function SignupPage() {
                     checked={role === "ORGANISATION"}
                     onChange={(e) => setRole(e.target.value)}
                   />
-                  <span>Organisation</span>
+                  <span>{t("Organisation", "Organization")}</span>
                 </label>
               </div>
             </div>
@@ -169,7 +196,7 @@ export default function SignupPage() {
             {/* Nom et Prénom */}
             <div className="form-row-2">
               <fieldset className="auth-fieldset">
-                <legend>Nom *</legend>
+                <legend>{t("Nom *", "Last name *")}</legend>
                 <input
                   type="text"
                   value={firstName}
@@ -179,7 +206,7 @@ export default function SignupPage() {
               </fieldset>
 
               <fieldset className="auth-fieldset">
-                <legend>Prénom *</legend>
+                <legend>{t("Prénom *", "First name *")}</legend>
                 <input
                   type="text"
                   value={lastName}
@@ -192,7 +219,7 @@ export default function SignupPage() {
             {/* Email et Téléphone */}
             <div className="form-row-2">
               <fieldset className="auth-fieldset">
-                <legend>Email *</legend>
+                <legend>{t("Email *", "Email *")}</legend>
                 <input
                   type="email"
                   value={email}
@@ -202,14 +229,14 @@ export default function SignupPage() {
               </fieldset>
 
               <fieldset className="auth-fieldset">
-                <legend>Téléphone *</legend>
+                <legend>{t("Téléphone *", "Phone *")}</legend>
                 <div className="phone-input">
-                  <span>+237 🇨🇲</span>
+                  <span>{t("+237 🇨🇲", "+237 🇨🇲")}</span>
                   <input
                     type="tel"
                     value={phone}
                     onChange={(e) => setPhone(e.target.value)}
-                    placeholder="6XX XX XX XX"
+                    placeholder={t("6XX XX XX XX", "6XX XX XX XX")}
                     maxLength={9}
                     className="auth-input"
                   />
@@ -219,7 +246,7 @@ export default function SignupPage() {
 
             {/* Username */}
             <fieldset className="auth-fieldset">
-              <legend>Nom d'utilisateur *</legend>
+              <legend>{t("Nom d'utilisateur *", "Username *")}</legend>
               <input
                 type="text"
                 value={username}
@@ -230,7 +257,7 @@ export default function SignupPage() {
 
             {/* Genre */}
             <div className="gender-group">
-              <label className="gender-label">Genre *</label>
+              <label className="gender-label">{t("Genre *", "Gender *")}</label>
               <div className="gender-options">
                 <label className="gender-option">
                   <input
@@ -241,7 +268,7 @@ export default function SignupPage() {
                     onChange={(e) => setGender(e.target.value)}
                     className="gender-radio"
                   />
-                  <span>Masculin</span>
+                  <span>{t("Masculin", "Male")}</span>
                 </label>
 
                 <label className="gender-option">
@@ -253,7 +280,7 @@ export default function SignupPage() {
                     onChange={(e) => setGender(e.target.value)}
                     className="gender-radio"
                   />
-                  <span>Féminin</span>
+                  <span>{t("Féminin", "Female")}</span>
                 </label>
               </div>
             </div>
@@ -261,7 +288,7 @@ export default function SignupPage() {
             {/* Mots de passe */}
             <div className="form-row-2">
               <fieldset className="auth-fieldset">
-                <legend>Mot de passe *</legend>
+                <legend>{t("Mot de passe *", "Password *")}</legend>
                 <div className="auth-password-wrapper">
                   <input
                     type={showPassword ? "text" : "password"}
@@ -304,7 +331,7 @@ export default function SignupPage() {
               </fieldset>
 
               <fieldset className="auth-fieldset">
-                <legend>Confirmation *</legend>
+                <legend>{t("Confirmation *", "Confirmation *")}</legend>
                 <div className="auth-password-wrapper">
                   <input
                     type={showConfirmPassword ? "text" : "password"}
@@ -349,11 +376,13 @@ export default function SignupPage() {
 
             {/* Password match indicator */}
             {passwordMatch && (
-              <p className="password-match">Les mots de passe correspondent</p>
+              <p className="password-match">
+                {t("Les mots de passe correspondent", "Passwords match")}
+              </p>
             )}
             {passwordMismatch && (
               <p className="password-mismatch">
-                Les mots de passe ne correspondent pas
+                {t("Les mots de passe ne correspondent pas", "Passwords do not match")}
               </p>
             )}
 
@@ -367,7 +396,7 @@ export default function SignupPage() {
                 className="auth-checkbox"
               />
               <label htmlFor="terms" className="auth-checkbox-label">
-                J'accepte les{" "}
+                {t("J'accepte les", "I accept the")}{" "}
                 <a
                   onClick={() =>
                     window.open(
@@ -376,9 +405,9 @@ export default function SignupPage() {
                     )
                   }
                 >
-                  Conditions d'utilisation
+                  {t("Conditions d'utilisation", "Terms of use")}
                 </a>{" "}
-                et la{" "}
+                {t("et la", "and the")}{" "}
                 <a
                   onClick={() =>
                     window.open(
@@ -387,7 +416,7 @@ export default function SignupPage() {
                     )
                   }
                 >
-                  Politique de confidentialité
+                  {t("Politique de confidentialité", "Privacy policy")}
                 </a>
               </label>
             </div>
@@ -398,11 +427,14 @@ export default function SignupPage() {
               disabled={isLoading || !acceptTerms}
               className="auth-submit-btn"
             >
-              {isLoading ? "Création du compte..." : "Créer votre compte"}
+              {isLoading
+                ? t("Création du compte...", "Creating account...")
+                : t("Créer votre compte", "Create your account")}
             </button>
 
             <p className="auth-link-text">
-              Vous avez déjà un compte ? <a href="/login">Se connecter</a>
+              {t("Vous avez déjà un compte ?", "Already have an account?")}{" "}
+              <a href="/login">{t("Se connecter", "Sign in")}</a>
             </p>
           </form>
         </div>

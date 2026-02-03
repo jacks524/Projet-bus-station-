@@ -6,6 +6,8 @@
   --color-primary-dark: #679419;
   --color-success: #0a9e4e;
   --color-warning: #f59e0b;
+  --background: #ffffff;
+  --foreground: #171717;
 
   /* Grays */
   --gray-50: #fafafa;
@@ -48,6 +50,104 @@
   --transition-slow: 300ms ease;
 }
 
+html.dark {
+  --background: #0f172a;
+  --foreground: #e5e7eb;
+  --gray-50: #0f172a;
+  --gray-100: #111827;
+  --gray-200: #1f2937;
+  --gray-300: #374151;
+  --gray-400: #4b5563;
+  --gray-500: #9ca3af;
+  --gray-600: #cbd5e1;
+  --gray-700: #e2e8f0;
+  --gray-800: #f1f5f9;
+  --gray-900: #f8fafc;
+}
+
+/* Dark mode surface override for white blocks */
+html.dark body,
+html.dark .dashboard-layout,
+html.dark .dashboard-main,
+html.dark .dashboard-content,
+html.dark .container,
+html.dark .stats-card,
+html.dark .chart-card,
+html.dark .chart-card-small,
+html.dark .summary-card,
+html.dark .agency-header-card,
+html.dark .settings-container,
+html.dark .settings-section,
+html.dark .form-section,
+html.dark .payment-modal-content,
+html.dark .modal-overlay,
+html.dark .empty-state,
+html.dark .voyage-result-item,
+html.dark .org-agency-card,
+html.dark .org-list-card,
+html.dark .agency-detail-header,
+html.dark .auth-page,
+html.dark .auth-form-section,
+html.dark .auth-image-section {
+  background: var(--gray-50);
+  color: white;
+}
+
+/* Dark mode: actor dashboards use the main dark surface */
+html.dark .dashboard-layout,
+html.dark .dashboard-main,
+html.dark .dashboard-content,
+html.dark .dashboard-layout .container,
+html.dark .dashboard-layout .stats-card,
+html.dark .dashboard-layout .chart-card,
+html.dark .dashboard-layout .chart-card-small,
+html.dark .dashboard-layout .summary-card,
+html.dark .dashboard-layout .agency-header-card,
+html.dark .dashboard-layout .settings-container,
+html.dark .dashboard-layout .settings-section,
+html.dark .dashboard-layout .form-section,
+html.dark .dashboard-layout .empty-state,
+html.dark .dashboard-layout .voyage-result-item,
+html.dark .dashboard-layout .org-agency-card,
+html.dark .dashboard-layout .org-list-card,
+html.dark .dashboard-layout .agency-detail-header,
+html.dark .dashboard-layout .content-sidebar,
+html.dark .dashboard-layout .agency-details-cards {
+  background: #0f172a;
+  color: var(--foreground);
+}
+
+html.dark .auth-form-container,
+html.dark .auth-fieldset,
+html.dark .auth-input,
+html.dark .auth-password-wrapper,
+html.dark .auth-checkbox,
+html.dark .auth-link-text,
+html.dark .auth-link-text a {
+  background: var(--gray-50);
+  color: white;
+}
+
+html.dark .auth-fieldset,
+html.dark .auth-checkbox {
+  border-color: var(--gray-300);
+}
+
+html.dark .auth-checkbox:checked {
+  background-color: var(--color-primary);
+  border-color: var(--color-primary);
+}
+
+html.dark .auth-fieldset legend,
+html.dark .auth-subtitle,
+html.dark .auth-checkbox-label {
+  color: white;
+}
+
+html.dark .auth-submit-btn {
+  color: white;
+}
+
 * {
   margin: 0;
   padding: 0;
@@ -55,8 +155,123 @@
 }
 
 body {
-  color: var(--gray-900);
-  background: white;
+  color: var(--foreground);
+  background: var(--background);
+}
+
+html.dark .header,
+html.dark .categories-section,
+html.dark .faq-section,
+html.dark .contact-section,
+html.dark .footer {
+  background: var(--background);
+}
+
+html.dark .nav-link,
+html.dark .footer-link,
+html.dark .section-title,
+html.dark .category-btn,
+html.dark .faq-question,
+html.dark .contact-item-label,
+html.dark .contact-cta-text {
+  color: var(--foreground);
+}
+
+html.dark .hero-help {
+  background: linear-gradient(135deg, var(--color-primary) 0%, var(--color-primary-dark) 100%);
+  color: var(--gray-50);
+}
+
+html.dark .hero-help .container {
+  background: transparent;
+}
+
+html.dark .hero-help-title,
+html.dark .hero-help-description {
+  color: var(--gray-50);
+}
+
+html.dark #stats.section-bg-primary {
+  background: var(--color-primary);
+  color: var(--gray-50);
+}
+
+html.dark #stats.section-bg-primary .container {
+  background: transparent;
+}
+
+html.dark .section-bg-primary .container {
+  background: transparent;
+}
+
+html.dark .category-btn,
+html.dark .faq-item,
+html.dark .contact-info,
+html.dark .footer {
+  border-color: var(--gray-300);
+}
+
+html.dark .sidebar,
+html.dark .mobile-sidebar,
+html.dark .dashboard-header,
+html.dark .profile-menu-dropdown,
+html.dark .profile-menu-item {
+  background: var(--background);
+  border-color: var(--gray-300);
+}
+
+html.dark .sidebar-nav-item,
+html.dark .dashboard-title,
+html.dark .header-icon-btn svg,
+html.dark .mobile-menu-trigger svg,
+html.dark .profile-username,
+html.dark .profile-chevron,
+html.dark .mobile-sidebar-close svg {
+  color: var(--foreground);
+}
+
+html.dark .sidebar-nav-item:hover,
+html.dark .header-icon-btn:hover,
+html.dark .mobile-menu-trigger:hover,
+html.dark .profile-menu-trigger:hover,
+html.dark .profile-menu-item:hover,
+html.dark .mobile-sidebar-close:hover {
+  background: #1f2937;
+}
+
+html.dark .profile-menu-item {
+  color: var(--foreground);
+}
+
+html.dark .contact-form-container {
+  background: #0f172a;
+  border-color: var(--gray-600);
+  color: var(--foreground);
+}
+
+html.dark .contact-form-title,
+html.dark .contact-form-description,
+html.dark .form-label,
+html.dark .form-helper-text,
+html.dark .form-footer-text {
+  color: var(--foreground);
+}
+
+html.dark .form-input,
+html.dark .form-select,
+html.dark .form-textarea {
+  background: rgba(15, 23, 42, 0.55);
+  border-color: var(--gray-600);
+  color: var(--gray-50);
+}
+
+html.dark .form-input::placeholder,
+html.dark .form-textarea::placeholder {
+  color: var(--gray-400);
+}
+
+html.dark .form-select {
+  color: var(--gray-50);
 }
 
 a {
@@ -73,6 +288,48 @@ img {
   max-width: 100%;
   height: auto;
   display: block;
+}
+
+.global-controls {
+  position: fixed;
+  top: 1rem;
+  right: 1rem;
+  z-index: 2000;
+  display: flex;
+  gap: 0.5rem;
+  padding: 0.5rem;
+  background: rgba(255, 255, 255, 0.85);
+  border: 1px solid var(--gray-200);
+  border-radius: var(--radius-full);
+  box-shadow: var(--shadow-lg);
+  backdrop-filter: blur(10px);
+}
+
+html.dark .global-controls {
+  background: rgba(15, 23, 42, 0.85);
+  border-color: var(--gray-300);
+}
+
+.control-button {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  border-radius: var(--radius-full);
+  padding: 0.5rem;
+  background: transparent;
+  color: var(--gray-800);
+  transition: transform var(--transition-fast), background var(--transition-fast);
+}
+
+.control-button:hover {
+  background: var(--gray-100);
+  transform: translateY(-1px);
+}
+
+.language-button {
+  font-size: 0.75rem;
+  font-weight: 700;
+  padding: 0.4rem 0.6rem;
 }
 
 .container {
@@ -670,6 +927,22 @@ img {
   color: white;
 }
 
+html.dark .category-btn {
+  background: var(--color-primary);
+  border-color: var(--color-primary);
+  color: white;
+}
+
+html.dark .category-btn + .category-btn {
+  margin-left: 0;
+}
+
+html.dark .category-btn.active {
+  background: #a6d548;
+  border-color: #94be34;
+  color: #0b0f14;
+}
+
 .category-icon {
   width: 18px;
   height: 18px;
@@ -725,6 +998,19 @@ img {
   background: var(--gray-50);
 }
 
+html.dark .faq-answer {
+  color: var(--foreground) !important;
+}
+
+html.dark .faq-question {
+  background: #0f172a;
+  color: var(--foreground) !important;
+}
+
+html.dark .faq-question:hover {
+  background: #1f2937;
+}
+
 .faq-icon {
   width: 20px;
   height: 20px;
@@ -743,6 +1029,94 @@ img {
   color: var(--gray-600);
   line-height: var(--line-height-relaxed);
   font-size: var(--font-size-sm);
+}
+
+html.dark .faq-answer {
+  color: var(--gray-50);
+}
+
+/* Chatbot */
+.chatbot-card {
+  background: var(--gray-50);
+  border: 1px solid var(--gray-200);
+  border-radius: var(--radius-lg);
+  padding: var(--spacing-lg);
+  box-shadow: var(--shadow-sm);
+}
+
+.chatbot-messages {
+  max-height: 320px;
+  overflow-y: auto;
+  padding: var(--spacing-md);
+  background: white;
+  border: 1px solid var(--gray-200);
+  border-radius: var(--radius-md);
+  margin-bottom: var(--spacing-md);
+}
+
+html.dark .chatbot-messages {
+  background: var(--gray-100);
+}
+
+.chatbot-message {
+  display: flex;
+  margin-bottom: var(--spacing-sm);
+}
+
+.chatbot-message.user {
+  justify-content: flex-end;
+}
+
+.chatbot-bubble {
+  max-width: 80%;
+  padding: 0.6rem 0.8rem;
+  border-radius: 16px;
+  background: var(--gray-100);
+  color: var(--gray-800);
+}
+
+.chatbot-message.user .chatbot-bubble {
+  background: var(--color-primary);
+  color: white;
+}
+
+.chatbot-empty {
+  color: var(--gray-600);
+  font-size: 0.95rem;
+}
+
+.chatbot-error {
+  color: #dc2626;
+  font-size: 0.9rem;
+  margin-bottom: var(--spacing-sm);
+}
+
+.chatbot-input {
+  display: flex;
+  gap: var(--spacing-sm);
+  align-items: flex-end;
+}
+
+.chatbot-input textarea {
+  flex: 1;
+  resize: none;
+  padding: 0.7rem 0.9rem;
+  border-radius: var(--radius-md);
+  border: 1px solid var(--gray-200);
+  font-family: inherit;
+}
+
+.chatbot-input button {
+  background: var(--color-primary);
+  color: white;
+  border-radius: var(--radius-md);
+  padding: 0.7rem 1rem;
+  font-weight: 600;
+}
+
+.chatbot-input button:disabled {
+  opacity: 0.6;
+  cursor: not-allowed;
 }
 
 /* Contact Section */
@@ -1977,6 +2351,16 @@ img {
   cursor: not-allowed;
 }
 
+html.dark .btn-secondary {
+  background: #111827;
+  border-color: var(--gray-600);
+  color: var(--gray-50);
+}
+
+html.dark .btn-secondary:hover {
+  background: #1f2937;
+}
+
 .btn-outline-primary {
   background: transparent;
   color: var(--color-primary);
@@ -2195,6 +2579,41 @@ img {
   margin-bottom: var(--spacing-md);
 }
 
+html.dark .agences-widget {
+  background: #0f172a;
+  border-color: var(--gray-600);
+  color: var(--foreground);
+}
+
+html.dark .agences-widget .widget-title,
+html.dark .agences-widget .widget-empty,
+html.dark .agences-widget .widget-loading,
+html.dark .agences-widget .widget-search svg,
+html.dark .agences-widget .search-input-wrapper input {
+  color: var(--foreground) !important;
+}
+
+html.dark .agences-widget .search-input-wrapper input {
+  border-color: var(--gray-500);
+  background: rgba(15, 23, 42, 0.4);
+}
+
+html.dark .agences-widget .widget-empty,
+html.dark .agences-widget .widget-loading p {
+  color: var(--gray-200);
+}
+
+html.dark .agences-widget .search-input-wrapper input::placeholder {
+  color: var(--gray-400);
+  opacity: 1;
+}
+
+html.dark .agences-widget .widget-search .btn-icon {
+  color: var(--gray-200);
+  border-color: var(--gray-600);
+  background: transparent;
+}
+
 .search-input-wrapper {
   flex: 1;
   position: relative;
@@ -2309,6 +2728,32 @@ img {
   padding: var(--spacing-2xl);
   display: flex;
   flex-direction: column;
+}
+
+html.dark .search-form {
+  background: #0f172a;
+  border-color: var(--gray-600);
+}
+
+html.dark .search-form .form-label,
+html.dark .search-form .form-input,
+html.dark .search-form select {
+  color: var(--gray-50);
+}
+
+html.dark .search-form .form-label {
+  color: var(--gray-300);
+}
+
+html.dark .search-form select,
+html.dark .search-form .form-input {
+  background: rgba(15, 23, 42, 0.5);
+  border-color: var(--gray-600);
+}
+
+html.dark .search-form select option {
+  background: #0f172a;
+  color: var(--gray-50);
 }
 
 /* Voyage Results List */
@@ -3335,6 +3780,51 @@ img {
   border-radius: var(--radius-md);
 }
 
+html.dark .booking-details {
+  background: #0f172a;
+  border-color: var(--gray-600);
+  color: var(--foreground);
+}
+
+html.dark .booking-detail-item {
+  border-color: var(--gray-600);
+}
+
+html.dark .booking-detail-label,
+html.dark .booking-detail-value {
+  color: var(--foreground);
+}
+
+html.dark .seat-map-container {
+  background: #0f172a;
+  border-color: var(--gray-600);
+  color: var(--foreground);
+}
+
+html.dark .seat-map-legend {
+  background: #111827;
+  border-color: var(--gray-600);
+}
+
+html.dark .legend-label {
+  color: var(--foreground);
+}
+
+html.dark .seat-grid {
+  background: #111827;
+}
+
+html.dark .seat {
+  background: #0f172a;
+  border-color: var(--gray-600);
+  color: var(--color-primary);
+}
+
+html.dark .seat:not(.selected):not(.reserved):not(.disabled):hover {
+  border-color: var(--color-primary);
+}
+
+
 .seat {
   width: 40px;
   height: 40px;
@@ -3468,6 +3958,27 @@ img {
 }
 
 .passenger-field input:focus {
+  border-color: var(--color-primary);
+}
+
+html.dark .passenger-card-body {
+  background: #0f172a;
+  border-color: var(--gray-600);
+}
+
+html.dark .passenger-field-label,
+html.dark .passenger-card-title,
+html.dark .passenger-card-seat {
+  color: var(--foreground);
+}
+
+html.dark .passenger-field input {
+  background: rgba(15, 23, 42, 0.5);
+  border-color: var(--gray-600);
+  color: var(--foreground);
+}
+
+html.dark .passenger-field input:focus {
   border-color: var(--color-primary);
 }
 
@@ -5465,4 +5976,107 @@ img {
   .expanded-row {
     page-break-inside: avoid;
   }
+}
+
+/* Dark mode: force actor dashboard cards to deep navy */
+html.dark .dashboard-layout .stats-card,
+html.dark .dashboard-layout .summary-card,
+html.dark .dashboard-layout .chart-card,
+html.dark .dashboard-layout .chart-card-small,
+html.dark .dashboard-layout .agency-details-card,
+html.dark .dashboard-layout .agency-details-cards,
+html.dark .dashboard-layout .quick-actions,
+html.dark .dashboard-layout .content-sidebar,
+html.dark .dashboard-layout .agency-header-card,
+html.dark .dashboard-layout .org-agency-card,
+html.dark .dashboard-layout .org-list-card,
+html.dark .dashboard-layout .agency-detail-header,
+html.dark .dashboard-layout .settings-container,
+html.dark .dashboard-layout .settings-section,
+html.dark .dashboard-layout .settings-header,
+html.dark .dashboard-layout .settings-actions,
+html.dark .dashboard-layout .form-section,
+html.dark .dashboard-layout .payment-modal-content,
+html.dark .dashboard-layout .empty-state,
+html.dark .dashboard-layout .voyage-result-item,
+html.dark .dashboard-layout .voyage-content {
+  background: #0f172a !important;
+  border-color: var(--gray-300);
+  color: var(--foreground);
+}
+
+html.dark .dashboard-layout .agency-details-header,
+html.dark .dashboard-layout .detail-field,
+html.dark .dashboard-layout .detail-field-full {
+  border-color: var(--gray-300);
+}
+
+html.dark .dashboard-layout .detail-label {
+  color: var(--gray-600);
+}
+
+html.dark .dashboard-layout .detail-value,
+html.dark .dashboard-layout .agency-details-header h3 {
+  color: var(--foreground);
+}
+
+html.dark .history-table-container {
+  background: #0f172a;
+  border-color: var(--gray-600);
+  box-shadow: none;
+}
+
+html.dark .history-table thead {
+  background: #111827;
+  border-bottom-color: var(--gray-600);
+}
+
+html.dark .history-table th {
+  color: var(--foreground);
+  border-color: var(--gray-700);
+}
+
+html.dark .history-table tbody tr.table-row {
+  border-color: var(--gray-700);
+}
+
+html.dark .history-table tbody tr.table-row:hover {
+  background: #111827;
+}
+
+html.dark .history-table td {
+  color: var(--foreground);
+  border-color: var(--gray-700);
+}
+
+html.dark .history-table td .reservation-id,
+html.dark .history-table td .td-date {
+  color: var(--gray-400);
+}
+
+html.dark .expand-btn {
+  background: #111827;
+  border-color: var(--gray-600);
+  color: var(--gray-300);
+}
+
+html.dark .expand-btn:hover {
+  background: #1f2937;
+  border-color: var(--color-primary);
+  color: var(--color-primary);
+}
+
+html.dark .status-badge-table.status-success {
+  background: #16653433;
+  color: #dcfce7;
+}
+
+html.dark .status-badge-table.status-warning {
+  background: #78350f33;
+  color: #fde68a;
+}
+
+html.dark .status-badge-table.status-error {
+  background: #991b1b33;
+  color: #fecaca;
 }

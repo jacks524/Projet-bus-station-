@@ -28,6 +28,7 @@ import Header from "@/app/components/Header";
 import ConfirmModal from "@/app/components/ConfirmModal";
 import SuccessModal from "@/app/components/SuccessModal";
 import ErrorModal from "@/app/components/ErrorModal";
+import { useLanguage } from "@/app/providers";
 
 interface Voyage {
   idVoyage: string;
@@ -133,6 +134,7 @@ export default function AgencyReservationsPage() {
 
   const [currentPage, setCurrentPage] = useState(0);
   const [totalPages, setTotalPages] = useState(0);
+  const { t, language } = useLanguage();
 
   const API_BASE_URL = process.env.NEXT_PUBLIC_API_BASE_URL;
   const RESERVATIONS_PER_PAGE = 6;
@@ -140,31 +142,31 @@ export default function AgencyReservationsPage() {
   const menuItems = [
     {
       icon: Home,
-      label: "Dashboard",
+      label: t("Dashboard", "Dashboard"),
       path: "/user/agency/dashboard",
       active: false,
     },
     {
       icon: Bus,
-      label: "Voyages",
+      label: t("Voyages", "Trips"),
       path: "/user/agency/travels",
       active: false,
     },
     {
       icon: Calendar,
-      label: "Réservations",
+      label: t("Réservations", "Reservations"),
       path: "/user/agency/reservations",
       active: true,
     },
     {
       icon: Users,
-      label: "Chauffeurs",
+      label: t("Chauffeurs", "Drivers"),
       path: "/user/agency/drivers",
       active: false,
     },
     {
       icon: Settings,
-      label: "Mes paramètres",
+      label: t("Mes paramètres", "My settings"),
       path: "/user/agency/settings",
       active: false,
     },
@@ -226,7 +228,9 @@ export default function AgencyReservationsPage() {
       );
 
       if (!response.ok)
-        throw new Error("Erreur lors du chargement des agences");
+        throw new Error(
+          t("Erreur lors du chargement des agences", "Failed to load agencies"),
+        );
 
       const data = await response.json();
       const allAgences = data.content || data || [];
@@ -242,7 +246,9 @@ export default function AgencyReservationsPage() {
         setIsLoading(false);
       }
     } catch (error: any) {
-      setErrorMessage("Impossible de charger vos agences");
+      setErrorMessage(
+        t("Impossible de charger vos agences", "Unable to load your agencies"),
+      );
       setIsLoading(false);
     } finally {
       setIsLoadingAgences(false);
@@ -267,7 +273,12 @@ export default function AgencyReservationsPage() {
       );
 
       if (!response.ok)
-        throw new Error("Erreur lors du chargement des réservations");
+        throw new Error(
+          t(
+            "Erreur lors du chargement des réservations",
+            "Failed to load reservations",
+          ),
+        );
 
       const data = await response.json();
 
@@ -279,7 +290,9 @@ export default function AgencyReservationsPage() {
         setTotalPages(data.totalPages || 1);
       }
     } catch (error: any) {
-      setErrorMessage("Impossible de charger les réservations");
+      setErrorMessage(
+        t("Impossible de charger les réservations", "Unable to load reservations"),
+      );
     } finally {
       setIsLoading(false);
     }
@@ -311,14 +324,21 @@ export default function AgencyReservationsPage() {
 
       setShowDeleteModal(false);
       setReservationToDelete(null);
-      setSuccessMessage("Réservation supprimée avec succès");
+      setSuccessMessage(
+        t("Réservation supprimée avec succès", "Reservation deleted successfully"),
+      );
       setShowSuccessModal(true);
 
       if (selectedAgence?.agency_id) {
         fetchReservations(selectedAgence.agency_id);
       }
     } catch (error: any) {
-      setErrorMessage("Erreur lors de la suppression de la réservation");
+      setErrorMessage(
+        t(
+          "Erreur lors de la suppression de la réservation",
+          "Failed to delete reservation",
+        ),
+      );
       setShowErrorModal(true);
     } finally {
       setIsDeleting(false);
@@ -331,7 +351,8 @@ export default function AgencyReservationsPage() {
   };
 
   const formatDate = (dateString: string) => {
-    return new Date(dateString).toLocaleDateString("fr-FR", {
+    const locale = language === "fr" ? "fr-FR" : "en-US";
+    return new Date(dateString).toLocaleDateString(locale, {
       day: "2-digit",
       month: "long",
       year: "numeric",
@@ -341,7 +362,8 @@ export default function AgencyReservationsPage() {
   };
 
   const formatRevenue = (amount: number) => {
-    return new Intl.NumberFormat("fr-FR", {
+    const locale = language === "fr" ? "fr-FR" : "en-US";
+    return new Intl.NumberFormat(locale, {
       style: "currency",
       currency: "XAF",
       minimumFractionDigits: 0,
@@ -393,7 +415,7 @@ export default function AgencyReservationsPage() {
 
       <div className="dashboard-main">
         <Header
-          title="Réservations"
+          title={t("Réservations", "Reservations")}
           userData={userData}
           onMenuClick={() => setShowMobileMenu(true)}
           userType="agency"
@@ -403,7 +425,7 @@ export default function AgencyReservationsPage() {
           {isLoadingAgences && agences.length === 0 && (
             <div className="loading-state">
               <RefreshCw className="spin" />
-              <p>Chargement en cours...</p>
+              <p>{t("Chargement en cours...", "Loading...")}</p>
             </div>
           )}
 
@@ -417,7 +439,7 @@ export default function AgencyReservationsPage() {
                   onClick={() => window.location.reload()}
                   className="btn modal-button modal-button-error"
                 >
-                  Réessayer
+                  {t("Réessayer", "Try again")}
                 </button>
               </div>
             </>
@@ -427,15 +449,20 @@ export default function AgencyReservationsPage() {
             <>
               <div className="empty-state">
                 <Building2 className="empty-icon" />
-                <h3 className="empty-title">Aucune agence validée</h3>
+                <h3 className="empty-title">
+                  {t("Aucune agence validée", "No validated agency")}
+                </h3>
                 <p className="empty-description">
-                  Vous n'avez pas encore d'agence validée
+                  {t(
+                    "Vous n'avez pas encore d'agence validée",
+                    "You don't have any validated agency yet",
+                  )}
                 </p>
                 <button
                   onClick={() => router.push("/user/agency/dashboard")}
                   className="btn btn-primary"
                 >
-                  Retour au dashboard
+                  {t("Retour au dashboard", "Back to dashboard")}
                 </button>
               </div>
             </>
@@ -447,9 +474,14 @@ export default function AgencyReservationsPage() {
                 className="section-header"
                 style={{ marginBottom: "var(--spacing-2xl)" }}
               >
-                <h2 className="section-title">Gestion des réservations</h2>
+                <h2 className="section-title">
+                  {t("Gestion des réservations", "Reservation management")}
+                </h2>
                 <p className="section-description">
-                  Gérer les différentes réservations de votre agence de voyage
+                  {t(
+                    "Gérer les différentes réservations de votre agence de voyage",
+                    "Manage your agency reservations",
+                  )}
                 </p>
               </div>
 
@@ -457,11 +489,15 @@ export default function AgencyReservationsPage() {
               <div className="agency-header-card">
                 <div className="agency-info">
                   <h2 className="agency-name">
-                    Nom de votre agence de voyage : {selectedAgence?.long_name}
+                    {t("Nom de votre agence de voyage :", "Agency name:")}{" "}
+                    {selectedAgence?.long_name}
                   </h2>
                   <p className="agency-location">
-                    Adresse de votre agence de voyage : {selectedAgence?.ville}{" "}
-                    - {selectedAgence?.location}
+                    {t(
+                      "Adresse de votre agence de voyage :",
+                      "Agency address:",
+                    )}{" "}
+                    {selectedAgence?.ville} - {selectedAgence?.location}
                   </p>
                 </div>
 
@@ -471,7 +507,7 @@ export default function AgencyReservationsPage() {
                       onClick={() => setShowAgenceSelector(!showAgenceSelector)}
                       className="btn btn-secondary"
                     >
-                      Changer
+                      {t("Changer", "Change")}
                       <ChevronDown />
                     </button>
 
@@ -511,7 +547,7 @@ export default function AgencyReservationsPage() {
                     }
                   }}
                   className="btn-icon"
-                  title="Actualiser"
+                  title={t("Actualiser", "Refresh")}
                 >
                   <RefreshCw />
                 </button>
@@ -522,21 +558,25 @@ export default function AgencyReservationsPage() {
                 <div className="summary-item">
                   <div>
                     <div className="summary-value">{stats.total}</div>
-                    <div className="summary-label">Total</div>
+                    <div className="summary-label">{t("Total", "Total")}</div>
                   </div>
                 </div>
 
                 <div className="summary-item">
                   <div>
                     <div className="summary-value">{stats.reserved}</div>
-                    <div className="summary-label">En attente</div>
+                    <div className="summary-label">
+                      {t("En attente", "Pending")}
+                    </div>
                   </div>
                 </div>
 
                 <div className="summary-item">
                   <div>
                     <div className="summary-value">{stats.confirmed}</div>
-                    <div className="summary-label">Confirmées</div>
+                    <div className="summary-label">
+                      {t("Confirmées", "Confirmed")}
+                    </div>
                   </div>
                 </div>
 
@@ -545,7 +585,9 @@ export default function AgencyReservationsPage() {
                     <div className="summary-value">
                       {formatRevenue(stats.totalRevenue)}
                     </div>
-                    <div className="summary-label">Revenus</div>
+                    <div className="summary-label">
+                      {t("Revenus", "Revenue")}
+                    </div>
                   </div>
                 </div>
               </div>
@@ -554,7 +596,7 @@ export default function AgencyReservationsPage() {
               {isLoading && (
                 <div className="loading-state">
                   <RefreshCw className="spin" />
-                  <p>Chargement des réservations...</p>
+                  <p>{t("Chargement des réservations...", "Loading reservations...")}</p>
                 </div>
               )}
 
@@ -562,9 +604,14 @@ export default function AgencyReservationsPage() {
               {!isLoading && !errorMessage && reservations.length === 0 && (
                 <div className="empty-state">
                   <FileText className="empty-icon" />
-                  <h3 className="empty-title">Aucune réservation</h3>
+                  <h3 className="empty-title">
+                    {t("Aucune réservation", "No reservations")}
+                  </h3>
                   <p className="empty-description">
-                    Il n'y a pas encore de réservations pour cette agence
+                    {t(
+                      "Il n'y a pas encore de réservations pour cette agence",
+                      "There are no reservations for this agency yet",
+                    )}
                   </p>
                 </div>
               )}
@@ -573,9 +620,14 @@ export default function AgencyReservationsPage() {
               {!isLoading && !errorMessage && reservations.length > 0 && (
                 <>
                   <div className="section-header">
-                    <h2 className="section-title">Toutes les réservations</h2>
+                    <h2 className="section-title">
+                      {t("Toutes les réservations", "All reservations")}
+                    </h2>
                     <p className="section-description">
-                      Cliquez sur une réservation pour voir les détails
+                      {t(
+                        "Cliquez sur une réservation pour voir les détails",
+                        "Click a reservation to view details",
+                      )}
                     </p>
                   </div>
 
@@ -589,7 +641,7 @@ export default function AgencyReservationsPage() {
                         <div className="voyage-result-header">
                           <div className="voyage-result-agency">
                             <span className="voyage-result-label">
-                              Réservation
+                              {t("Réservation", "Reservation")}
                             </span>
                             <h3 className="voyage-result-agency-name">
                               #{data.reservation.idReservation.slice(0, 13)}
@@ -616,7 +668,7 @@ export default function AgencyReservationsPage() {
                                 setShowDeleteModal(true);
                               }}
                               className="btn-icon-danger"
-                              title="Supprimer"
+                              title={t("Supprimer", "Delete")}
                             >
                               <Trash2 />
                             </button>
@@ -629,7 +681,7 @@ export default function AgencyReservationsPage() {
                               <MapPin />
                               <div>
                                 <span className="voyage-result-location-label">
-                                  Départ
+                                  {t("Départ", "Departure")}
                                 </span>
                                 <span className="voyage-result-location-value">
                                   {data.voyage.lieuDepart} -{" "}
@@ -642,7 +694,7 @@ export default function AgencyReservationsPage() {
                               <MapPin />
                               <div>
                                 <span className="voyage-result-location-label">
-                                  Arrivée
+                                  {t("Arrivée", "Arrival")}
                                 </span>
                                 <span className="voyage-result-location-value">
                                   {data.voyage.lieuArrive} -{" "}
@@ -663,15 +715,17 @@ export default function AgencyReservationsPage() {
                             <div className="voyage-result-detail">
                               <Users />
                               <span>
-                                {data.reservation.nbrPassager} passager
-                                {data.reservation.nbrPassager > 1 ? "s" : ""}
+                                {data.reservation.nbrPassager}{" "}
+                                {data.reservation.nbrPassager > 1
+                                  ? t("passagers", "passengers")
+                                  : t("passager", "passenger")}
                               </span>
                             </div>
 
                             <div className="voyage-result-detail">
                               <Calendar />
                               <span>
-                                Réservé le{" "}
+                                {t("Réservé le", "Booked on")}{" "}
                                 {formatDate(data.reservation.dateReservation)}
                               </span>
                             </div>
@@ -681,7 +735,7 @@ export default function AgencyReservationsPage() {
                         <div className="voyage-result-footer">
                           <div className="voyage-result-price">
                             <span className="voyage-result-price-label">
-                              Montant
+                              {t("Montant", "Amount")}
                             </span>
                             <span className="voyage-result-price-value">
                               {formatRevenue(data.reservation.prixTotal)}
@@ -716,7 +770,7 @@ export default function AgencyReservationsPage() {
                         <ChevronLeft />
                       </button>
                       <span>
-                        Page {currentPage + 1} / {totalPages}
+                        {t("Page", "Page")} {currentPage + 1} / {totalPages}
                       </span>
                       <button
                         onClick={() =>
@@ -743,7 +797,9 @@ export default function AgencyReservationsPage() {
         <div className="modal-overlay">
           <div className="payment-modal-content">
             <div className="payment-modal-header">
-              <h2 className="payment-modal-title">Détails de la réservation</h2>
+              <h2 className="payment-modal-title">
+                {t("Détails de la réservation", "Reservation details")}
+              </h2>
               <button
                 onClick={() => setShowDetailModal(false)}
                 className="payment-modal-close"
@@ -756,10 +812,12 @@ export default function AgencyReservationsPage() {
               {/* Informations réservation */}
               <div className="payment-summary">
                 <h3 className="payment-summary-title">
-                  Informations de la réservation
+                  {t("Informations de la réservation", "Reservation information")}
                 </h3>
                 <div className="payment-summary-item">
-                  <span className="payment-summary-label">ID Réservation</span>
+                  <span className="payment-summary-label">
+                    {t("ID Réservation", "Reservation ID")}
+                  </span>
                   <span
                     className="payment-summary-value"
                     style={{
@@ -772,7 +830,7 @@ export default function AgencyReservationsPage() {
                 </div>
                 <div className="payment-summary-item">
                   <span className="payment-summary-label">
-                    Date de réservation
+                    {t("Date de réservation", "Reservation date")}
                   </span>
                   <span className="payment-summary-value">
                     {formatDate(
@@ -781,7 +839,9 @@ export default function AgencyReservationsPage() {
                   </span>
                 </div>
                 <div className="payment-summary-item">
-                  <span className="payment-summary-label">Statut</span>
+                  <span className="payment-summary-label">
+                    {t("Statut", "Status")}
+                  </span>
                   <span
                     className={`status-badge ${getStatusBadgeClass(selectedReservation.reservation.statutReservation)}`}
                   >
@@ -790,7 +850,7 @@ export default function AgencyReservationsPage() {
                 </div>
                 <div className="payment-summary-item">
                   <span className="payment-summary-label">
-                    Nombre de passagers
+                    {t("Nombre de passagers", "Passengers")}
                   </span>
                   <span className="payment-summary-value">
                     {selectedReservation.reservation.nbrPassager}
@@ -804,24 +864,30 @@ export default function AgencyReservationsPage() {
                 style={{ marginTop: "var(--spacing-lg)" }}
               >
                 <h3 className="payment-summary-title">
-                  Informations du voyage
+                  {t("Informations du voyage", "Trip information")}
                 </h3>
                 <div className="payment-summary-item">
-                  <span className="payment-summary-label">Trajet</span>
+                  <span className="payment-summary-label">
+                    {t("Trajet", "Route")}
+                  </span>
                   <span className="payment-summary-value">
-                    {selectedReservation.voyage.lieuDepart} vers{" "}
+                    {selectedReservation.voyage.lieuDepart} {t("vers", "to")}{" "}
                     {selectedReservation.voyage.lieuArrive}
                   </span>
                 </div>
                 <div className="payment-summary-item">
-                  <span className="payment-summary-label">Itinéraire</span>
+                  <span className="payment-summary-label">
+                    {t("Itinéraire", "Itinerary")}
+                  </span>
                   <span className="payment-summary-value">
-                    {selectedReservation.voyage.pointDeDepart} vers{" "}
+                    {selectedReservation.voyage.pointDeDepart} {t("vers", "to")}{" "}
                     {selectedReservation.voyage.pointArrivee}
                   </span>
                 </div>
                 <div className="payment-summary-item">
-                  <span className="payment-summary-label">Date de départ</span>
+                  <span className="payment-summary-label">
+                    {t("Date de départ", "Departure date")}
+                  </span>
                   <span className="payment-summary-value">
                     {formatDate(selectedReservation.voyage.dateDepartPrev)}
                   </span>
@@ -829,7 +895,7 @@ export default function AgencyReservationsPage() {
                 {selectedReservation.voyage.titre && (
                   <div className="payment-summary-item">
                     <span className="payment-summary-label">
-                      Titre du voyage
+                      {t("Titre du voyage", "Trip title")}
                     </span>
                     <span className="payment-summary-value">
                       {selectedReservation.voyage.titre}
@@ -844,10 +910,12 @@ export default function AgencyReservationsPage() {
                 style={{ marginTop: "var(--spacing-lg)" }}
               >
                 <h3 className="payment-summary-title">
-                  Informations de paiement
+                  {t("Informations de paiement", "Payment information")}
                 </h3>
                 <div className="payment-summary-item">
-                  <span className="payment-summary-label">Prix total</span>
+                  <span className="payment-summary-label">
+                    {t("Prix total", "Total price")}
+                  </span>
                   <span
                     className="payment-summary-value"
                     style={{
@@ -859,7 +927,9 @@ export default function AgencyReservationsPage() {
                   </span>
                 </div>
                 <div className="payment-summary-item">
-                  <span className="payment-summary-label">Montant payé</span>
+                  <span className="payment-summary-label">
+                    {t("Montant payé", "Amount paid")}
+                  </span>
                   <span
                     className="payment-summary-value"
                     style={{
@@ -872,7 +942,7 @@ export default function AgencyReservationsPage() {
                 </div>
                 <div className="payment-summary-item">
                   <span className="payment-summary-label">
-                    Statut du paiement
+                    {t("Statut du paiement", "Payment status")}
                   </span>
                   <span
                     className={`status-badge ${getPaymentBadgeClass(selectedReservation.reservation.statutPayement)}`}
@@ -883,7 +953,7 @@ export default function AgencyReservationsPage() {
                 {selectedReservation.reservation.transactionCode && (
                   <div className="payment-summary-item">
                     <span className="payment-summary-label">
-                      Code de transaction
+                      {t("Code de transaction", "Transaction code")}
                     </span>
                     <span
                       className="payment-summary-value"
@@ -903,9 +973,11 @@ export default function AgencyReservationsPage() {
                 className="payment-summary"
                 style={{ marginTop: "var(--spacing-lg)" }}
               >
-                <h3 className="payment-summary-title">Client</h3>
+                <h3 className="payment-summary-title">{t("Client", "Client")}</h3>
                 <div className="payment-summary-item">
-                  <span className="payment-summary-label">ID Utilisateur</span>
+                  <span className="payment-summary-label">
+                    {t("ID Utilisateur", "User ID")}
+                  </span>
                   <span
                     className="payment-summary-value"
                     style={{
@@ -930,10 +1002,13 @@ export default function AgencyReservationsPage() {
           setReservationToDelete(null);
         }}
         onConfirm={handleDeleteReservation}
-        title="Supprimer la réservation"
-        message="Êtes-vous sûr de vouloir supprimer cette réservation ? Cette action est irréversible."
-        confirmText="Supprimer"
-        cancelText="Annuler"
+        title={t("Supprimer la réservation", "Delete reservation")}
+        message={t(
+          "Êtes-vous sûr de vouloir supprimer cette réservation ? Cette action est irréversible.",
+          "Are you sure you want to delete this reservation? This action cannot be undone.",
+        )}
+        confirmText={t("Supprimer", "Delete")}
+        cancelText={t("Annuler", "Cancel")}
         isLoading={isDeleting}
       />
 
@@ -941,9 +1016,9 @@ export default function AgencyReservationsPage() {
       <SuccessModal
         show={showSuccessModal}
         onClose={() => setShowSuccessModal(false)}
-        title="Succès"
+        title={t("Succès", "Success")}
         message={successMessage}
-        buttonText="OK"
+        buttonText={t("OK", "OK")}
       />
 
       {/* Error Modal */}

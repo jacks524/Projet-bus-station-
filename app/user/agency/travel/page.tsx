@@ -26,6 +26,7 @@ import MobileSidebar from "@/app/components/Mobilesidebar";
 import Header from "@/app/components/Header";
 import SuccessModal from "@/app/components/SuccessModal";
 import ErrorModal from "@/app/components/ErrorModal";
+import { useLanguage } from "@/app/providers";
 
 interface AgenceValidee {
   agency_id: string;
@@ -120,6 +121,7 @@ export default function CreateVoyagePage() {
   const [showSuccessModal, setShowSuccessModal] = useState(false);
   const [showErrorModal, setShowErrorModal] = useState(false);
   const [errorMessage, setErrorMessage] = useState("");
+  const { t } = useLanguage();
 
   const [formData, setFormData] = useState<VoyageFormData>({
     titre: "",
@@ -152,41 +154,41 @@ export default function CreateVoyagePage() {
   const MENU_ITEMS = [
     {
       icon: Home,
-      label: "Dashboard",
+      label: t("Dashboard", "Dashboard"),
       path: "/user/agency/dashboard",
       active: false,
     },
     {
       icon: Bus,
-      label: "Voyages",
+      label: t("Voyages", "Trips"),
       path: "/user/agency/travels",
       active: false,
     },
     {
       icon: Calendar,
-      label: "Réservations",
+      label: t("Réservations", "Reservations"),
       path: "/user/agency/reservations",
       active: false,
     },
     {
       icon: Users,
-      label: "Chauffeurs",
+      label: t("Chauffeurs", "Drivers"),
       path: "/user/agency/drivers",
       active: false,
     },
     {
       icon: Settings,
-      label: "Mes paramètres",
+      label: t("Mes paramètres", "My settings"),
       path: "/user/agency/settings",
       active: false,
     },
   ];
 
   const AMENITIES_OPTIONS = [
-    { value: "WIFI", label: "WiFi", icon: Wifi },
-    { value: "LUGGAGE_STORAGE", label: "Bagages", icon: Package },
-    { value: "MEAL_SERVICE", label: "Nourriture", icon: Coffee },
-    { value: "MUSIC", label: "Musique", icon: Music },
+    { value: "WIFI", label: t("WiFi", "WiFi"), icon: Wifi },
+    { value: "LUGGAGE_STORAGE", label: t("Bagages", "Luggage"), icon: Package },
+    { value: "MEAL_SERVICE", label: t("Nourriture", "Meal"), icon: Coffee },
+    { value: "MUSIC", label: t("Musique", "Music"), icon: Music },
   ];
 
   useEffect(() => {
@@ -259,7 +261,9 @@ export default function CreateVoyagePage() {
       );
 
       if (!response.ok)
-        throw new Error("Erreur lors du chargement des agences");
+        throw new Error(
+          t("Erreur lors du chargement des agences", "Failed to load agencies"),
+        );
 
       const data = await response.json();
       const allAgences = data.content || data || [];
@@ -272,7 +276,9 @@ export default function CreateVoyagePage() {
         setSelectedAgence(myAgences[0]);
       }
     } catch (error: any) {
-      setErrorMessage("Impossible de charger vos agences");
+      setErrorMessage(
+        t("Impossible de charger vos agences", "Unable to load your agencies"),
+      );
     } finally {
       setIsLoadingAgences(false);
     }
@@ -296,7 +302,9 @@ export default function CreateVoyagePage() {
       );
 
       if (!response.ok)
-        throw new Error("Erreur lors du chargement des classes");
+        throw new Error(
+          t("Erreur lors du chargement des classes", "Failed to load classes"),
+        );
 
       const data = await response.json();
       const content = data.content || data || [];
@@ -330,7 +338,9 @@ export default function CreateVoyagePage() {
       );
 
       if (!response.ok)
-        throw new Error("Erreur lors du chargement des chauffeurs");
+        throw new Error(
+          t("Erreur lors du chargement des chauffeurs", "Failed to load drivers"),
+        );
 
       const data = await response.json();
       setChauffeurs(Array.isArray(data) ? data : [data]);
@@ -359,7 +369,9 @@ export default function CreateVoyagePage() {
       );
 
       if (!response.ok)
-        throw new Error("Erreur lors du chargement des véhicules");
+        throw new Error(
+          t("Erreur lors du chargement des véhicules", "Failed to load vehicles"),
+        );
 
       const data = await response.json();
       setVehicules(Array.isArray(data) ? data : [data]);
@@ -431,7 +443,8 @@ export default function CreateVoyagePage() {
       if (!response.ok) {
         const errorData = await response.json();
         throw new Error(
-          errorData.message || "Erreur lors de la création du voyage",
+          errorData.message ||
+            t("Erreur lors de la création du voyage", "Failed to create trip"),
         );
       }
 
@@ -439,7 +452,10 @@ export default function CreateVoyagePage() {
     } catch (error: any) {
       setErrorMessage(
         error.message ||
-          "Une erreur est survenue lors de la création du voyage",
+          t(
+            "Une erreur est survenue lors de la création du voyage",
+            "An error occurred while creating the trip",
+          ),
       );
       setShowErrorModal(true);
     } finally {
@@ -476,7 +492,7 @@ export default function CreateVoyagePage() {
 
       <div className="dashboard-main">
         <Header
-          title="Créer un voyage"
+          title={t("Créer un voyage", "Create a trip")}
           userData={userData}
           onMenuClick={() => setShowMobileMenu(true)}
           userType="agency"
@@ -486,29 +502,39 @@ export default function CreateVoyagePage() {
           {isLoadingAgences ? (
             <div className="loading-state">
               <RefreshCw className="spin" />
-              <p>Chargement en cours...</p>
+              <p>{t("Chargement en cours...", "Loading...")}</p>
             </div>
           ) : agences.length === 0 ? (
             <div className="empty-state">
               <Building2 className="empty-icon" />
-              <h3 className="empty-title">Aucune agence validée</h3>
+              <h3 className="empty-title">
+                {t("Aucune agence validée", "No validated agency")}
+              </h3>
               <p className="empty-description">
-                Vous devez avoir une agence pour créer des voyages
+                {t(
+                  "Vous devez avoir une agence pour créer des voyages",
+                  "You need an agency to create trips",
+                )}
               </p>
               <button
                 className="btn btn-primary"
                 onClick={() => router.push("/user/agency/dashboard")}
                 style={{ marginTop: "20px" }}
               >
-                Retour au dashboard
+                {t("Retour au dashboard", "Back to dashboard")}
               </button>
             </div>
           ) : (
             <div className="container" style={{ maxWidth: "1200px" }}>
               <div className="section-header">
-                <h2 className="section-title">Nouveau voyage</h2>
+                <h2 className="section-title">
+                  {t("Nouveau voyage", "New trip")}
+                </h2>
                 <p className="section-description">
-                  Programmmer un nouveau voyage pour votre agence de voyage
+                  {t(
+                    "Programmer un nouveau voyage pour votre agence de voyage",
+                    "Schedule a new trip for your agency",
+                  )}
                 </p>
               </div>
 
@@ -516,11 +542,15 @@ export default function CreateVoyagePage() {
               <div className="agency-header-card">
                 <div className="agency-info">
                   <h2 className="agency-name">
-                    Nom de votre organisation : {selectedAgence?.long_name}
+                    {t("Nom de votre organisation :", "Organization name:")}{" "}
+                    {selectedAgence?.long_name}
                   </h2>
                   <p className="agency-location">
-                    Adresse de votre agence de voyage : {selectedAgence?.ville}{" "}
-                    - {selectedAgence?.location}
+                    {t(
+                      "Adresse de votre agence de voyage :",
+                      "Agency address:",
+                    )}{" "}
+                    {selectedAgence?.ville} - {selectedAgence?.location}
                   </p>
                 </div>
 
@@ -530,7 +560,7 @@ export default function CreateVoyagePage() {
                       onClick={() => setShowAgenceSelector(!showAgenceSelector)}
                       className="btn btn-secondary"
                     >
-                      Changer
+                      {t("Changer", "Change")}
                       <ChevronDown />
                     </button>
 
@@ -570,14 +600,16 @@ export default function CreateVoyagePage() {
                 <div className="form-section">
                   <div className="form-section-header">
                     <Bus />
-                    <h3>Informations générales</h3>
+                    <h3>{t("Informations générales", "General information")}</h3>
                   </div>
                   <div className="form-section-content">
                     <div
                       className="form-group"
                       style={{ gridColumn: "1 / -1" }}
                     >
-                      <label className="form-label">Titre du voyage *</label>
+                      <label className="form-label">
+                        {t("Titre du voyage *", "Trip title *")}
+                      </label>
                       <input
                         type="text"
                         name="titre"
@@ -586,7 +618,7 @@ export default function CreateVoyagePage() {
                         required
                         className="form-input"
                         style={{ width: "fit-content" }}
-                        placeholder="Ex: Yaoundé Express"
+                        placeholder={t("Ex: Yaoundé Express", "e.g., Yaoundé Express")}
                       />
                     </div>
 
@@ -594,19 +626,24 @@ export default function CreateVoyagePage() {
                       className="form-group"
                       style={{ gridColumn: "1 / -1" }}
                     >
-                      <label className="form-label">Description *</label>
+                      <label className="form-label">
+                        {t("Description *", "Description *")}
+                      </label>
                       <textarea
                         name="description"
                         value={formData.description}
                         onChange={handleInputChange}
                         required
                         className="form-textarea"
-                        placeholder="Décrivez votre voyage..."
+                        placeholder={t(
+                          "Décrivez votre voyage...",
+                          "Describe your trip...",
+                        )}
                       />
                     </div>
 
                     <div className="form-group">
-                      <label className="form-label">Statut</label>
+                      <label className="form-label">{t("Statut", "Status")}</label>
                       <input
                         type="text"
                         name="statusVoyage"
@@ -626,11 +663,13 @@ export default function CreateVoyagePage() {
                 <div className="form-section">
                   <div className="form-section-header">
                     <MapPin />
-                    <h3>Itinéraire</h3>
+                    <h3>{t("Itinéraire", "Itinerary")}</h3>
                   </div>
                   <div className="form-section-content">
                     <div className="form-group">
-                      <label className="form-label">Ville de départ *</label>
+                      <label className="form-label">
+                        {t("Ville de départ *", "Departure city *")}
+                      </label>
                       <input
                         type="text"
                         name="lieuDepart"
@@ -642,11 +681,15 @@ export default function CreateVoyagePage() {
                           cursor: "not-allowed",
                         }}
                       />
-                      <p className="form-helper-text">Ville de votre agence</p>
+                      <p className="form-helper-text">
+                        {t("Ville de votre agence", "Your agency city")}
+                      </p>
                     </div>
 
                     <div className="form-group">
-                      <label className="form-label">Ville d'arrivée *</label>
+                      <label className="form-label">
+                        {t("Ville d'arrivée *", "Arrival city *")}
+                      </label>
                       <select
                         name="lieuArrive"
                         value={formData.lieuArrive}
@@ -654,7 +697,9 @@ export default function CreateVoyagePage() {
                         required
                         className="form-input"
                       >
-                        <option value="">Sélectionner une ville</option>
+                        <option value="">
+                          {t("Sélectionner une ville", "Select a city")}
+                        </option>
                         <option value="Douala">Douala</option>
                         <option value="Yaoundé">Yaoundé</option>
                         <option value="Bafoussam">Bafoussam</option>
@@ -669,7 +714,9 @@ export default function CreateVoyagePage() {
                     </div>
 
                     <div className="form-group">
-                      <label className="form-label">Point de départ *</label>
+                      <label className="form-label">
+                        {t("Point de départ *", "Departure point *")}
+                      </label>
                       <input
                         type="text"
                         name="pointDeDepart"
@@ -681,11 +728,15 @@ export default function CreateVoyagePage() {
                           cursor: "not-allowed",
                         }}
                       />
-                      <p className="form-helper-text">Zone de votre agence</p>
+                      <p className="form-helper-text">
+                        {t("Zone de votre agence", "Your agency area")}
+                      </p>
                     </div>
 
                     <div className="form-group">
-                      <label className="form-label">Point d'arrivée *</label>
+                      <label className="form-label">
+                        {t("Point d'arrivée *", "Arrival point *")}
+                      </label>
                       <input
                         type="text"
                         name="pointArrivee"
@@ -693,7 +744,7 @@ export default function CreateVoyagePage() {
                         onChange={handleInputChange}
                         required
                         className="form-input"
-                        placeholder="Ex: Bonabéri"
+                        placeholder={t("Ex: Bonabéri", "e.g., Bonabéri")}
                       />
                     </div>
                   </div>
@@ -703,12 +754,12 @@ export default function CreateVoyagePage() {
                 <div className="form-section">
                   <div className="form-section-header">
                     <Clock />
-                    <h3>Dates et horaires</h3>
+                    <h3>{t("Dates et horaires", "Dates and times")}</h3>
                   </div>
                   <div className="form-section-content">
                     <div className="form-group">
                       <label className="form-label">
-                        Date de départ prévue *
+                        {t("Date de départ prévue *", "Planned departure date *")}
                       </label>
                       <input
                         type="datetime-local"
@@ -723,7 +774,7 @@ export default function CreateVoyagePage() {
 
                     <div className="form-group">
                       <label className="form-label">
-                        Heure de départ effectif
+                        {t("Heure de départ effectif", "Actual departure time")}
                       </label>
                       <input
                         type="datetime-local"
@@ -736,7 +787,9 @@ export default function CreateVoyagePage() {
                     </div>
 
                     <div className="form-group">
-                      <label className="form-label">Heure d'arrivée</label>
+                      <label className="form-label">
+                        {t("Heure d'arrivée", "Arrival time")}
+                      </label>
                       <input
                         type="datetime-local"
                         name="heureArrive"
@@ -749,7 +802,7 @@ export default function CreateVoyagePage() {
 
                     <div className="form-group">
                       <label className="form-label">
-                        Date limite réservation
+                        {t("Date limite réservation", "Booking deadline")}
                       </label>
                       <input
                         type="datetime-local"
@@ -763,7 +816,7 @@ export default function CreateVoyagePage() {
 
                     <div className="form-group">
                       <label className="form-label">
-                        Date limite confirmation
+                        {t("Date limite confirmation", "Confirmation deadline")}
                       </label>
                       <input
                         type="datetime-local"
@@ -781,11 +834,13 @@ export default function CreateVoyagePage() {
                 <div className="form-section">
                   <div className="form-section-header">
                     <Car />
-                    <h3>Ressources</h3>
+                    <h3>{t("Ressources", "Resources")}</h3>
                   </div>
                   <div className="form-section-content">
                     <div className="form-group">
-                      <label className="form-label">Chauffeur *</label>
+                      <label className="form-label">
+                        {t("Chauffeur *", "Driver *")}
+                      </label>
                       <select
                         name="chauffeurId"
                         value={formData.chauffeurId}
@@ -794,7 +849,9 @@ export default function CreateVoyagePage() {
                         disabled={isLoadingChauffeurs}
                         className="form-select"
                       >
-                        <option value="">Sélectionner un chauffeur</option>
+                        <option value="">
+                          {t("Sélectionner un chauffeur", "Select a driver")}
+                        </option>
                         {chauffeurs.map((chauffeur) => (
                           <option
                             key={chauffeur.userId}
@@ -807,7 +864,9 @@ export default function CreateVoyagePage() {
                     </div>
 
                     <div className="form-group">
-                      <label className="form-label">Véhicule *</label>
+                      <label className="form-label">
+                        {t("Véhicule *", "Vehicle *")}
+                      </label>
                       <select
                         name="vehiculeId"
                         value={formData.vehiculeId}
@@ -816,7 +875,9 @@ export default function CreateVoyagePage() {
                         disabled={isLoadingVehicules}
                         className="form-select"
                       >
-                        <option value="">Sélectionner un véhicule</option>
+                        <option value="">
+                          {t("Sélectionner un véhicule", "Select a vehicle")}
+                        </option>
                         {vehicules.map((vehicule) => (
                           <option
                             key={vehicule.idVehicule}
@@ -829,7 +890,9 @@ export default function CreateVoyagePage() {
                     </div>
 
                     <div className="form-group">
-                      <label className="form-label">Classe de voyage *</label>
+                      <label className="form-label">
+                        {t("Classe de voyage *", "Travel class *")}
+                      </label>
                       <select
                         name="classVoyageId"
                         value={formData.classVoyageId}
@@ -838,7 +901,9 @@ export default function CreateVoyagePage() {
                         disabled={isLoadingClasses}
                         className="form-select"
                       >
-                        <option value="">Sélectionner une classe</option>
+                        <option value="">
+                          {t("Sélectionner une classe", "Select a class")}
+                        </option>
                         {classesVoyage.map((classe) => (
                           <option
                             key={classe.idClassVoyage}
@@ -851,7 +916,9 @@ export default function CreateVoyagePage() {
                     </div>
 
                     <div className="form-group">
-                      <label className="form-label">Nombre de places *</label>
+                      <label className="form-label">
+                        {t("Nombre de places *", "Number of seats *")}
+                      </label>
                       <input
                         type="number"
                         name="nbrPlaceReservable"
@@ -864,7 +931,10 @@ export default function CreateVoyagePage() {
                         }}
                       />
                       <p className="form-helper-text">
-                        Capacité du véhicule sélectionné
+                        {t(
+                          "Capacité du véhicule sélectionné",
+                          "Selected vehicle capacity",
+                        )}
                       </p>
                     </div>
                   </div>
@@ -874,7 +944,7 @@ export default function CreateVoyagePage() {
                 <div className="form-section">
                   <div className="form-section-header">
                     <DollarSign />
-                    <h3>Équipements disponibles</h3>
+                    <h3>{t("Équipements disponibles", "Available amenities")}</h3>
                   </div>
                   <div className="amenities-grid">
                     {AMENITIES_OPTIONS.map((amenity) => {
@@ -901,30 +971,40 @@ export default function CreateVoyagePage() {
                 <div className="form-section">
                   <div className="form-section-header">
                     <MapPin />
-                    <h3>Images (optionnel)</h3>
+                    <h3>{t("Images (optionnel)", "Images (optional)")}</h3>
                   </div>
                   <div className="form-section-content">
                     <div className="form-group">
-                      <label className="form-label">URL petite image</label>
+                      <label className="form-label">
+                        {t("URL petite image", "Small image URL")}
+                      </label>
                       <input
                         type="url"
                         name="smallImage"
                         value={formData.smallImage}
                         onChange={handleInputChange}
                         className="form-input"
-                        placeholder="https://example.com/image-small.jpg"
+                        placeholder={t(
+                          "https://example.com/image-small.jpg",
+                          "https://example.com/image-small.jpg",
+                        )}
                       />
                     </div>
 
                     <div className="form-group">
-                      <label className="form-label">URL grande image</label>
+                      <label className="form-label">
+                        {t("URL grande image", "Large image URL")}
+                      </label>
                       <input
                         type="url"
                         name="bigImage"
                         value={formData.bigImage}
                         onChange={handleInputChange}
                         className="form-input"
-                        placeholder="https://example.com/image-big.jpg"
+                        placeholder={t(
+                          "https://example.com/image-big.jpg",
+                          "https://example.com/image-big.jpg",
+                        )}
                       />
                     </div>
                   </div>
@@ -937,7 +1017,7 @@ export default function CreateVoyagePage() {
                     onClick={() => router.push("/user/agency/travels")}
                     className="btn btn-secondary"
                   >
-                    Annuler
+                    {t("Annuler", "Cancel")}
                   </button>
                   <button
                     type="submit"
@@ -947,10 +1027,10 @@ export default function CreateVoyagePage() {
                     {isSubmitting ? (
                       <>
                         <RefreshCw className="spin" />
-                        <span>Création en cours...</span>
+                        <span>{t("Création en cours...", "Creating...")}</span>
                       </>
                     ) : (
-                      <span>Créer le voyage</span>
+                      <span>{t("Créer le voyage", "Create trip")}</span>
                     )}
                   </button>
                 </div>
@@ -966,9 +1046,12 @@ export default function CreateVoyagePage() {
           setShowSuccessModal(false);
           router.push("/user/agency/travels");
         }}
-        title="Voyage créé !"
-        message="Votre voyage a été créé avec succès."
-        buttonText="Voir mes voyages"
+        title={t("Voyage créé !", "Trip created!")}
+        message={t(
+          "Votre voyage a été créé avec succès.",
+          "Your trip has been created successfully.",
+        )}
+        buttonText={t("Voir mes voyages", "See my trips")}
       />
 
       <ErrorModal

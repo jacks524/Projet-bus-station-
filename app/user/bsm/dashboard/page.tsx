@@ -39,6 +39,7 @@ import { useRouter } from "next/navigation";
 import Sidebar from "@/app/components/Sidebar";
 import MobileSidebar from "@/app/components/Mobilesidebar";
 import Header from "@/app/components/Header";
+import { useLanguage } from "@/app/providers";
 
 interface StatisticsOverview {
   ville: string;
@@ -118,6 +119,7 @@ export default function BSMDashboardPage() {
   const [orgsPage, setOrgsPage] = useState(0);
   const [orgsTotalPages, setOrgsTotalPages] = useState(0);
   const [orgsSearch, setOrgsSearch] = useState("");
+  const { t, language } = useLanguage();
 
   const router = useRouter();
   const API_BASE_URL = process.env.NEXT_PUBLIC_API_BASE_URL;
@@ -136,19 +138,19 @@ export default function BSMDashboardPage() {
   const menuItems = [
     {
       icon: Home,
-      label: "Dashboard",
+      label: t("Dashboard", "Dashboard"),
       path: "/user/bsm/dashboard",
       active: true,
     },
     {
       icon: Eye,
-      label: "Surveillance",
+      label: t("Surveillance", "Monitoring"),
       path: "/user/bsm/monitoring",
       active: false,
     },
     {
       icon: Settings,
-      label: "Mes paramètres",
+      label: t("Mes paramètres", "My settings"),
       path: "/user/bsm/settings",
       active: false,
     },
@@ -201,11 +203,18 @@ export default function BSMDashboardPage() {
       );
 
       if (!response.ok)
-        throw new Error("Erreur lors du chargement des statistiques");
+        throw new Error(
+          t(
+            "Erreur lors du chargement des statistiques",
+            "Failed to load statistics",
+          ),
+        );
       const data = await response.json();
       setStatistics(data);
     } catch (error: any) {
-      setErrorMessage("Impossible de charger les statistiques");
+      setErrorMessage(
+        t("Impossible de charger les statistiques", "Unable to load statistics"),
+      );
       console.error("Fetch Statistics Error:", error);
     } finally {
       setIsLoadingStats(false);
@@ -229,7 +238,9 @@ export default function BSMDashboardPage() {
       );
 
       if (!response.ok)
-        throw new Error("Erreur lors du chargement des agences");
+        throw new Error(
+          t("Erreur lors du chargement des agences", "Failed to load agencies"),
+        );
       const data = await response.json();
       const allAgences = data.content || [];
       const validatedAgences = allAgences.filter(
@@ -262,7 +273,12 @@ export default function BSMDashboardPage() {
       );
 
       if (!response.ok)
-        throw new Error("Erreur lors du chargement des organisations");
+        throw new Error(
+          t(
+            "Erreur lors du chargement des organisations",
+            "Failed to load organizations",
+          ),
+        );
       const data = await response.json();
       setOrganizations(data);
       setOrgsTotalPages(Math.ceil(data.length / ITEMS_PER_PAGE));
@@ -274,7 +290,8 @@ export default function BSMDashboardPage() {
   };
 
   const formatRevenue = (amount: number) => {
-    return new Intl.NumberFormat("fr-FR", {
+    const locale = language === "fr" ? "fr-FR" : "en-US";
+    return new Intl.NumberFormat(locale, {
       style: "currency",
       currency: "XAF",
       minimumFractionDigits: 0,
@@ -282,7 +299,8 @@ export default function BSMDashboardPage() {
   };
 
   const formatDate = (dateString: string) => {
-    return new Date(dateString).toLocaleDateString("fr-FR", {
+    const locale = language === "fr" ? "fr-FR" : "en-US";
+    return new Date(dateString).toLocaleDateString(locale, {
       day: "numeric",
       month: "long",
       year: "numeric",
@@ -354,7 +372,7 @@ export default function BSMDashboardPage() {
 
       <div className="dashboard-main">
         <Header
-          title="Dashboard BSM"
+          title={t("Dashboard BSM", "BSM Dashboard")}
           userData={userData}
           onMenuClick={() => setShowMobileMenu(true)}
           userType="bsm"
@@ -367,11 +385,14 @@ export default function BSMDashboardPage() {
               style={{ marginBottom: "var(--spacing-2xl)" }}
             >
               <h2 className="section-title">
-                Ville de surveillance : {userData.address}
+                {t("Ville de surveillance :", "Monitoring city:")}{" "}
+                {userData.address}
               </h2>
               <p className="section-description">
-                Examinez les statistiques des organisations de votre gare
-                routière
+                {t(
+                  "Examinez les statistiques des organisations de votre gare routière",
+                  "Review organization statistics for your bus station",
+                )}
               </p>
             </div>
           )}
@@ -379,7 +400,7 @@ export default function BSMDashboardPage() {
           {isLoadingStats && (
             <div className="loading-state">
               <RefreshCw className="spin" />
-              <p>Chargement des statistiques...</p>
+              <p>{t("Chargement des statistiques...", "Loading statistics...")}</p>
             </div>
           )}
 
@@ -393,7 +414,7 @@ export default function BSMDashboardPage() {
                   onClick={() => window.location.reload()}
                   className="btn modal-button modal-button-error"
                 >
-                  Réessayer
+                  {t("Réessayer", "Try again")}
                 </button>
               </div>
             </>
@@ -403,19 +424,23 @@ export default function BSMDashboardPage() {
             <>
               <div className="stats-card">
                 <div className="stats-header">
-                  <h3>Statistiques principales</h3>
+                  <h3>{t("Statistiques principales", "Key statistics")}</h3>
                 </div>
                 <div className="stats-grid-main">
                   <div className="stat-item">
                     <div className="stat-content">
-                      <p className="stat-label">Agences totales</p>
+                      <p className="stat-label">
+                        {t("Agences totales", "Total agencies")}
+                      </p>
                       <p className="stat-value">{statistics.total_agencies}</p>
                     </div>
                   </div>
 
                   <div className="stat-item">
                     <div className="stat-content">
-                      <p className="stat-label">Organisations</p>
+                      <p className="stat-label">
+                        {t("Organisations", "Organizations")}
+                      </p>
                       <p className="stat-value">
                         {statistics.total_organizations}
                       </p>
@@ -424,7 +449,9 @@ export default function BSMDashboardPage() {
 
                   <div className="stat-item">
                     <div className="stat-content">
-                      <p className="stat-label">Voyages actifs</p>
+                      <p className="stat-label">
+                        {t("Voyages actifs", "Active trips")}
+                      </p>
                       <p className="stat-value">
                         {statistics.total_trips_in_city}
                       </p>
@@ -433,7 +460,9 @@ export default function BSMDashboardPage() {
 
                   <div className="stat-item">
                     <div className="stat-content">
-                      <p className="stat-label">Réservations</p>
+                      <p className="stat-label">
+                        {t("Réservations", "Reservations")}
+                      </p>
                       <p className="stat-value">
                         {statistics.total_reservations_in_city}
                       </p>
@@ -442,7 +471,7 @@ export default function BSMDashboardPage() {
 
                   <div className="stat-item">
                     <div className="stat-content">
-                      <p className="stat-label">Véhicules</p>
+                      <p className="stat-label">{t("Véhicules", "Vehicles")}</p>
                       <p className="stat-value">
                         {statistics.total_vehicles_in_city}
                       </p>
@@ -451,7 +480,7 @@ export default function BSMDashboardPage() {
 
                   <div className="stat-item">
                     <div className="stat-content">
-                      <p className="stat-label">Chauffeurs</p>
+                      <p className="stat-label">{t("Chauffeurs", "Drivers")}</p>
                       <p className="stat-value">
                         {statistics.total_drivers_in_city}
                       </p>
@@ -482,7 +511,7 @@ export default function BSMDashboardPage() {
                         marginBottom: "4px",
                       }}
                     >
-                      Agences validées
+                      {t("Agences validées", "Validated agencies")}
                     </p>
                     <p
                       style={{
@@ -507,7 +536,7 @@ export default function BSMDashboardPage() {
                         marginBottom: "4px",
                       }}
                     >
-                      En attente
+                      {t("En attente", "Pending")}
                     </p>
                     <p
                       style={{
@@ -532,7 +561,7 @@ export default function BSMDashboardPage() {
                         marginBottom: "4px",
                       }}
                     >
-                      Rejetées
+                      {t("Rejetées", "Rejected")}
                     </p>
                     <p
                       style={{
@@ -546,7 +575,9 @@ export default function BSMDashboardPage() {
                 </div>
 
                 <div className="occupation-rate">
-                  <p className="occupation-label">Taux d'occupation moyen</p>
+                  <p className="occupation-label">
+                    {t("Taux d'occupation moyen", "Average occupancy rate")}
+                  </p>
                   <div className="occupation-bar-wrapper">
                     <div className="occupation-bar">
                       <div
@@ -568,7 +599,12 @@ export default function BSMDashboardPage() {
                   0 && (
                   <div className="chart-card">
                     <div className="chart-header">
-                      <h3>Répartition des agences par organisation</h3>
+                      <h3>
+                        {t(
+                          "Répartition des agences par organisation",
+                          "Agencies by organization",
+                        )}
+                      </h3>
                     </div>
                     <div className="chart-container">
                       <ResponsiveContainer width="100%" height="100%">
@@ -592,7 +628,7 @@ export default function BSMDashboardPage() {
                           <Bar
                             dataKey="value"
                             fill={CHART_COLORS.primary}
-                            name="Nombre d'agences"
+                            name={t("Nombre d'agences", "Number of agencies")}
                           />
                         </BarChart>
                       </ResponsiveContainer>
@@ -606,7 +642,7 @@ export default function BSMDashboardPage() {
                     0 && (
                     <div className="chart-card-small">
                       <div className="chart-header">
-                        <h3>Top 10 agences par revenu</h3>
+                        <h3>{t("Top 10 agences par revenu", "Top 10 agencies by revenue")}</h3>
                       </div>
                       <div className="chart-container-small">
                         <ResponsiveContainer width="100%" height="100%">
@@ -641,7 +677,7 @@ export default function BSMDashboardPage() {
                             <Bar
                               dataKey="value"
                               fill={CHART_COLORS.primary}
-                              name="Revenu"
+                              name={t("Revenu", "Revenue")}
                             />
                           </BarChart>
                         </ResponsiveContainer>
@@ -654,7 +690,12 @@ export default function BSMDashboardPage() {
                     0 && (
                     <div className="chart-card-small">
                       <div className="chart-header">
-                        <h3>Top 10 agences par réservations</h3>
+                        <h3>
+                          {t(
+                            "Top 10 agences par réservations",
+                            "Top 10 agencies by reservations",
+                          )}
+                        </h3>
                       </div>
                       <div className="chart-container-small">
                         <ResponsiveContainer width="100%" height="100%">
@@ -685,7 +726,7 @@ export default function BSMDashboardPage() {
                             <Bar
                               dataKey="value"
                               fill={CHART_COLORS.secondary}
-                              name="Réservations"
+                              name={t("Réservations", "Reservations")}
                             />
                           </BarChart>
                         </ResponsiveContainer>
@@ -699,7 +740,7 @@ export default function BSMDashboardPage() {
                   Object.keys(statistics.reservations_per_month).length > 0 && (
                     <div className="chart-card-small">
                       <div className="chart-header">
-                        <h3>Réservations par mois</h3>
+                        <h3>{t("Réservations par mois", "Reservations by month")}</h3>
                       </div>
                       <div className="chart-container-small">
                         <ResponsiveContainer width="100%" height="100%">
@@ -725,7 +766,7 @@ export default function BSMDashboardPage() {
                               dataKey="value"
                               stroke={CHART_COLORS.primary}
                               strokeWidth={2}
-                              name="Réservations"
+                              name={t("Réservations", "Reservations")}
                             />
                           </LineChart>
                         </ResponsiveContainer>
@@ -737,7 +778,7 @@ export default function BSMDashboardPage() {
                   Object.keys(statistics.revenue_per_month).length > 0 && (
                     <div className="chart-card-small">
                       <div className="chart-header">
-                        <h3>Revenu par mois</h3>
+                        <h3>{t("Revenu par mois", "Revenue by month")}</h3>
                       </div>
                       <div className="chart-container-small">
                         <ResponsiveContainer width="100%" height="100%">
@@ -765,7 +806,7 @@ export default function BSMDashboardPage() {
                             <Bar
                               dataKey="value"
                               fill={CHART_COLORS.primary}
-                              name="Revenu"
+                              name={t("Revenu", "Revenue")}
                             />
                           </BarChart>
                         </ResponsiveContainer>
@@ -780,7 +821,9 @@ export default function BSMDashboardPage() {
                 {getReservationsStatusData().length > 0 && (
                   <div className="chart-card-small">
                     <div className="chart-header">
-                      <h3>Réservations par statut</h3>
+                      <h3>
+                        {t("Réservations par statut", "Reservations by status")}
+                      </h3>
                     </div>
                     <div className="chart-container-small">
                       <ResponsiveContainer width="100%" height="100%">
@@ -810,7 +853,7 @@ export default function BSMDashboardPage() {
                 {getVoyagesStatusData().length > 0 && (
                   <div className="chart-card-small">
                     <div className="chart-header">
-                      <h3>Voyages par statut</h3>
+                      <h3>{t("Voyages par statut", "Trips by status")}</h3>
                     </div>
                     <div className="chart-container-small">
                       <ResponsiveContainer width="100%" height="100%">
@@ -842,7 +885,12 @@ export default function BSMDashboardPage() {
                 Object.keys(statistics.agencies_by_status).length > 0 && (
                   <div className="chart-card">
                     <div className="chart-header">
-                      <h3>Répartition des agences par statut de validation</h3>
+                      <h3>
+                        {t(
+                          "Répartition des agences par statut de validation",
+                          "Agencies by validation status",
+                        )}
+                      </h3>
                     </div>
                     <div className="chart-container">
                       <ResponsiveContainer width="100%" height="100%">
@@ -866,7 +914,10 @@ export default function BSMDashboardPage() {
                           <YAxis stroke="#6B7280" fontSize={12} />
                           <Tooltip />
                           <Legend />
-                          <Bar dataKey="value" name="Nombre d'agences">
+                          <Bar
+                            dataKey="value"
+                            name={t("Nombre d'agences", "Number of agencies")}
+                          >
                             {Object.entries(statistics.agencies_by_status)
                               .filter(([_, value]) => value > 0)
                               .map(([name], index) => (
@@ -930,7 +981,7 @@ export default function BSMDashboardPage() {
                         color: "var(--gray-900)",
                       }}
                     >
-                      Agences validées
+                      {t("Agences validées", "Validated agencies")}
                     </h3>
                   </div>
                   <button
@@ -973,7 +1024,7 @@ export default function BSMDashboardPage() {
                     />
                     <input
                       type="text"
-                      placeholder="Rechercher"
+                      placeholder={t("Rechercher", "Search")}
                       value={agencesSearch}
                       onChange={(e) => setAgencesSearch(e.target.value)}
                       style={{
@@ -1026,7 +1077,7 @@ export default function BSMDashboardPage() {
                       }}
                     />
                     <p style={{ color: "var(--gray-500)" }}>
-                      Aucune agence trouvée
+                      {t("Aucune agence trouvée", "No agency found")}
                     </p>
                   </div>
                 ) : (
@@ -1152,7 +1203,7 @@ export default function BSMDashboardPage() {
                         color: "var(--gray-900)",
                       }}
                     >
-                      Organisations
+                      {t("Organisations", "Organizations")}
                     </h3>
                   </div>
                   <button
@@ -1192,7 +1243,7 @@ export default function BSMDashboardPage() {
                     />
                     <input
                       type="text"
-                      placeholder="Rechercher"
+                      placeholder={t("Rechercher", "Search")}
                       value={orgsSearch}
                       onChange={(e) => setOrgsSearch(e.target.value)}
                       style={{
@@ -1245,7 +1296,7 @@ export default function BSMDashboardPage() {
                       }}
                     />
                     <p style={{ color: "var(--gray-500)" }}>
-                      Aucune organisation trouvée
+                      {t("Aucune organisation trouvée", "No organization found")}
                     </p>
                   </div>
                 ) : (

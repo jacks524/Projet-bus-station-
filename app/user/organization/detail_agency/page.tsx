@@ -44,6 +44,7 @@ import Header from "@/app/components/Header";
 import SuccessModal from "@/app/components/SuccessModal";
 import ErrorModal from "@/app/components/ErrorModal";
 import ConfirmModal from "@/app/components/ConfirmModal";
+import { useLanguage } from "@/app/providers";
 
 interface AgencyData {
   agency_id: string;
@@ -135,6 +136,7 @@ function DetailAgencyContent() {
   const [activeChart, setActiveChart] = useState<
     "reservations" | "voyages" | "revenus" | "utilisateurs"
   >("reservations");
+  const { t, language } = useLanguage();
 
   const API_BASE_URL = process.env.NEXT_PUBLIC_API_BASE_URL;
   const PIE_COLORS = ["#10B981", "#F59E0B", "#EF4444", "#6366F1", "#8B5CF6"];
@@ -142,25 +144,25 @@ function DetailAgencyContent() {
   const menuItems = [
     {
       icon: Home,
-      label: "Dashboard",
+      label: t("Dashboard", "Dashboard"),
       path: "/user/organization/dashboard",
       active: false,
     },
     {
       icon: Briefcase,
-      label: "Organisation",
+      label: t("Organisation", "Organization"),
       path: "/user/organization/organization",
       active: false,
     },
     {
       icon: Building2,
-      label: "Agence",
+      label: t("Agence", "Agency"),
       path: "/user/organization/agencies",
       active: true,
     },
     {
       icon: Settings,
-      label: "Mes paramètres",
+      label: t("Mes paramètres", "My settings"),
       path: "/user/organization/settings",
       active: false,
     },
@@ -207,13 +209,19 @@ function DetailAgencyContent() {
         },
       });
 
-      if (!response.ok) throw new Error("Erreur lors du chargement");
+      if (!response.ok)
+        throw new Error(t("Erreur lors du chargement", "Failed to load"));
 
       const data = await response.json();
       setAgency(data);
       setFormData(data);
     } catch (error: any) {
-      setErrorMessage("Impossible de charger les détails de l'agence");
+      setErrorMessage(
+        t(
+          "Impossible de charger les détails de l'agence",
+          "Unable to load agency details",
+        ),
+      );
       setShowErrorModal(true);
     } finally {
       setIsLoading(false);
@@ -238,7 +246,12 @@ function DetailAgencyContent() {
       );
 
       if (!response.ok)
-        throw new Error("Erreur lors du chargement des statistiques");
+        throw new Error(
+          t(
+            "Erreur lors du chargement des statistiques",
+            "Failed to load statistics",
+          ),
+        );
 
       const data = await response.json();
       setGeneralStats(data);
@@ -266,7 +279,9 @@ function DetailAgencyContent() {
       );
 
       if (!response.ok)
-        throw new Error("Erreur lors du chargement des évolutions");
+        throw new Error(
+          t("Erreur lors du chargement des évolutions", "Failed to load trends"),
+        );
 
       const data = await response.json();
       setEvolutionStats(data);
@@ -315,13 +330,19 @@ function DetailAgencyContent() {
         body: JSON.stringify(updateBody),
       });
 
-      if (!response.ok) throw new Error("Erreur lors de la mise à jour");
+      if (!response.ok)
+        throw new Error(t("Erreur lors de la mise à jour", "Update failed"));
 
       setShowSuccessModal(true);
       setEditMode(false);
       fetchAgencyDetails();
     } catch (error: any) {
-      setErrorMessage("Erreur lors de la mise à jour de l'agence");
+      setErrorMessage(
+        t(
+          "Erreur lors de la mise à jour de l'agence",
+          "Failed to update agency",
+        ),
+      );
       setShowErrorModal(true);
     } finally {
       setIsSaving(false);
@@ -341,11 +362,17 @@ function DetailAgencyContent() {
         },
       });
 
-      if (!response.ok) throw new Error("Erreur lors de la suppression");
+      if (!response.ok)
+        throw new Error(t("Erreur lors de la suppression", "Delete failed"));
 
       router.push("/user/organization/dashboard");
     } catch (error: any) {
-      setErrorMessage("Erreur lors de la suppression de l'agence");
+      setErrorMessage(
+        t(
+          "Erreur lors de la suppression de l'agence",
+          "Failed to delete agency",
+        ),
+      );
       setShowErrorModal(true);
     } finally {
       setIsDeleting(false);
@@ -354,8 +381,9 @@ function DetailAgencyContent() {
   };
 
   const formatDate = (dateString: string) => {
-    if (!dateString) return "Non renseigné";
-    return new Date(dateString).toLocaleDateString("fr-FR", {
+    if (!dateString) return t("Non renseigné", "Not provided");
+    const locale = language === "fr" ? "fr-FR" : "en-US";
+    return new Date(dateString).toLocaleDateString(locale, {
       day: "numeric",
       month: "long",
       year: "numeric",
@@ -363,14 +391,16 @@ function DetailAgencyContent() {
   };
 
   const formatDateShort = (dateString: string) => {
-    return new Date(dateString).toLocaleDateString("fr-FR", {
+    const locale = language === "fr" ? "fr-FR" : "en-US";
+    return new Date(dateString).toLocaleDateString(locale, {
       month: "numeric",
       year: "numeric",
     });
   };
 
   const formatRevenue = (amount: number) => {
-    return new Intl.NumberFormat("fr-FR", {
+    const locale = language === "fr" ? "fr-FR" : "en-US";
+    return new Intl.NumberFormat(locale, {
       style: "currency",
       currency: "XAF",
       minimumFractionDigits: 0,
@@ -417,13 +447,13 @@ function DetailAgencyContent() {
   const getChartTitle = () => {
     switch (activeChart) {
       case "reservations":
-        return "Évolution des réservations";
+        return t("Évolution des réservations", "Reservation trends");
       case "voyages":
-        return "Évolution des voyages";
+        return t("Évolution des voyages", "Trip trends");
       case "revenus":
-        return "Évolution des revenus";
+        return t("Évolution des revenus", "Revenue trends");
       case "utilisateurs":
-        return "Évolution des utilisateurs";
+        return t("Évolution des utilisateurs", "User trends");
       default:
         return "";
     }
@@ -463,13 +493,13 @@ function DetailAgencyContent() {
 
   const prepareDayOfWeekData = (data: { [key: string]: number }) => {
     const dayMapping: { [key: string]: string } = {
-      MONDAY: "Lundi",
-      TUESDAY: "Mardi",
-      WEDNESDAY: "Mercredi",
-      THURSDAY: "Jeudi",
-      FRIDAY: "Vendredi",
-      SATURDAY: "Samedi",
-      SUNDAY: "Dimanche",
+      MONDAY: t("Lundi", "Monday"),
+      TUESDAY: t("Mardi", "Tuesday"),
+      WEDNESDAY: t("Mercredi", "Wednesday"),
+      THURSDAY: t("Jeudi", "Thursday"),
+      FRIDAY: t("Vendredi", "Friday"),
+      SATURDAY: t("Samedi", "Saturday"),
+      SUNDAY: t("Dimanche", "Sunday"),
     };
 
     const daysOrder = [
@@ -509,7 +539,7 @@ function DetailAgencyContent() {
         <div className="dashboard-main">
           <div className="loading-state">
             <RefreshCw className="spin" />
-            <p>Chargement...</p>
+            <p>{t("Chargement...", "Loading...")}</p>
           </div>
         </div>
       </div>
@@ -526,12 +556,14 @@ function DetailAgencyContent() {
         <div className="dashboard-main">
           <div className="empty-state">
             <Building2 className="empty-icon" />
-            <h3 className="empty-title">Agence introuvable</h3>
+            <h3 className="empty-title">
+              {t("Agence introuvable", "Agency not found")}
+            </h3>
             <button
               onClick={() => router.push("/user/organization/dashboard")}
               className="btn btn-primary"
             >
-              Retour au dashboard
+              {t("Retour au dashboard", "Back to dashboard")}
             </button>
           </div>
         </div>
@@ -551,7 +583,7 @@ function DetailAgencyContent() {
 
       <div className="dashboard-main">
         <Header
-          title="Détails de l'agence"
+          title={t("Détails de l'agence", "Agency details")}
           userData={userData}
           onMenuClick={() => setShowMobileMenu(true)}
         />
@@ -565,7 +597,7 @@ function DetailAgencyContent() {
                 className="btn btn-secondary"
               >
                 <ArrowLeft />
-                Retour
+                {t("Retour", "Back")}
               </button>
 
               <div style={{ display: "flex", gap: "var(--spacing-sm)" }}>
@@ -577,7 +609,7 @@ function DetailAgencyContent() {
                     }
                   }}
                   className="btn-icon"
-                  title="Actualiser"
+                  title={t("Actualiser", "Refresh")}
                 >
                   <RefreshCw />
                 </button>
@@ -589,14 +621,14 @@ function DetailAgencyContent() {
                       className="btn btn-primary"
                     >
                       <Edit />
-                      Modifier
+                      {t("Modifier", "Edit")}
                     </button>
                     <button
                       onClick={() => setShowDeleteModal(true)}
                       className="btn btn-danger"
                     >
                       <Trash2 />
-                      Supprimer
+                      {t("Supprimer", "Delete")}
                     </button>
                   </>
                 ) : (
@@ -607,7 +639,9 @@ function DetailAgencyContent() {
                       className="btn btn-primary"
                     >
                       <Save />
-                      {isSaving ? "Enregistrement..." : "Enregistrer"}
+                      {isSaving
+                        ? t("Enregistrement...", "Saving...")
+                        : t("Enregistrer", "Save")}
                     </button>
                     <button
                       onClick={() => {
@@ -617,7 +651,7 @@ function DetailAgencyContent() {
                       className="btn btn-secondary"
                     >
                       <X />
-                      Annuler
+                      {t("Annuler", "Cancel")}
                     </button>
                   </>
                 )}
@@ -653,12 +687,14 @@ function DetailAgencyContent() {
                 <div className="settings-section-header">
                   <Building2 style={{ width: "20px", height: "20px" }} />
                   <h3 className="settings-section-title">
-                    Informations principales
+                    {t("Informations principales", "Main information")}
                   </h3>
                 </div>
                 <div className="settings-section-content">
                   <div className="settings-field">
-                    <label className="settings-label">Nom complet</label>
+                    <label className="settings-label">
+                      {t("Nom complet", "Full name")}
+                    </label>
                     {editMode ? (
                       <input
                         type="text"
@@ -673,7 +709,9 @@ function DetailAgencyContent() {
                     )}
                   </div>
                   <div className="settings-field">
-                    <label className="settings-label">Abréviation</label>
+                    <label className="settings-label">
+                      {t("Abréviation", "Abbreviation")}
+                    </label>
                     {editMode ? (
                       <input
                         type="text"
@@ -694,11 +732,13 @@ function DetailAgencyContent() {
               <div className="settings-section">
                 <div className="settings-section-header">
                   <MapPin style={{ width: "20px", height: "20px" }} />
-                  <h3 className="settings-section-title">Localisation</h3>
+                  <h3 className="settings-section-title">
+                    {t("Localisation", "Location")}
+                  </h3>
                 </div>
                 <div className="settings-section-content">
                   <div className="settings-field">
-                    <label className="settings-label">Ville</label>
+                    <label className="settings-label">{t("Ville", "City")}</label>
                     {editMode ? (
                       <select
                         name="ville"
@@ -707,7 +747,9 @@ function DetailAgencyContent() {
                         className="form-input"
                         style={{ width: "fit-content" }}
                       >
-                        <option value="">Sélectionner une ville</option>
+                        <option value="">
+                          {t("Sélectionner une ville", "Select a city")}
+                        </option>
                         <option value="Yaoundé">Yaoundé</option>
                         <option value="Douala">Douala</option>
                         <option value="Bafoussam">Bafoussam</option>
@@ -724,7 +766,9 @@ function DetailAgencyContent() {
                     )}
                   </div>
                   <div className="settings-field">
-                    <label className="settings-label">Zone/Quartier</label>
+                    <label className="settings-label">
+                      {t("Zone/Quartier", "Area/Neighborhood")}
+                    </label>
                     {editMode ? (
                       <input
                         type="text"
@@ -746,7 +790,7 @@ function DetailAgencyContent() {
                 <div className="settings-section-header">
                   <Globe style={{ width: "20px", height: "20px" }} />
                   <h3 className="settings-section-title">
-                    Informations supplémentaires
+                    {t("Informations supplémentaires", "Additional information")}
                   </h3>
                 </div>
                 <div className="settings-section-content">
@@ -756,7 +800,7 @@ function DetailAgencyContent() {
                   >
                     <label className="settings-label">
                       <Globe style={{ width: "16px", height: "16px" }} />
-                      Réseau social
+                      {t("Réseau social", "Social network")}
                     </label>
                     {editMode ? (
                       <input
@@ -765,12 +809,15 @@ function DetailAgencyContent() {
                         value={formData.social_network || ""}
                         onChange={handleInputChange}
                         className="form-input"
-                        placeholder="https://facebook.com/agence"
+                        placeholder={t(
+                          "https://facebook.com/agence",
+                          "https://facebook.com/agency",
+                        )}
                         style={{ width: "fit-content" }}
                       />
                     ) : (
                       <div className="settings-value">
-                        {agency.social_network || "Non renseigné"}
+                        {agency.social_network || t("Non renseigné", "Not provided")}
                       </div>
                     )}
                   </div>
@@ -782,7 +829,7 @@ function DetailAgencyContent() {
                       <MessageSquare
                         style={{ width: "16px", height: "16px" }}
                       />
-                      Message d'accueil
+                      {t("Message d'accueil", "Welcome message")}
                     </label>
                     {editMode ? (
                       <textarea
@@ -794,7 +841,8 @@ function DetailAgencyContent() {
                       />
                     ) : (
                       <div className="settings-value">
-                        {agency.greeting_message || "Non renseigné"}
+                        {agency.greeting_message ||
+                          t("Non renseigné", "Not provided")}
                       </div>
                     )}
                   </div>
@@ -802,7 +850,9 @@ function DetailAgencyContent() {
                     className="settings-field"
                     style={{ gridColumn: "1 / -1" }}
                   >
-                    <label className="settings-label">Description</label>
+                    <label className="settings-label">
+                      {t("Description", "Description")}
+                    </label>
                     {editMode ? (
                       <textarea
                         name="description"
@@ -813,7 +863,8 @@ function DetailAgencyContent() {
                       />
                     ) : (
                       <div className="settings-value">
-                        {agency.description || "Non renseignée"}
+                        {agency.description ||
+                          t("Non renseignée", "Not provided")}
                       </div>
                     )}
                   </div>
@@ -825,12 +876,14 @@ function DetailAgencyContent() {
                 <div className="settings-section-header">
                   <Building2 style={{ width: "20px", height: "20px" }} />
                   <h3 className="settings-section-title">
-                    Informations de validation
+                    {t("Informations de validation", "Validation information")}
                   </h3>
                 </div>
                 <div className="settings-section-content">
                   <div className="settings-field">
-                    <label className="settings-label">Statut</label>
+                    <label className="settings-label">
+                      {t("Statut", "Status")}
+                    </label>
                     <span
                       className={`status-badge status-${agency.statut_validation.toLowerCase()}`}
                     >
@@ -838,13 +891,17 @@ function DetailAgencyContent() {
                     </span>
                   </div>
                   <div className="settings-field">
-                    <label className="settings-label">Date de validation</label>
+                    <label className="settings-label">
+                      {t("Date de validation", "Validation date")}
+                    </label>
                     <div className="settings-value">
                       {formatDate(agency.date_validation)}
                     </div>
                   </div>
                   <div className="settings-field">
-                    <label className="settings-label">Date de création</label>
+                    <label className="settings-label">
+                      {t("Date de création", "Creation date")}
+                    </label>
                     <div className="settings-value">
                       {formatDate(agency.created_at)}
                     </div>
@@ -852,7 +909,7 @@ function DetailAgencyContent() {
                   {agency.bsm_validator_id && (
                     <div className="settings-field">
                       <label className="settings-label">
-                        ID Validateur BSM
+                        {t("ID Validateur BSM", "BSM Validator ID")}
                       </label>
                       <div className="settings-value settings-value-mono">
                         {agency.bsm_validator_id}
@@ -864,7 +921,9 @@ function DetailAgencyContent() {
                       className="settings-field"
                       style={{ gridColumn: "1 / -1" }}
                     >
-                      <label className="settings-label">Motif de rejet</label>
+                      <label className="settings-label">
+                        {t("Motif de rejet", "Rejection reason")}
+                      </label>
                       <div className="rejection-message">
                         {agency.motif_rejet}
                       </div>
@@ -878,18 +937,18 @@ function DetailAgencyContent() {
             {generalStats && !isLoadingStats && (
               <>
                 <div className="stats-divider">
-                  <h3>Statistiques de l'agence</h3>
+                  <h3>{t("Statistiques de l'agence", "Agency statistics")}</h3>
                 </div>
 
                 <div className="stats-card">
                   <div className="stats-header">
-                    <h3>Statistiques principales</h3>
+                    <h3>{t("Statistiques principales", "Key statistics")}</h3>
                   </div>
                   <div className="stats-grid-main">
                     <div className="stat-item">
                       <div className="stat-content">
                         <Users style={{ width: 20, height: 20 }} />
-                        <p className="stat-label">Employés</p>
+                        <p className="stat-label">{t("Employés", "Employees")}</p>
                         <p className="stat-value">
                           {generalStats.nombreEmployes}
                         </p>
@@ -899,7 +958,7 @@ function DetailAgencyContent() {
                     <div className="stat-item">
                       <div className="stat-content">
                         <Car style={{ width: 20, height: 20 }} />
-                        <p className="stat-label">Chauffeurs</p>
+                        <p className="stat-label">{t("Chauffeurs", "Drivers")}</p>
                         <p className="stat-value">
                           {generalStats.nombreChauffeurs}
                         </p>
@@ -909,7 +968,7 @@ function DetailAgencyContent() {
                     <div className="stat-item">
                       <div className="stat-content">
                         <Bus style={{ width: 20, height: 20 }} />
-                        <p className="stat-label">Voyages</p>
+                        <p className="stat-label">{t("Voyages", "Trips")}</p>
                         <p className="stat-value">
                           {generalStats.nombreVoyages}
                         </p>
@@ -918,7 +977,9 @@ function DetailAgencyContent() {
 
                     <div className="stat-item">
                       <div className="stat-content">
-                        <p className="stat-label">Réservations</p>
+                        <p className="stat-label">
+                          {t("Réservations", "Reservations")}
+                        </p>
                         <p className="stat-value">
                           {generalStats.nombreReservations}
                         </p>
@@ -927,7 +988,9 @@ function DetailAgencyContent() {
 
                     <div className="stat-item">
                       <div className="stat-content">
-                        <p className="stat-label">Revenus totaux</p>
+                        <p className="stat-label">
+                          {t("Revenus totaux", "Total revenue")}
+                        </p>
                         <p className="stat-value revenue">
                           {formatRevenue(generalStats.revenus)}
                         </p>
@@ -936,7 +999,9 @@ function DetailAgencyContent() {
 
                     <div className="stat-item">
                       <div className="stat-content">
-                        <p className="stat-label">Nouveaux utilisateurs</p>
+                        <p className="stat-label">
+                          {t("Nouveaux utilisateurs", "New users")}
+                        </p>
                         <p className="stat-value">
                           {generalStats.nouveauxUtilisateurs}
                         </p>
@@ -945,7 +1010,9 @@ function DetailAgencyContent() {
                   </div>
 
                   <div className="occupation-rate">
-                    <p className="occupation-label">Taux d'occupation</p>
+                    <p className="occupation-label">
+                      {t("Taux d'occupation", "Occupancy rate")}
+                    </p>
                     <div className="occupation-bar-wrapper">
                       <div className="occupation-bar">
                         <div
@@ -970,25 +1037,25 @@ function DetailAgencyContent() {
                         onClick={() => setActiveChart("reservations")}
                         className={`chart-tab ${activeChart === "reservations" ? "active" : ""}`}
                       >
-                        Réservations
+                        {t("Réservations", "Reservations")}
                       </button>
                       <button
                         onClick={() => setActiveChart("voyages")}
                         className={`chart-tab ${activeChart === "voyages" ? "active" : ""}`}
                       >
-                        Voyages
+                        {t("Voyages", "Trips")}
                       </button>
                       <button
                         onClick={() => setActiveChart("revenus")}
                         className={`chart-tab ${activeChart === "revenus" ? "active" : ""}`}
                       >
-                        Revenus
+                        {t("Revenus", "Revenue")}
                       </button>
                       <button
                         onClick={() => setActiveChart("utilisateurs")}
                         className={`chart-tab ${activeChart === "utilisateurs" ? "active" : ""}`}
                       >
-                        Utilisateurs
+                        {t("Utilisateurs", "Users")}
                       </button>
                     </div>
 
@@ -1018,7 +1085,7 @@ function DetailAgencyContent() {
                         </ResponsiveContainer>
                       ) : (
                         <div className="chart-empty">
-                          <p>Aucune donnée disponible</p>
+                          <p>{t("Aucune donnée disponible", "No data available")}</p>
                         </div>
                       )}
                     </div>
@@ -1029,7 +1096,7 @@ function DetailAgencyContent() {
                   {getVoyagesStatusData().length > 0 && (
                     <div className="chart-card-small">
                       <div className="chart-header">
-                        <h3>Voyages par statut</h3>
+                        <h3>{t("Voyages par statut", "Trips by status")}</h3>
                       </div>
                       <div className="chart-container-small">
                         <ResponsiveContainer width="100%" height="100%">
@@ -1061,7 +1128,9 @@ function DetailAgencyContent() {
                   {getReservationsStatusData().length > 0 && (
                     <div className="chart-card-small">
                       <div className="chart-header">
-                        <h3>Réservations par statut</h3>
+                        <h3>
+                          {t("Réservations par statut", "Reservations by status")}
+                        </h3>
                       </div>
                       <div className="chart-container-small">
                         <ResponsiveContainer width="100%" height="100%">
@@ -1099,7 +1168,7 @@ function DetailAgencyContent() {
                       <div className="chart-card-small">
                         <div className="chart-header">
                           <BarChart3 />
-                          <h3>Revenus par classe</h3>
+                          <h3>{t("Revenus par classe", "Revenue by class")}</h3>
                         </div>
                         <div className="chart-container-small">
                           <ResponsiveContainer width="100%" height="100%">
@@ -1137,9 +1206,9 @@ function DetailAgencyContent() {
                   {generalStats.top_destinations &&
                     Object.keys(generalStats.top_destinations).length > 0 && (
                       <div className="chart-card-small">
-                        <div className="chart-header">
-                          <h3>Top 10 destinations</h3>
-                        </div>
+                      <div className="chart-header">
+                        <h3>{t("Top 10 destinations", "Top 10 destinations")}</h3>
+                      </div>
                         <div className="chart-container-small">
                           <ResponsiveContainer width="100%" height="100%">
                             <BarChart
@@ -1184,9 +1253,9 @@ function DetailAgencyContent() {
                       Object.keys(generalStats.reservations_by_day_of_week)
                         .length > 0 && (
                         <div className="chart-card-small">
-                          <div className="chart-header">
-                            <h3>Réservations par jour</h3>
-                          </div>
+                        <div className="chart-header">
+                          <h3>{t("Réservations par jour", "Reservations by day")}</h3>
+                        </div>
                           <div className="chart-container-small">
                             <ResponsiveContainer width="100%" height="100%">
                               <BarChart
@@ -1208,7 +1277,7 @@ function DetailAgencyContent() {
                                 <Bar
                                   dataKey="value"
                                   fill="#7cab1b"
-                                  name="Réservations"
+                                  name={t("Réservations", "Reservations")}
                                   radius={[8, 8, 0, 0]}
                                 />
                               </BarChart>
@@ -1220,9 +1289,9 @@ function DetailAgencyContent() {
                     {generalStats?.trips_by_driver &&
                       Object.keys(generalStats.trips_by_driver).length > 0 && (
                         <div className="chart-card-small">
-                          <div className="chart-header">
-                            <h3>Top 10 chauffeurs</h3>
-                          </div>
+                        <div className="chart-header">
+                          <h3>{t("Top 10 chauffeurs", "Top 10 drivers")}</h3>
+                        </div>
                           <div className="chart-container-small">
                             <ResponsiveContainer width="100%" height="100%">
                               <BarChart
@@ -1251,7 +1320,7 @@ function DetailAgencyContent() {
                                 <Bar
                                   dataKey="value"
                                   fill="#7cab1b"
-                                  name="Voyages"
+                                  name={t("Voyages", "Trips")}
                                   radius={[0, 8, 8, 0]}
                                 />
                               </BarChart>
@@ -1267,9 +1336,11 @@ function DetailAgencyContent() {
                     {evolutionStats.evolution_taux_occupation &&
                       evolutionStats.evolution_taux_occupation.length > 0 && (
                         <div className="chart-card-small">
-                          <div className="chart-header">
-                            <h3>Évolution taux d'occupation</h3>
-                          </div>
+                        <div className="chart-header">
+                          <h3>
+                            {t("Évolution taux d'occupation", "Occupancy trend")}
+                          </h3>
+                        </div>
                           <div className="chart-container-small">
                             <ResponsiveContainer width="100%" height="100%">
                               <LineChart
@@ -1297,7 +1368,7 @@ function DetailAgencyContent() {
                                   stroke="#7cab1b"
                                   strokeWidth={2}
                                   dot={{ fill: "#7cab1b", r: 3 }}
-                                  name="Taux (%)"
+                                  name={t("Taux (%)", "Rate (%)")}
                                 />
                               </LineChart>
                             </ResponsiveContainer>
@@ -1308,9 +1379,11 @@ function DetailAgencyContent() {
                     {evolutionStats.evolution_annulations &&
                       evolutionStats.evolution_annulations.length > 0 && (
                         <div className="chart-card-small">
-                          <div className="chart-header">
-                            <h3>Évolution des annulations</h3>
-                          </div>
+                        <div className="chart-header">
+                          <h3>
+                            {t("Évolution des annulations", "Cancellation trend")}
+                          </h3>
+                        </div>
                           <div className="chart-container-small">
                             <ResponsiveContainer width="100%" height="100%">
                               <LineChart
@@ -1338,7 +1411,7 @@ function DetailAgencyContent() {
                                   stroke="#7cab1b"
                                   strokeWidth={2}
                                   dot={{ fill: "#7cab1b", r: 3 }}
-                                  name="Annulations"
+                                  name={t("Annulations", "Cancellations")}
                                 />
                               </LineChart>
                             </ResponsiveContainer>
@@ -1354,9 +1427,9 @@ function DetailAgencyContent() {
                       Object.keys(evolutionStats.revenue_per_month).length >
                         0 && (
                         <div className="chart-card-small">
-                          <div className="chart-header">
-                            <h3>Revenus par mois</h3>
-                          </div>
+                        <div className="chart-header">
+                          <h3>{t("Revenus par mois", "Revenue by month")}</h3>
+                        </div>
                           <div className="chart-container-small">
                             <ResponsiveContainer width="100%" height="100%">
                               <BarChart
@@ -1382,7 +1455,7 @@ function DetailAgencyContent() {
                                 <Bar
                                   dataKey="value"
                                   fill="#7cab1b"
-                                  name="Revenu"
+                                  name={t("Revenu", "Revenue")}
                                   radius={[8, 8, 0, 0]}
                                 />
                               </BarChart>
@@ -1395,9 +1468,9 @@ function DetailAgencyContent() {
                       Object.keys(evolutionStats.reservations_per_month)
                         .length > 0 && (
                         <div className="chart-card-small">
-                          <div className="chart-header">
-                            <h3>Réservations par mois</h3>
-                          </div>
+                        <div className="chart-header">
+                          <h3>{t("Réservations par mois", "Reservations by month")}</h3>
+                        </div>
                           <div className="chart-container-small">
                             <ResponsiveContainer width="100%" height="100%">
                               <BarChart
@@ -1419,7 +1492,7 @@ function DetailAgencyContent() {
                                 <Bar
                                   dataKey="value"
                                   fill="#7cab1b"
-                                  name="Réservations"
+                                  name={t("Réservations", "Reservations")}
                                   radius={[8, 8, 0, 0]}
                                 />
                               </BarChart>
@@ -1435,7 +1508,7 @@ function DetailAgencyContent() {
             {isLoadingStats && (
               <div className="loading-state">
                 <RefreshCw className="spin" />
-                <p>Chargement des statistiques...</p>
+                <p>{t("Chargement des statistiques...", "Loading statistics...")}</p>
               </div>
             )}
           </div>
@@ -1446,19 +1519,25 @@ function DetailAgencyContent() {
         show={showDeleteModal}
         onClose={() => setShowDeleteModal(false)}
         onConfirm={handleDelete}
-        title="Supprimer l'agence"
-        message={`Êtes-vous sûr de vouloir supprimer l'agence ${agency?.long_name} ? Cette action est irréversible.`}
-        confirmText="Supprimer"
-        cancelText="Annuler"
+        title={t("Supprimer l'agence", "Delete agency")}
+        message={t(
+          `Êtes-vous sûr de vouloir supprimer l'agence ${agency?.long_name} ? Cette action est irréversible.`,
+          `Are you sure you want to delete the agency ${agency?.long_name}? This action cannot be undone.`,
+        )}
+        confirmText={t("Supprimer", "Delete")}
+        cancelText={t("Annuler", "Cancel")}
         isLoading={isDeleting}
       />
 
       <SuccessModal
         show={showSuccessModal}
         onClose={() => setShowSuccessModal(false)}
-        title="Agence mise à jour !"
-        message="Les informations de l'agence ont été mises à jour avec succès."
-        buttonText="OK"
+        title={t("Agence mise à jour !", "Agency updated!")}
+        message={t(
+          "Les informations de l'agence ont été mises à jour avec succès.",
+          "Agency information was updated successfully.",
+        )}
+        buttonText={t("OK", "OK")}
       />
 
       <ErrorModal
@@ -1477,7 +1556,7 @@ export default function DetailAgencyPage() {
         <div className="dashboard-layout">
           <div className="loading-state">
             <RefreshCw className="spin" />
-            <p>Chargement...</p>
+            <p>{t("Chargement...", "Loading...")}</p>
           </div>
         </div>
       }

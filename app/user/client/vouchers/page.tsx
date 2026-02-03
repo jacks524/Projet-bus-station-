@@ -20,6 +20,7 @@ import { useRouter } from "next/navigation";
 import Sidebar from "@/app/components/Sidebar";
 import MobileSidebar from "@/app/components/Mobilesidebar";
 import Header from "@/app/components/Header";
+import { useLanguage } from "@/app/providers";
 
 interface Coupon {
   idCoupon: string;
@@ -53,46 +54,52 @@ export default function ClientVouchersPage() {
   const [error_message, setErrorMessage] = useState("");
   const [show_mobile_menu, setShowMobileMenu] = useState(false);
   const [user_data, setUserData] = useState<UserData | null>(null);
+  const { t, language } = useLanguage();
 
   const router = useRouter();
 
   const API_BASE_URL = process.env.NEXT_PUBLIC_API_BASE_URL;
 
   const MENU_ITEMS = [
-    { icon: Home, label: "Accueil", path: "/user/client/home", active: false },
+    {
+      icon: Home,
+      label: t("Accueil", "Home"),
+      path: "/user/client/home",
+      active: false,
+    },
     {
       icon: Calendar,
-      label: "Réserver",
+      label: t("Réserver", "Book"),
       path: "/user/client/book",
       active: false,
     },
     {
       icon: FileText,
-      label: "Réservations",
+      label: t("Réservations", "Reservations"),
       path: "/user/client/reservations",
       active: false,
     },
     {
       icon: Ticket,
-      label: "Billets",
+      label: t("Billets", "Tickets"),
       path: "/user/client/tickets",
       active: false,
     },
     {
       icon: Gift,
-      label: "Coupons",
+      label: t("Coupons", "Vouchers"),
       path: "/user/client/vouchers",
       active: true,
     },
     {
       icon: History,
-      label: "Historique",
+      label: t("Historique", "History"),
       path: "/user/client/history",
       active: false,
     },
     {
       icon: Settings,
-      label: "Mes paramètres",
+      label: t("Mes paramètres", "My settings"),
       path: "/user/client/settings",
       active: false,
     },
@@ -130,7 +137,7 @@ export default function ClientVouchersPage() {
       });
 
       if (!response.ok) {
-        throw new Error("Erreur lors du chargement des coupons");
+        throw new Error(t("Erreur lors du chargement des coupons", "Failed to load coupons"));
       }
 
       const data = await response.json();
@@ -141,7 +148,7 @@ export default function ClientVouchersPage() {
 
       setCoupons(valid_coupons);
     } catch (error: any) {
-      setErrorMessage("Impossible de charger vos coupons");
+      setErrorMessage(t("Impossible de charger vos coupons", "Unable to load your coupons"));
       console.error("Fetch Coupons Error:", error);
     } finally {
       setIsLoading(false);
@@ -150,7 +157,8 @@ export default function ClientVouchersPage() {
 
   const formatDate = (date_string: string) => {
     const date = new Date(date_string);
-    return date.toLocaleDateString("fr-FR", {
+    const locale = language === "fr" ? "fr-FR" : "en-US";
+    return date.toLocaleDateString(locale, {
       day: "2-digit",
       month: "long",
       year: "numeric",
@@ -169,7 +177,7 @@ export default function ClientVouchersPage() {
 
       <div className="dashboard-main">
         <Header
-          title="Mes coupons"
+          title={t("Mes coupons", "My vouchers")}
           userData={user_data}
           onMenuClick={() => setShowMobileMenu(true)}
         />
@@ -181,10 +189,14 @@ export default function ClientVouchersPage() {
               className="section-header"
               style={{ marginBottom: "var(--spacing-2xl)" }}
             >
-              <h2 className="section-title">Vos coupons de réduction</h2>
+              <h2 className="section-title">
+                {t("Vos coupons de réduction", "Your discount vouchers")}
+              </h2>
               <p className="section-description">
-                Utilisez vos coupons lors de vos prochaines réservations pour
-                bénéficier de réductions
+                {t(
+                  "Utilisez vos coupons lors de vos prochaines réservations pour bénéficier de réductions",
+                  "Use your vouchers on your next bookings to get discounts",
+                )}
               </p>
             </div>
 
@@ -192,7 +204,7 @@ export default function ClientVouchersPage() {
             {is_loading && (
               <div className="loading-state">
                 <RefreshCw className="spin" />
-                <p>Chargement de vos coupons...</p>
+                <p>{t("Chargement de vos coupons...", "Loading your vouchers...")}</p>
               </div>
             )}
 
@@ -205,7 +217,7 @@ export default function ClientVouchersPage() {
                   onClick={() => window.location.reload()}
                   className="btn modal-button modal-button-error"
                 >
-                  Réessayer
+                  {t("Réessayer", "Try again")}
                 </button>
               </div>
             )}
@@ -214,16 +226,21 @@ export default function ClientVouchersPage() {
             {!is_loading && !error_message && coupons.length === 0 && (
               <div className="empty-state">
                 <Gift className="empty-icon" />
-                <h3 className="empty-title">Aucun coupon disponible</h3>
+                <h3 className="empty-title">
+                  {t("Aucun coupon disponible", "No vouchers available")}
+                </h3>
                 <p className="empty-description">
-                  Vous n'avez pas encore de coupons de réduction valides
+                  {t(
+                    "Vous n'avez pas encore de coupons de réduction valides",
+                    "You don't have any valid discount vouchers yet",
+                  )}
                 </p>
                 <button
                   onClick={() => router.push("/user/client/book")}
                   className="btn btn-primary"
                   style={{ marginTop: "var(--spacing-lg)" }}
                 >
-                  Réserver un voyage
+                  {t("Réserver un voyage", "Book a trip")}
                 </button>
               </div>
             )}
@@ -237,7 +254,7 @@ export default function ClientVouchersPage() {
                       <div className="coupon-icon">
                         <Tag />
                       </div>
-                      <span className="coupon-badge">Valide</span>
+                      <span className="coupon-badge">{t("Valide", "Valid")}</span>
                     </div>
 
                     <div className="coupon-card-body">
@@ -247,7 +264,9 @@ export default function ClientVouchersPage() {
                         </span>
                         <Percent className="coupon-value-percent" />
                       </div>
-                      <p className="coupon-value-label">de réduction</p>
+                      <p className="coupon-value-label">
+                        {t("de réduction", "discount")}
+                      </p>
                     </div>
 
                     <div className="coupon-card-dates">
@@ -256,7 +275,9 @@ export default function ClientVouchersPage() {
                           style={{ width: "16px", height: "16px" }}
                         />
                         <div>
-                          <span className="coupon-date-label">Début</span>
+                          <span className="coupon-date-label">
+                            {t("Début", "Start")}
+                          </span>
                           <span className="coupon-date-value">
                             {formatDate(coupon.dateDebut)}
                           </span>
@@ -265,7 +286,7 @@ export default function ClientVouchersPage() {
                       <div className="coupon-date">
                         <CalendarX style={{ width: "16px", height: "16px" }} />
                         <div>
-                          <span className="coupon-date-label">Fin</span>
+                          <span className="coupon-date-label">{t("Fin", "End")}</span>
                           <span className="coupon-date-value">
                             {formatDate(coupon.dateFin)}
                           </span>
@@ -275,7 +296,9 @@ export default function ClientVouchersPage() {
 
                     <div className="coupon-card-footer">
                       <div className="coupon-code-container">
-                        <span className="coupon-code-label">Code coupon</span>
+                        <span className="coupon-code-label">
+                          {t("Code coupon", "Voucher code")}
+                        </span>
                         <span className="coupon-code-value">
                           {coupon.idCoupon}
                         </span>

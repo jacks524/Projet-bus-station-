@@ -3,6 +3,7 @@
 import React, { useState, useEffect } from "react";
 import Image from "next/image";
 import { useRouter } from "next/navigation";
+import { useLanguage } from "@/app/providers";
 
 /**
  * BusStation Login Page
@@ -21,6 +22,7 @@ export default function LoginPage() {
   const [currentSlide, setCurrentSlide] = useState(0);
   const [isLoading, setIsLoading] = useState(false);
   const [errorMessage, setErrorMessage] = useState("");
+  const { t } = useLanguage();
 
   const API_BASE_URL = process.env.NEXT_PUBLIC_API_BASE_URL;
 
@@ -35,7 +37,9 @@ export default function LoginPage() {
     setErrorMessage("");
 
     if (!username || !password) {
-      setErrorMessage("Veuillez remplir tous les champs");
+      setErrorMessage(
+        t("Veuillez remplir tous les champs", "Please fill in all fields"),
+      );
       return;
     }
 
@@ -54,12 +58,17 @@ export default function LoginPage() {
       });
 
       if (response.status === 500) {
-        setErrorMessage("Compte inexistant ou mot de passe incorrect");
+        setErrorMessage(
+          t(
+            "Compte inexistant ou mot de passe incorrect",
+            "Account does not exist or incorrect password"
+          ),
+        );
         return;
       }
 
       if (!response.ok) {
-        throw new Error("Identifiants incorrects");
+        throw new Error(t("Identifiants incorrects", "Invalid credentials"));
       }
 
       const data = await response.json();
@@ -75,7 +84,12 @@ export default function LoginPage() {
       const userRole = data.role[0];
 
       if (userRole === "BSM") {
-        throw new Error("Une erreur est survenue lors de la connexion");
+        throw new Error(
+          t(
+            "Une erreur est survenue lors de la connexion",
+            "An error occurred during login"
+          ),
+        );
       }
 
       if (userRole === "USAGER") {
@@ -88,7 +102,12 @@ export default function LoginPage() {
         router.push("/");
       }
     } catch (error: any) {
-      setErrorMessage("Une erreur est survenue lors de la connexion");
+      setErrorMessage(
+        t(
+          "Une erreur est survenue lors de la connexion",
+          "An error occurred during login"
+        ),
+      );
       console.error("Login error:", error);
     } finally {
       setIsLoading(false);
@@ -116,8 +135,10 @@ export default function LoginPage() {
           </div>
 
           {/* Title */}
-          <h1 className="auth-title">Connexion</h1>
-          <p className="auth-subtitle">Accédez à votre espace personnel</p>
+          <h1 className="auth-title">{t("Connexion", "Sign in")}</h1>
+          <p className="auth-subtitle">
+            {t("Accédez à votre espace personnel", "Access your personal space")}
+          </p>
 
           {/* Error Message */}
           {errorMessage && <p className="error-text">{errorMessage}</p>}
@@ -126,7 +147,7 @@ export default function LoginPage() {
           <form onSubmit={handleSubmit} className="auth-form">
             {/* Username */}
             <fieldset className="auth-fieldset">
-              <legend>Nom d'utilisateur *</legend>
+              <legend>{t("Nom d'utilisateur *", "Username *")}</legend>
               <input
                 type="text"
                 value={username}
@@ -137,7 +158,7 @@ export default function LoginPage() {
 
             {/* Password */}
             <fieldset className="auth-fieldset">
-              <legend>Mot de passe *</legend>
+              <legend>{t("Mot de passe *", "Password *")}</legend>
               <div className="auth-password-wrapper">
                 <input
                   type={showPassword ? "text" : "password"}
@@ -189,7 +210,7 @@ export default function LoginPage() {
                 className="auth-checkbox"
               />
               <label htmlFor="remember" className="auth-checkbox-label">
-                Se souvenir de moi
+                {t("Se souvenir de moi", "Remember me")}
               </label>
             </div>
 
@@ -199,12 +220,13 @@ export default function LoginPage() {
               disabled={isLoading}
               className="auth-submit-btn"
             >
-              {isLoading ? "Connexion..." : "Se connecter"}
+              {isLoading ? t("Connexion...", "Signing in...") : t("Se connecter", "Sign in")}
             </button>
 
             {/* Sign up link */}
             <p className="auth-link-text">
-              Pas encore de compte ? <a href="/signup">S'inscrire</a>
+              {t("Pas encore de compte ?", "Don't have an account?")}{" "}
+              <a href="/signup">{t("S'inscrire", "Sign up")}</a>
             </p>
           </form>
         </div>

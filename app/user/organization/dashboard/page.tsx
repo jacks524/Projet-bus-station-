@@ -43,6 +43,7 @@ import Header from "@/app/components/Header";
 import SuccessModal from "@/app/components/SuccessModal";
 import ErrorModal from "@/app/components/ErrorModal";
 import ConfirmModal from "@/app/components/ConfirmModal";
+import { useLanguage } from "@/app/providers";
 
 interface GeneralStatistics {
   organization_id: string;
@@ -157,6 +158,7 @@ export default function OrganizationDashboardPage() {
   const [is_deleting, setIsDeleting] = useState(false);
 
   const [show_org_selector, setShowOrgSelector] = useState(false);
+  const { t, language } = useLanguage();
 
   const API_BASE_URL = process.env.NEXT_PUBLIC_API_BASE_URL;
   const PIE_COLORS = ["#10B981", "#F59E0B", "#EF4444", "#6366F1", "#8B5CF6"];
@@ -164,25 +166,25 @@ export default function OrganizationDashboardPage() {
   const menuItems = [
     {
       icon: Home,
-      label: "Dashboard",
+      label: t("Dashboard", "Dashboard"),
       path: "/user/organization/dashboard",
       active: true,
     },
     {
       icon: Briefcase,
-      label: "Organisation",
+      label: t("Organisation", "Organization"),
       path: "/user/organization/organization",
       active: false,
     },
     {
       icon: Building2,
-      label: "Agence",
+      label: t("Agence", "Agency"),
       path: "/user/organization/agencies",
       active: false,
     },
     {
       icon: Settings,
-      label: "Mes paramètres",
+      label: t("Mes paramètres", "My settings"),
       path: "/user/organization/settings",
       active: false,
     },
@@ -245,7 +247,12 @@ export default function OrganizationDashboardPage() {
       );
 
       if (!response.ok)
-        throw new Error("Erreur lors du chargement des organisations");
+        throw new Error(
+          t(
+            "Erreur lors du chargement des organisations",
+            "Failed to load organizations",
+          ),
+        );
 
       const data = await response.json();
       const my_orgs = data.filter(
@@ -263,7 +270,12 @@ export default function OrganizationDashboardPage() {
         setIsLoadingStats(false);
       }
     } catch (error: any) {
-      setErrorMessage("Impossible de charger vos organisations");
+      setErrorMessage(
+        t(
+          "Impossible de charger vos organisations",
+          "Unable to load your organizations",
+        ),
+      );
       setIsLoadingStats(false);
     } finally {
       setIsLoadingOrgs(false);
@@ -288,11 +300,21 @@ export default function OrganizationDashboardPage() {
       );
 
       if (!response.ok)
-        throw new Error("Erreur lors du chargement des statistiques");
+        throw new Error(
+          t(
+            "Erreur lors du chargement des statistiques",
+            "Failed to load statistics",
+          ),
+        );
       const data = await response.json();
       setGeneralStats(data);
     } catch (error: any) {
-      setErrorMessage("Impossible de charger les statistiques générales");
+      setErrorMessage(
+        t(
+          "Impossible de charger les statistiques générales",
+          "Unable to load general statistics",
+        ),
+      );
     } finally {
       setIsLoadingStats(false);
     }
@@ -313,7 +335,9 @@ export default function OrganizationDashboardPage() {
       );
 
       if (!response.ok)
-        throw new Error("Erreur lors du chargement des agences");
+        throw new Error(
+          t("Erreur lors du chargement des agences", "Failed to load agencies"),
+        );
       const data = await response.json();
       setAgenciesStats(data);
     } catch (error: any) {
@@ -357,7 +381,12 @@ export default function OrganizationDashboardPage() {
       setShowSuccessModal(true);
       fetchOrganizations();
     } catch (error: any) {
-      setErrorMessage("Erreur lors de la suppression de l'organisation");
+      setErrorMessage(
+        t(
+          "Erreur lors de la suppression de l'organisation",
+          "Failed to delete organization",
+        ),
+      );
       setShowErrorModal(true);
       console.error("Delete Organization Error:", error);
     } finally {
@@ -388,7 +417,9 @@ export default function OrganizationDashboardPage() {
       }
       setShowSuccessModal(true);
     } catch (error: any) {
-      setErrorMessage("Erreur lors de la suppression de l'agence");
+      setErrorMessage(
+        t("Erreur lors de la suppression de l'agence", "Failed to delete agency"),
+      );
       setShowErrorModal(true);
       console.error("Delete Agency Error:", error);
     } finally {
@@ -405,7 +436,8 @@ export default function OrganizationDashboardPage() {
   };
 
   const formatRevenue = (amount: number) => {
-    return new Intl.NumberFormat("fr-FR", {
+    const locale = language === "fr" ? "fr-FR" : "en-US";
+    return new Intl.NumberFormat(locale, {
       style: "currency",
       currency: "XAF",
       minimumFractionDigits: 0,
@@ -413,7 +445,8 @@ export default function OrganizationDashboardPage() {
   };
 
   const formatDate = (dateString: string) => {
-    return new Date(dateString).toLocaleDateString("fr-FR", {
+    const locale = language === "fr" ? "fr-FR" : "en-US";
+    return new Date(dateString).toLocaleDateString(locale, {
       day: "numeric",
       month: "long",
       year: "numeric",
@@ -494,7 +527,7 @@ export default function OrganizationDashboardPage() {
 
       <div className="dashboard-main">
         <Header
-          title="Dashboard"
+          title={t("Dashboard", "Dashboard")}
           userData={user_data}
           onMenuClick={() => setShowMobileMenu(true)}
           showSettingsButton={true}
@@ -506,7 +539,7 @@ export default function OrganizationDashboardPage() {
             organizations.length === 0 && (
               <div className="loading-state">
                 <RefreshCw className="spin" />
-                <p>Chargement en cours...</p>
+                <p>{t("Chargement en cours...", "Loading...")}</p>
               </div>
             )}
 
@@ -519,7 +552,7 @@ export default function OrganizationDashboardPage() {
                   onClick={() => window.location.reload()}
                   className="btn btn-primary"
                 >
-                  Réessayer
+                  {t("Réessayer", "Try again")}
                 </button>
               </div>
             </>
@@ -529,15 +562,20 @@ export default function OrganizationDashboardPage() {
             <>
               <div className="empty-state">
                 <Briefcase className="empty-icon" />
-                <h3 className="empty-title">Aucune organisation</h3>
+                <h3 className="empty-title">
+                  {t("Aucune organisation", "No organization")}
+                </h3>
                 <p className="empty-description">
-                  Vous n'avez pas encore créé d'organisation
+                  {t(
+                    "Vous n'avez pas encore créé d'organisation",
+                    "You haven't created an organization yet",
+                  )}
                 </p>
                 <button
                   onClick={() => router.push("/user/organization/organization")}
                   className="btn btn-primary"
                 >
-                  Créer une organisation
+                  {t("Créer une organisation", "Create an organization")}
                 </button>
               </div>
             </>
@@ -549,21 +587,28 @@ export default function OrganizationDashboardPage() {
                 className="section-header"
                 style={{ marginBottom: "var(--spacing-2xl)" }}
               >
-                <h2 className="section-title">Votre tableau de bord</h2>
+                <h2 className="section-title">
+                  {t("Votre tableau de bord", "Your dashboard")}
+                </h2>
                 <p className="section-description">
-                  Examinez les statistiques générales de votre organisation et
-                  gérez votre organisation en quelques clics
+                  {t(
+                    "Examinez les statistiques générales de votre organisation et gérez votre organisation en quelques clics",
+                    "Review your organization’s statistics and manage everything in a few clicks",
+                  )}
                 </p>
               </div>
 
               <div className="agency-header-card">
                 <div className="agency-info">
                   <h2 className="agency-name">
-                    Nom de votre organisation :{" "}
+                    {t("Nom de votre organisation :", "Organization name:")}{" "}
                     {selected_organization?.long_name}
                   </h2>
                   <p className="agency-location">
-                    Abréviation du nom de votre organisation :{" "}
+                    {t(
+                      "Abréviation du nom de votre organisation :",
+                      "Organization short name:",
+                    )}{" "}
                     {selected_organization?.short_name}
                   </p>
                 </div>
@@ -574,7 +619,7 @@ export default function OrganizationDashboardPage() {
                       onClick={() => setShowOrgSelector(!show_org_selector)}
                       className="btn btn-secondary"
                     >
-                      Changer
+                      {t("Changer", "Change")}
                       <ChevronDown />
                     </button>
 
@@ -610,7 +655,7 @@ export default function OrganizationDashboardPage() {
                 <button
                   onClick={handleRefresh}
                   className="btn-icon"
-                  title="Actualiser"
+                  title={t("Actualiser", "Refresh")}
                 >
                   <RefreshCw />
                 </button>
@@ -619,7 +664,7 @@ export default function OrganizationDashboardPage() {
               {is_loading_stats && (
                 <div className="loading-state">
                   <RefreshCw className="spin" />
-                  <p>Chargement des statistiques...</p>
+                  <p>{t("Chargement des statistiques...", "Loading statistics...")}</p>
                 </div>
               )}
 
@@ -630,7 +675,7 @@ export default function OrganizationDashboardPage() {
                     onClick={fetchOrganizations}
                     className="btn btn-primary"
                   >
-                    Réessayer
+                    {t("Réessayer", "Try again")}
                   </button>
                 </div>
               )}
@@ -639,12 +684,14 @@ export default function OrganizationDashboardPage() {
                 <>
                   <div className="stats-card">
                     <div className="stats-header">
-                      <h3>Statistiques principales</h3>
+                      <h3>{t("Statistiques principales", "Key statistics")}</h3>
                     </div>
                     <div className="stats-grid-main">
                       <div className="stat-item">
                         <div className="stat-content">
-                          <p className="stat-label">Total agences</p>
+                          <p className="stat-label">
+                            {t("Total agences", "Total agencies")}
+                          </p>
                           <p className="stat-value">
                             {general_stats.total_agencies}
                           </p>
@@ -653,7 +700,9 @@ export default function OrganizationDashboardPage() {
 
                       <div className="stat-item">
                         <div className="stat-content">
-                          <p className="stat-label">Total employés</p>
+                          <p className="stat-label">
+                            {t("Total employés", "Total employees")}
+                          </p>
                           <p className="stat-value">
                             {general_stats.total_employees}
                           </p>
@@ -662,7 +711,9 @@ export default function OrganizationDashboardPage() {
 
                       <div className="stat-item">
                         <div className="stat-content">
-                          <p className="stat-label">Conducteurs</p>
+                          <p className="stat-label">
+                            {t("Conducteurs", "Drivers")}
+                          </p>
                           <p className="stat-value">
                             {general_stats.total_drivers}
                           </p>
@@ -671,7 +722,9 @@ export default function OrganizationDashboardPage() {
 
                       <div className="stat-item">
                         <div className="stat-content">
-                          <p className="stat-label">Véhicules</p>
+                          <p className="stat-label">
+                            {t("Véhicules", "Vehicles")}
+                          </p>
                           <p className="stat-value">
                             {general_stats.total_vehicles}
                           </p>
@@ -680,7 +733,9 @@ export default function OrganizationDashboardPage() {
 
                       <div className="stat-item">
                         <div className="stat-content">
-                          <p className="stat-label">Total voyages</p>
+                          <p className="stat-label">
+                            {t("Total voyages", "Total trips")}
+                          </p>
                           <p className="stat-value">
                             {general_stats.total_trips}
                           </p>
@@ -689,7 +744,9 @@ export default function OrganizationDashboardPage() {
 
                       <div className="stat-item">
                         <div className="stat-content">
-                          <p className="stat-label">Revenus totaux</p>
+                          <p className="stat-label">
+                            {t("Revenus totaux", "Total revenue")}
+                          </p>
                           <p className="stat-value revenue">
                             {formatRevenue(general_stats.total_revenue)}
                           </p>
@@ -699,7 +756,7 @@ export default function OrganizationDashboardPage() {
 
                     <div className="occupation-rate">
                       <p className="occupation-label">
-                        Taux d'occupation moyen
+                        {t("Taux d'occupation moyen", "Average occupancy rate")}
                       </p>
                       <div className="occupation-bar-wrapper">
                         <div className="occupation-bar">
@@ -723,7 +780,7 @@ export default function OrganizationDashboardPage() {
                         0 && (
                         <div className="chart-card-small">
                           <div className="chart-header">
-                            <h3>Réservations par mois</h3>
+                            <h3>{t("Réservations par mois", "Reservations by month")}</h3>
                           </div>
                           <div className="chart-container-small">
                             <ResponsiveContainer width="100%" height="100%">
@@ -761,7 +818,7 @@ export default function OrganizationDashboardPage() {
                         0 && (
                         <div className="chart-card-small">
                           <div className="chart-header">
-                            <h3>Revenus par mois</h3>
+                            <h3>{t("Revenus par mois", "Revenue by month")}</h3>
                           </div>
                           <div className="chart-container-small">
                             <ResponsiveContainer width="100%" height="100%">
@@ -801,7 +858,7 @@ export default function OrganizationDashboardPage() {
                     {getStatusData().length > 0 && (
                       <div className="chart-card-small">
                         <div className="chart-header">
-                          <h3>Agences par statut</h3>
+                          <h3>{t("Agences par statut", "Agencies by status")}</h3>
                         </div>
                         <div className="chart-container-small">
                           <ResponsiveContainer width="100%" height="100%">
@@ -834,9 +891,11 @@ export default function OrganizationDashboardPage() {
                       Object.keys(general_stats.revenue_by_agency).length >
                         0 && (
                         <div className="chart-card-small">
-                          <div className="chart-header">
-                            <h3>Top 10 revenus par agence</h3>
-                          </div>
+                        <div className="chart-header">
+                          <h3>
+                            {t("Top 10 revenus par agence", "Top 10 revenue by agency")}
+                          </h3>
+                        </div>
                           <div className="chart-container-small">
                             <ResponsiveContainer width="100%" height="100%">
                               <BarChart
@@ -885,7 +944,9 @@ export default function OrganizationDashboardPage() {
                         0 && (
                         <div className="chart-card-small">
                           <div className="chart-header">
-                            <h3>Réservations par statut</h3>
+                            <h3>
+                              {t("Réservations par statut", "Reservations by status")}
+                            </h3>
                           </div>
                           <div className="chart-container-small">
                             <ResponsiveContainer width="100%" height="100%">
@@ -929,7 +990,7 @@ export default function OrganizationDashboardPage() {
                       Object.keys(general_stats.trips_by_status).length > 0 && (
                         <div className="chart-card-small">
                           <div className="chart-header">
-                            <h3>Voyages par statut</h3>
+                            <h3>{t("Voyages par statut", "Trips by status")}</h3>
                           </div>
                           <div className="chart-container-small">
                             <ResponsiveContainer width="100%" height="100%">
@@ -977,7 +1038,12 @@ export default function OrganizationDashboardPage() {
                       <div className="charts-row">
                         <div className="chart-card-small">
                           <div className="chart-header">
-                            <h3>Top 10 réservations par agence</h3>
+                            <h3>
+                              {t(
+                                "Top 10 réservations par agence",
+                                "Top 10 reservations by agency",
+                              )}
+                            </h3>
                           </div>
                           <div className="chart-container-small">
                             <ResponsiveContainer width="100%" height="100%">
@@ -1020,13 +1086,17 @@ export default function OrganizationDashboardPage() {
                     <div className="org-agencies-section">
                       <div className="content-header">
                         <h3 className="content-title">
-                          Nos agences ({agencies_stats.total_agencies})
+                          {t("Nos agences", "Our agencies")} (
+                          {agencies_stats.total_agencies})
                         </h3>
                         <div className="search-input-wrapper">
                           <Search />
                           <input
                             type="text"
-                            placeholder="Rechercher une agence..."
+                            placeholder={t(
+                              "Rechercher une agence...",
+                              "Search an agency...",
+                            )}
                             value={agencies_search}
                             onChange={(e) => {
                               setAgenciesSearch(e.target.value);
@@ -1077,7 +1147,7 @@ export default function OrganizationDashboardPage() {
                             <div className="org-agency-stats">
                               <div className="org-agency-stat">
                                 <span className="org-agency-stat-label">
-                                  Employés
+                                  {t("Employés", "Employees")}
                                 </span>
                                 <span className="org-agency-stat-value">
                                   {agency.number_of_employees}
@@ -1085,7 +1155,7 @@ export default function OrganizationDashboardPage() {
                               </div>
                               <div className="org-agency-stat">
                                 <span className="org-agency-stat-label">
-                                  Voyages
+                                  {t("Voyages", "Trips")}
                                 </span>
                                 <span className="org-agency-stat-value">
                                   {agency.number_of_trips}
@@ -1093,7 +1163,7 @@ export default function OrganizationDashboardPage() {
                               </div>
                               <div className="org-agency-stat">
                                 <span className="org-agency-stat-label">
-                                  Revenu
+                                  {t("Revenu", "Revenue")}
                                 </span>
                                 <span className="org-agency-stat-value">
                                   {formatRevenue(agency.total_revenue)}
@@ -1116,7 +1186,8 @@ export default function OrganizationDashboardPage() {
                             <ChevronLeft />
                           </button>
                           <span>
-                            Page {agencies_page} sur {total_agencies_pages}
+                            {t("Page", "Page")} {agencies_page}{" "}
+                            {t("sur", "of")} {total_agencies_pages}
                           </span>
                           <button
                             onClick={() =>
@@ -1137,13 +1208,17 @@ export default function OrganizationDashboardPage() {
                   <div className="org-list-section">
                     <div className="content-header">
                       <h3 className="content-title">
-                        Mes organisations ({organizations.length})
+                        {t("Mes organisations", "My organizations")} (
+                        {organizations.length})
                       </h3>
                       <div className="search-input-wrapper">
                         <Search />
                         <input
                           type="text"
-                          placeholder="Rechercher une organisation..."
+                          placeholder={t(
+                            "Rechercher une organisation...",
+                            "Search an organization...",
+                          )}
                           value={orgs_search}
                           onChange={(e) => {
                             setOrgsSearch(e.target.value);
@@ -1193,7 +1268,7 @@ export default function OrganizationDashboardPage() {
                             </div>
                             <div className="org-list-detail">
                               <span className="org-list-detail-label">
-                                Dirigeant
+                                {t("Dirigeant", "Executive")}
                               </span>
                               <span className="org-list-detail-value">
                                 {org.ceo_name}
@@ -1201,7 +1276,7 @@ export default function OrganizationDashboardPage() {
                             </div>
                             <div className="org-list-detail">
                               <span className="org-list-detail-label">
-                                Créée le
+                                {t("Créée le", "Created on")}
                               </span>
                               <span className="org-list-detail-value">
                                 {formatDate(org.created_at)}
@@ -1222,7 +1297,8 @@ export default function OrganizationDashboardPage() {
                           <ChevronLeft />
                         </button>
                         <span>
-                          Page {orgs_page} sur {total_orgs_pages}
+                          {t("Page", "Page")} {orgs_page} {t("sur", "of")}{" "}
+                          {total_orgs_pages}
                         </span>
                         <button
                           onClick={() =>
@@ -1251,10 +1327,13 @@ export default function OrganizationDashboardPage() {
           setShowDeleteOrgModal(false);
         }}
         onConfirm={handleDeleteOrganization}
-        title="Supprimer l'organisation"
-        message="Êtes-vous sûr de vouloir supprimer cette voyage ? Cette action est irréversible."
-        confirmText="Supprimer"
-        cancelText="Annuler"
+        title={t("Supprimer l'organisation", "Delete organization")}
+        message={t(
+          "Êtes-vous sûr de vouloir supprimer cette voyage ? Cette action est irréversible.",
+          "Are you sure you want to delete this organization? This action cannot be undone.",
+        )}
+        confirmText={t("Supprimer", "Delete")}
+        cancelText={t("Annuler", "Cancel")}
         isLoading={is_deleting}
       />
 
@@ -1264,19 +1343,25 @@ export default function OrganizationDashboardPage() {
           setShowDeleteAgencyModal(false);
         }}
         onConfirm={handleDeleteAgency}
-        title="Supprimer l'agence"
-        message="Êtes-vous sûr de vouloir supprimer cette agence ? Cette action est irréversible."
-        confirmText="Supprimer"
-        cancelText="Annuler"
+        title={t("Supprimer l'agence", "Delete agency")}
+        message={t(
+          "Êtes-vous sûr de vouloir supprimer cette agence ? Cette action est irréversible.",
+          "Are you sure you want to delete this agency? This action cannot be undone.",
+        )}
+        confirmText={t("Supprimer", "Delete")}
+        cancelText={t("Annuler", "Cancel")}
         isLoading={is_deleting}
       />
 
       <SuccessModal
         show={showSuccessModal}
         onClose={() => window.location.reload()}
-        title="Génial"
-        message="Le suppression a réussie avec succès."
-        buttonText="OK"
+        title={t("Génial", "Great")}
+        message={t(
+          "Le suppression a réussie avec succès.",
+          "The deletion was successful.",
+        )}
+        buttonText={t("OK", "OK")}
       />
 
       <ErrorModal

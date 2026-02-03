@@ -23,6 +23,7 @@ import { useRouter } from "next/navigation";
 import Sidebar from "@/app/components/Sidebar";
 import MobileSidebar from "@/app/components/Mobilesidebar";
 import Header from "@/app/components/Header";
+import { useLanguage } from "@/app/providers";
 
 interface Voyage {
   idVoyage: string;
@@ -87,45 +88,51 @@ export default function ClientTicketsPage() {
   const [total_pages, setTotalPages] = useState(0);
 
   const router = useRouter();
+  const { t } = useLanguage();
 
   const API_BASE_URL = process.env.NEXT_PUBLIC_API_BASE_URL;
   const TICKETS_PER_PAGE = 100;
 
   const MENU_ITEMS = [
-    { icon: Home, label: "Accueil", path: "/user/client/home", active: false },
+    {
+      icon: Home,
+      label: t("Accueil", "Home"),
+      path: "/user/client/home",
+      active: false,
+    },
     {
       icon: Calendar,
-      label: "Réserver",
+      label: t("Réserver", "Book"),
       path: "/user/client/book",
       active: false,
     },
     {
       icon: FileText,
-      label: "Réservations",
+      label: t("Réservations", "Bookings"),
       path: "/user/client/reservations",
       active: false,
     },
     {
       icon: Ticket,
-      label: "Billets",
+      label: t("Billets", "Tickets"),
       path: "/user/client/tickets",
       active: true,
     },
     {
       icon: Gift,
-      label: "Coupons",
+      label: t("Coupons", "Vouchers"),
       path: "/user/client/vouchers",
       active: false,
     },
     {
       icon: History,
-      label: "Historique",
+      label: t("Historique", "History"),
       path: "/user/client/history",
       active: false,
     },
     {
       icon: Settings,
-      label: "Mes paramètres",
+      label: t("Mes paramètres", "Settings"),
       path: "/user/client/settings",
       active: false,
     },
@@ -177,7 +184,9 @@ export default function ClientTicketsPage() {
       );
 
       if (!response.ok) {
-        throw new Error("Erreur lors du chargement des billets");
+        throw new Error(
+          t("Erreur lors du chargement des billets", "Error loading tickets"),
+        );
       }
 
       const data = await response.json();
@@ -197,7 +206,9 @@ export default function ClientTicketsPage() {
       setTickets(confirmed_tickets);
       setTotalPages(data.totalPages || 0);
     } catch (error: any) {
-      setErrorMessage("Impossible de charger vos billets");
+      setErrorMessage(
+        t("Impossible de charger vos billets", "Unable to load your tickets"),
+      );
       console.error("Fetch Tickets Error:", error);
     } finally {
       setIsLoading(false);
@@ -212,7 +223,7 @@ export default function ClientTicketsPage() {
     <!DOCTYPE html>
     <html>
     <head>
-      <title>Billet - ${ticket.reservation.idReservation}</title>
+      <title>${t("Billet", "Ticket")} - ${ticket.reservation.idReservation}</title>
       <style>
         * {
           margin: 0;
@@ -376,67 +387,67 @@ export default function ClientTicketsPage() {
         
         <!-- Details Section -->
         <div class="details-section">
-          <div class="section-title">Détails de l'agence de voyage</div>
+          <div class="section-title">${t("Détails de l'agence de voyage", "Travel agency details")}</div>
           
           <div class="detail-row">
-            <span class="detail-label">Nom de l'agence</span>
+            <span class="detail-label">${t("Nom de l'agence", "Agency name")}</span>
             <span class="detail-value">${ticket.agence.longName}</span>
           </div>
           
           <div class="detail-row">
-            <span class="detail-label">Addresse</span>
+            <span class="detail-label">${t("Adresse", "Address")}</span>
             <span class="detail-value">${ticket.agence.ville} - ${ticket.agence.location}</span>
           </div>
           
           <div class="divider"></div>
           
-          <div class="section-title">Itinéraire du voyage</div>
+          <div class="section-title">${t("Itinéraire du voyage", "Trip itinerary")}</div>
           
           <div class="detail-row">
-            <span class="detail-label">Départ</span>
+            <span class="detail-label">${t("Départ", "Departure")}</span>
             <span class="detail-value">${ticket.voyage.lieuDepart} - ${ticket.voyage.pointDeDepart}</span>
           </div>
           
           <div class="detail-row">
-            <span class="detail-label">Arrivée</span>
+            <span class="detail-label">${t("Arrivée", "Arrival")}</span>
             <span class="detail-value">${ticket.voyage.lieuArrive} - ${ticket.voyage.pointArrivee}</span>
           </div>
           
           <div class="divider"></div>
           
-          <div class="section-title">Détails de la réservation</div>
+          <div class="section-title">${t("Détails de la réservation", "Reservation details")}</div>
           
           <div class="detail-row">
-            <span class="detail-label">Passagers</span>
+            <span class="detail-label">${t("Passagers", "Passengers")}</span>
             <span class="detail-value">${ticket.reservation.nbrPassager} personne${ticket.reservation.nbrPassager > 1 ? "s" : ""}</span>
           </div>
           
           <div class="detail-row">
-            <span class="detail-label">Date de départ</span>
+            <span class="detail-label">${t("Date de départ", "Departure date")}</span>
             <span class="detail-value">${new Date(ticket.voyage.dateDepartPrev).toLocaleDateString("fr-FR", { day: "2-digit", month: "2-digit", year: "numeric" })} , ${new Date(ticket.voyage.dateDepartPrev).toLocaleTimeString("fr-FR", { hour: "2-digit", minute: "2-digit" })}</span>
           </div>
           
           <div class="detail-row">
-            <span class="detail-label">Type de service</span>
-            <span class="detail-value">Réservation de voyage</span>
+            <span class="detail-label">${t("Type de service", "Service type")}</span>
+            <span class="detail-value">${t("Réservation de voyage", "Trip booking")}</span>
           </div>
           
           <div class="detail-row">
-            <span class="detail-label">Référence</span>
+            <span class="detail-label">${t("Référence", "Reference")}</span>
             <span class="detail-value">${ticket.reservation.idReservation}</span>
           </div>
           
           <div class="divider"></div>
           
-          <div class="section-title">Détail du paiement</div>
+          <div class="section-title">${t("Détail du paiement", "Payment details")}</div>
           
           <div class="detail-row">
-            <span class="detail-label">Date de paiement</span>
+            <span class="detail-label">${t("Date de paiement", "Payment date")}</span>
             <span class="detail-value">${new Date(ticket.reservation.dateConfirmation).toLocaleDateString("fr-FR", { day: "2-digit", month: "2-digit", year: "numeric" })} , ${new Date(ticket.reservation.dateConfirmation).toLocaleTimeString("fr-FR", { hour: "2-digit", minute: "2-digit" })}</span>
           </div>
           
           <div class="detail-row">
-            <span class="detail-label">Montant du transfert</span>
+            <span class="detail-label">${t("Montant du transfert", "Transfer amount")}</span>
             <span class="detail-value">${ticket.reservation.prixTotal.toLocaleString()} FCFA</span>
           </div>
         </div>
@@ -444,13 +455,13 @@ export default function ClientTicketsPage() {
         <!-- Footer -->
         <div class="footer">
           <p class="footer-text">
-            <span class="footer-highlight">Merci d'avoir choisi BusStation</span>
+            <span class="footer-highlight">${t("Merci d'avoir choisi BusStation", "Thank you for choosing BusStation")}</span>
           </p>
           <p class="footer-text">
-            Veuillez présenter ce billet lors de l'embarquement
+            ${t("Veuillez présenter ce billet lors de l'embarquement", "Please present this ticket at boarding")}
           </p>
           <p class="footer-text" style="margin-top: 12px; font-size: 11px;">
-            Imprimé le ${new Date().toLocaleDateString("fr-FR", { day: "2-digit", month: "2-digit", year: "numeric" })} à ${new Date().toLocaleTimeString("fr-FR", { hour: "2-digit", minute: "2-digit" })}
+            ${t("Imprimé le", "Printed on")} ${new Date().toLocaleDateString("fr-FR", { day: "2-digit", month: "2-digit", year: "numeric" })} ${t("à", "at")} ${new Date().toLocaleTimeString("fr-FR", { hour: "2-digit", minute: "2-digit" })}
           </p>
         </div>
       </div>
@@ -490,7 +501,7 @@ export default function ClientTicketsPage() {
 
       <div className="dashboard-main">
         <Header
-          title="Mes billets"
+          title={t("Mes billets", "My tickets")}
           userData={user_data}
           onMenuClick={() => setShowMobileMenu(true)}
         />
@@ -502,9 +513,14 @@ export default function ClientTicketsPage() {
               className="section-header"
               style={{ marginBottom: "var(--spacing-2xl)" }}
             >
-              <h2 className="section-title">Vos billets confirmés</h2>
+              <h2 className="section-title">
+                {t("Vos billets confirmés", "Your confirmed tickets")}
+              </h2>
               <p className="section-description">
-                Consultez et imprimez vos billets pour vos prochains voyages
+                {t(
+                  "Consultez et imprimez vos billets pour vos prochains voyages",
+                  "View and print your tickets for upcoming trips"
+                )}
               </p>
             </div>
 
@@ -512,7 +528,7 @@ export default function ClientTicketsPage() {
             {is_loading && (
               <div className="loading-state">
                 <RefreshCw className="spin" />
-                <p>Chargement de vos billets...</p>
+                <p>{t("Chargement de vos billets...", "Loading tickets...")}</p>
               </div>
             )}
 
@@ -525,7 +541,7 @@ export default function ClientTicketsPage() {
                   onClick={() => window.location.reload()}
                   className="btn modal-button modal-button-error"
                 >
-                  Réessayer
+                  {t("Réessayer", "Try again")}
                 </button>
               </div>
             )}
@@ -534,16 +550,21 @@ export default function ClientTicketsPage() {
             {!is_loading && !error_message && tickets.length === 0 && (
               <div className="empty-state">
                 <Ticket className="empty-icon" />
-                <h3 className="empty-title">Aucun billet disponible</h3>
+                <h3 className="empty-title">
+                  {t("Aucun billet disponible", "No tickets available")}
+                </h3>
                 <p className="empty-description">
-                  Vous n'avez pas encore de billets confirmés
+                  {t(
+                    "Vous n'avez pas encore de billets confirmés",
+                    "You don't have any confirmed tickets yet"
+                  )}
                 </p>
                 <button
                   onClick={() => router.push("/user/client/reservations")}
                   className="btn btn-primary"
                   style={{ marginTop: "var(--spacing-lg)" }}
                 >
-                  Payer une réservation
+                  {t("Payer une réservation", "Pay a reservation")}
                 </button>
               </div>
             )}
@@ -559,7 +580,9 @@ export default function ClientTicketsPage() {
                     >
                       <div className="voyage-result-header">
                         <div className="voyage-result-agency">
-                          <span className="voyage-result-label">Agence</span>
+                          <span className="voyage-result-label">
+                            {t("Agence", "Agency")}
+                          </span>
                           <h3 className="voyage-result-agency-name">
                             {data.agence.longName}
                           </h3>
@@ -584,7 +607,7 @@ export default function ClientTicketsPage() {
                               fontWeight: "var(--font-weight-semibold)",
                             }}
                           >
-                            ✓ Confirmé
+                            {t("✓ Confirmé", "✓ Confirmed")}
                           </span>
                         </div>
                       </div>
@@ -595,7 +618,7 @@ export default function ClientTicketsPage() {
                             <MapPin />
                             <div>
                               <span className="voyage-result-location-label">
-                                Départ
+                                {t("Départ", "Departure")}
                               </span>
                               <span className="voyage-result-location-value">
                                 {data.voyage.lieuDepart} -{" "}
@@ -608,7 +631,7 @@ export default function ClientTicketsPage() {
                             <MapPin />
                             <div>
                               <span className="voyage-result-location-label">
-                                Arrivée
+                                {t("Arrivée", "Arrival")}
                               </span>
                               <span className="voyage-result-location-value">
                                 {data.voyage.lieuArrive} -{" "}
@@ -629,7 +652,8 @@ export default function ClientTicketsPage() {
                           <div className="voyage-result-detail">
                             <Users />
                             <span>
-                              {data.reservation.nbrPassager} passager
+                              {data.reservation.nbrPassager}{" "}
+                              {t("passager", "passenger")}
                               {data.reservation.nbrPassager > 1 ? "s" : ""}
                             </span>
                           </div>
@@ -637,7 +661,7 @@ export default function ClientTicketsPage() {
                           <div className="voyage-result-detail">
                             <Calendar />
                             <span>
-                              Confirmé le{" "}
+                              {t("Confirmé le", "Confirmed on")}{" "}
                               {formatDate(data.reservation.dateConfirmation)}
                             </span>
                           </div>
@@ -647,7 +671,7 @@ export default function ClientTicketsPage() {
                       <div className="voyage-result-footer">
                         <div className="voyage-result-price">
                           <span className="voyage-result-price-label">
-                            Montant payé
+                            {t("Montant payé", "Amount paid")}
                           </span>
                           <span
                             className="voyage-result-price-value"
@@ -665,7 +689,7 @@ export default function ClientTicketsPage() {
                             gap: "var(--spacing-xs)",
                           }}
                         >
-                          <span>Imprimer le billet</span>
+                          <span>{t("Imprimer le billet", "Print ticket")}</span>
                         </button>
                       </div>
                     </div>
@@ -691,7 +715,7 @@ export default function ClientTicketsPage() {
                       <ChevronLeft />
                     </button>
                     <span>
-                      Page {current_page + 1} / {total_pages}
+                      {t("Page", "Page")} {current_page + 1} / {total_pages}
                     </span>
                     <button
                       onClick={() =>

@@ -25,6 +25,7 @@ import MobileSidebar from "@/app/components/Mobilesidebar";
 import Header from "@/app/components/Header";
 import SuccessModal from "@/app/components/SuccessModal";
 import ErrorModal from "@/app/components/ErrorModal";
+import { useLanguage } from "@/app/providers";
 
 interface OrganizationFormData {
   email: string;
@@ -75,6 +76,7 @@ export default function OrganizationPage() {
 
   const [keywordsInput, setKeywordsInput] = useState("");
   const [businessDomainsInput, setBusinessDomainsInput] = useState("");
+  const { t } = useLanguage();
 
   const [formData, setFormData] = useState<OrganizationFormData>({
     email: "",
@@ -101,25 +103,25 @@ export default function OrganizationPage() {
   const MENU_ITEMS = [
     {
       icon: Home,
-      label: "Dashboard",
+      label: t("Dashboard", "Dashboard"),
       path: "/user/organization/dashboard",
       active: false,
     },
     {
       icon: Briefcase,
-      label: "Organisation",
+      label: t("Organisation", "Organization"),
       path: "/user/organization/organization",
       active: true,
     },
     {
       icon: Building2,
-      label: "Agence",
+      label: t("Agence", "Agency"),
       path: "/user/organization/agencies",
       active: false,
     },
     {
       icon: Settings,
-      label: "Mes paramètres",
+      label: t("Mes paramètres", "My settings"),
       path: "/user/organization/settings",
       active: false,
     },
@@ -129,11 +131,11 @@ export default function OrganizationPage() {
     "SARL",
     "SA",
     "SAS",
-    "Entreprise individuelle",
-    "Association",
-    "Coopérative",
+    t("Entreprise individuelle", "Sole proprietorship"),
+    t("Association", "Association"),
+    t("Coopérative", "Cooperative"),
     "GIE",
-    "Autre",
+    t("Autre", "Other"),
   ];
 
   useEffect(() => {
@@ -215,19 +217,26 @@ export default function OrganizationPage() {
 
   const validateForm = () => {
     if (!formData.long_name.trim()) {
-      setErrorMessage("Le nom complet de l'organisation est requis");
+      setErrorMessage(
+        t(
+          "Le nom complet de l'organisation est requis",
+          "Organization full name is required",
+        ),
+      );
       return false;
     }
     if (!formData.short_name.trim()) {
-      setErrorMessage("L'abréviation est requise");
+      setErrorMessage(t("L'abréviation est requise", "Abbreviation is required"));
       return false;
     }
     if (!formData.ceo_name.trim()) {
-      setErrorMessage("Le nom du dirigeant est requis");
+      setErrorMessage(
+        t("Le nom du dirigeant est requis", "Executive name is required"),
+      );
       return false;
     }
     if (!formData.email.trim()) {
-      setErrorMessage("L'email est requis");
+      setErrorMessage(t("L'email est requis", "Email is required"));
       return false;
     }
     return true;
@@ -258,7 +267,12 @@ export default function OrganizationPage() {
       });
 
       if (!response.ok) {
-        throw new Error("Erreur lors de la création de l'organisation");
+        throw new Error(
+          t(
+            "Erreur lors de la création de l'organisation",
+            "Failed to create organization",
+          ),
+        );
       }
 
       setShowSuccessModal(true);
@@ -283,7 +297,10 @@ export default function OrganizationPage() {
       });
     } catch (error: any) {
       setErrorMessage(
-        "Une erreur est survenue lors de la création de l'organisation",
+        t(
+          "Une erreur est survenue lors de la création de l'organisation",
+          "An error occurred while creating the organization",
+        ),
       );
       setShowErrorModal(true);
     } finally {
@@ -315,7 +332,7 @@ export default function OrganizationPage() {
 
       <div className="dashboard-main">
         <Header
-          title="Créer une organisation"
+          title={t("Créer une organisation", "Create an organization")}
           userData={userData}
           onMenuClick={() => setShowMobileMenu(true)}
           userType="organization"
@@ -324,9 +341,11 @@ export default function OrganizationPage() {
         <main className="dashboard-content">
           <div className="container" style={{ maxWidth: "1200px" }}>
             <div className="section-header">
-              <h2 className="section-title">Nouvelle organisation</h2>
+              <h2 className="section-title">
+                {t("Nouvelle organisation", "New organization")}
+              </h2>
               <p className="section-description">
-                Créez votre organisation de voyage
+                {t("Créez votre organisation de voyage", "Create your travel organization")}
               </p>
             </div>
 
@@ -335,11 +354,11 @@ export default function OrganizationPage() {
               <div className="form-section">
                 <div className="form-section-header">
                   <Building />
-                  <h3>Informations générales</h3>
+                  <h3>{t("Informations générales", "General information")}</h3>
                 </div>
                 <div className="form-section-content">
                   <div className="form-group">
-                    <label className="form-label">Nom complet *</label>
+                    <label className="form-label">{t("Nom complet *", "Full name *")}</label>
                     <input
                       type="text"
                       name="long_name"
@@ -347,12 +366,17 @@ export default function OrganizationPage() {
                       onChange={handleInputChange}
                       required
                       className="form-input"
-                      placeholder="Ex: BusStation Travel & Tours"
+                      placeholder={t(
+                        "Ex: BusStation Travel & Tours",
+                        "e.g., BusStation Travel & Tours",
+                      )}
                     />
                   </div>
 
                   <div className="form-group">
-                    <label className="form-label">Abréviation *</label>
+                    <label className="form-label">
+                      {t("Abréviation *", "Abbreviation *")}
+                    </label>
                     <input
                       type="text"
                       name="short_name"
@@ -360,12 +384,12 @@ export default function OrganizationPage() {
                       onChange={handleInputChange}
                       required
                       className="form-input"
-                      placeholder="Ex: BTT"
+                      placeholder={t("Ex: BTT", "e.g., BTT")}
                     />
                   </div>
 
                   <div className="form-group">
-                    <label className="form-label">Email *</label>
+                    <label className="form-label">{t("Email *", "Email *")}</label>
                     <input
                       type="email"
                       name="email"
@@ -373,12 +397,17 @@ export default function OrganizationPage() {
                       onChange={handleInputChange}
                       required
                       className="form-input"
-                      placeholder="contact@organisation.com"
+                      placeholder={t(
+                        "contact@organisation.com",
+                        "contact@organization.com",
+                      )}
                     />
                   </div>
 
                   <div className="form-group">
-                    <label className="form-label">Nom du dirigeant *</label>
+                    <label className="form-label">
+                      {t("Nom du dirigeant *", "Executive name *")}
+                    </label>
                     <input
                       type="text"
                       name="ceo_name"
@@ -393,18 +422,26 @@ export default function OrganizationPage() {
                       }}
                     />
                     <p className="form-helper-text">
-                      Rempli automatiquement avec votre nom
+                      {t(
+                        "Rempli automatiquement avec votre nom",
+                        "Automatically filled with your name",
+                      )}
                     </p>
                   </div>
 
                   <div className="form-group" style={{ gridColumn: "1 / -1" }}>
-                    <label className="form-label">Description</label>
+                    <label className="form-label">
+                      {t("Description", "Description")}
+                    </label>
                     <textarea
                       name="description"
                       value={formData.description}
                       onChange={handleInputChange}
                       className="form-textarea"
-                      placeholder="Description de l'organisation..."
+                      placeholder={t(
+                        "Description de l'organisation...",
+                        "Organization description...",
+                      )}
                     />
                   </div>
                 </div>
@@ -414,18 +451,22 @@ export default function OrganizationPage() {
               <div className="form-section">
                 <div className="form-section-header">
                   <FileText />
-                  <h3>Informations légales</h3>
+                  <h3>{t("Informations légales", "Legal information")}</h3>
                 </div>
                 <div className="form-section-content">
                   <div className="form-group">
-                    <label className="form-label">Forme juridique</label>
+                    <label className="form-label">
+                      {t("Forme juridique", "Legal form")}
+                    </label>
                     <select
                       name="legal_form"
                       value={formData.legal_form}
                       onChange={handleInputChange}
                       className="form-select"
                     >
-                      <option value="">Sélectionner une forme</option>
+                      <option value="">
+                        {t("Sélectionner une forme", "Select a form")}
+                      </option>
                       {LEGAL_FORMS.map((form) => (
                         <option key={form} value={form}>
                           {form}
@@ -436,7 +477,7 @@ export default function OrganizationPage() {
 
                   <div className="form-group">
                     <label className="form-label">
-                      N° de registre de commerce
+                      {t("N° de registre de commerce", "Business registration number")}
                     </label>
                     <input
                       type="text"
@@ -444,36 +485,42 @@ export default function OrganizationPage() {
                       value={formData.business_registration_number}
                       onChange={handleInputChange}
                       className="form-input"
-                      placeholder="Ex: RC/YAO/2024/B/1234"
+                      placeholder={t("Ex: RC/YAO/2024/B/1234", "e.g., RC/YAO/2024/B/1234")}
                     />
                   </div>
 
                   <div className="form-group">
-                    <label className="form-label">Numéro fiscal</label>
+                    <label className="form-label">
+                      {t("Numéro fiscal", "Tax number")}
+                    </label>
                     <input
                       type="text"
                       name="tax_number"
                       value={formData.tax_number}
                       onChange={handleInputChange}
                       className="form-input"
-                      placeholder="Ex: M012345678901X"
+                      placeholder={t("Ex: M012345678901X", "e.g., M012345678901X")}
                     />
                   </div>
 
                   <div className="form-group">
-                    <label className="form-label">Capital social</label>
+                    <label className="form-label">
+                      {t("Capital social", "Share capital")}
+                    </label>
                     <input
                       type="text"
                       name="capital_share"
                       value={formData.capital_share}
                       onChange={handleInputChange}
                       className="form-input"
-                      placeholder="Ex: 5000000 XAF"
+                      placeholder={t("Ex: 5000000 XAF", "e.g., 5000000 XAF")}
                     />
                   </div>
 
                   <div className="form-group">
-                    <label className="form-label">Date d'enregistrement</label>
+                    <label className="form-label">
+                      {t("Date d'enregistrement", "Registration date")}
+                    </label>
                     <input
                       type="datetime-local"
                       name="registration_date"
@@ -484,7 +531,9 @@ export default function OrganizationPage() {
                   </div>
 
                   <div className="form-group">
-                    <label className="form-label">Date de création</label>
+                    <label className="form-label">
+                      {t("Date de création", "Founding date")}
+                    </label>
                     <input
                       type="datetime-local"
                       name="year_founded"
@@ -500,43 +549,50 @@ export default function OrganizationPage() {
               <div className="form-section">
                 <div className="form-section-header">
                   <Users />
-                  <h3>Informations opérationnelles</h3>
+                  <h3>{t("Informations opérationnelles", "Operational information")}</h3>
                 </div>
                 <div className="form-section-content">
                   <div className="form-group">
-                    <label className="form-label">Nombre d'employés</label>
+                    <label className="form-label">
+                      {t("Nombre d'employés", "Number of employees")}
+                    </label>
                     <input
                       type="number"
                       name="number_of_employees"
                       value={formData.number_of_employees}
                       onChange={handleInputChange}
                       className="form-input"
-                      placeholder="Ex: 50"
+                      placeholder={t("Ex: 50", "e.g., 50")}
                       min="0"
                     />
                   </div>
 
                   <div className="form-group">
-                    <label className="form-label">Site web</label>
+                    <label className="form-label">{t("Site web", "Website")}</label>
                     <input
                       type="text"
                       name="web_site_url"
                       value={formData.web_site_url}
                       onChange={handleInputChange}
                       className="form-input"
-                      placeholder="exemple.com"
+                      placeholder={t("exemple.com", "example.com")}
                     />
                   </div>
 
                   <div className="form-group">
-                    <label className="form-label">URL du logo</label>
+                    <label className="form-label">
+                      {t("URL du logo", "Logo URL")}
+                    </label>
                     <input
                       type="url"
                       name="logo_url"
                       value={formData.logo_url}
                       onChange={handleInputChange}
                       className="form-input"
-                      placeholder="https://exemple.com/logo.png"
+                      placeholder={t(
+                        "https://exemple.com/logo.png",
+                        "https://example.com/logo.png",
+                      )}
                     />
                   </div>
                 </div>
@@ -546,7 +602,7 @@ export default function OrganizationPage() {
               <div className="form-section">
                 <div className="form-section-header">
                   <Tag />
-                  <h3>Mots-clés</h3>
+                  <h3>{t("Mots-clés", "Keywords")}</h3>
                 </div>
                 <div
                   className="form-section-content"
@@ -564,7 +620,7 @@ export default function OrganizationPage() {
                         }
                       }}
                       className="form-input"
-                      placeholder="Ex: voyage, tourisme"
+                      placeholder={t("Ex: voyage, tourisme", "e.g., travel, tourism")}
                       style={{ width: "fit-content" }}
                     />
                     <button
@@ -572,7 +628,7 @@ export default function OrganizationPage() {
                       onClick={handleAddKeyword}
                       className="btn btn-secondary"
                     >
-                      Ajouter
+                      {t("Ajouter", "Add")}
                     </button>
                   </div>
 
@@ -606,7 +662,7 @@ export default function OrganizationPage() {
                   onClick={() => router.push("/user/organization/dashboard")}
                   className="btn btn-secondary"
                 >
-                  Annuler
+                  {t("Annuler", "Cancel")}
                 </button>
                 <button
                   type="submit"
@@ -616,12 +672,12 @@ export default function OrganizationPage() {
                   {isSubmitting ? (
                     <>
                       <RefreshCw className="spin" />
-                      <span>Création en cours...</span>
+                      <span>{t("Création en cours...", "Creating...")}</span>
                     </>
                   ) : (
                     <>
                       <Building />
-                      <span>Créer l'organisation</span>
+                      <span>{t("Créer l'organisation", "Create organization")}</span>
                     </>
                   )}
                 </button>
@@ -637,9 +693,9 @@ export default function OrganizationPage() {
           setShowSuccessModal(false);
           router.push("/user/organization/dashboard");
         }}
-        title="Organisation créée !"
-        message="Organisation créée avec succès"
-        buttonText="Retour au dashboard"
+        title={t("Organisation créée !", "Organization created!")}
+        message={t("Organisation créée avec succès", "Organization created successfully")}
+        buttonText={t("Retour au dashboard", "Back to dashboard")}
       />
 
       <ErrorModal
