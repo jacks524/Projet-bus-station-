@@ -425,6 +425,10 @@ html.dark .global-controls {
   border-radius: var(--radius-sm);
 }
 
+.mobile-menu-btn svg {
+  color: var(--color-primary);
+}
+
 .mobile-menu-btn:hover {
   background: var(--gray-100);
 }
@@ -964,7 +968,6 @@ html.dark .category-btn.active {
 
 .faq-section {
   padding: var(--spacing-2xl) 0 var(--spacing-4xl);
-  background: var(--gray-50);
 }
 
 .faq-list {
@@ -1949,7 +1952,6 @@ html.dark .chatbot-messages {
 .dashboard-layout {
   min-height: 100vh;
   display: flex;
-  background: var(--gray-50);
 }
 
 .dashboard-main {
@@ -3776,7 +3778,6 @@ html.dark .search-form select option {
   display: flex;
   justify-content: center;
   padding: var(--spacing-lg);
-  background: var(--gray-50);
   border-radius: var(--radius-md);
 }
 
