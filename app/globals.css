@@ -5970,13 +5970,133 @@ html.dark .passenger-field input:focus {
     box-shadow: none;
   }
 
-  .history-table {
-    font-size: 10pt;
-  }
+.history-table {
+  font-size: 10pt;
+}
+
+.bsm-organizations-widget {
+  background: #0f172a;
+  border: 1px solid var(--gray-200);
+  border-radius: var(--radius-lg);
+  padding: var(--spacing-xl);
+}
+
+.bsm-organization-item h4 {
+  font-size: var(--font-size-sm);
+  font-weight: var(--font-weight-semibold);
+  color: var(--foreground);
+  margin-bottom: 4px;
+}
+
+.bsm-organization-item p {
+  font-size: var(--font-size-xs);
+  color: var(--gray-50);
+  margin-bottom: 2px;
+}
+
+.bsm-org-search-input {
+  width: 100%;
+  padding-left: 40px;
+  padding-right: var(--spacing-md);
+  padding-top: var(--spacing-xs);
+  padding-bottom: var(--spacing-xs);
+  border: 1px solid var(--gray-300);
+  border-radius: var(--radius-md);
+  font-size: var(--font-size-sm);
+  outline: none;
+  transition: border-color var(--transition-base);
+}
+
+.bsm-org-search-input:focus {
+  border-color: var(--color-primary);
+}
+
+html.dark .bsm-organizations-widget {
+  background: #0f172a;
+  border-color: var(--gray-600);
+  color: var(--foreground);
+}
+
+html.dark .bsm-organization-item {
+  background: #111827;
+  border-color: var(--gray-600);
+}
+
+html.dark .bsm-organization-item h4,
+html.dark .bsm-organization-item p,
+html.dark .bsm-org-search-input::placeholder {
+  color: var(--gray-50);
+}
+
+html.dark .bsm-org-search-input {
+  background: rgba(15, 23, 42, 0.6);
+  border-color: var(--gray-600);
+  color: var(--gray-50);
+}
 
   .expanded-row {
     page-break-inside: avoid;
   }
+}
+
+.bsm-agencies-widget {
+  background: #0f172a;
+  border: 1px solid var(--gray-600);
+  border-radius: var(--radius-lg);
+  padding: var(--spacing-xl);
+}
+
+.bsm-agency-item h4 {
+  font-size: var(--font-size-sm);
+  font-weight: var(--font-weight-semibold);
+  color: var(--gray-900);
+  margin-bottom: 4px;
+}
+
+.bsm-agency-item p {
+  font-size: var(--font-size-xs);
+  color: var(--gray-600);
+  margin-bottom: 2px;
+}
+
+.bsm-agency-search-input {
+  width: 100%;
+  padding-left: 40px;
+  padding-right: var(--spacing-md);
+  padding-top: var(--spacing-xs);
+  padding-bottom: var(--spacing-xs);
+  border: 1px solid var(--gray-300);
+  border-radius: var(--radius-md);
+  font-size: var(--font-size-sm);
+  outline: none;
+  transition: border-color var(--transition-base);
+}
+
+.bsm-agency-search-input:focus {
+  border-color: var(--color-primary);
+}
+
+html.dark .bsm-agencies-widget {
+  background: #0f172a;
+  border-color: var(--gray-600);
+  color: var(--foreground);
+}
+
+html.dark .bsm-agency-item {
+  background: #111827;
+  border-color: var(--gray-600);
+}
+
+html.dark .bsm-agency-item h4,
+html.dark .bsm-agency-item p,
+html.dark .bsm-agency-search-input::placeholder {
+  color: var(--gray-50);
+}
+
+html.dark .bsm-agency-search-input {
+  background: rgba(15, 23, 42, 0.6);
+  border-color: var(--gray-600);
+  color: var(--gray-50);
 }
 
 /* Dark mode: force actor dashboard cards to deep navy */
@@ -6080,4 +6200,7 @@ html.dark .status-badge-table.status-warning {
 html.dark .status-badge-table.status-error {
   background: #991b1b33;
   color: #fecaca;
+}
+.bsm-organizations-widget h3 {
+  color: var(--foreground);
 }

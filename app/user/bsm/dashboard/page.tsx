@@ -952,9 +952,8 @@ export default function BSMDashboardPage() {
             >
               {/* Agences Card */}
               <div
+                className="bsm-agencies-widget"
                 style={{
-                  background: "white",
-                  border: "1px solid var(--gray-200)",
                   borderRadius: "var(--radius-lg)",
                   padding: "var(--spacing-xl)",
                 }}
@@ -1023,6 +1022,7 @@ export default function BSMDashboardPage() {
                       }}
                     />
                     <input
+                      className="bsm-agency-search-input"
                       type="text"
                       placeholder={t("Rechercher", "Search")}
                       value={agencesSearch}
@@ -1103,6 +1103,7 @@ export default function BSMDashboardPage() {
                         .map((agence) => (
                           <div
                             key={agence.agency_id}
+                            className="bsm-agency-item"
                             style={{
                               border: "1px solid var(--gray-200)",
                               borderRadius: "var(--radius-md)",
@@ -1174,9 +1175,8 @@ export default function BSMDashboardPage() {
 
               {/* Organizations Card */}
               <div
+                className="bsm-organizations-widget"
                 style={{
-                  background: "white",
-                  border: "1px solid var(--gray-200)",
                   borderRadius: "var(--radius-lg)",
                   padding: "var(--spacing-xl)",
                 }}
@@ -1242,6 +1242,7 @@ export default function BSMDashboardPage() {
                       }}
                     />
                     <input
+                      className="bsm-org-search-input"
                       type="text"
                       placeholder={t("Rechercher", "Search")}
                       value={orgsSearch}
@@ -1326,6 +1327,7 @@ export default function BSMDashboardPage() {
                         .map((org) => (
                           <div
                             key={org.organization_id}
+                            className="bsm-organization-item"
                             style={{
                               border: "1px solid var(--gray-200)",
                               borderRadius: "var(--radius-md)",
