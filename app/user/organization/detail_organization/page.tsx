@@ -20,6 +20,8 @@ import {
   Trash2,
   DollarSign,
   Calendar,
+  Car,
+  Users,
 } from "lucide-react";
 import Sidebar from "@/app/components/Sidebar";
 import MobileSidebar from "@/app/components/Mobilesidebar";
@@ -115,6 +117,18 @@ function DetailOrganizationContent() {
       icon: Building2,
       label: t("Agence", "Agency"),
       path: "/user/organization/agencies",
+      active: false,
+    },
+    {
+      icon: Users,
+      label: t("Employés", "Employees"),
+      path: "/user/organization/employees",
+      active: false,
+    },
+    {
+      icon: Car,
+      label: t("Bus", "Bus"),
+      path: "/user/organization/bus",
       active: false,
     },
     {
@@ -516,7 +530,8 @@ function DetailOrganizationContent() {
                       {t("Nom du dirigeant", "Executive name")}
                     </label>
                     <div className="settings-value">
-                      {organization.ceo_name || t("Non renseigné", "Not provided")}
+                      {organization.ceo_name ||
+                        t("Non renseigné", "Not provided")}
                     </div>
                   </div>
                   <div
@@ -582,7 +597,10 @@ function DetailOrganizationContent() {
                   </div>
                   <div className="settings-field">
                     <label className="settings-label">
-                      {t("N° registre de commerce", "Business registration number")}
+                      {t(
+                        "N° registre de commerce",
+                        "Business registration number",
+                      )}
                     </label>
                     {editMode ? (
                       <input
@@ -615,7 +633,8 @@ function DetailOrganizationContent() {
                       />
                     ) : (
                       <div className="settings-value">
-                        {organization.tax_number || t("Non renseigné", "Not provided")}
+                        {organization.tax_number ||
+                          t("Non renseigné", "Not provided")}
                       </div>
                     )}
                   </div>
@@ -686,7 +705,10 @@ function DetailOrganizationContent() {
                         value={formData.website_url || ""}
                         onChange={handleInputChange}
                         className="form-input"
-                        placeholder={t("https://exemple.com", "https://example.com")}
+                        placeholder={t(
+                          "https://exemple.com",
+                          "https://example.com",
+                        )}
                         style={{ width: "fit-content" }}
                       />
                     ) : organization.website_url ? (
@@ -748,7 +770,8 @@ function DetailOrganizationContent() {
                       {t("Logo URL", "Logo URL")}
                     </label>
                     <div className="settings-value">
-                      {organization.logo_url || t("Non renseigné", "Not provided")}
+                      {organization.logo_url ||
+                        t("Non renseigné", "Not provided")}
                     </div>
                   </div>
                 </div>
@@ -759,7 +782,10 @@ function DetailOrganizationContent() {
                 <div className="settings-section-header">
                   <Hash style={{ width: "20px", height: "20px" }} />
                   <h3 className="settings-section-title">
-                    {t("Informations supplémentaires", "Additional information")}
+                    {t(
+                      "Informations supplémentaires",
+                      "Additional information",
+                    )}
                   </h3>
                 </div>
                 <div className="settings-section-content">
@@ -867,7 +893,7 @@ function DetailOrganizationContent() {
 
 export default function DetailOrganizationPage() {
   const { t, language } = useLanguage();
-  
+
   return (
     <Suspense
       fallback={

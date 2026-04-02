@@ -183,6 +183,18 @@ export default function OrganizationDashboardPage() {
       active: false,
     },
     {
+      icon: Users,
+      label: t("Employés", "Employees"),
+      path: "/user/organization/employees",
+      active: false,
+    },
+    {
+      icon: Car,
+      label: t("Bus", "Bus"),
+      path: "/user/organization/bus",
+      active: false,
+    },
+    {
       icon: Settings,
       label: t("Mes paramètres", "My settings"),
       path: "/user/organization/settings",
@@ -418,7 +430,10 @@ export default function OrganizationDashboardPage() {
       setShowSuccessModal(true);
     } catch (error: any) {
       setErrorMessage(
-        t("Erreur lors de la suppression de l'agence", "Failed to delete agency"),
+        t(
+          "Erreur lors de la suppression de l'agence",
+          "Failed to delete agency",
+        ),
       );
       setShowErrorModal(true);
       console.error("Delete Agency Error:", error);
@@ -661,10 +676,244 @@ export default function OrganizationDashboardPage() {
                 </button>
               </div>
 
+              {agencies_stats && agencies_stats.agencies.length > 0 && (
+                <div className="org-agencies-section">
+                  <div className="content-header">
+                    <h3 className="content-title">
+                      {t("Nos agences", "Our agencies")} (
+                      {agencies_stats.total_agencies})
+                    </h3>
+                    <div className="search-input-wrapper">
+                      <Search />
+                      <input
+                        type="text"
+                        placeholder={t(
+                          "Rechercher une agence...",
+                          "Search an agency...",
+                        )}
+                        value={agencies_search}
+                        onChange={(e) => {
+                          setAgenciesSearch(e.target.value);
+                          setAgenciesPage(1);
+                        }}
+                      />
+                    </div>
+                  </div>
+
+                  <div className="org-agencies-grid">
+                    {paginated_agencies.map((agency) => (
+                      <div
+                        key={agency.agency_id}
+                        className="org-agency-card"
+                        onClick={() =>
+                          router.push(
+                            `/user/organization/detail_agency?id=${agency.agency_id}`,
+                          )
+                        }
+                      >
+                        <div className="org-agency-header">
+                          <div className="org-agency-info">
+                            <h4 className="org-agency-name">
+                              {agency.agency_name}
+                            </h4>
+                            <p className="org-agency-short">
+                              {agency.short_name}
+                            </p>
+                          </div>
+                          <button
+                            onClick={(e) => {
+                              e.stopPropagation();
+                              setDeleteTargetId(agency.agency_id);
+                              setDeleteTargetName(agency.agency_name);
+                              setShowDeleteAgencyModal(true);
+                            }}
+                            className="btn-icon-danger"
+                          >
+                            <Trash2 />
+                          </button>
+                        </div>
+
+                        <div className="org-agency-location">
+                          <MapPin />
+                          <span>{agency.ville}</span>
+                        </div>
+
+                        <div className="org-agency-stats">
+                          <div className="org-agency-stat">
+                            <span className="org-agency-stat-label">
+                              {t("Employés", "Employees")}
+                            </span>
+                            <span className="org-agency-stat-value">
+                              {agency.number_of_employees}
+                            </span>
+                          </div>
+                          <div className="org-agency-stat">
+                            <span className="org-agency-stat-label">
+                              {t("Voyages", "Trips")}
+                            </span>
+                            <span className="org-agency-stat-value">
+                              {agency.number_of_trips}
+                            </span>
+                          </div>
+                          <div className="org-agency-stat">
+                            <span className="org-agency-stat-label">
+                              {t("Revenu", "Revenue")}
+                            </span>
+                            <span className="org-agency-stat-value">
+                              {formatRevenue(agency.total_revenue)}
+                            </span>
+                          </div>
+                        </div>
+                      </div>
+                    ))}
+                  </div>
+
+                  {total_agencies_pages > 1 && (
+                    <div className="widget-pagination">
+                      <button
+                        onClick={() =>
+                          setAgenciesPage((p) => Math.max(1, p - 1))
+                        }
+                        disabled={agencies_page === 1}
+                        className="btn-icon"
+                      >
+                        <ChevronLeft />
+                      </button>
+                      <span>
+                        {t("Page", "Page")} {agencies_page} {t("sur", "of")}{" "}
+                        {total_agencies_pages}
+                      </span>
+                      <button
+                        onClick={() =>
+                          setAgenciesPage((p) =>
+                            Math.min(total_agencies_pages, p + 1),
+                          )
+                        }
+                        disabled={agencies_page === total_agencies_pages}
+                        className="btn-icon"
+                      >
+                        <ChevronRight />
+                      </button>
+                    </div>
+                  )}
+                </div>
+              )}
+
+              <div className="org-list-section">
+                <div className="content-header">
+                  <h3 className="content-title">
+                    {t("Mes organisations", "My organizations")} (
+                    {organizations.length})
+                  </h3>
+                  <div className="search-input-wrapper">
+                    <Search />
+                    <input
+                      type="text"
+                      placeholder={t(
+                        "Rechercher une organisation...",
+                        "Search an organization...",
+                      )}
+                      value={orgs_search}
+                      onChange={(e) => {
+                        setOrgsSearch(e.target.value);
+                        setOrgsPage(1);
+                      }}
+                    />
+                  </div>
+                </div>
+
+                <div className="org-cards-grid">
+                  {paginated_orgs.map((org) => (
+                    <div
+                      key={org.id}
+                      className="org-list-card"
+                      onClick={() =>
+                        router.push(
+                          `/user/organization/detail_organization?id=${org.id}`,
+                        )
+                      }
+                    >
+                      <div className="org-list-header">
+                        <div className="org-list-info">
+                          <h4 className="org-list-name">{org.long_name}</h4>
+                          <p className="org-list-short">{org.short_name}</p>
+                        </div>
+                        <button
+                          onClick={(e) => {
+                            e.stopPropagation();
+                            setDeleteTargetId(org.id);
+                            setDeleteTargetName(org.long_name);
+                            setShowDeleteOrgModal(true);
+                          }}
+                          className="btn-icon-danger"
+                        >
+                          <Trash2 />
+                        </button>
+                      </div>
+
+                      <div className="org-list-details">
+                        <div className="org-list-detail">
+                          <span className="org-list-detail-label">Email</span>
+                          <span className="org-list-detail-value">
+                            {org.email}
+                          </span>
+                        </div>
+                        <div className="org-list-detail">
+                          <span className="org-list-detail-label">
+                            {t("Dirigeant", "Executive")}
+                          </span>
+                          <span className="org-list-detail-value">
+                            {org.ceo_name}
+                          </span>
+                        </div>
+                        <div className="org-list-detail">
+                          <span className="org-list-detail-label">
+                            {t("Créée le", "Created on")}
+                          </span>
+                          <span className="org-list-detail-value">
+                            {formatDate(org.created_at)}
+                          </span>
+                        </div>
+                      </div>
+                    </div>
+                  ))}
+                </div>
+
+                {total_orgs_pages > 1 && (
+                  <div className="widget-pagination">
+                    <button
+                      onClick={() => setOrgsPage((p) => Math.max(1, p - 1))}
+                      disabled={orgs_page === 1}
+                      className="btn-icon"
+                    >
+                      <ChevronLeft />
+                    </button>
+                    <span>
+                      {t("Page", "Page")} {orgs_page} {t("sur", "of")}{" "}
+                      {total_orgs_pages}
+                    </span>
+                    <button
+                      onClick={() =>
+                        setOrgsPage((p) => Math.min(total_orgs_pages, p + 1))
+                      }
+                      disabled={orgs_page === total_orgs_pages}
+                      className="btn-icon"
+                    >
+                      <ChevronRight />
+                    </button>
+                  </div>
+                )}
+              </div>
+
               {is_loading_stats && (
                 <div className="loading-state">
                   <RefreshCw className="spin" />
-                  <p>{t("Chargement des statistiques...", "Loading statistics...")}</p>
+                  <p>
+                    {t(
+                      "Chargement des statistiques...",
+                      "Loading statistics...",
+                    )}
+                  </p>
                 </div>
               )}
 
@@ -780,7 +1029,12 @@ export default function OrganizationDashboardPage() {
                         0 && (
                         <div className="chart-card-small">
                           <div className="chart-header">
-                            <h3>{t("Réservations par mois", "Reservations by month")}</h3>
+                            <h3>
+                              {t(
+                                "Réservations par mois",
+                                "Reservations by month",
+                              )}
+                            </h3>
                           </div>
                           <div className="chart-container-small">
                             <ResponsiveContainer width="100%" height="100%">
@@ -858,7 +1112,9 @@ export default function OrganizationDashboardPage() {
                     {getStatusData().length > 0 && (
                       <div className="chart-card-small">
                         <div className="chart-header">
-                          <h3>{t("Agences par statut", "Agencies by status")}</h3>
+                          <h3>
+                            {t("Agences par statut", "Agencies by status")}
+                          </h3>
                         </div>
                         <div className="chart-container-small">
                           <ResponsiveContainer width="100%" height="100%">
@@ -891,11 +1147,14 @@ export default function OrganizationDashboardPage() {
                       Object.keys(general_stats.revenue_by_agency).length >
                         0 && (
                         <div className="chart-card-small">
-                        <div className="chart-header">
-                          <h3>
-                            {t("Top 10 revenus par agence", "Top 10 revenue by agency")}
-                          </h3>
-                        </div>
+                          <div className="chart-header">
+                            <h3>
+                              {t(
+                                "Top 10 revenus par agence",
+                                "Top 10 revenue by agency",
+                              )}
+                            </h3>
+                          </div>
                           <div className="chart-container-small">
                             <ResponsiveContainer width="100%" height="100%">
                               <BarChart
@@ -945,7 +1204,10 @@ export default function OrganizationDashboardPage() {
                         <div className="chart-card-small">
                           <div className="chart-header">
                             <h3>
-                              {t("Réservations par statut", "Reservations by status")}
+                              {t(
+                                "Réservations par statut",
+                                "Reservations by status",
+                              )}
                             </h3>
                           </div>
                           <div className="chart-container-small">
@@ -990,7 +1252,9 @@ export default function OrganizationDashboardPage() {
                       Object.keys(general_stats.trips_by_status).length > 0 && (
                         <div className="chart-card-small">
                           <div className="chart-header">
-                            <h3>{t("Voyages par statut", "Trips by status")}</h3>
+                            <h3>
+                              {t("Voyages par statut", "Trips by status")}
+                            </h3>
                           </div>
                           <div className="chart-container-small">
                             <ResponsiveContainer width="100%" height="100%">
@@ -1081,239 +1345,6 @@ export default function OrganizationDashboardPage() {
                         </div>
                       </div>
                     )}
-
-                  {agencies_stats && agencies_stats.agencies.length > 0 && (
-                    <div className="org-agencies-section">
-                      <div className="content-header">
-                        <h3 className="content-title">
-                          {t("Nos agences", "Our agencies")} (
-                          {agencies_stats.total_agencies})
-                        </h3>
-                        <div className="search-input-wrapper">
-                          <Search />
-                          <input
-                            type="text"
-                            placeholder={t(
-                              "Rechercher une agence...",
-                              "Search an agency...",
-                            )}
-                            value={agencies_search}
-                            onChange={(e) => {
-                              setAgenciesSearch(e.target.value);
-                              setAgenciesPage(1);
-                            }}
-                          />
-                        </div>
-                      </div>
-
-                      <div className="org-agencies-grid">
-                        {paginated_agencies.map((agency) => (
-                          <div
-                            key={agency.agency_id}
-                            className="org-agency-card"
-                            onClick={() =>
-                              router.push(
-                                `/user/organization/detail_agency?id=${agency.agency_id}`,
-                              )
-                            }
-                          >
-                            <div className="org-agency-header">
-                              <div className="org-agency-info">
-                                <h4 className="org-agency-name">
-                                  {agency.agency_name}
-                                </h4>
-                                <p className="org-agency-short">
-                                  {agency.short_name}
-                                </p>
-                              </div>
-                              <button
-                                onClick={(e) => {
-                                  e.stopPropagation();
-                                  setDeleteTargetId(agency.agency_id);
-                                  setDeleteTargetName(agency.agency_name);
-                                  setShowDeleteAgencyModal(true);
-                                }}
-                                className="btn-icon-danger"
-                              >
-                                <Trash2 />
-                              </button>
-                            </div>
-
-                            <div className="org-agency-location">
-                              <MapPin />
-                              <span>{agency.ville}</span>
-                            </div>
-
-                            <div className="org-agency-stats">
-                              <div className="org-agency-stat">
-                                <span className="org-agency-stat-label">
-                                  {t("Employés", "Employees")}
-                                </span>
-                                <span className="org-agency-stat-value">
-                                  {agency.number_of_employees}
-                                </span>
-                              </div>
-                              <div className="org-agency-stat">
-                                <span className="org-agency-stat-label">
-                                  {t("Voyages", "Trips")}
-                                </span>
-                                <span className="org-agency-stat-value">
-                                  {agency.number_of_trips}
-                                </span>
-                              </div>
-                              <div className="org-agency-stat">
-                                <span className="org-agency-stat-label">
-                                  {t("Revenu", "Revenue")}
-                                </span>
-                                <span className="org-agency-stat-value">
-                                  {formatRevenue(agency.total_revenue)}
-                                </span>
-                              </div>
-                            </div>
-                          </div>
-                        ))}
-                      </div>
-
-                      {total_agencies_pages > 1 && (
-                        <div className="widget-pagination">
-                          <button
-                            onClick={() =>
-                              setAgenciesPage((p) => Math.max(1, p - 1))
-                            }
-                            disabled={agencies_page === 1}
-                            className="btn-icon"
-                          >
-                            <ChevronLeft />
-                          </button>
-                          <span>
-                            {t("Page", "Page")} {agencies_page}{" "}
-                            {t("sur", "of")} {total_agencies_pages}
-                          </span>
-                          <button
-                            onClick={() =>
-                              setAgenciesPage((p) =>
-                                Math.min(total_agencies_pages, p + 1),
-                              )
-                            }
-                            disabled={agencies_page === total_agencies_pages}
-                            className="btn-icon"
-                          >
-                            <ChevronRight />
-                          </button>
-                        </div>
-                      )}
-                    </div>
-                  )}
-
-                  <div className="org-list-section">
-                    <div className="content-header">
-                      <h3 className="content-title">
-                        {t("Mes organisations", "My organizations")} (
-                        {organizations.length})
-                      </h3>
-                      <div className="search-input-wrapper">
-                        <Search />
-                        <input
-                          type="text"
-                          placeholder={t(
-                            "Rechercher une organisation...",
-                            "Search an organization...",
-                          )}
-                          value={orgs_search}
-                          onChange={(e) => {
-                            setOrgsSearch(e.target.value);
-                            setOrgsPage(1);
-                          }}
-                        />
-                      </div>
-                    </div>
-
-                    <div className="org-cards-grid">
-                      {paginated_orgs.map((org) => (
-                        <div
-                          key={org.id}
-                          className="org-list-card"
-                          onClick={() =>
-                            router.push(
-                              `/user/organization/detail_organization?id=${org.id}`,
-                            )
-                          }
-                        >
-                          <div className="org-list-header">
-                            <div className="org-list-info">
-                              <h4 className="org-list-name">{org.long_name}</h4>
-                              <p className="org-list-short">{org.short_name}</p>
-                            </div>
-                            <button
-                              onClick={(e) => {
-                                e.stopPropagation();
-                                setDeleteTargetId(org.id);
-                                setDeleteTargetName(org.long_name);
-                                setShowDeleteOrgModal(true);
-                              }}
-                              className="btn-icon-danger"
-                            >
-                              <Trash2 />
-                            </button>
-                          </div>
-
-                          <div className="org-list-details">
-                            <div className="org-list-detail">
-                              <span className="org-list-detail-label">
-                                Email
-                              </span>
-                              <span className="org-list-detail-value">
-                                {org.email}
-                              </span>
-                            </div>
-                            <div className="org-list-detail">
-                              <span className="org-list-detail-label">
-                                {t("Dirigeant", "Executive")}
-                              </span>
-                              <span className="org-list-detail-value">
-                                {org.ceo_name}
-                              </span>
-                            </div>
-                            <div className="org-list-detail">
-                              <span className="org-list-detail-label">
-                                {t("Créée le", "Created on")}
-                              </span>
-                              <span className="org-list-detail-value">
-                                {formatDate(org.created_at)}
-                              </span>
-                            </div>
-                          </div>
-                        </div>
-                      ))}
-                    </div>
-
-                    {total_orgs_pages > 1 && (
-                      <div className="widget-pagination">
-                        <button
-                          onClick={() => setOrgsPage((p) => Math.max(1, p - 1))}
-                          disabled={orgs_page === 1}
-                          className="btn-icon"
-                        >
-                          <ChevronLeft />
-                        </button>
-                        <span>
-                          {t("Page", "Page")} {orgs_page} {t("sur", "of")}{" "}
-                          {total_orgs_pages}
-                        </span>
-                        <button
-                          onClick={() =>
-                            setOrgsPage((p) =>
-                              Math.min(total_orgs_pages, p + 1),
-                            )
-                          }
-                          disabled={orgs_page === total_orgs_pages}
-                          className="btn-icon"
-                        >
-                          <ChevronRight />
-                        </button>
-                      </div>
-                    )}
-                  </div>
                 </>
               )}
             </>

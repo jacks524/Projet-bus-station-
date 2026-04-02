@@ -14,6 +14,8 @@ import {
   RefreshCw,
   X,
   ChevronDown,
+  Users,
+  Car,
 } from "lucide-react";
 import { useRouter } from "next/navigation";
 import Sidebar from "@/app/components/Sidebar";
@@ -110,6 +112,18 @@ export default function AgencyPage() {
       label: t("Agence", "Agency"),
       path: "/user/organization/agencies",
       active: true,
+    },
+    {
+      icon: Users,
+      label: t("Employés", "Employees"),
+      path: "/user/organization/employees",
+      active: false,
+    },
+    {
+      icon: Car,
+      label: t("Bus", "Bus"),
+      path: "/user/organization/bus",
+      active: false,
     },
     {
       icon: Settings,
@@ -217,7 +231,10 @@ export default function AgencyPage() {
   const validateForm = () => {
     if (!formData.long_name.trim()) {
       setErrorMessage(
-        t("Le nom complet de l'agence est requis", "Agency full name is required"),
+        t(
+          "Le nom complet de l'agence est requis",
+          "Agency full name is required",
+        ),
       );
       return false;
     }
@@ -342,7 +359,10 @@ export default function AgencyPage() {
               {t("Nouvelle agence", "New agency")}
             </h2>
             <p className="section-description">
-              {t("Ajoutez une agence à votre organisation", "Add an agency to your organization")}
+              {t(
+                "Ajoutez une agence à votre organisation",
+                "Add an agency to your organization",
+              )}
             </p>
           </div>
 
@@ -375,7 +395,10 @@ export default function AgencyPage() {
                     marginBottom: "4px",
                   }}
                 >
-                  {t("Validation du Bus Station Manager requise", "Bus Station Manager validation required")}
+                  {t(
+                    "Validation du Bus Station Manager requise",
+                    "Bus Station Manager validation required",
+                  )}
                 </h3>
                 <p
                   style={{ fontSize: "var(--font-size-sm)", color: "#1e40af" }}
@@ -392,7 +415,12 @@ export default function AgencyPage() {
             {isLoadingOrgs && (
               <div className="loading-state">
                 <RefreshCw className="spin" />
-                <p>{t("Chargement des organisations...", "Loading organizations...")}</p>
+                <p>
+                  {t(
+                    "Chargement des organisations...",
+                    "Loading organizations...",
+                  )}
+                </p>
               </div>
             )}
 
@@ -433,7 +461,10 @@ export default function AgencyPage() {
                       {selectedOrganization?.long_name || t("Aucune", "None")}
                     </h2>
                     <p className="agency-location">
-                      {t("Abréviation du nom de l'organisation :", "Organization short name:")}{" "}
+                      {t(
+                        "Abréviation du nom de l'organisation :",
+                        "Organization short name:",
+                      )}{" "}
                       {selectedOrganization?.short_name}
                     </p>
                   </div>
@@ -484,7 +515,9 @@ export default function AgencyPage() {
                   <div className="form-section">
                     <div className="form-section-header">
                       <Building />
-                      <h3>{t("Informations principales", "Main information")}</h3>
+                      <h3>
+                        {t("Informations principales", "Main information")}
+                      </h3>
                     </div>
                     <div className="form-section-content">
                       <div className="form-group">
@@ -516,7 +549,10 @@ export default function AgencyPage() {
                           onChange={handleInputChange}
                           required
                           className="form-input"
-                          placeholder={t("Ex: BST-YDE-CTR", "e.g., BST-YDE-CTR")}
+                          placeholder={t(
+                            "Ex: BST-YDE-CTR",
+                            "e.g., BST-YDE-CTR",
+                          )}
                         />
                       </div>
                     </div>
@@ -530,7 +566,9 @@ export default function AgencyPage() {
                     </div>
                     <div className="form-section-content">
                       <div className="form-group">
-                        <label className="form-label">{t("Ville *", "City *")}</label>
+                        <label className="form-label">
+                          {t("Ville *", "City *")}
+                        </label>
                         <select
                           name="ville"
                           value={formData.ville}
@@ -579,7 +617,10 @@ export default function AgencyPage() {
                     <div className="form-section-header">
                       <Globe />
                       <h3>
-                        {t("Informations supplémentaires", "Additional information")}
+                        {t(
+                          "Informations supplémentaires",
+                          "Additional information",
+                        )}
                       </h3>
                     </div>
                     <div className="form-section-content">
@@ -661,7 +702,9 @@ export default function AgencyPage() {
                       {isSubmitting ? (
                         <>
                           <RefreshCw className="spin" />
-                          <span>{t("Création en cours...", "Creating...")}</span>
+                          <span>
+                            {t("Création en cours...", "Creating...")}
+                          </span>
                         </>
                       ) : (
                         <>

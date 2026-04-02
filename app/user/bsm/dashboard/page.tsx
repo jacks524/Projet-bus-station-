@@ -213,7 +213,10 @@ export default function BSMDashboardPage() {
       setStatistics(data);
     } catch (error: any) {
       setErrorMessage(
-        t("Impossible de charger les statistiques", "Unable to load statistics"),
+        t(
+          "Impossible de charger les statistiques",
+          "Unable to load statistics",
+        ),
       );
       console.error("Fetch Statistics Error:", error);
     } finally {
@@ -400,7 +403,9 @@ export default function BSMDashboardPage() {
           {isLoadingStats && (
             <div className="loading-state">
               <RefreshCw className="spin" />
-              <p>{t("Chargement des statistiques...", "Loading statistics...")}</p>
+              <p>
+                {t("Chargement des statistiques...", "Loading statistics...")}
+              </p>
             </div>
           )}
 
@@ -596,6 +601,475 @@ export default function BSMDashboardPage() {
                 </div>
               </div>
 
+              <div
+                style={{
+                  display: "grid",
+                  gridTemplateColumns: "1fr",
+                  gap: "var(--spacing-xl)",
+                  marginTop: "var(--spacing-xl)",
+                  marginBottom: "var(--spacing-xl)",
+                }}
+              >
+                <div
+                  style={{
+                    display: "grid",
+                    gridTemplateColumns: "repeat(auto-fit, minmax(400px, 1fr))",
+                    gap: "var(--spacing-xl)",
+                  }}
+                >
+                  {/* Agences Card */}
+                  <div
+                    style={{
+                      background: "white",
+                      border: "1px solid var(--gray-200)",
+                      borderRadius: "var(--radius-lg)",
+                      padding: "var(--spacing-xl)",
+                    }}
+                  >
+                    <div
+                      style={{
+                        display: "flex",
+                        alignItems: "center",
+                        justifyContent: "space-between",
+                        marginBottom: "var(--spacing-lg)",
+                      }}
+                    >
+                      <div
+                        style={{
+                          display: "flex",
+                          alignItems: "center",
+                          gap: "var(--spacing-sm)",
+                        }}
+                      >
+                        <h3
+                          style={{
+                            fontSize: "var(--font-size-lg)",
+                            fontWeight: "var(--font-weight-semibold)",
+                            color: "var(--gray-900)",
+                          }}
+                        >
+                          {t("Agences validées", "Validated agencies")}
+                        </h3>
+                      </div>
+                      <button
+                        onClick={() =>
+                          userData?.address && fetchAgences(userData.address)
+                        }
+                        disabled={isLoadingAgences}
+                        style={{
+                          padding: "var(--spacing-xs)",
+                          background: "transparent",
+                          border: "none",
+                          borderRadius: "var(--radius-md)",
+                          cursor: "pointer",
+                          transition: "background var(--transition-base)",
+                        }}
+                      >
+                        <RefreshCw
+                          style={{
+                            width: "16px",
+                            height: "16px",
+                            color: "var(--gray-600)",
+                          }}
+                          className={isLoadingAgences ? "spin" : ""}
+                        />
+                      </button>
+                    </div>
+
+                    <div style={{ marginBottom: "var(--spacing-md)" }}>
+                      <div style={{ position: "relative" }}>
+                        <Search
+                          style={{
+                            position: "absolute",
+                            left: "var(--spacing-sm)",
+                            top: "50%",
+                            transform: "translateY(-50%)",
+                            width: "16px",
+                            height: "16px",
+                            color: "var(--gray-400)",
+                          }}
+                        />
+                        <input
+                          type="text"
+                          placeholder={t("Rechercher", "Search")}
+                          value={agencesSearch}
+                          onChange={(e) => setAgencesSearch(e.target.value)}
+                          style={{
+                            width: "100%",
+                            paddingLeft: "40px",
+                            paddingRight: "var(--spacing-md)",
+                            paddingTop: "var(--spacing-xs)",
+                            paddingBottom: "var(--spacing-xs)",
+                            border: "1px solid var(--gray-300)",
+                            borderRadius: "var(--radius-md)",
+                            fontSize: "var(--font-size-sm)",
+                            color: "var(--gray-900)",
+                            outline: "none",
+                          }}
+                        />
+                      </div>
+                    </div>
+
+                    {isLoadingAgences ? (
+                      <div
+                        style={{
+                          display: "flex",
+                          alignItems: "center",
+                          justifyContent: "center",
+                          padding: "var(--spacing-2xl)",
+                        }}
+                      >
+                        <RefreshCw
+                          style={{
+                            width: "24px",
+                            height: "24px",
+                            color: "var(--color-primary)",
+                          }}
+                          className="spin"
+                        />
+                      </div>
+                    ) : agences.length === 0 ? (
+                      <div
+                        style={{
+                          textAlign: "center",
+                          padding: "var(--spacing-2xl)",
+                        }}
+                      >
+                        <Building2
+                          style={{
+                            width: "40px",
+                            height: "40px",
+                            color: "var(--gray-400)",
+                            margin: "0 auto var(--spacing-md)",
+                          }}
+                        />
+                        <p style={{ color: "var(--gray-500)" }}>
+                          {t("Aucune agence trouvée", "No agency found")}
+                        </p>
+                      </div>
+                    ) : (
+                      <>
+                        <div
+                          style={{
+                            display: "flex",
+                            flexDirection: "column",
+                            gap: "var(--spacing-sm)",
+                            marginBottom: "var(--spacing-md)",
+                          }}
+                        >
+                          {agences
+                            .filter(
+                              (agence) =>
+                                agence.long_name
+                                  .toLowerCase()
+                                  .includes(agencesSearch.toLowerCase()) ||
+                                agence.short_name
+                                  .toLowerCase()
+                                  .includes(agencesSearch.toLowerCase()),
+                            )
+                            .map((agence) => (
+                              <div
+                                key={agence.agency_id}
+                                style={{
+                                  border: "1px solid var(--gray-200)",
+                                  borderRadius: "var(--radius-md)",
+                                  padding: "var(--spacing-md)",
+                                  transition:
+                                    "box-shadow var(--transition-base)",
+                                }}
+                              >
+                                <h4
+                                  style={{
+                                    fontSize: "var(--font-size-sm)",
+                                    fontWeight: "var(--font-weight-semibold)",
+                                    color: "var(--gray-900)",
+                                    marginBottom: "4px",
+                                  }}
+                                >
+                                  {agence.long_name}
+                                </h4>
+                                <p
+                                  style={{
+                                    fontSize: "var(--font-size-xs)",
+                                    color: "var(--gray-600)",
+                                    marginBottom: "2px",
+                                  }}
+                                >
+                                  {agence.short_name}
+                                </p>
+                                <p
+                                  style={{
+                                    fontSize: "var(--font-size-xs)",
+                                    color: "var(--gray-500)",
+                                  }}
+                                >
+                                  {agence.ville} - {agence.location}
+                                </p>
+                              </div>
+                            ))}
+                        </div>
+
+                        {agencesTotalPages > 1 && (
+                          <div className="widget-pagination">
+                            <button
+                              onClick={() =>
+                                setAgencesPage(Math.max(0, agencesPage - 1))
+                              }
+                              disabled={agencesPage === 0}
+                              className="btn-icon"
+                            >
+                              <ChevronLeft />
+                            </button>
+                            <span>
+                              {agencesPage + 1} / {agencesTotalPages}
+                            </span>
+                            <button
+                              onClick={() =>
+                                setAgencesPage(
+                                  Math.min(
+                                    agencesTotalPages - 1,
+                                    agencesPage + 1,
+                                  ),
+                                )
+                              }
+                              disabled={agencesPage === agencesTotalPages - 1}
+                              className="btn-icon"
+                            >
+                              <ChevronRight />
+                            </button>
+                          </div>
+                        )}
+                      </>
+                    )}
+                  </div>
+
+                  {/* Organizations Card */}
+                  <div
+                    style={{
+                      background: "white",
+                      border: "1px solid var(--gray-200)",
+                      borderRadius: "var(--radius-lg)",
+                      padding: "var(--spacing-xl)",
+                    }}
+                  >
+                    <div
+                      style={{
+                        display: "flex",
+                        alignItems: "center",
+                        justifyContent: "space-between",
+                        marginBottom: "var(--spacing-lg)",
+                      }}
+                    >
+                      <div
+                        style={{
+                          display: "flex",
+                          alignItems: "center",
+                          gap: "var(--spacing-sm)",
+                        }}
+                      >
+                        <h3
+                          style={{
+                            fontSize: "var(--font-size-lg)",
+                            fontWeight: "var(--font-weight-semibold)",
+                            color: "var(--gray-900)",
+                          }}
+                        >
+                          {t("Organisations", "Organizations")}
+                        </h3>
+                      </div>
+                      <button
+                        onClick={fetchOrganizations}
+                        disabled={isLoadingOrgs}
+                        style={{
+                          padding: "var(--spacing-xs)",
+                          background: "transparent",
+                          border: "none",
+                          borderRadius: "var(--radius-md)",
+                          cursor: "pointer",
+                        }}
+                      >
+                        <RefreshCw
+                          style={{
+                            width: "16px",
+                            height: "16px",
+                            color: "var(--gray-600)",
+                          }}
+                          className={isLoadingOrgs ? "spin" : ""}
+                        />
+                      </button>
+                    </div>
+
+                    <div style={{ marginBottom: "var(--spacing-md)" }}>
+                      <div style={{ position: "relative" }}>
+                        <Search
+                          style={{
+                            position: "absolute",
+                            left: "var(--spacing-sm)",
+                            top: "50%",
+                            transform: "translateY(-50%)",
+                            width: "16px",
+                            height: "16px",
+                            color: "var(--gray-400)",
+                          }}
+                        />
+                        <input
+                          type="text"
+                          placeholder={t("Rechercher", "Search")}
+                          value={orgsSearch}
+                          onChange={(e) => setOrgsSearch(e.target.value)}
+                          style={{
+                            width: "100%",
+                            paddingLeft: "40px",
+                            paddingRight: "var(--spacing-md)",
+                            paddingTop: "var(--spacing-xs)",
+                            paddingBottom: "var(--spacing-xs)",
+                            border: "1px solid var(--gray-300)",
+                            borderRadius: "var(--radius-md)",
+                            fontSize: "var(--font-size-sm)",
+                            color: "var(--gray-900)",
+                            outline: "none",
+                          }}
+                        />
+                      </div>
+                    </div>
+
+                    {isLoadingOrgs ? (
+                      <div
+                        style={{
+                          display: "flex",
+                          alignItems: "center",
+                          justifyContent: "center",
+                          padding: "var(--spacing-2xl)",
+                        }}
+                      >
+                        <RefreshCw
+                          style={{
+                            width: "24px",
+                            height: "24px",
+                            color: "var(--color-primary)",
+                          }}
+                          className="spin"
+                        />
+                      </div>
+                    ) : organizations.length === 0 ? (
+                      <div
+                        style={{
+                          textAlign: "center",
+                          padding: "var(--spacing-2xl)",
+                        }}
+                      >
+                        <Briefcase
+                          style={{
+                            width: "40px",
+                            height: "40px",
+                            color: "var(--gray-400)",
+                            margin: "0 auto var(--spacing-md)",
+                          }}
+                        />
+                        <p style={{ color: "var(--gray-500)" }}>
+                          {t(
+                            "Aucune organisation trouvée",
+                            "No organization found",
+                          )}
+                        </p>
+                      </div>
+                    ) : (
+                      <>
+                        <div
+                          style={{
+                            display: "flex",
+                            flexDirection: "column",
+                            gap: "var(--spacing-sm)",
+                            marginBottom: "var(--spacing-md)",
+                          }}
+                        >
+                          {organizations
+                            .filter(
+                              (org) =>
+                                org.long_name
+                                  .toLowerCase()
+                                  .includes(orgsSearch.toLowerCase()) ||
+                                org.short_name
+                                  .toLowerCase()
+                                  .includes(orgsSearch.toLowerCase()),
+                            )
+                            .slice(
+                              orgsPage * ITEMS_PER_PAGE,
+                              (orgsPage + 1) * ITEMS_PER_PAGE,
+                            )
+                            .map((org) => (
+                              <div
+                                key={org.organization_id}
+                                style={{
+                                  border: "1px solid var(--gray-200)",
+                                  borderRadius: "var(--radius-md)",
+                                  padding: "var(--spacing-md)",
+                                }}
+                              >
+                                <h4
+                                  style={{
+                                    fontSize: "var(--font-size-sm)",
+                                    fontWeight: "var(--font-weight-semibold)",
+                                    color: "var(--gray-900)",
+                                    marginBottom: "4px",
+                                  }}
+                                >
+                                  {org.long_name}
+                                </h4>
+                                <p
+                                  style={{
+                                    fontSize: "var(--font-size-xs)",
+                                    color: "var(--gray-600)",
+                                    marginBottom: "2px",
+                                  }}
+                                >
+                                  {org.short_name}
+                                </p>
+                                <p
+                                  style={{
+                                    fontSize: "var(--font-size-xs)",
+                                    color: "var(--gray-500)",
+                                  }}
+                                >
+                                  {org.email}
+                                </p>
+                              </div>
+                            ))}
+                        </div>
+
+                        {orgsTotalPages > 1 && (
+                          <div className="widget-pagination">
+                            <button
+                              onClick={() =>
+                                setOrgsPage(Math.max(0, orgsPage - 1))
+                              }
+                              disabled={orgsPage === 0}
+                              className="btn-icon"
+                            >
+                              <ChevronLeft />
+                            </button>
+                            <span>
+                              {orgsPage + 1} / {orgsTotalPages}
+                            </span>
+                            <button
+                              onClick={() =>
+                                setOrgsPage(
+                                  Math.min(orgsTotalPages - 1, orgsPage + 1),
+                                )
+                              }
+                              disabled={orgsPage === orgsTotalPages - 1}
+                              className="btn-icon"
+                            >
+                              <ChevronRight />
+                            </button>
+                          </div>
+                        )}
+                      </>
+                    )}
+                  </div>
+                </div>
+              </div>
+
               {statistics.agencies_per_organization &&
                 Object.keys(statistics.agencies_per_organization).length >
                   0 && (
@@ -644,7 +1118,12 @@ export default function BSMDashboardPage() {
                     0 && (
                     <div className="chart-card-small">
                       <div className="chart-header">
-                        <h3>{t("Top 10 agences par revenu", "Top 10 agencies by revenue")}</h3>
+                        <h3>
+                          {t(
+                            "Top 10 agences par revenu",
+                            "Top 10 agencies by revenue",
+                          )}
+                        </h3>
                       </div>
                       <div className="chart-container-small">
                         <ResponsiveContainer width="100%" height="100%">
@@ -742,7 +1221,9 @@ export default function BSMDashboardPage() {
                   Object.keys(statistics.reservations_per_month).length > 0 && (
                     <div className="chart-card-small">
                       <div className="chart-header">
-                        <h3>{t("Réservations par mois", "Reservations by month")}</h3>
+                        <h3>
+                          {t("Réservations par mois", "Reservations by month")}
+                        </h3>
                       </div>
                       <div className="chart-container-small">
                         <ResponsiveContainer width="100%" height="100%">
@@ -936,467 +1417,6 @@ export default function BSMDashboardPage() {
                 )}
             </>
           )}
-
-          <div
-            style={{
-              display: "grid",
-              gridTemplateColumns: "1fr",
-              gap: "var(--spacing-xl)",
-              marginTop: "var(--spacing-xl)",
-            }}
-          >
-            <div
-              style={{
-                display: "grid",
-                gridTemplateColumns: "repeat(auto-fit, minmax(400px, 1fr))",
-                gap: "var(--spacing-xl)",
-              }}
-            >
-              {/* Agences Card */}
-              <div
-                className="bsm-agencies-widget"
-                style={{
-                  borderRadius: "var(--radius-lg)",
-                  padding: "var(--spacing-xl)",
-                }}
-              >
-                <div
-                  style={{
-                    display: "flex",
-                    alignItems: "center",
-                    justifyContent: "space-between",
-                    marginBottom: "var(--spacing-lg)",
-                  }}
-                >
-                  <div
-                    style={{
-                      display: "flex",
-                      alignItems: "center",
-                      gap: "var(--spacing-sm)",
-                    }}
-                  >
-                    <h3
-                      style={{
-                        fontSize: "var(--font-size-lg)",
-                        fontWeight: "var(--font-weight-semibold)",
-                        color: "var(--gray-900)",
-                      }}
-                    >
-                      {t("Agences validées", "Validated agencies")}
-                    </h3>
-                  </div>
-                  <button
-                    onClick={() =>
-                      userData?.address && fetchAgences(userData.address)
-                    }
-                    disabled={isLoadingAgences}
-                    style={{
-                      padding: "var(--spacing-xs)",
-                      background: "transparent",
-                      border: "none",
-                      borderRadius: "var(--radius-md)",
-                      cursor: "pointer",
-                      transition: "background var(--transition-base)",
-                    }}
-                  >
-                    <RefreshCw
-                      style={{
-                        width: "16px",
-                        height: "16px",
-                        color: "var(--gray-600)",
-                      }}
-                      className={isLoadingAgences ? "spin" : ""}
-                    />
-                  </button>
-                </div>
-
-                <div style={{ marginBottom: "var(--spacing-md)" }}>
-                  <div style={{ position: "relative" }}>
-                    <Search
-                      style={{
-                        position: "absolute",
-                        left: "var(--spacing-sm)",
-                        top: "50%",
-                        transform: "translateY(-50%)",
-                        width: "16px",
-                        height: "16px",
-                        color: "var(--gray-400)",
-                      }}
-                    />
-                    <input
-                      className="bsm-agency-search-input"
-                      type="text"
-                      placeholder={t("Rechercher", "Search")}
-                      value={agencesSearch}
-                      onChange={(e) => setAgencesSearch(e.target.value)}
-                      style={{
-                        width: "100%",
-                        paddingLeft: "40px",
-                        paddingRight: "var(--spacing-md)",
-                        paddingTop: "var(--spacing-xs)",
-                        paddingBottom: "var(--spacing-xs)",
-                        border: "1px solid var(--gray-300)",
-                        borderRadius: "var(--radius-md)",
-                        fontSize: "var(--font-size-sm)",
-                        color: "var(--gray-900)",
-                        outline: "none",
-                      }}
-                    />
-                  </div>
-                </div>
-
-                {isLoadingAgences ? (
-                  <div
-                    style={{
-                      display: "flex",
-                      alignItems: "center",
-                      justifyContent: "center",
-                      padding: "var(--spacing-2xl)",
-                    }}
-                  >
-                    <RefreshCw
-                      style={{
-                        width: "24px",
-                        height: "24px",
-                        color: "var(--color-primary)",
-                      }}
-                      className="spin"
-                    />
-                  </div>
-                ) : agences.length === 0 ? (
-                  <div
-                    style={{
-                      textAlign: "center",
-                      padding: "var(--spacing-2xl)",
-                    }}
-                  >
-                    <Building2
-                      style={{
-                        width: "40px",
-                        height: "40px",
-                        color: "var(--gray-400)",
-                        margin: "0 auto var(--spacing-md)",
-                      }}
-                    />
-                    <p style={{ color: "var(--gray-500)" }}>
-                      {t("Aucune agence trouvée", "No agency found")}
-                    </p>
-                  </div>
-                ) : (
-                  <>
-                    <div
-                      style={{
-                        display: "flex",
-                        flexDirection: "column",
-                        gap: "var(--spacing-sm)",
-                        marginBottom: "var(--spacing-md)",
-                      }}
-                    >
-                      {agences
-                        .filter(
-                          (agence) =>
-                            agence.long_name
-                              .toLowerCase()
-                              .includes(agencesSearch.toLowerCase()) ||
-                            agence.short_name
-                              .toLowerCase()
-                              .includes(agencesSearch.toLowerCase()),
-                        )
-                        .map((agence) => (
-                          <div
-                            key={agence.agency_id}
-                            className="bsm-agency-item"
-                            style={{
-                              border: "1px solid var(--gray-200)",
-                              borderRadius: "var(--radius-md)",
-                              padding: "var(--spacing-md)",
-                              transition: "box-shadow var(--transition-base)",
-                            }}
-                          >
-                            <h4
-                              style={{
-                                fontSize: "var(--font-size-sm)",
-                                fontWeight: "var(--font-weight-semibold)",
-                                color: "var(--gray-900)",
-                                marginBottom: "4px",
-                              }}
-                            >
-                              {agence.long_name}
-                            </h4>
-                            <p
-                              style={{
-                                fontSize: "var(--font-size-xs)",
-                                color: "var(--gray-600)",
-                                marginBottom: "2px",
-                              }}
-                            >
-                              {agence.short_name}
-                            </p>
-                            <p
-                              style={{
-                                fontSize: "var(--font-size-xs)",
-                                color: "var(--gray-500)",
-                              }}
-                            >
-                              {agence.ville} - {agence.location}
-                            </p>
-                          </div>
-                        ))}
-                    </div>
-
-                    {agencesTotalPages > 1 && (
-                      <div className="widget-pagination">
-                        <button
-                          onClick={() =>
-                            setAgencesPage(Math.max(0, agencesPage - 1))
-                          }
-                          disabled={agencesPage === 0}
-                          className="btn-icon"
-                        >
-                          <ChevronLeft />
-                        </button>
-                        <span>
-                          {agencesPage + 1} / {agencesTotalPages}
-                        </span>
-                        <button
-                          onClick={() =>
-                            setAgencesPage(
-                              Math.min(agencesTotalPages - 1, agencesPage + 1),
-                            )
-                          }
-                          disabled={agencesPage === agencesTotalPages - 1}
-                          className="btn-icon"
-                        >
-                          <ChevronRight />
-                        </button>
-                      </div>
-                    )}
-                  </>
-                )}
-              </div>
-
-              {/* Organizations Card */}
-              <div
-                className="bsm-organizations-widget"
-                style={{
-                  borderRadius: "var(--radius-lg)",
-                  padding: "var(--spacing-xl)",
-                }}
-              >
-                <div
-                  style={{
-                    display: "flex",
-                    alignItems: "center",
-                    justifyContent: "space-between",
-                    marginBottom: "var(--spacing-lg)",
-                  }}
-                >
-                  <div
-                    style={{
-                      display: "flex",
-                      alignItems: "center",
-                      gap: "var(--spacing-sm)",
-                    }}
-                  >
-                    <h3
-                      style={{
-                        fontSize: "var(--font-size-lg)",
-                        fontWeight: "var(--font-weight-semibold)",
-                        color: "var(--gray-900)",
-                      }}
-                    >
-                      {t("Organisations", "Organizations")}
-                    </h3>
-                  </div>
-                  <button
-                    onClick={fetchOrganizations}
-                    disabled={isLoadingOrgs}
-                    style={{
-                      padding: "var(--spacing-xs)",
-                      background: "transparent",
-                      border: "none",
-                      borderRadius: "var(--radius-md)",
-                      cursor: "pointer",
-                    }}
-                  >
-                    <RefreshCw
-                      style={{
-                        width: "16px",
-                        height: "16px",
-                        color: "var(--gray-600)",
-                      }}
-                      className={isLoadingOrgs ? "spin" : ""}
-                    />
-                  </button>
-                </div>
-
-                <div style={{ marginBottom: "var(--spacing-md)" }}>
-                  <div style={{ position: "relative" }}>
-                    <Search
-                      style={{
-                        position: "absolute",
-                        left: "var(--spacing-sm)",
-                        top: "50%",
-                        transform: "translateY(-50%)",
-                        width: "16px",
-                        height: "16px",
-                        color: "var(--gray-400)",
-                      }}
-                    />
-                    <input
-                      className="bsm-org-search-input"
-                      type="text"
-                      placeholder={t("Rechercher", "Search")}
-                      value={orgsSearch}
-                      onChange={(e) => setOrgsSearch(e.target.value)}
-                      style={{
-                        width: "100%",
-                        paddingLeft: "40px",
-                        paddingRight: "var(--spacing-md)",
-                        paddingTop: "var(--spacing-xs)",
-                        paddingBottom: "var(--spacing-xs)",
-                        border: "1px solid var(--gray-300)",
-                        borderRadius: "var(--radius-md)",
-                        fontSize: "var(--font-size-sm)",
-                        color: "var(--gray-900)",
-                        outline: "none",
-                      }}
-                    />
-                  </div>
-                </div>
-
-                {isLoadingOrgs ? (
-                  <div
-                    style={{
-                      display: "flex",
-                      alignItems: "center",
-                      justifyContent: "center",
-                      padding: "var(--spacing-2xl)",
-                    }}
-                  >
-                    <RefreshCw
-                      style={{
-                        width: "24px",
-                        height: "24px",
-                        color: "var(--color-primary)",
-                      }}
-                      className="spin"
-                    />
-                  </div>
-                ) : organizations.length === 0 ? (
-                  <div
-                    style={{
-                      textAlign: "center",
-                      padding: "var(--spacing-2xl)",
-                    }}
-                  >
-                    <Briefcase
-                      style={{
-                        width: "40px",
-                        height: "40px",
-                        color: "var(--gray-400)",
-                        margin: "0 auto var(--spacing-md)",
-                      }}
-                    />
-                    <p style={{ color: "var(--gray-500)" }}>
-                      {t("Aucune organisation trouvée", "No organization found")}
-                    </p>
-                  </div>
-                ) : (
-                  <>
-                    <div
-                      style={{
-                        display: "flex",
-                        flexDirection: "column",
-                        gap: "var(--spacing-sm)",
-                        marginBottom: "var(--spacing-md)",
-                      }}
-                    >
-                      {organizations
-                        .filter(
-                          (org) =>
-                            org.long_name
-                              .toLowerCase()
-                              .includes(orgsSearch.toLowerCase()) ||
-                            org.short_name
-                              .toLowerCase()
-                              .includes(orgsSearch.toLowerCase()),
-                        )
-                        .slice(
-                          orgsPage * ITEMS_PER_PAGE,
-                          (orgsPage + 1) * ITEMS_PER_PAGE,
-                        )
-                        .map((org) => (
-                          <div
-                            key={org.organization_id}
-                            className="bsm-organization-item"
-                            style={{
-                              border: "1px solid var(--gray-200)",
-                              borderRadius: "var(--radius-md)",
-                              padding: "var(--spacing-md)",
-                            }}
-                          >
-                            <h4
-                              style={{
-                                fontSize: "var(--font-size-sm)",
-                                fontWeight: "var(--font-weight-semibold)",
-                                color: "var(--gray-900)",
-                                marginBottom: "4px",
-                              }}
-                            >
-                              {org.long_name}
-                            </h4>
-                            <p
-                              style={{
-                                fontSize: "var(--font-size-xs)",
-                                color: "var(--gray-600)",
-                                marginBottom: "2px",
-                              }}
-                            >
-                              {org.short_name}
-                            </p>
-                            <p
-                              style={{
-                                fontSize: "var(--font-size-xs)",
-                                color: "var(--gray-500)",
-                              }}
-                            >
-                              {org.email}
-                            </p>
-                          </div>
-                        ))}
-                    </div>
-
-                    {orgsTotalPages > 1 && (
-                      <div className="widget-pagination">
-                        <button
-                          onClick={() => setOrgsPage(Math.max(0, orgsPage - 1))}
-                          disabled={orgsPage === 0}
-                          className="btn-icon"
-                        >
-                          <ChevronLeft />
-                        </button>
-                        <span>
-                          {orgsPage + 1} / {orgsTotalPages}
-                        </span>
-                        <button
-                          onClick={() =>
-                            setOrgsPage(
-                              Math.min(orgsTotalPages - 1, orgsPage + 1),
-                            )
-                          }
-                          disabled={orgsPage === orgsTotalPages - 1}
-                          className="btn-icon"
-                        >
-                          <ChevronRight />
-                        </button>
-                      </div>
-                    )}
-                  </>
-                )}
-              </div>
-            </div>
-          </div>
         </main>
       </div>
     </div>

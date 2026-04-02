@@ -296,7 +296,7 @@ img {
 
 .global-controls {
   position: fixed;
-  bottom: 1rem; 
+  bottom: 1rem;
   right: 1rem;
   z-index: 2000;
   display: flex;
@@ -941,7 +941,7 @@ html.dark .category-btn {
   color: white;
 }
 
-html.dark .category-btn + .category-btn {
+html.dark .category-btn+.category-btn {
   margin-left: 0;
 }
 
@@ -1114,7 +1114,7 @@ html.dark .chatbot-messages {
   font-family: inherit;
   padding-top: var(--spacing-sm);
   padding-left: var(--spacing-sm);
-  box-sizing: border-box; 
+  box-sizing: border-box;
 }
 
 .chatbot-input textarea:focus {
@@ -6002,6 +6002,7 @@ html.dark .payment-info-box {
 
 /* Print Styles */
 @media print {
+
   .history-header button,
   .expand-btn,
   .sidebar,
@@ -6015,69 +6016,69 @@ html.dark .payment-info-box {
     box-shadow: none;
   }
 
-.history-table {
-  font-size: 10pt;
-}
+  .history-table {
+    font-size: 10pt;
+  }
 
-.bsm-organizations-widget {
-  background: #0f172a;
-  border: 1px solid var(--gray-200);
-  border-radius: var(--radius-lg);
-  padding: var(--spacing-xl);
-}
+  .bsm-organizations-widget {
+    background: #0f172a;
+    border: 1px solid var(--gray-200);
+    border-radius: var(--radius-lg);
+    padding: var(--spacing-xl);
+  }
 
-.bsm-organization-item h4 {
-  font-size: var(--font-size-sm);
-  font-weight: var(--font-weight-semibold);
-  color: var(--foreground);
-  margin-bottom: 4px;
-}
+  .bsm-organization-item h4 {
+    font-size: var(--font-size-sm);
+    font-weight: var(--font-weight-semibold);
+    color: var(--foreground);
+    margin-bottom: 4px;
+  }
 
-.bsm-organization-item p {
-  font-size: var(--font-size-xs);
-  color: var(--gray-50);
-  margin-bottom: 2px;
-}
+  .bsm-organization-item p {
+    font-size: var(--font-size-xs);
+    color: var(--gray-50);
+    margin-bottom: 2px;
+  }
 
-.bsm-org-search-input {
-  width: 100%;
-  padding-left: 40px;
-  padding-right: var(--spacing-md);
-  padding-top: var(--spacing-xs);
-  padding-bottom: var(--spacing-xs);
-  border: 1px solid var(--gray-300);
-  border-radius: var(--radius-md);
-  font-size: var(--font-size-sm);
-  outline: none;
-  transition: border-color var(--transition-base);
-}
+  .bsm-org-search-input {
+    width: 100%;
+    padding-left: 40px;
+    padding-right: var(--spacing-md);
+    padding-top: var(--spacing-xs);
+    padding-bottom: var(--spacing-xs);
+    border: 1px solid var(--gray-300);
+    border-radius: var(--radius-md);
+    font-size: var(--font-size-sm);
+    outline: none;
+    transition: border-color var(--transition-base);
+  }
 
-.bsm-org-search-input:focus {
-  border-color: var(--color-primary);
-}
+  .bsm-org-search-input:focus {
+    border-color: var(--color-primary);
+  }
 
-html.dark .bsm-organizations-widget {
-  background: #0f172a;
-  border-color: var(--gray-600);
-  color: var(--foreground);
-}
+  html.dark .bsm-organizations-widget {
+    background: #0f172a;
+    border-color: var(--gray-600);
+    color: var(--foreground);
+  }
 
-html.dark .bsm-organization-item {
-  background: #111827;
-  border-color: var(--gray-600);
-}
+  html.dark .bsm-organization-item {
+    background: #111827;
+    border-color: var(--gray-600);
+  }
 
-html.dark .bsm-organization-item h4,
-html.dark .bsm-organization-item p,
-html.dark .bsm-org-search-input::placeholder {
-  color: var(--gray-50);
-}
+  html.dark .bsm-organization-item h4,
+  html.dark .bsm-organization-item p,
+  html.dark .bsm-org-search-input::placeholder {
+    color: var(--gray-50);
+  }
 
-html.dark .bsm-org-search-input {
-  background: rgba(15, 23, 42, 0.6);
-  border-color: var(--gray-600);
-  color: var(--gray-50);
-}
+  html.dark .bsm-org-search-input {
+    background: rgba(15, 23, 42, 0.6);
+    border-color: var(--gray-600);
+    color: var(--gray-50);
+  }
 
   .expanded-row {
     page-break-inside: avoid;
@@ -6246,6 +6247,445 @@ html.dark .status-badge-table.status-error {
   background: #991b1b33;
   color: #fecaca;
 }
+
 .bsm-organizations-widget h3 {
   color: var(--foreground);
+}
+
+/* ==================== Bus / Vehicles Page ==================== */
+
+.bus-vehicles-grid {
+  display: grid;
+  grid-template-columns: repeat(auto-fill, minmax(350px, 1fr));
+  gap: var(--spacing-lg);
+  margin-bottom: var(--spacing-lg);
+}
+
+/* Vehicle Card */
+.bus-vehicle-card {
+  background: white;
+  border: 1px solid var(--gray-200);
+  border-radius: var(--radius-lg);
+  overflow: hidden;
+  transition: all var(--transition-base);
+}
+
+.bus-vehicle-card:hover {
+  transform: translateY(-2px);
+  box-shadow: var(--shadow-md);
+  border-color: var(--color-primary);
+}
+
+/* Vehicle Photo */
+.bus-vehicle-photo {
+  width: 100%;
+  height: 160px;
+  overflow: hidden;
+  background: var(--gray-100);
+  position: relative;
+}
+
+.bus-vehicle-photo img {
+  width: 100%;
+  height: 100%;
+  object-fit: cover;
+  display: block;
+}
+
+.bus-vehicle-photo-placeholder {
+  width: 100%;
+  height: 100%;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  background: var(--gray-50);
+}
+
+/* Vehicle Content */
+.bus-vehicle-content {
+  padding: var(--spacing-lg);
+  display: flex;
+  flex-direction: column;
+  gap: var(--spacing-md);
+}
+
+.bus-vehicle-header {
+  display: flex;
+  align-items: flex-start;
+  justify-content: space-between;
+  gap: var(--spacing-sm);
+}
+
+.bus-vehicle-title-group {
+  flex: 1;
+  min-width: 0;
+}
+
+.bus-vehicle-name {
+  font-size: var(--font-size-base);
+  font-weight: var(--font-weight-semibold);
+  color: var(--gray-900);
+  margin: 0 0 4px 0;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+}
+
+.bus-vehicle-model {
+  font-size: var(--font-size-sm);
+  color: var(--gray-500);
+}
+
+/* Vehicle Stats row */
+.bus-vehicle-stats {
+  display: flex;
+  gap: var(--spacing-lg);
+  padding: var(--spacing-sm) var(--spacing-md);
+  background: var(--gray-50);
+  border-radius: var(--radius-md);
+}
+
+.bus-vehicle-stat {
+  display: flex;
+  align-items: center;
+  gap: var(--spacing-xs);
+  flex: 1;
+}
+
+.bus-vehicle-stat-label {
+  font-size: var(--font-size-xs);
+  color: var(--gray-500);
+  text-transform: uppercase;
+  letter-spacing: 0.4px;
+}
+
+.bus-vehicle-stat-value {
+  font-size: var(--font-size-sm);
+  font-weight: var(--font-weight-semibold);
+  color: var(--gray-900);
+}
+
+/* Vehicle Description */
+.bus-vehicle-description {
+  font-size: var(--font-size-sm);
+  color: var(--gray-600);
+  line-height: var(--line-height-relaxed);
+  margin: 0;
+  display: -webkit-box;
+  -webkit-line-clamp: 2;
+  -webkit-box-orient: vertical;
+  overflow: hidden;
+}
+
+/* Dark mode overrides */
+html.dark .dashboard-layout .bus-vehicle-card {
+  background: #0f172a !important;
+  border-color: var(--gray-300);
+}
+
+html.dark .bus-vehicle-name {
+  color: var(--foreground);
+}
+
+html.dark .bus-vehicle-stats {
+  background: #111827;
+}
+
+html.dark .bus-vehicle-stat-value {
+  color: var(--foreground);
+}
+
+html.dark .bus-vehicle-photo-placeholder {
+  background: #111827;
+}
+
+/* Responsive */
+@media (max-width: 768px) {
+  .bus-vehicles-grid {
+    grid-template-columns: repeat(auto-fill, minmax(240px, 1fr));
+  }
+}
+
+@media (max-width: 480px) {
+  .bus-vehicles-grid {
+    grid-template-columns: 1fr;
+  }
+}
+
+/* ==================== Staff / Drivers & Employees Page ==================== */
+
+/* Summary row */
+.staff-summary-row {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(180px, 1fr));
+  gap: var(--spacing-lg);
+  margin-bottom: var(--spacing-xl);
+}
+
+.staff-summary-card {
+  display: flex;
+  align-items: center;
+  gap: var(--spacing-md);
+  padding: var(--spacing-lg);
+  background: white;
+  border: 1px solid var(--gray-200);
+  border-radius: var(--radius-lg);
+}
+
+.staff-summary-icon {
+  width: 48px;
+  height: 48px;
+  border-radius: var(--radius-md);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  flex-shrink: 0;
+  background: transparent;
+}
+
+
+.staff-summary-value {
+  font-size: var(--font-size-2xl);
+  font-weight: var(--font-weight-bold);
+  color: var(--gray-900);
+  line-height: 1.1;
+}
+
+.staff-summary-label {
+  font-size: var(--font-size-sm);
+  color: var(--gray-500);
+}
+
+/* Tabs */
+.staff-tabs {
+  display: flex;
+  gap: var(--spacing-xs);
+  margin-bottom: var(--spacing-xl);
+  border-bottom: 2px solid var(--gray-200);
+  padding-bottom: 0;
+}
+
+.staff-tab {
+  display: inline-flex;
+  align-items: center;
+  gap: var(--spacing-xs);
+  padding: var(--spacing-sm) var(--spacing-lg);
+  background: transparent;
+  border: none;
+  border-bottom: 3px solid transparent;
+  margin-bottom: -2px;
+  font-size: var(--font-size-sm);
+  font-weight: var(--font-weight-semibold);
+  color: var(--gray-500);
+  cursor: pointer;
+  transition: all var(--transition-base);
+  border-radius: var(--radius-md) var(--radius-md) 0 0;
+}
+
+.staff-tab:hover {
+  color: var(--gray-700);
+  background: var(--gray-50);
+}
+
+.staff-tab.active {
+  color: var(--color-primary);
+  border-bottom-color: var(--color-primary);
+  background: transparent;
+}
+
+.staff-tab-count {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  min-width: 20px;
+  height: 20px;
+  padding: 0 6px;
+  background: var(--gray-200);
+  color: var(--gray-700);
+  border-radius: var(--radius-full);
+  font-size: 11px;
+  font-weight: var(--font-weight-bold);
+}
+
+.staff-tab.active .staff-tab-count {
+  background: var(--color-primary);
+  color: white;
+}
+
+/* Staff Cards Grid */
+.staff-cards-grid {
+  display: grid;
+  grid-template-columns: repeat(auto-fill, minmax(280px, 1fr));
+  gap: var(--spacing-lg);
+  margin-bottom: var(--spacing-lg);
+}
+
+/* Staff Card */
+.staff-card {
+  background: white;
+  border: 1px solid var(--gray-200);
+  border-radius: var(--radius-lg);
+  padding: var(--spacing-lg);
+  display: flex;
+  flex-direction: column;
+  gap: var(--spacing-md);
+  transition: all var(--transition-base);
+}
+
+.staff-card:hover {
+  transform: translateY(-2px);
+  box-shadow: var(--shadow-md);
+  border-color: var(--gray-300);
+}
+
+/* Card header */
+.staff-card-header {
+  display: flex;
+  align-items: center;
+  gap: var(--spacing-md);
+  padding-bottom: var(--spacing-md);
+  border-bottom: 1px solid var(--gray-100);
+}
+
+/* Avatar */
+.staff-card-avatar {
+  width: 48px;
+  height: 48px;
+  border-radius: 50%;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  font-size: var(--font-size-base);
+  font-weight: var(--font-weight-bold);
+  color: white;
+  flex-shrink: 0;
+  letter-spacing: 0.5px;
+}
+
+.staff-card-avatar--employee {
+  background: linear-gradient(135deg, #2563eb 0%, #3b82f6 100%);
+}
+
+.staff-card-avatar--driver {
+  background: linear-gradient(135deg, #d97706 0%, #f59e0b 100%);
+}
+
+.staff-card-title-group {
+  flex: 1;
+  min-width: 0;
+}
+
+.staff-card-name {
+  font-size: var(--font-size-base);
+  font-weight: var(--font-weight-semibold);
+  color: var(--gray-900);
+  margin: 0 0 4px 0;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+}
+
+/* Badge */
+.staff-card-badge {
+  display: inline-flex;
+  align-items: center;
+  gap: 4px;
+  padding: 3px 10px;
+  border-radius: var(--radius-full);
+  font-size: 11px;
+  font-weight: var(--font-weight-semibold);
+}
+
+.staff-card-badge--employee {
+  background: rgba(59, 130, 246, 0.1);
+  color: #1d4ed8;
+}
+
+.staff-card-badge--driver {
+  background: rgba(245, 158, 11, 0.1);
+  color: #b45309;
+}
+
+/* Card details */
+.staff-card-details {
+  display: flex;
+  flex-direction: column;
+  gap: var(--spacing-xs);
+}
+
+.staff-card-detail {
+  display: flex;
+  align-items: center;
+  gap: var(--spacing-xs);
+  font-size: var(--font-size-sm);
+  color: var(--gray-600);
+  overflow: hidden;
+}
+
+.staff-card-detail span {
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+}
+
+/* Dark mode */
+html.dark .staff-summary-card {
+  background: #0f172a;
+  border-color: var(--gray-300);
+}
+
+html.dark .staff-summary-value {
+  color: var(--foreground);
+}
+
+html.dark .staff-tabs {
+  border-bottom-color: var(--gray-300);
+}
+
+html.dark .staff-tab:hover {
+  background: #111827;
+  color: var(--gray-300);
+}
+
+html.dark .dashboard-layout .staff-card {
+  background: #0f172a !important;
+  border-color: var(--gray-300);
+}
+
+html.dark .staff-card-name {
+  color: var(--foreground);
+}
+
+html.dark .staff-card-detail {
+  color: var(--gray-400);
+}
+
+html.dark .staff-card-header {
+  border-bottom-color: var(--gray-300);
+}
+
+/* Responsive */
+@media (max-width: 768px) {
+  .staff-summary-row {
+    grid-template-columns: repeat(3, 1fr);
+    gap: var(--spacing-sm);
+  }
+
+  .staff-cards-grid {
+    grid-template-columns: repeat(auto-fill, minmax(240px, 1fr));
+  }
+
+  .staff-tab {
+    padding: var(--spacing-xs) var(--spacing-md);
+  }
+}
+
+@media (max-width: 480px) {
+  .staff-summary-row {
+    grid-template-columns: 1fr;
+  }
+
+  .staff-cards-grid {
+    grid-template-columns: 1fr;
+  }
 }

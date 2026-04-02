@@ -159,12 +159,6 @@ export default function AgencyReservationsPage() {
       active: true,
     },
     {
-      icon: Users,
-      label: t("Chauffeurs", "Drivers"),
-      path: "/user/agency/drivers",
-      active: false,
-    },
-    {
       icon: Settings,
       label: t("Mes paramètres", "My settings"),
       path: "/user/agency/settings",

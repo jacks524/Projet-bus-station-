@@ -139,12 +139,6 @@ export default function AgenceDashboardPage() {
       active: false,
     },
     {
-      icon: Users,
-      label: t("Chauffeurs", "Drivers"),
-      path: "/user/agency/drivers",
-      active: false,
-    },
-    {
       icon: Settings,
       label: t("Mes paramètres", "My settings"),
       path: "/user/agency/settings",
@@ -616,10 +610,88 @@ export default function AgenceDashboardPage() {
                 </button>
               </div>
 
+              {selectedAgence && (
+                <div className="agency-details-card">
+                  <div className="agency-details-header">
+                    <h3>{t("Informations de l'agence", "Agency details")}</h3>
+                  </div>
+                  <div className="agency-details-grid">
+                    <div className="detail-field">
+                      <p className="detail-label">
+                        {t("Nom complet", "Full name")}
+                      </p>
+                      <p className="detail-value">{selectedAgence.long_name}</p>
+                    </div>
+                    <div className="detail-field">
+                      <p className="detail-label">
+                        {t("Abréviation", "Abbreviation")}
+                      </p>
+                      <p className="detail-value">
+                        {selectedAgence.short_name}
+                      </p>
+                    </div>
+                    <div className="detail-field">
+                      <p className="detail-label">{t("Ville", "City")}</p>
+                      <p className="detail-value">{selectedAgence.ville}</p>
+                    </div>
+                    <div className="detail-field">
+                      <p className="detail-label">
+                        {t("Localisation", "Location")}
+                      </p>
+                      <p className="detail-value">{selectedAgence.location}</p>
+                    </div>
+                    <div className="detail-field">
+                      <p className="detail-label">{t("Statut", "Status")}</p>
+                      <span className="status-badge">
+                        {selectedAgence.statut_validation}
+                      </span>
+                    </div>
+                    <div className="detail-field">
+                      <p className="detail-label">
+                        {t("Date de validation", "Validation date")}
+                      </p>
+                      <p className="detail-value">
+                        {formatDateFull(selectedAgence.date_validation)}
+                      </p>
+                    </div>
+                  </div>
+                  {selectedAgence.description && (
+                    <div className="detail-field-full">
+                      <p className="detail-label">
+                        {t("Description", "Description")}
+                      </p>
+                      <p className="detail-value">
+                        {selectedAgence.description}
+                      </p>
+                    </div>
+                  )}
+                  {selectedAgence.social_network && (
+                    <div className="detail-field-full">
+                      <p className="detail-label">
+                        {t("Réseau social", "Social network")}
+                      </p>
+                      <a
+                        href={"https://" + selectedAgence.social_network}
+                        target="_blank"
+                        rel="noopener noreferrer"
+                        className="detail-link"
+                      >
+                        {selectedAgence.social_network}
+                      </a>
+                    </div>
+                  )}
+                </div>
+              )}
+
               {isLoadingStats && (
                 <div className="loading-state">
                   <RefreshCw className="spin" />
-                  <p>{t("Chargement des statistiques...", "Loading statistics...")}</p>
+                  <p>
+                    {t(
+                      "Chargement des statistiques...",
+                      "Loading statistics...",
+                    )}
+                  </p>
                 </div>
               )}
 
@@ -632,7 +704,9 @@ export default function AgenceDashboardPage() {
                     <div className="stats-grid-main">
                       <div className="stat-item">
                         <div className="stat-content">
-                          <p className="stat-label">{t("Employés", "Employees")}</p>
+                          <p className="stat-label">
+                            {t("Employés", "Employees")}
+                          </p>
                           <p className="stat-value">
                             {generalStats.nombreEmployes}
                           </p>
@@ -641,7 +715,9 @@ export default function AgenceDashboardPage() {
 
                       <div className="stat-item">
                         <div className="stat-content">
-                          <p className="stat-label">{t("Chauffeurs", "Drivers")}</p>
+                          <p className="stat-label">
+                            {t("Chauffeurs", "Drivers")}
+                          </p>
                           <p className="stat-value">
                             {generalStats.nombreChauffeurs}
                           </p>
@@ -767,7 +843,12 @@ export default function AgenceDashboardPage() {
                           </ResponsiveContainer>
                         ) : (
                           <div className="chart-empty">
-                            <p>{t("Aucune donnée disponible", "No data available")}</p>
+                            <p>
+                              {t(
+                                "Aucune donnée disponible",
+                                "No data available",
+                              )}
+                            </p>
                           </div>
                         )}
                       </div>
@@ -811,7 +892,10 @@ export default function AgenceDashboardPage() {
                       <div className="chart-card-small">
                         <div className="chart-header">
                           <h3>
-                            {t("Réservations par statut", "Reservations by status")}
+                            {t(
+                              "Réservations par statut",
+                              "Reservations by status",
+                            )}
                           </h3>
                         </div>
                         <div className="chart-container-small">
@@ -850,7 +934,9 @@ export default function AgenceDashboardPage() {
                       Object.keys(generalStats.revenue_by_class).length > 0 && (
                         <div className="chart-card-small">
                           <div className="chart-header">
-                            <h3>{t("Revenus par classe", "Revenue by class")}</h3>
+                            <h3>
+                              {t("Revenus par classe", "Revenue by class")}
+                            </h3>
                           </div>
                           <div className="chart-container-small">
                             <ResponsiveContainer width="100%" height="100%">
@@ -890,7 +976,9 @@ export default function AgenceDashboardPage() {
                       Object.keys(generalStats.top_destinations).length > 0 && (
                         <div className="chart-card-small">
                           <div className="chart-header">
-                            <h3>{t("Top 10 destinations", "Top 10 destinations")}</h3>
+                            <h3>
+                              {t("Top 10 destinations", "Top 10 destinations")}
+                            </h3>
                           </div>
                           <div className="chart-container-small">
                             <ResponsiveContainer width="100%" height="100%">
@@ -939,7 +1027,12 @@ export default function AgenceDashboardPage() {
                           .length > 0 && (
                           <div className="chart-card-small">
                             <div className="chart-header">
-                              <h3>{t("Réservations par jour", "Reservations by day")}</h3>
+                              <h3>
+                                {t(
+                                  "Réservations par jour",
+                                  "Reservations by day",
+                                )}
+                              </h3>
                             </div>
                             <div className="chart-container-small">
                               <ResponsiveContainer width="100%" height="100%">
@@ -977,7 +1070,9 @@ export default function AgenceDashboardPage() {
                           0 && (
                           <div className="chart-card-small">
                             <div className="chart-header">
-                              <h3>{t("Top 10 chauffeurs", "Top 10 drivers")}</h3>
+                              <h3>
+                                {t("Top 10 chauffeurs", "Top 10 drivers")}
+                              </h3>
                             </div>
                             <div className="chart-container-small">
                               <ResponsiveContainer width="100%" height="100%">
@@ -1027,7 +1122,10 @@ export default function AgenceDashboardPage() {
                           <div className="chart-card-small">
                             <div className="chart-header">
                               <h3>
-                                {t("Évolution taux d'occupation", "Occupancy trend")}
+                                {t(
+                                  "Évolution taux d'occupation",
+                                  "Occupancy trend",
+                                )}
                               </h3>
                             </div>
                             <div className="chart-container-small">
@@ -1071,7 +1169,10 @@ export default function AgenceDashboardPage() {
                           <div className="chart-card-small">
                             <div className="chart-header">
                               <h3>
-                                {t("Évolution des annulations", "Cancellation trend")}
+                                {t(
+                                  "Évolution des annulations",
+                                  "Cancellation trend",
+                                )}
                               </h3>
                             </div>
                             <div className="chart-container-small">
@@ -1120,7 +1221,9 @@ export default function AgenceDashboardPage() {
                           0 && (
                           <div className="chart-card-small">
                             <div className="chart-header">
-                              <h3>{t("Revenus par mois", "Revenue by month")}</h3>
+                              <h3>
+                                {t("Revenus par mois", "Revenue by month")}
+                              </h3>
                             </div>
                             <div className="chart-container-small">
                               <ResponsiveContainer width="100%" height="100%">
@@ -1162,7 +1265,12 @@ export default function AgenceDashboardPage() {
                           .length > 0 && (
                           <div className="chart-card-small">
                             <div className="chart-header">
-                              <h3>{t("Réservations par mois", "Reservations by month")}</h3>
+                              <h3>
+                                {t(
+                                  "Réservations par mois",
+                                  "Reservations by month",
+                                )}
+                              </h3>
                             </div>
                             <div className="chart-container-small">
                               <ResponsiveContainer width="100%" height="100%">
@@ -1193,75 +1301,6 @@ export default function AgenceDashboardPage() {
                             </div>
                           </div>
                         )}
-                    </div>
-                  )}
-
-                  {selectedAgence && (
-                    <div className="agency-details-card">
-                      <div className="agency-details-header">
-                        <h3>{t("Informations de l'agence", "Agency details")}</h3>
-                      </div>
-                      <div className="agency-details-grid">
-                        <div className="detail-field">
-                          <p className="detail-label">{t("Nom complet", "Full name")}</p>
-                          <p className="detail-value">
-                            {selectedAgence.long_name}
-                          </p>
-                        </div>
-                        <div className="detail-field">
-                          <p className="detail-label">{t("Abréviation", "Abbreviation")}</p>
-                          <p className="detail-value">
-                            {selectedAgence.short_name}
-                          </p>
-                        </div>
-                        <div className="detail-field">
-                          <p className="detail-label">{t("Ville", "City")}</p>
-                          <p className="detail-value">{selectedAgence.ville}</p>
-                        </div>
-                        <div className="detail-field">
-                          <p className="detail-label">{t("Localisation", "Location")}</p>
-                          <p className="detail-value">
-                            {selectedAgence.location}
-                          </p>
-                        </div>
-                        <div className="detail-field">
-                          <p className="detail-label">{t("Statut", "Status")}</p>
-                          <span className="status-badge">
-                            {selectedAgence.statut_validation}
-                          </span>
-                        </div>
-                        <div className="detail-field">
-                          <p className="detail-label">
-                            {t("Date de validation", "Validation date")}
-                          </p>
-                          <p className="detail-value">
-                            {formatDateFull(selectedAgence.date_validation)}
-                          </p>
-                        </div>
-                      </div>
-                      {selectedAgence.description && (
-                        <div className="detail-field-full">
-                          <p className="detail-label">{t("Description", "Description")}</p>
-                          <p className="detail-value">
-                            {selectedAgence.description}
-                          </p>
-                        </div>
-                      )}
-                      {selectedAgence.social_network && (
-                        <div className="detail-field-full">
-                          <p className="detail-label">
-                            {t("Réseau social", "Social network")}
-                          </p>
-                          <a
-                            href={"https://" + selectedAgence.social_network}
-                            target="_blank"
-                            rel="noopener noreferrer"
-                            className="detail-link"
-                          >
-                            {selectedAgence.social_network}
-                          </a>
-                        </div>
-                      )}
                     </div>
                   )}
 

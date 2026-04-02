@@ -18,6 +18,7 @@ import {
   Tag,
   RefreshCw,
   X,
+  Car,
 } from "lucide-react";
 import { useRouter } from "next/navigation";
 import Sidebar from "@/app/components/Sidebar";
@@ -117,6 +118,18 @@ export default function OrganizationPage() {
       icon: Building2,
       label: t("Agence", "Agency"),
       path: "/user/organization/agencies",
+      active: false,
+    },
+    {
+      icon: Users,
+      label: t("Employés", "Employees"),
+      path: "/user/organization/employees",
+      active: false,
+    },
+    {
+      icon: Car,
+      label: t("Bus", "Bus"),
+      path: "/user/organization/bus",
       active: false,
     },
     {
@@ -226,7 +239,9 @@ export default function OrganizationPage() {
       return false;
     }
     if (!formData.short_name.trim()) {
-      setErrorMessage(t("L'abréviation est requise", "Abbreviation is required"));
+      setErrorMessage(
+        t("L'abréviation est requise", "Abbreviation is required"),
+      );
       return false;
     }
     if (!formData.ceo_name.trim()) {
@@ -345,7 +360,10 @@ export default function OrganizationPage() {
                 {t("Nouvelle organisation", "New organization")}
               </h2>
               <p className="section-description">
-                {t("Créez votre organisation de voyage", "Create your travel organization")}
+                {t(
+                  "Créez votre organisation de voyage",
+                  "Create your travel organization",
+                )}
               </p>
             </div>
 
@@ -358,7 +376,9 @@ export default function OrganizationPage() {
                 </div>
                 <div className="form-section-content">
                   <div className="form-group">
-                    <label className="form-label">{t("Nom complet *", "Full name *")}</label>
+                    <label className="form-label">
+                      {t("Nom complet *", "Full name *")}
+                    </label>
                     <input
                       type="text"
                       name="long_name"
@@ -389,7 +409,9 @@ export default function OrganizationPage() {
                   </div>
 
                   <div className="form-group">
-                    <label className="form-label">{t("Email *", "Email *")}</label>
+                    <label className="form-label">
+                      {t("Email *", "Email *")}
+                    </label>
                     <input
                       type="email"
                       name="email"
@@ -477,7 +499,10 @@ export default function OrganizationPage() {
 
                   <div className="form-group">
                     <label className="form-label">
-                      {t("N° de registre de commerce", "Business registration number")}
+                      {t(
+                        "N° de registre de commerce",
+                        "Business registration number",
+                      )}
                     </label>
                     <input
                       type="text"
@@ -485,7 +510,10 @@ export default function OrganizationPage() {
                       value={formData.business_registration_number}
                       onChange={handleInputChange}
                       className="form-input"
-                      placeholder={t("Ex: RC/YAO/2024/B/1234", "e.g., RC/YAO/2024/B/1234")}
+                      placeholder={t(
+                        "Ex: RC/YAO/2024/B/1234",
+                        "e.g., RC/YAO/2024/B/1234",
+                      )}
                     />
                   </div>
 
@@ -499,7 +527,10 @@ export default function OrganizationPage() {
                       value={formData.tax_number}
                       onChange={handleInputChange}
                       className="form-input"
-                      placeholder={t("Ex: M012345678901X", "e.g., M012345678901X")}
+                      placeholder={t(
+                        "Ex: M012345678901X",
+                        "e.g., M012345678901X",
+                      )}
                     />
                   </div>
 
@@ -549,7 +580,12 @@ export default function OrganizationPage() {
               <div className="form-section">
                 <div className="form-section-header">
                   <Users />
-                  <h3>{t("Informations opérationnelles", "Operational information")}</h3>
+                  <h3>
+                    {t(
+                      "Informations opérationnelles",
+                      "Operational information",
+                    )}
+                  </h3>
                 </div>
                 <div className="form-section-content">
                   <div className="form-group">
@@ -568,7 +604,9 @@ export default function OrganizationPage() {
                   </div>
 
                   <div className="form-group">
-                    <label className="form-label">{t("Site web", "Website")}</label>
+                    <label className="form-label">
+                      {t("Site web", "Website")}
+                    </label>
                     <input
                       type="text"
                       name="web_site_url"
@@ -620,7 +658,10 @@ export default function OrganizationPage() {
                         }
                       }}
                       className="form-input"
-                      placeholder={t("Ex: voyage, tourisme", "e.g., travel, tourism")}
+                      placeholder={t(
+                        "Ex: voyage, tourisme",
+                        "e.g., travel, tourism",
+                      )}
                       style={{ width: "fit-content" }}
                     />
                     <button
@@ -677,7 +718,9 @@ export default function OrganizationPage() {
                   ) : (
                     <>
                       <Building />
-                      <span>{t("Créer l'organisation", "Create organization")}</span>
+                      <span>
+                        {t("Créer l'organisation", "Create organization")}
+                      </span>
                     </>
                   )}
                 </button>
@@ -694,7 +737,10 @@ export default function OrganizationPage() {
           router.push("/user/organization/dashboard");
         }}
         title={t("Organisation créée !", "Organization created!")}
-        message={t("Organisation créée avec succès", "Organization created successfully")}
+        message={t(
+          "Organisation créée avec succès",
+          "Organization created successfully",
+        )}
         buttonText={t("Retour au dashboard", "Back to dashboard")}
       />
 

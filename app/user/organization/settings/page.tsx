@@ -14,6 +14,8 @@ import {
   RefreshCw,
   X,
   Briefcase,
+  Car,
+  Users,
 } from "lucide-react";
 import { useRouter } from "next/navigation";
 import Sidebar from "@/app/components/Sidebar";
@@ -69,6 +71,18 @@ export default function DGSettingsPage() {
       icon: Building2,
       label: t("Agence", "Agency"),
       path: "/user/organization/agencies",
+      active: false,
+    },
+    {
+      icon: Users,
+      label: t("Employés", "Employees"),
+      path: "/user/organization/employees",
+      active: false,
+    },
+    {
+      icon: Car,
+      label: t("Bus", "Bus"),
+      path: "/user/organization/bus",
       active: false,
     },
     {
@@ -188,7 +202,12 @@ export default function DGSettingsPage() {
             {is_loading && (
               <div className="loading-state">
                 <RefreshCw className="spin" />
-                <p>{t("Chargement de votre profil...", "Loading your profile...")}</p>
+                <p>
+                  {t(
+                    "Chargement de votre profil...",
+                    "Loading your profile...",
+                  )}
+                </p>
               </div>
             )}
 
@@ -240,13 +259,17 @@ export default function DGSettingsPage() {
                     </div>
                     <div className="settings-section-content">
                       <div className="settings-field">
-                        <label className="settings-label">{t("Prénom", "First name")}</label>
+                        <label className="settings-label">
+                          {t("Prénom", "First name")}
+                        </label>
                         <div className="settings-value">
                           {user_profile.first_name}
                         </div>
                       </div>
                       <div className="settings-field">
-                        <label className="settings-label">{t("Nom", "Last name")}</label>
+                        <label className="settings-label">
+                          {t("Nom", "Last name")}
+                        </label>
                         <div className="settings-value">
                           {user_profile.last_name}
                         </div>
@@ -279,7 +302,8 @@ export default function DGSettingsPage() {
                           Email
                         </label>
                         <div className="settings-value">
-                          {user_profile.email || t("Non renseigné", "Not provided")}
+                          {user_profile.email ||
+                            t("Non renseigné", "Not provided")}
                         </div>
                       </div>
                       {user_profile.address && (
@@ -314,7 +338,9 @@ export default function DGSettingsPage() {
                         </div>
                       </div>
                       <div className="settings-field">
-                        <label className="settings-label">{t("Rôle", "Role")}</label>
+                        <label className="settings-label">
+                          {t("Rôle", "Role")}
+                        </label>
                         <div className="settings-value">
                           {user_profile.role.map(getRoleLabel).join(", ")}
                         </div>

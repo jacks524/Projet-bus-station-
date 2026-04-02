@@ -111,6 +111,12 @@ function DetailAgencyContent() {
   const searchParams = useSearchParams();
   const agencyId = searchParams.get("id");
 
+  const [employees, setEmployees] = useState<
+    { userId: string; firstName: string; lastName: string; email: string }[]
+  >([]);
+  const [isLoadingEmployees, setIsLoadingEmployees] = useState(false);
+  const [selectedChefId, setSelectedChefId] = useState("");
+
   const [agency, setAgency] = useState<AgencyData | null>(null);
   const [editMode, setEditMode] = useState(false);
   const [formData, setFormData] = useState<Partial<AgencyData>>({});
@@ -161,6 +167,18 @@ function DetailAgencyContent() {
       active: true,
     },
     {
+      icon: Users,
+      label: t("Employés", "Employees"),
+      path: "/user/organization/employees",
+      active: false,
+    },
+    {
+      icon: Car,
+      label: t("Bus", "Bus"),
+      path: "/user/organization/bus",
+      active: false,
+    },
+    {
       icon: Settings,
       label: t("Mes paramètres", "My settings"),
       path: "/user/organization/settings",
@@ -192,6 +210,8 @@ function DetailAgencyContent() {
     if (agency?.agency_id) {
       fetchGeneralStatistics(agency.agency_id);
       fetchEvolutionStatistics(agency.agency_id);
+      fetchEmployees(agency.agency_id);
+      setSelectedChefId(agency.user_id || "");
     }
   }, [agency?.agency_id]);
 
@@ -280,13 +300,38 @@ function DetailAgencyContent() {
 
       if (!response.ok)
         throw new Error(
-          t("Erreur lors du chargement des évolutions", "Failed to load trends"),
+          t(
+            "Erreur lors du chargement des évolutions",
+            "Failed to load trends",
+          ),
         );
 
       const data = await response.json();
       setEvolutionStats(data);
     } catch (error: any) {
       console.error("Fetch Evolution Stats Error:", error);
+    }
+  };
+
+  const fetchEmployees = async (agencyId: string) => {
+    setIsLoadingEmployees(true);
+    try {
+      const authToken =
+        localStorage.getItem("auth_token") ||
+        sessionStorage.getItem("auth_token");
+      const res = await fetch(
+        `${API_BASE_URL}/utilisateur/employes/${agencyId}`,
+        {
+          headers: { Authorization: `Bearer ${authToken}` },
+        },
+      );
+      if (!res.ok) throw new Error();
+      const data = await res.json();
+      setEmployees(Array.isArray(data) ? data : []);
+    } catch {
+      setEmployees([]);
+    } finally {
+      setIsLoadingEmployees(false);
     }
   };
 
@@ -311,7 +356,7 @@ function DetailAgencyContent() {
 
       const updateBody = {
         organisation_id: formData.organisation_id,
-        user_id: formData.user_id,
+        user_id: selectedChefId,
         long_name: formData.long_name,
         short_name: formData.short_name,
         location: formData.location,
@@ -725,6 +770,68 @@ function DetailAgencyContent() {
                       <div className="settings-value">{agency.short_name}</div>
                     )}
                   </div>
+                  <div className="settings-field">
+                    <label className="settings-label">
+                      {t("Chef d'agence", "Agency manager")}
+                    </label>
+                    {editMode ? (
+                      isLoadingEmployees ? (
+                        <div
+                          style={{
+                            display: "flex",
+                            alignItems: "center",
+                            gap: "0.5rem",
+                            color: "var(--gray-500)",
+                          }}
+                        >
+                          <RefreshCw
+                            style={{ width: 14, height: 14 }}
+                            className="spin"
+                          />
+                          <span style={{ fontSize: "var(--font-size-sm)" }}>
+                            {t("Chargement...", "Loading...")}
+                          </span>
+                        </div>
+                      ) : employees.length === 0 ? (
+                        <p
+                          style={{
+                            fontSize: "var(--font-size-sm)",
+                            color: "var(--gray-500)",
+                          }}
+                        >
+                          {t(
+                            "Aucun employé disponible",
+                            "No employees available",
+                          )}
+                        </p>
+                      ) : (
+                        <select
+                          value={selectedChefId}
+                          onChange={(e) => setSelectedChefId(e.target.value)}
+                          className="form-input"
+                          style={{ width: "fit-content" }}
+                        >
+                          <option value="">
+                            {t(
+                              "Aucun chef attribué",
+                              "No manager assigned",
+                            )}
+                          </option>
+                          {employees.map((emp) => (
+                            <option key={emp.userId} value={emp.userId}>
+                              {emp.firstName} {emp.lastName} ({emp.email})
+                            </option>
+                          ))}
+                        </select>
+                      )
+                    ) : (
+                      <div className="settings-value">
+                        {employees.find((e) => e.userId === selectedChefId)
+                          ? `${employees.find((e) => e.userId === selectedChefId)!.first_name} ${employees.find((e) => e.userId === selectedChefId)!.last_name}`
+                          : t("Non attribué", "Not assigned")}
+                      </div>
+                    )}
+                  </div>
                 </div>
               </div>
 
@@ -738,7 +845,9 @@ function DetailAgencyContent() {
                 </div>
                 <div className="settings-section-content">
                   <div className="settings-field">
-                    <label className="settings-label">{t("Ville", "City")}</label>
+                    <label className="settings-label">
+                      {t("Ville", "City")}
+                    </label>
                     {editMode ? (
                       <select
                         name="ville"
@@ -790,7 +899,10 @@ function DetailAgencyContent() {
                 <div className="settings-section-header">
                   <Globe style={{ width: "20px", height: "20px" }} />
                   <h3 className="settings-section-title">
-                    {t("Informations supplémentaires", "Additional information")}
+                    {t(
+                      "Informations supplémentaires",
+                      "Additional information",
+                    )}
                   </h3>
                 </div>
                 <div className="settings-section-content">
@@ -817,7 +929,8 @@ function DetailAgencyContent() {
                       />
                     ) : (
                       <div className="settings-value">
-                        {agency.social_network || t("Non renseigné", "Not provided")}
+                        {agency.social_network ||
+                          t("Non renseigné", "Not provided")}
                       </div>
                     )}
                   </div>
@@ -948,7 +1061,9 @@ function DetailAgencyContent() {
                     <div className="stat-item">
                       <div className="stat-content">
                         <Users style={{ width: 20, height: 20 }} />
-                        <p className="stat-label">{t("Employés", "Employees")}</p>
+                        <p className="stat-label">
+                          {t("Employés", "Employees")}
+                        </p>
                         <p className="stat-value">
                           {generalStats.nombreEmployes}
                         </p>
@@ -958,7 +1073,9 @@ function DetailAgencyContent() {
                     <div className="stat-item">
                       <div className="stat-content">
                         <Car style={{ width: 20, height: 20 }} />
-                        <p className="stat-label">{t("Chauffeurs", "Drivers")}</p>
+                        <p className="stat-label">
+                          {t("Chauffeurs", "Drivers")}
+                        </p>
                         <p className="stat-value">
                           {generalStats.nombreChauffeurs}
                         </p>
@@ -1085,7 +1202,9 @@ function DetailAgencyContent() {
                         </ResponsiveContainer>
                       ) : (
                         <div className="chart-empty">
-                          <p>{t("Aucune donnée disponible", "No data available")}</p>
+                          <p>
+                            {t("Aucune donnée disponible", "No data available")}
+                          </p>
                         </div>
                       )}
                     </div>
@@ -1129,7 +1248,10 @@ function DetailAgencyContent() {
                     <div className="chart-card-small">
                       <div className="chart-header">
                         <h3>
-                          {t("Réservations par statut", "Reservations by status")}
+                          {t(
+                            "Réservations par statut",
+                            "Reservations by status",
+                          )}
                         </h3>
                       </div>
                       <div className="chart-container-small">
@@ -1206,9 +1328,11 @@ function DetailAgencyContent() {
                   {generalStats.top_destinations &&
                     Object.keys(generalStats.top_destinations).length > 0 && (
                       <div className="chart-card-small">
-                      <div className="chart-header">
-                        <h3>{t("Top 10 destinations", "Top 10 destinations")}</h3>
-                      </div>
+                        <div className="chart-header">
+                          <h3>
+                            {t("Top 10 destinations", "Top 10 destinations")}
+                          </h3>
+                        </div>
                         <div className="chart-container-small">
                           <ResponsiveContainer width="100%" height="100%">
                             <BarChart
@@ -1253,9 +1377,14 @@ function DetailAgencyContent() {
                       Object.keys(generalStats.reservations_by_day_of_week)
                         .length > 0 && (
                         <div className="chart-card-small">
-                        <div className="chart-header">
-                          <h3>{t("Réservations par jour", "Reservations by day")}</h3>
-                        </div>
+                          <div className="chart-header">
+                            <h3>
+                              {t(
+                                "Réservations par jour",
+                                "Reservations by day",
+                              )}
+                            </h3>
+                          </div>
                           <div className="chart-container-small">
                             <ResponsiveContainer width="100%" height="100%">
                               <BarChart
@@ -1289,9 +1418,9 @@ function DetailAgencyContent() {
                     {generalStats?.trips_by_driver &&
                       Object.keys(generalStats.trips_by_driver).length > 0 && (
                         <div className="chart-card-small">
-                        <div className="chart-header">
-                          <h3>{t("Top 10 chauffeurs", "Top 10 drivers")}</h3>
-                        </div>
+                          <div className="chart-header">
+                            <h3>{t("Top 10 chauffeurs", "Top 10 drivers")}</h3>
+                          </div>
                           <div className="chart-container-small">
                             <ResponsiveContainer width="100%" height="100%">
                               <BarChart
@@ -1336,11 +1465,14 @@ function DetailAgencyContent() {
                     {evolutionStats.evolution_taux_occupation &&
                       evolutionStats.evolution_taux_occupation.length > 0 && (
                         <div className="chart-card-small">
-                        <div className="chart-header">
-                          <h3>
-                            {t("Évolution taux d'occupation", "Occupancy trend")}
-                          </h3>
-                        </div>
+                          <div className="chart-header">
+                            <h3>
+                              {t(
+                                "Évolution taux d'occupation",
+                                "Occupancy trend",
+                              )}
+                            </h3>
+                          </div>
                           <div className="chart-container-small">
                             <ResponsiveContainer width="100%" height="100%">
                               <LineChart
@@ -1379,11 +1511,14 @@ function DetailAgencyContent() {
                     {evolutionStats.evolution_annulations &&
                       evolutionStats.evolution_annulations.length > 0 && (
                         <div className="chart-card-small">
-                        <div className="chart-header">
-                          <h3>
-                            {t("Évolution des annulations", "Cancellation trend")}
-                          </h3>
-                        </div>
+                          <div className="chart-header">
+                            <h3>
+                              {t(
+                                "Évolution des annulations",
+                                "Cancellation trend",
+                              )}
+                            </h3>
+                          </div>
                           <div className="chart-container-small">
                             <ResponsiveContainer width="100%" height="100%">
                               <LineChart
@@ -1427,9 +1562,9 @@ function DetailAgencyContent() {
                       Object.keys(evolutionStats.revenue_per_month).length >
                         0 && (
                         <div className="chart-card-small">
-                        <div className="chart-header">
-                          <h3>{t("Revenus par mois", "Revenue by month")}</h3>
-                        </div>
+                          <div className="chart-header">
+                            <h3>{t("Revenus par mois", "Revenue by month")}</h3>
+                          </div>
                           <div className="chart-container-small">
                             <ResponsiveContainer width="100%" height="100%">
                               <BarChart
@@ -1468,9 +1603,14 @@ function DetailAgencyContent() {
                       Object.keys(evolutionStats.reservations_per_month)
                         .length > 0 && (
                         <div className="chart-card-small">
-                        <div className="chart-header">
-                          <h3>{t("Réservations par mois", "Reservations by month")}</h3>
-                        </div>
+                          <div className="chart-header">
+                            <h3>
+                              {t(
+                                "Réservations par mois",
+                                "Reservations by month",
+                              )}
+                            </h3>
+                          </div>
                           <div className="chart-container-small">
                             <ResponsiveContainer width="100%" height="100%">
                               <BarChart
@@ -1508,7 +1648,9 @@ function DetailAgencyContent() {
             {isLoadingStats && (
               <div className="loading-state">
                 <RefreshCw className="spin" />
-                <p>{t("Chargement des statistiques...", "Loading statistics...")}</p>
+                <p>
+                  {t("Chargement des statistiques...", "Loading statistics...")}
+                </p>
               </div>
             )}
           </div>
@@ -1551,7 +1693,7 @@ function DetailAgencyContent() {
 
 export default function DetailAgencyPage() {
   const { t, language } = useLanguage();
-  
+
   return (
     <Suspense
       fallback={
