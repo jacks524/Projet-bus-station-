@@ -15,7 +15,7 @@ stationnement et ainsi que la gestion des reservations de voyage pour les client
 
 Pour compiler le projet suivez ces instructions
 
-Tout d'abord crée un .env `type > .env` et créer une variable pour l'url de l'api `NEXT_PUBLIC_API_BASE_URL=https://bus-station-backend-vt1m.onrender.com/api`
+Tout d'abord crée un .env `type > .env` et créer une variable pour l'url de l'api `NEXT_PUBLIC_API_BASE_URL`
 
 ```bash
 git clone https://github.com/jacks524/Projet-bus-station-.git
