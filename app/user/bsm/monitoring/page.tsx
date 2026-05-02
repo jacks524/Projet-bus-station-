@@ -179,7 +179,10 @@ export default function BSMMonitoringPage() {
 
     if (action === "reject" && !motifRejet.trim()) {
       setValidationError(
-        t("Veuillez renseigner le motif de rejet", "Please enter a rejection reason"),
+        t(
+          "Veuillez renseigner le motif de rejet",
+          "Please enter a rejection reason",
+        ),
       );
       return;
     }
@@ -236,7 +239,12 @@ export default function BSMMonitoringPage() {
         ),
       );
     } catch (error: any) {
-      setValidationError(t("Une erreur est survenue. Veuillez réessayer.", "An error occurred. Please try again."));
+      setValidationError(
+        t(
+          "Une erreur est survenue. Veuillez réessayer.",
+          "An error occurred. Please try again.",
+        ),
+      );
       console.error("Validation Error:", error);
     } finally {
       setIsLoadingValidation(false);
@@ -330,7 +338,10 @@ export default function BSMMonitoringPage() {
               style={{ marginBottom: "var(--spacing-2xl)" }}
             >
               <h2 className="section-title">
-                {t("Agences en attente de validation", "Agencies pending validation")}
+                {t(
+                  "Agences en attente de validation",
+                  "Agencies pending validation",
+                )}
               </h2>
               <p className="section-description">
                 {t(
@@ -473,7 +484,10 @@ export default function BSMMonitoringPage() {
                             <MessageSquare />
                             <span>
                               {agence.greeting_message ||
-                                t("Message non renseigné", "Message not provided")}
+                                t(
+                                  "Message non renseigné",
+                                  "Message not provided",
+                                )}
                             </span>
                           </div>
                         </div>
@@ -735,10 +749,10 @@ export default function BSMMonitoringPage() {
                     }}
                   >
                     <AlertCircle style={{ width: "16px", height: "16px" }} />
-                      <span style={{ fontSize: "var(--font-size-sm)" }}>
-                        {validationError}
-                      </span>
-                    </div>
+                    <span style={{ fontSize: "var(--font-size-sm)" }}>
+                      {validationError}
+                    </span>
+                  </div>
                 )}
               </div>
 
